@@ -9,6 +9,23 @@ from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 
 
 class DataTableAccess:
+    '''
+    Class to manipulate data in MIKE+ database.
+    
+    Examples
+    --------
+    An example of insert a link into msm_Link table. Get field data from table and delete row from table
+    ```python
+    >>> data_access = DataTableAccess(muppOrSqlite)
+    >>> data_access.open_database()
+    >>> values = {'Diameter': 2.0, 'Description': 'insertValues'}
+    >>> data_access.insert("msm_Link", "link_test", values)
+    >>> fields = ["Diameter", "Description"]
+    >>> values = data_access.get_field_values("msm_Link", "link_test", fields)
+    >>> data_access.delete("msm_Link", "link_test")
+    >>> data_access.close_database()
+    ```
+    '''
     def __init__(self,
                  db_or_mupp_file):
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)

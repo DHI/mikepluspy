@@ -23,7 +23,7 @@ def test_epanet_engine():
     data_access = DataTableAccess(dbFile)
     data_access.open_database()
     engine = EPANET(data_access.datatables)
-    result_file = engine.result_file()
+    result_file = engine.result_file
     if os.path.exists(result_file):
         os.remove(result_file)
     engine.run_engine_epanet()
@@ -36,7 +36,7 @@ def test_swmm_engine():
     data_access = DataTableAccess(dbFile)
     data_access.open_database()
     engine = SWMM(data_access.datatables)
-    result_file = engine.result_file()
+    result_file = engine.result_file
     if os.path.exists(result_file):
         os.remove(result_file)
     engine.run()

@@ -12,6 +12,22 @@ class Egnine1D:
 
     def run(self,
             simMuid=None):
+        '''
+        Run MIKE1D simulation
+        
+        Parameters
+        ----------
+        simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
+
+        Examples
+        ```python
+        >>> data_access = DataTableAccess(muppOrSqlite)
+        >>> data_access.open_database()
+        >>> engine = Egnine1D(data_access.datatables)
+        >>> engine.run()
+        >>> data_access.close_database()
+        ```
+        '''
         if simMuid is None:
             muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
             if muid is None and muid.Count == 0:
@@ -20,7 +36,7 @@ class Egnine1D:
             simMuid = muid[0]
 
         product_info = MikeImport.ActiveProduct()
-        mike1d_exec = os.path.join(product_info.InstallRoot, r'bin\x64', 'DHI.Mike1D.Application.exe')
+        mike1d_exec = os.path.join(product_info.InstallRoot, 'bin\x64', 'DHI.Mike1D.Application.exe')
         dbOrMuppFile = self._dataTables.DataSource.BaseFullPath
         dir = os.path.dirname(os.path.abspath(dbOrMuppFile))
         file = os.path.basename(dbOrMuppFile)
@@ -32,7 +48,9 @@ class Egnine1D:
         if self._print_log(log_file) is False:
             print("Simulation is finished without logFile generated.")
 
+    @property
     def result_file(self):
+        '''Get the current simulation result file path'''
         return self._result_file
 
     def _print_log(self, logFile):

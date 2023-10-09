@@ -14,6 +14,22 @@ class SWMM:
 
     def run(self,
             simMuid=None):
+        '''
+        Run SWMM simulation
+        
+        Parameters
+        ----------
+        simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
+
+        Examples
+        ```python
+        >>> data_access = DataTableAccess(muppOrSqlite)
+        >>> data_access.open_database()
+        >>> engine = SWMM(data_access.datatables)
+        >>> engine.run()
+        >>> data_access.close_database()
+        ```
+        '''
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
@@ -39,6 +55,7 @@ class SWMM:
             else:
                 print("Simulation is finished without logFile generated.")
 
+    @property
     def result_file(self):
         if self._result_file is None:
             simMuid = self._get_active_muid()
