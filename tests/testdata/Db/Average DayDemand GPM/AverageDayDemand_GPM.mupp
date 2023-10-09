@@ -1,0 +1,21 @@
+// Created     : 2023-10-8 11:24:2
+// DLL         : D:\Program Files (x86)\DHI\MIKE+\2024\bin\x64\pfs2004.dll
+// Version     : 22.0.3.17279
+
+[MIKE_URBAN]
+   MajorVersion = 2024
+   MinorVersion = -1.0
+   DataBaseType = 1
+   ServerName = 'localhost'
+   DBName = 'AverageDayDemand_GPM'
+   UserName = 'postgres'
+   Password = 'postgres'
+   DBFilePath = |.\AverageDayDemand_GPM.sqlite|
+   Port = 0
+   ModelType = 3
+   ubg = 1
+   [Layout]
+   EndSect  // Layout
+
+EndSect  // MIKE_URBAN
+
