@@ -1,4 +1,9 @@
 import clr
+from .import_tool import ImportTool
+from .topology_repair_tool import TopoRepairTool
+from .interpolation_tool import InterpolationTool
+from .connection_repair_tool import ConnectionRepairTool
+from .catch_slope_length_process_tool import CathSlopeLengthProcess
 
 clr.AddReference("System")
 clr.AddReference("System.Runtime")
@@ -15,9 +20,3 @@ clr.AddReference("DHI.Amelia.Tools.TopologyRepairTool")
 clr.AddReference("DHI.Amelia.Tools.InterpolationEngine")
 clr.AddReference("DHI.Amelia.Tools.ConnectionRepairEngine")
 clr.AddReference("DHI.Amelia.Tools.CatchmentProcessing")
-
-from .import_tool import ImportTool
-from .topology_repair_tool import TopoRepairTool
-from .interpolation_tool import InterpolationTool
-from .connection_repair_tool import ConnectionRepairTool
-from .catch_slope_length_process_tool import CathSlopeLengthProcess
