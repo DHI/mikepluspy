@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 exclude = ["notebooks", "tests"]
 
 [project]
-name = "mikeplus-python"
+name = "mikeplus"
 version = "0.0.1"
 dependencies = [
     "numpy",
