@@ -77,7 +77,7 @@ def test_catch_slope_len_tool():
     assert field_val_get[1] == 0.0
     catch_ids = [muid]
     tool = CathSlopeLengthProcess(data_access.datatables)
-    tool.run(catch_ids, "Db/catchSlopeLen/Catch_Slope.shp", "Db/catchSlopeLen/dem.dfs2", 0)
+    tool.run(catch_ids, "tests/testdata/catchSlopeLen/Catch_Slope.shp", "tests/testdata/catchSlopeLen/dem.dfs2", 0)
     field_val_get = data_access.get_field_values("msm_Catchment", muid, fields)
     assert (field_val_get[0] - 0.102342) < 0.00001
     assert (field_val_get[1] - 172.571601) < 0.00001

@@ -36,7 +36,7 @@ class Egnine1D:
             simMuid = muid[0]
 
         product_info = MikeImport.ActiveProduct()
-        mike1d_exec = os.path.join(product_info.InstallRoot, 'bin\x64', 'DHI.Mike1D.Application.exe')
+        mike1d_exec = os.path.join(product_info.InstallRoot, 'bin', 'x64', 'DHI.Mike1D.Application.exe')
         dbOrMuppFile = self._dataTables.DataSource.BaseFullPath
         dir = os.path.dirname(os.path.abspath(dbOrMuppFile))
         file = os.path.basename(dbOrMuppFile)

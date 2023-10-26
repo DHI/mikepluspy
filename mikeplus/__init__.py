@@ -1,5 +1,4 @@
 import clr
-from .datatbleaccess import DataTableAccess
 
 __version__ = "0.1.0"
 
@@ -15,3 +14,5 @@ clr.AddReference("DHI.Amelia.DataModule")
 clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
+
+from .datatbleaccess import DataTableAccess
