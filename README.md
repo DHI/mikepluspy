@@ -18,7 +18,7 @@ Please install MIKE+ 2024 software first.
 
 From PyPI:
 
-`pip install mikeplus-python`
+`pip install mikeplus`
 
 ## Examples
 Please check the jupyter notebook here: https://github.com/DHI/mikeplus-python/tree/main/notebooks
