@@ -20,6 +20,7 @@ def test_mike1d_engine():
 
 def test_epanet_engine():
     dbFile = os.path.join("tests", "testdata", "Db", "Average DayDemand GPM", "AverageDayDemand_GPM.sqlite")
+    current_dir = os.getcwd()
     data_access = DataTableAccess(dbFile)
     data_access.open_database()
     engine = EPANET(data_access.datatables)
@@ -28,11 +29,13 @@ def test_epanet_engine():
         os.remove(result_file)
     engine.run_engine_epanet()
     data_access.close_database()
+    os.chdir(current_dir)
     assert os.path.exists(result_file)
 
 
 def test_swmm_engine():
     dbFile = os.path.join("tests", "testdata", "Db", "SWMM_Sirius", "Sirius_SWMM.sqlite")
+    current_dir = os.getcwd()
     data_access = DataTableAccess(dbFile)
     data_access.open_database()
     engine = SWMM(data_access.datatables)
@@ -41,4 +44,5 @@ def test_swmm_engine():
         os.remove(result_file)
     engine.run()
     data_access.close_database()
+    os.chdir(current_dir)
     assert os.path.exists(result_file)
