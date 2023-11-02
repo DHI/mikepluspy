@@ -34,7 +34,7 @@ def test_epanet_engine():
 
 
 def test_swmm_engine():
-    dbFile = os.path.join("tests", "testdata", "Db", "SWMM_Sirius", "Sirius_SWMM.sqlite")
+    dbFile = os.path.join("tests", "testdata", "Db", "SWMM", "Simple_Network.sqlite")
     current_dir = os.getcwd()
     data_access = DataTableAccess(dbFile)
     data_access.open_database()
