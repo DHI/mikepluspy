@@ -14,7 +14,7 @@ class Egnine1D:
             simMuid=None):
         '''
         Run MIKE1D simulation
-        
+
         Parameters
         ----------
         simMuid: simulation muid, it will use the current active simulation muid if simMuid is None

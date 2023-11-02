@@ -16,7 +16,7 @@ class SWMM:
             simMuid=None):
         '''
         Run SWMM simulation
-        
+
         Parameters
         ----------
         simMuid: simulation muid, it will use the current active simulation muid if simMuid is None

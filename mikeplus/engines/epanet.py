@@ -17,7 +17,7 @@ class EPANET:
                           simMuid=None):
         '''
         Run EPANET simulation
-        
+
         Parameters
         ----------
         simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
