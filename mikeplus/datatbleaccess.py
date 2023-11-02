@@ -11,7 +11,7 @@ from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 class DataTableAccess:
     '''
     Class to manipulate data in MIKE+ database.
-    
+
     Examples
     --------
     An example of insert a link into msm_Link table. Get field data from table and delete row from table
