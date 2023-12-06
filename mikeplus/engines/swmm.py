@@ -7,6 +7,8 @@ from System.Collections.Generic import List
 
 
 class SWMM:
+    """The SWMM class can run SWMM simulation, get active simulation muid, print log file, and get the result file path.
+    """
     def __init__(self,
                  dataTables):
         self._dataTables = dataTables
@@ -14,22 +16,21 @@ class SWMM:
 
     def run(self,
             simMuid=None):
-        '''
-        Run SWMM simulation
+        """Run SWMM simulation
 
         Parameters
         ----------
-        simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
-
+        simMuid : string, optional
+            simulation muid, it will use the current active simulation muid if simMuid is None, by default None
+        
         Examples
-        ```python
-        >>> data_access = DataTableAccess(muppOrSqlite)
-        >>> data_access.open_database()
-        >>> engine = SWMM(data_access.datatables)
-        >>> engine.run()
-        >>> data_access.close_database()
-        ```
-        '''
+        --------
+        >>>data_access = DataTableAccess(muppOrSqlite)
+        >>>data_access.open_database()
+        >>>engine = SWMM(data_access.datatables)
+        >>>engine.run()
+        >>>data_access.close_database()
+        """
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
@@ -57,12 +58,31 @@ class SWMM:
 
     @property
     def result_file(self):
+        """Get the current simulation result file path
+
+        Returns
+        -------
+        string
+            The result file path of current simulation
+        """
         if self._result_file is None:
             simMuid = self._get_active_muid()
             self._result_file = self._get_result_file(simMuid)
         return self._result_file
 
     def _print_log(self, log_file):
+        """Print log to specified path
+
+        Parameters
+        ----------
+        log_file : string
+            Log file path
+
+        Returns
+        -------
+        bool
+            Return true when print log successfully, otherwise false.
+        """
         if os.path.exists(log_file):
             with open(log_file) as f:
                 lines = f.readlines()
@@ -73,6 +93,18 @@ class SWMM:
             return False
 
     def _get_result_file(self, simMuid):
+        """Get result file path of specified simulation 
+
+        Parameters
+        ----------
+        simMuid : string
+            simulation muid
+
+        Returns
+        -------
+        string
+            The result file path of the specified simulation
+        """
         project = self._dataTables["mss_Project"]
         prj = IMProjectTable(project)
         res_files = prj.GetResultFilePath(simMuid)
@@ -82,6 +114,13 @@ class SWMM:
         return os.path.abspath(res_file)
 
     def _get_active_muid(self):
+        """Get the active simulation muid
+
+        Returns
+        -------
+        string
+            The active simulation muid
+        """
         muid = self._dataTables["mss_Project"].GetMuidsWhere("ActiveProject=1")
         if muid is None and muid.Count == 0:
             return None
