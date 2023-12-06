@@ -21,7 +21,7 @@ class TopoRepairTool:
             split_link_on_tjunction=True,
             add_missing_zones=True,
             snap_distance=0.1):
-        """_summary_
+        """Offers a way to detect and repair topology or network geometry issues in the model.
 
         Parameters
         ----------
