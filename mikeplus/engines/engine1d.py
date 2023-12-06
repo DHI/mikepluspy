@@ -61,18 +61,6 @@ class Engine1D:
         return self._result_file
 
     def _print_log(self, logFile):
-        """Print log to specified path
-
-        Parameters
-        ----------
-        logFile : string
-            Log file path
-
-        Returns
-        -------
-        bool
-            Return true when print log successfully, otherwise false.
-        """
         if os.path.exists(logFile):
             with open(logFile) as f:
                 lines = f.readlines()

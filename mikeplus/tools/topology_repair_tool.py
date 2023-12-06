@@ -6,6 +6,8 @@ from System.Threading import CancellationTokenSource
 
 
 class TopoRepairTool:
+    """TopoRepairTool offers a way to detect and repair topology or network geometry issues in the model.
+    """
     def __init__(self,
                  dataTables):
         self._dataTables = dataTables
@@ -19,6 +21,27 @@ class TopoRepairTool:
             split_link_on_tjunction=True,
             add_missing_zones=True,
             snap_distance=0.1):
+        """_summary_
+
+        Parameters
+        ----------
+        delete_unLink_node_Link : bool, optional
+            If true, isolated nodes (other than tanks) and links / pipes, disconnected from the rest of the network, will be removed. By default True
+        dissolve_overlap_node : bool, optional
+            If true, extra nodes within the specified search radius will be removed. By default True
+        correct_link_connection : bool, optional
+            When a link's end is not con­nected to a node, if this operation is true, it will connect it either to the closest exist­ing node within the specified search radius, or to a new node. By default True
+        search_junction_connection : bool, optional
+            If true, it will connect to the closest exist­ing node within the specified search radius. By default True
+        create_junction_connection : bool, optional
+            If true, it will connect to a new node. By default True
+        split_link_on_tjunction : bool, optional
+            If true, when the end of a link overlaps a second link, this second link is split at the intersection and a node is inserted, and all the three resulting pipes are connected to this new node. By default True
+        add_missing_zones : bool, optional
+            If true, refresh the list of network zones. By default True
+        snap_distance : float, optional
+            The distance used in dissolve the overlapped nodes, in correct link connection, and in split link on T junction, by default 0.1.
+        """
         cancel_source = CancellationTokenSource()
         topology_param = TopologyRepairParam()
         topology_param.DeleteUnLinkNodeAndLink = delete_unLink_node_Link
