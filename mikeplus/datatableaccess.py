@@ -45,6 +45,8 @@ class DataTableAccess:
         return str.join("\n", out)
 
     def open_database(self):
+        """Open database
+        """
         self._data_source.OpenDatabase()
         datatables = DataTableContainer(True)
         datatables.DataSource = self._data_source
@@ -54,6 +56,8 @@ class DataTableAccess:
         self._datatables = datatables
 
     def close_database(self):
+        """Close database
+        """
         self._data_source.CloseDatabase()
         self._datatables.Dispose()
 
@@ -63,6 +67,20 @@ class DataTableAccess:
         return self._datatables
 
     def get_muid_where(self, table_name, where=None):
+        """If where is none, get all the muids of the specified table. Otherwise get the muids in table which meet the condition.
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        where : string, optional
+            the condition string, by default None
+
+        Returns
+        -------
+        array
+            the muids array
+        """
         muids = []
         muidGet = self._datatables[table_name].GetMuidsWhere(where)
         for muid in muidGet:
@@ -70,6 +88,22 @@ class DataTableAccess:
         return muids
 
     def get_field_values(self, table_name, muid, fields):
+        """Get field values
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        muid : string
+            muid
+        fields : string array
+            the fields want to get values
+
+        Returns
+        -------
+        array
+            the specified values get from the table
+        """
         fieldList = List[str]()
         for field in fields:
             fieldList.Add(field)
@@ -83,6 +117,22 @@ class DataTableAccess:
         return pyValues
 
     def get_muid_field_values(self, table_name, fields, where=None):
+        """Get muid and field values dictionary
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        fields : string array
+            the fields want to get values
+        where : string, optional
+            the condition string, by default None
+
+        Returns
+        -------
+        dicationary
+            muid and field values dictionary
+        """
         fieldList = List[str]()
         for field in fields:
             fieldList.Add(field)
@@ -96,15 +146,50 @@ class DataTableAccess:
         return mydict
 
     def set_value(self, table_name, muid, column, value):
+        """Set value of specified muid and column in table
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        muid : string
+            muid
+        column : string
+            column name
+        value : 
+            the value want to set
+        """
         self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
+        """Set values of specified muid in table
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        muid : string
+            muid
+        values : array
+            field values want to set
+        """
         value_dict = Dictionary[String, Object]()
         for col in values:
             value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
     def insert(self, table_name, muid, values=None):
+        """Insert row into table with specified muid
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        muid : string
+            muid
+        values : array, optional
+            the values want to insert, by default None
+        """
         value_dict = Dictionary[String, Object]()
         if values is not None:
             for col in values:
@@ -112,9 +197,25 @@ class DataTableAccess:
         result, new_muid = self._datatables[table_name].InsertByCommand(muid, None, value_dict, False, False)
 
     def delete(self, table_name, muid):
+        """Delete row with specified muid in table
+
+        Parameters
+        ----------
+        table_name : string
+            table name
+        muid : string
+            muid
+        """
         self._datatables[table_name].DeleteByCommand(muid)
 
     def is_database_open(self):
+        """Check if database if open
+
+        Returns
+        -------
+        bool
+            the status of the database
+        """
         if self._datatables is None:
             return False
         is_open = self._datatables.DataSource is not None and self._datatables.DataSource.DbConnection is not None

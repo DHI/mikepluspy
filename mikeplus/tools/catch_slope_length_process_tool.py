@@ -50,13 +50,4 @@ class CathSlopeLengthProcess:
         tool.RuningProgress += self._on_tool_runing_progress
 
     def _on_tool_runing_progress(self, source, args):
-        """print progress message
-
-        Parameters
-        ----------
-        source : _type_
-            _description_
-        args : _type_
-            _description_
-        """
         print(args.Msg)

@@ -1,6 +1,6 @@
 import os
 from mikeplus import DataTableAccess
-from mikeplus.engines.engine1d import Egnine1D
+from mikeplus.engines.engine1d import Engine1D
 from mikeplus.engines.epanet import EPANET
 from mikeplus.engines.swmm import SWMM
 
@@ -12,7 +12,7 @@ def test_mike1d_engine():
     dbFile = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
     data_access = DataTableAccess(dbFile)
     data_access.open_database()
-    engine = Egnine1D(data_access.datatables)
+    engine = Engine1D(data_access.datatables)
     engine.run()
     data_access.close_database()
     assert os.path.exists(res_1d_file)

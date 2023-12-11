@@ -15,7 +15,7 @@ clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
 
-from .datatbleaccess import DataTableAccess
+from .datatableaccess import DataTableAccess
 import sys
 import warnings
 

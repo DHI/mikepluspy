@@ -71,18 +71,6 @@ class SWMM:
         return self._result_file
 
     def _print_log(self, log_file):
-        """Print log to specified path
-
-        Parameters
-        ----------
-        log_file : string
-            Log file path
-
-        Returns
-        -------
-        bool
-            Return true when print log successfully, otherwise false.
-        """
         if os.path.exists(log_file):
             with open(log_file) as f:
                 lines = f.readlines()
@@ -93,18 +81,6 @@ class SWMM:
             return False
 
     def _get_result_file(self, simMuid):
-        """Get result file path of specified simulation 
-
-        Parameters
-        ----------
-        simMuid : string
-            simulation muid
-
-        Returns
-        -------
-        string
-            The result file path of the specified simulation
-        """
         project = self._dataTables["mss_Project"]
         prj = IMProjectTable(project)
         res_files = prj.GetResultFilePath(simMuid)
@@ -114,13 +90,6 @@ class SWMM:
         return os.path.abspath(res_file)
 
     def _get_active_muid(self):
-        """Get the active simulation muid
-
-        Returns
-        -------
-        string
-            The active simulation muid
-        """
         muid = self._dataTables["mss_Project"].GetMuidsWhere("ActiveProject=1")
         if muid is None and muid.Count == 0:
             return None
