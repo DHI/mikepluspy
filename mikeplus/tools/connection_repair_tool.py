@@ -12,6 +12,8 @@ class ConnectionRepairTool:
         self._dataTables = dataTables
 
     def run(self):
+        """Run the connection repair tool
+        """
         tool = ConnectionRepairEngine(self._dataTables)
         tool.Run()
         tool.RuningProgress += self._on_tool_runing_progress
