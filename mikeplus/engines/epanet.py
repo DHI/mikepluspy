@@ -8,6 +8,8 @@ from System.Collections.Generic import List
 
 
 class EPANET:
+    """The EPANET class can run EPANET simulation, get active simulation muid, print log file, and get the result file path.
+    """
     def __init__(self,
                  dataTables):
         self._dataTables = dataTables
@@ -15,22 +17,21 @@ class EPANET:
 
     def run_engine_epanet(self,
                           simMuid=None):
-        '''
-        Run EPANET simulation
+        """Run EPANET simulation
 
         Parameters
         ----------
-        simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
-
+        simMuid : string, optional
+            simulation muid, it will use the current active simulation muid if simMuid is None, by default None
+        
         Examples
-        ```python
-        >>> data_access = DataTableAccess(muppOrSqlite)
-        >>> data_access.open_database()
-        >>> engine = EPANET(data_access.datatables)
-        >>> engine.run_engine_epanet()
-        >>> data_access.close_database()
-        ```
-        '''
+        --------
+        >>>data_access = DataTableAccess(muppOrSqlite)
+        >>>data_access.open_database()
+        >>>engine = EPANET(data_access.datatables)
+        >>>engine.run_engine_epanet()
+        >>>data_access.close_database()        
+        """
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
@@ -58,6 +59,13 @@ class EPANET:
 
     @property
     def result_file(self):
+        """Get the current simulation result file path
+
+        Returns
+        -------
+        string
+            The result file path of current simulation
+        """
         if self._result_file is None:
             simMuid = self._get_active_muid()
             self._result_file = self._get_result_file(simMuid)

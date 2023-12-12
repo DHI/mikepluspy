@@ -5,9 +5,8 @@ from DHI.Generic.MikeZero import eumUnit
 
 
 class CathSlopeLengthProcess:
-    '''
-    This tool performs automatic estimation of slope and length for each catchment.
-    '''
+    """This tool performs automatic estimation of slope and length for each catchment.
+    """
     def __init__(self,
                  dataTables):
         self._dataTables = dataTables
@@ -20,17 +19,25 @@ class CathSlopeLengthProcess:
             min_slope=0.002,
             demUnitKey=1000,
             overwrite_exist=True):
-        '''
+        """Calculate the slope and length for each catchment and print progress information. 
+
         Parameters
         ----------
-        catch_ids：A array of cathment muids
-        lineLayer: a slope shape file path
-        demLayer: dem file path, can be dfs2 file path
-        direction: Downstream = 0, Upstream = 1
-        minSlope: unit is one per one
-        demUnitKey: int type data, please check MIKE unit key
-        overwrite_exist：Overwrite exist value or not
-        '''
+        catch_ids : string
+            a array of cathment muids
+        line_layer : string
+            a slope shape file path
+        dem_layer : string
+            dem file path, can be dfs2 file path
+        direction : int
+            Downstream = 0, Upstream = 1
+        min_slope : float, optional
+            unit is one per one, by default 0.002
+        demUnitKey : int, optional
+            int type data, please check MIKE unit key, by default 1000
+        overwrite_exist : bool, optional
+            overwrite exist value or not, by default True
+        """
         line_layer = os.path.abspath(line_layer)
         dem_layer = os.path.abspath(dem_layer)
         unit = eumUnit(demUnitKey)

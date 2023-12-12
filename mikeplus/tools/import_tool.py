@@ -4,7 +4,7 @@ from DHI.Amelia.Tools.ImportTool.ImportEngine import ImportToolBase
 
 
 class ImportTool:
-    '''
+    """
     This class is to import data into MIKE+ database. It also can export exist MIKE+ database data into different format.
     Please check MIKE+ manual to see which data format are supported.
 
@@ -14,14 +14,13 @@ class ImportTool:
     dataTables: DataTableContainer, it can be empty. If it is empty, it will create a new empty database.
 
     Examples
-    ```python
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
-    >>> import_tool = ImportTool("../tests/testdata/import/config.xml", data_access.datatables)
-    >>> import_tool.run()
-    >>> data_access.close_database()
-    ```
-    '''
+    --------
+    >>>data_access = DataTableAccess(muppOrSqlite)
+    >>>data_access.open_database()
+    >>>import_tool = ImportTool("../tests/testdata/import/config.xml", data_access.datatables)
+    >>>import_tool.run()
+    >>>data_access.close_database()
+    """
     def __init__(self,
                  configFile,
                  dataTables=None):
@@ -29,6 +28,8 @@ class ImportTool:
         self._dataTables = dataTables
 
     def run(self):
+        """Run the import tool
+        """
         import_engine = ImportToolBase(self._dataTables)
         import_engine.Load(self._configFile)
         FunctionHelper.ChangeFilePathInConfigToAbsolute(import_engine.JobConfigSectionsDic, self._configFile)

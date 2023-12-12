@@ -7,6 +7,8 @@ from System.Collections.Generic import List
 
 
 class SWMM:
+    """The SWMM class can run SWMM simulation, get active simulation muid, print log file, and get the result file path.
+    """
     def __init__(self,
                  dataTables):
         self._dataTables = dataTables
@@ -14,22 +16,21 @@ class SWMM:
 
     def run(self,
             simMuid=None):
-        '''
-        Run SWMM simulation
+        """Run SWMM simulation
 
         Parameters
         ----------
-        simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
-
+        simMuid : string, optional
+            simulation muid, it will use the current active simulation muid if simMuid is None, by default None
+        
         Examples
-        ```python
-        >>> data_access = DataTableAccess(muppOrSqlite)
-        >>> data_access.open_database()
-        >>> engine = SWMM(data_access.datatables)
-        >>> engine.run()
-        >>> data_access.close_database()
-        ```
-        '''
+        --------
+        >>>data_access = DataTableAccess(muppOrSqlite)
+        >>>data_access.open_database()
+        >>>engine = SWMM(data_access.datatables)
+        >>>engine.run()
+        >>>data_access.close_database()
+        """
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
@@ -57,6 +58,13 @@ class SWMM:
 
     @property
     def result_file(self):
+        """Get the current simulation result file path
+
+        Returns
+        -------
+        string
+            The result file path of current simulation
+        """
         if self._result_file is None:
             simMuid = self._get_active_muid()
             self._result_file = self._get_result_file(simMuid)

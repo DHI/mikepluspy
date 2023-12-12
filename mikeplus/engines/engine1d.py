@@ -3,7 +3,9 @@ import subprocess
 from DHI.Mike.Install import MikeImport, MikeProducts
 
 
-class Egnine1D:
+class Engine1D:
+    """The Engine1D class can run MIKE1D simulation, print log file, and get the result file path.
+    """
     def __init__(self,
                  dataTables):
         MikeImport.Setup(22, MikeProducts.MikePlus)
@@ -12,22 +14,21 @@ class Egnine1D:
 
     def run(self,
             simMuid=None):
-        '''
-        Run MIKE1D simulation
+        """Run MIKE1D simulation
 
         Parameters
         ----------
-        simMuid: simulation muid, it will use the current active simulation muid if simMuid is None
+        simMuid : string, optional
+            simulation muid, it will use the current active simulation muid if simMuid is None, by default None.
 
         Examples
-        ```python
-        >>> data_access = DataTableAccess(muppOrSqlite)
-        >>> data_access.open_database()
-        >>> engine = Egnine1D(data_access.datatables)
-        >>> engine.run()
-        >>> data_access.close_database()
-        ```
-        '''
+        --------
+        >>>data_access = DataTableAccess(muppOrSqlite)
+        >>>data_access.open_database()
+        >>>engine = Egnine1D(data_access.datatables)
+        >>>engine.run()
+        >>>data_access.close_database()
+        """
         if simMuid is None:
             muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
             if muid is None and muid.Count == 0:
@@ -50,7 +51,13 @@ class Egnine1D:
 
     @property
     def result_file(self):
-        '''Get the current simulation result file path'''
+        """Get the current simulation result file path
+
+        Returns
+        -------
+        string
+            The result file path of current simulation
+        """
         return self._result_file
 
     def _print_log(self, logFile):

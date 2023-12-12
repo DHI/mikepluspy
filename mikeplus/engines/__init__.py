@@ -11,6 +11,6 @@ clr.AddReference("DHI.Amelia.GlobalUtility")
 clr.AddReference("DHI.Amelia.DomainServices")
 clr.AddReference("DHI.Amelia.DomainServices.Interface")
 
-from .engine1d import Egnine1D
+from .engine1d import Engine1D
 from .epanet import EPANET
 from .swmm import SWMM
