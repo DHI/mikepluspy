@@ -6,6 +6,18 @@ from DHI.Generic.MikeZero import eumUnit
 
 class CathSlopeLengthProcess:
     """This tool performs automatic estimation of slope and length for each catchment.
+    
+    Examples
+    --------
+    An example to calculate the slope and length for catchmetn of "imp3" based on a slope shapefile and dfs2 file. 
+    ```python
+    >>> data_access = DataTableAccess(muppOrSqlite)
+    >>> data_access.open_database()
+    >>> catch_ids = ["imp3"]
+    >>> tool = CathSlopeLengthProcess(data_access.datatables)
+    >>> tool.run(catch_ids, "../tests/testdata/catchSlopeLen/Catch_Slope.shp", "tests/testdata/catchSlopeLen/dem.dfs2", 0)
+    >>> data_access.close_database()
+    ```
     """
     def __init__(self,
                  dataTables):

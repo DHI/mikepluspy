@@ -7,6 +7,17 @@ from System.Threading import CancellationTokenSource
 
 class TopoRepairTool:
     """TopoRepairTool offers a way to detect and repair topology or network geometry issues in the model.
+    
+    Examples
+    --------
+    Delete unlinked nodes and links, also delete overlapped nodes for the whole network.
+    ```python
+    >>> data_access = DataTableAccess(muppOrSqlite)
+    >>> data_access.open_database()
+    >>> repair_tool = TopoRepairTool(data_access.datatables)
+    >>> repair_tool.run(True, True, False, False, Flase, False, False)
+    >>> data_access.close_database()
+    ```
     """
     def __init__(self,
                  dataTables):
