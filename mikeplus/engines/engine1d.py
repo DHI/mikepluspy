@@ -25,7 +25,7 @@ class Engine1D:
         --------
         >>>data_access = DataTableAccess(muppOrSqlite)
         >>>data_access.open_database()
-        >>>engine = Egnine1D(data_access.datatables)
+        >>>engine = Engine1D(data_access.datatables)
         >>>engine.run()
         >>>data_access.close_database()
         """
