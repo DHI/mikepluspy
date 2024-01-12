@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 import subprocess
 from DHI.Mike.Install import MikeImport, MikeProducts
 
@@ -37,15 +37,14 @@ class Engine1D:
             simMuid = muid[0]
 
         product_info = MikeImport.ActiveProduct()
-        mike1d_exec = os.path.join(product_info.InstallRoot, 'bin', 'x64', 'DHI.Mike1D.Application.exe')
-        dbOrMuppFile = self._dataTables.DataSource.BaseFullPath
-        dir = os.path.dirname(os.path.abspath(dbOrMuppFile))
-        file = os.path.basename(dbOrMuppFile)
-        file_name = file.split('.')[0]
-        log_file = os.path.join(dir, file_name + '_' + simMuid + '.log')
-        self._result_file = os.path.join(dir, file_name + '_' + simMuid + '.res1d')
-        print("Simulation is started. Simulation id is '" + simMuid + "'")
-        subprocess.run([mike1d_exec, str(dbOrMuppFile), "-simulationid=" + simMuid, "-logfilename=" + log_file])
+        mike1d_exec = Path(product_info.InstallRoot) / 'bin' / 'x64' / 'DHI.Mike1D.Application.exe'
+        dbOrMuppFile = Path(self._dataTables.DataSource.BaseFullPath)
+        dir = dbOrMuppFile.parent
+        file_name = dbOrMuppFile.stem
+        log_file = Path(dir) / f"{file_name}_{simMuid}.log"
+        self._result_file = Path(dir) / f"{file_name}_{simMuid}.res1d"
+        print(f"Simulation is started. Simulation id is '{simMuid}'.")
+        subprocess.run([mike1d_exec, str(dbOrMuppFile), f"-simulationid={simMuid}", f"-logfilename={log_file}"])
         if self._print_log(log_file) is False:
             print("Simulation is finished without logFile generated.")
 
@@ -61,7 +60,7 @@ class Engine1D:
         return self._result_file
 
     def _print_log(self, logFile):
-        if os.path.exists(logFile):
+        if Path(logFile).exists():
             with open(logFile) as f:
                 lines = f.readlines()
                 for line in lines:
