@@ -1,11 +1,11 @@
-# mikeplus script Changelog
+# MIKE+ PY Changelog
 
 ## [Unreleased]
 
-## [0.1] - 2023-08-30
+## [2024.0.0] - 2024-01-26
 
 ### Added
 
-- Ability to add query database methods
-- Ability to add engine launcher (mike1d and epanet)
-- Ability to run some tools
+- Ability to read/write MIKE+ database
+- Ability to run engines (MIKE 1D, EPANET, SWMM)
+- Ability to run some initial tools
