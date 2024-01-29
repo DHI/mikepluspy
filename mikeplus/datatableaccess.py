@@ -30,36 +30,39 @@ class DataTableAccess:
                  db_or_mupp_file):
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)
         self._file_path = db_or_mupp_file
-        self._data_source = BaseDataSource.Create(db_or_mupp_file)
         self._datatables = None
 
     def __repr__(self):
         out = ["<DataTableContainer>"]
 
-        if self._file_path and self._data_source and self._data_source.IsDBOpen():
-            out.append(f"Db major version: {str(self._data_source.DbMajorVersion)}")
-            out.append(f"Db minor version: {str(self._data_source.DbMinorVersion)}")
-            out.append(f"Active model: {str(self._data_source.ActiveModel)}")
-            out.append(f"Unit system: {str(self._data_source.UnitSystemOption)}")
-            out.append(f"Active simulation: {str(self._data_source.ActiveSimulation)}")
+        if self._datatables is not None and self._datatables.DataSource.IsDBOpen():
+            out.append(f"Db major version: {str(self._datatables.DataSource.DbMajorVersion)}")
+            out.append(f"Db minor version: {str(self._datatables.DataSource.DbMinorVersion)}")
+            out.append(f"Active model: {str(self._datatables.DataSource.ActiveModel)}")
+            out.append(f"Unit system: {str(self._datatables.DataSource.UnitSystemOption)}")
+            out.append(f"Active simulation: {str(self._datatables.DataSource.ActiveSimulation)}")
         return str.join("\n", out)
 
     def open_database(self):
         """Open database
         """
-        self._data_source.OpenDatabase()
+        if self.is_database_open():
+            self.close_database()
+        data_source = BaseDataSource.Create(self._file_path)
+        data_source.OpenDatabase()
         datatables = DataTableContainer(True)
-        datatables.DataSource = self._data_source
-        datatables.SetActiveModel(self._data_source.ActiveModel)
-        datatables.SetEumAppUnitSystem(self._data_source.UnitSystemOption)
+        datatables.DataSource = data_source
+        datatables.SetActiveModel(data_source.ActiveModel)
+        datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
         datatables.OnResetContainer(None, None)
         self._datatables = datatables
 
     def close_database(self):
         """Close database
         """
-        self._data_source.CloseDatabase()
+        self._datatables.DataSource.CloseDatabase()
         self._datatables.Dispose()
+        self._datatables = None
 
     @property
     def datatables(self):
