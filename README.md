@@ -1,12 +1,12 @@
-# MIKE+ PY: automate your workflows.
+# MIKE+Py: automate your workflows.
 
-MIKE+ PY is a python interface for MIKE+. Its main features include:
+MIKE+Py is a python interface for MIKE+. Its main features include:
 * Modifying the MIKE+ database in a way that is consistent with the GUI.
 * Run different kinds of simulations (e.g. MIKE 1D, EPANET, SWMM)
 * Access certain GUI tools pythonically (e.g. import/export tool).
 
 > [!CAUTION]
-> MIKE+ PY is experimental and under development.
+> MIKE+Py is experimental and under development.
 > * Be aware that there may be bugs or unexpected behavior - use with caution.
 > * Always make copies of your MIKE+ databases and verify the outcome of scripts.
 > * If you encounter any issues or have any feedback, please report them on [GitHub Issues](https://github.com/DHI/mikeplus-python/issues).
@@ -18,10 +18,10 @@ MIKE+ PY is a python interface for MIKE+. Its main features include:
 
 ## Installation
 
-The version of MIKE+ PY you install must match the version of MIKE+ installed on your desktop. 
+The version of MIKE+Py you install must match the version of MIKE+ installed on your desktop. 
 
 > [!NOTE]
-> MIKE+ PY is not yet available on PyPI since it is in the initial development stages.
+> MIKE+Py is not yet available on PyPI since it is in the initial development stages.
 
 | MIKE+ Version | Install command|
 |:--------------|:---------------|

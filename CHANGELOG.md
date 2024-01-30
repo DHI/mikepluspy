@@ -1,8 +1,8 @@
-# MIKE+ PY Changelog
+# MIKE+Py Changelog
 
 ## [Unreleased]
 
-## [2024.0.0] - 2024-01-26
+## [2024.0.0] - 2024-01-30
 
 ### Added
 
