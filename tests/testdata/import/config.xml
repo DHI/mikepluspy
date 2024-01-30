@@ -6,7 +6,7 @@
         <Job property="Job1" value="True" jobNodeType="Job" />
         <JobProps>
           <JobPropertyValue property="SourceType" value="ShapeFile" jobNodeType="JobProperty" />
-          <JobPropertyValue property="Source" value="C:\Users\wuw\AppData\Local\Programs\Python\Python38\Lib\site-packages\mikeplus\tests\testdata\import\shp\Pipes and canals.shp" jobNodeType="JobProperty" />
+          <JobPropertyValue property="Source" value="shp\Pipes and canals.shp" jobNodeType="JobProperty" />
           <JobPropertyValue property="SourceMask" value="" jobNodeType="JobProperty" />
           <JobPropertyValue property="TargetType" value="MUPlusDB" jobNodeType="JobProperty" />
           <JobPropertyValue property="Target" value="" jobNodeType="JobProperty" />
