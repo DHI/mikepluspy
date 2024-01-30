@@ -1,5 +1,6 @@
 import os.path
-from DHI.Amelia.Tools.EngineTool import EngineTool
+from DHI.Amelia.DomainServices.Services import AmeliaEngineService
+from DHI.Amelia.DomainServices.Services import AmeliaDataService
 from DHI.Amelia.DataModule.Interface.Services import IMProjectTable
 from System.Threading import CancellationTokenSource
 from System.Collections.Generic import List
@@ -36,11 +37,14 @@ class SWMM:
                 print("Simulation id can't be none.")
                 return
         print("Simulation id is " + simMuid)
-        engine_tool = EngineTool()
-        engine_tool.DataTables = self._dataTables
+        data_service = AmeliaDataService()
+        data_service.DataTables = self._dataTables
+        engine_service = AmeliaEngineService()
+        engine_service.DataTables = self._dataTables
+        engine_service.DataService = data_service
         cancel_source = CancellationTokenSource()
         msg = List[str]()
-        success = engine_tool.RunEngine_AllSWMM(cancel_source.Token, msg, None, None, None, simMuid, None, None)
+        success = engine_service.RunEngine_AllSWMM(cancel_source.Token, msg, None, None, None, simMuid, None, None)
         if self._result_file is None:
             self._result_file = self._get_result_file(simMuid)
         dir = os.path.dirname(os.path.abspath(self._result_file))
