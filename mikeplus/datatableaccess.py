@@ -35,7 +35,7 @@ class DataTableAccess:
     def __repr__(self):
         out = ["<DataTableContainer>"]
 
-        if self._datatables is not None and self._datatables.DataSource.IsDBOpen():
+        if self.is_database_open():
             out.append(f"Db major version: {str(self._datatables.DataSource.DbMajorVersion)}")
             out.append(f"Db minor version: {str(self._datatables.DataSource.DbMinorVersion)}")
             out.append(f"Active model: {str(self._datatables.DataSource.ActiveModel)}")
