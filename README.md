@@ -1,3 +1,4 @@
+![logo](https://raw.githubusercontent.com/DHI/mikeplus-python/main/images/logo/mikeplus-py.svg)
 # MIKE+Py: automate your workflows.
 
 MIKE+Py is a python interface for MIKE+. Its main features include:
