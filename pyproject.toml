@@ -40,8 +40,8 @@ dev = ["pytest","flake8","black","sphinx", "myst-parser","sphinx-book-theme"]
 test= ["pytest"]
 
 [project.urls]
-"Homepage" = "https://github.com/DHI/mikeplus-python"
-"Bug Tracker" = "https://github.com/DHI/mikeplus-python/issues"
+"Homepage" = "https://github.com/DHI/mikepluspy"
+"Bug Tracker" = "https://github.com/DHI/mikepluspy/issues"
 
 # mypy global options:
 
