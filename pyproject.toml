@@ -7,7 +7,7 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "0.0.1"
+version = "2024.0.0"
 dependencies = [
     "numpy",
     'pythonnet<=2.5.2; python_version < "3.7.0"',
