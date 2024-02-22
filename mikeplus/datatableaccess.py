@@ -6,7 +6,8 @@ from System.Collections.Generic import List
 from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
-
+from .tableWrapper.MsmNode import TableBase
+from .tableWrapper.FieldNameBase import FieldNameBase
 
 class DataTableAccess:
     '''
@@ -224,3 +225,31 @@ class DataTableAccess:
         is_open = self._datatables.DataSource is not None and self._datatables.DataSource.DbConnection is not None
         is_open = is_open and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
         return is_open
+
+    def insertObj(self, object:TableBase = None):
+        if object is not None and object.values is not None:
+            tabName = object.tableName
+            muid = object.values[FieldNameBase.MUID]
+            value_dict = Dictionary[String, Object]()
+            for col in object.values:
+                val = object.values[col.Key]
+                if val is not None:
+                    value_dict[col.Key] = val
+            result, new_muid = self._datatables[tabName].InsertByCommand(muid, None, value_dict, False, False)
+    
+    def setObjValues(self, object:TableBase = None):
+        if object is not None and object.values is not None:
+            tabName = object.tableName
+            muid = object.values[FieldNameBase.MUID]
+            value_dict = Dictionary[String, Object]()
+            for col in object.values:
+                val = object.values[col.Key]
+                if val is not None:
+                    value_dict[col.Key] = val
+            self._datatables[tabName].SetValuesByCommand(muid, value_dict)
+    
+    def deleteObj(self, object:TableBase = None):
+        if object is not None and object.values is not None:
+            muid = object.values[FieldNameBase.MUID]
+            if muid is not None:
+                self.delete(object.tableName, muid)
