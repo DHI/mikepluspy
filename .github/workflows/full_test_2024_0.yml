@@ -18,14 +18,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Download MIKE+ dependency
+    - name: Download and install MIKE+ dependency
       with:
         lfs: true
         ref: cicd_dependencies
-    - name: Download and install MIKE+ 2024 demo
+    - name: Download and install MIKE+ dependency
       run: |
         mkdir -p "C:\\Program Files (x86)\\DHI\\MIKE+\\2024"
         7z x "2024_0.7z" -o"C:\\Program Files (x86)\\DHI\\MIKE+\\2024" -p${{ secrets.MIKE_2024_0_7Z }}
+        
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
