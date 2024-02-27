@@ -40,7 +40,7 @@ jobs:
       run: |
         curl -L -o mike.7z https://raw.githubusercontent.com/DHI/mikepluspy/cicd_dependencies/2024_0.7z
         mkdir -p "C:\Program Files (x86)\DHI\2024"
-        7z x "C:\Program Files (x86)\DHI\MIKE+\2024\mike.7z" -o"C:\Program Files (x86)\DHI\MIKE+\2024" -p${{ secrets.MIKE_2024_0_7Z }}
+        7z x "2024_0.7z" -o"C:\Program Files (x86)\DHI\MIKE+\2024" -p${{ secrets.MIKE_2024_0_7Z }}
     - name: Install mikepluspy
       run: |
         python -m pip install -e .[test]
