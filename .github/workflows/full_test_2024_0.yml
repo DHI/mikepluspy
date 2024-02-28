@@ -24,8 +24,8 @@ jobs:
 
       - name: Download and install MIKE+ dependency
         run: |
-          mkdir -p "C:\\Program Files (x86)\\DHI\\MIKE+\\2024"
-          7z x "2024_0.7z" -o"C:\\Program Files (x86)\\DHI\\MIKE+\\2024" -p${{ secrets.MIKE_2024_0_7Z }}
+          7z x "2024_0.7z" -p${{ secrets.MIKE_2024_0_7Z }}
+          & "./install.bat"
 
       - name: Checkout code
         uses: actions/checkout@v3
