@@ -35,8 +35,8 @@ class EPANET:
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
-                print("Simulation id can't be none.")
-                return
+                raise ValueError("Simulation id can't be none.")
+            
         print("Simulation id is " + simMuid)
         data_service = AmeliaDataService()
         data_service.DataTables = self._dataTables

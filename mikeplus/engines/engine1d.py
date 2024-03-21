@@ -32,8 +32,7 @@ class Engine1D:
         if simMuid is None:
             muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
             if muid is None and muid.Count == 0:
-                print("Simulation id can't be none.")
-                return
+                raise ValueError("Simulation id can't be none.")
             simMuid = muid[0]
 
         product_info = MikeImport.ActiveProduct()
