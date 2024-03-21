@@ -13,13 +13,15 @@ class Engine1D:
         self._result_file = None
 
     def run(self,
-            simMuid=None):
+            simMuid=None, verbose=False):
         """Run MIKE1D simulation
 
         Parameters
         ----------
         simMuid : string, optional
             simulation muid, it will use the current active simulation muid if simMuid is None, by default None.
+        verbose : bool, optional
+            print log file or not, by default False.
 
         Examples
         --------
@@ -43,11 +45,14 @@ class Engine1D:
         file_name = file.split('.')[0]
         log_file = os.path.join(dir, file_name + '_' + simMuid + '.log')
         self._result_file = os.path.join(dir, file_name + '_' + simMuid + '.res1d')
-        print("Simulation is started. Simulation id is '" + simMuid + "'")
+        if verbose:
+            print("Simulation is started. Simulation id is '" + simMuid + "'")
         subprocess.run([mike1d_exec, str(dbOrMuppFile), "-simulationid=" + simMuid, "-logfilename=" + log_file])
-        if self._print_log(log_file) is False:
-            print("Simulation is finished without logFile generated.")
-
+        if verbose:
+            log_file_made = self._print_log(log_file)
+            if log_file_made is False:
+                print("Simulation is finished without logFile generated.")
+                
     @property
     def result_file(self):
         """Get the current simulation result file path
