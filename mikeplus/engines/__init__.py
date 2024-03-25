@@ -8,7 +8,8 @@ clr.AddReference("DHI.Amelia.DataModule")
 clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
-clr.AddReference("DHI.Amelia.Tools.EngineTool")
+clr.AddReference("DHI.Amelia.DomainServices")
+clr.AddReference("DHI.Amelia.DomainServices.Interface")
 
 from .engine1d import Engine1D
 from .epanet import EPANET

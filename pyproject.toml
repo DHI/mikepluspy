@@ -7,7 +7,7 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "0.0.1"
+version = "2024.0.0"
 dependencies = [
     "numpy",
     'pythonnet<=2.5.2; python_version < "3.7.0"',
@@ -40,8 +40,8 @@ dev = ["pytest","flake8","black","sphinx", "myst-parser","sphinx-book-theme"]
 test= ["pytest"]
 
 [project.urls]
-"Homepage" = "https://github.com/DHI/mikeplus-python"
-"Bug Tracker" = "https://github.com/DHI/mikeplus-python/issues"
+"Homepage" = "https://github.com/DHI/mikepluspy"
+"Bug Tracker" = "https://github.com/DHI/mikepluspy/issues"
 
 # mypy global options:
 
