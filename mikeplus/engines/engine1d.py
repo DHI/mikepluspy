@@ -13,13 +13,15 @@ class Engine1D:
         self._result_file = None
 
     def run(self,
-            simMuid=None):
+            simMuid=None, verbose=False):
         """Run MIKE1D simulation
 
         Parameters
         ----------
         simMuid : string, optional
             simulation muid, it will use the current active simulation muid if simMuid is None, by default None.
+        verbose : bool, optional
+            print log file or not, by default False.
 
         Examples
         --------
@@ -32,8 +34,7 @@ class Engine1D:
         if simMuid is None:
             muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
             if muid is None and muid.Count == 0:
-                print("Simulation id can't be none.")
-                return
+                raise ValueError("Simulation id can't be none.")
             simMuid = muid[0]
 
         product_info = MikeImport.ActiveProduct()
@@ -43,11 +44,13 @@ class Engine1D:
         file_name = dbOrMuppFile.stem
         log_file = Path(dir) / f"{file_name}_{simMuid}.log"
         self._result_file = Path(dir) / f"{file_name}_{simMuid}.res1d"
-        print(f"Simulation is started. Simulation id is '{simMuid}'.")
+        if verbose:
+            print(f"Simulation is started. Simulation id is '{simMuid}'.")
         subprocess.run([mike1d_exec, str(dbOrMuppFile), f"-simulationid={simMuid}", f"-logfilename={log_file}"])
-        if self._print_log(log_file) is False:
-            print("Simulation is finished without logFile generated.")
-
+        if verbose:
+            if self._print_log(log_file) is False:
+                print("Simulation is finished without logFile generated.")
+                
     @property
     def result_file(self):
         """Get the current simulation result file path

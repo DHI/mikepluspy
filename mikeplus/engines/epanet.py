@@ -16,13 +16,15 @@ class EPANET:
         self._result_file = None
 
     def run_engine_epanet(self,
-                          simMuid=None):
+                          simMuid=None, verbose=False):
         """Run EPANET simulation
 
         Parameters
         ----------
         simMuid : string, optional
             simulation muid, it will use the current active simulation muid if simMuid is None, by default None
+        verbose : bool, optional
+            print log file or not, by default False
         
         Examples
         --------
@@ -35,9 +37,10 @@ class EPANET:
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
-                print("Simulation id can't be none.")
-                return
-        print("Simulation id is " + simMuid)
+                raise ValueError("Simulation id can't be none.")
+        
+        if verbose:
+            print("Simulation id is " + simMuid)
         data_service = AmeliaDataService()
         data_service.DataTables = self._dataTables
         engine_service = AmeliaEngineService()
@@ -51,10 +54,13 @@ class EPANET:
         dir = os.path.dirname(os.path.abspath(self._result_file))
         file_name = os.path.splitext(os.path.split(self._result_file)[1])[0]
         log_file = os.path.join(dir, file_name + '.log')
-        if self._print_log(log_file) is False:
-            if (success is False):
+        if verbose:
+            log_file_made = self._print_log(log_file)
+
+            if not success:
                 print("Simulation failed.")
-            else:
+
+            if not log_file_made:
                 print("Simulation is finished without logFile generated.")
 
     @property
