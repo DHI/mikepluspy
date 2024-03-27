@@ -1,4 +1,5 @@
 import os.path
+import System
 from System import Object
 from System import String
 from System.Collections.Generic import Dictionary
@@ -196,7 +197,10 @@ class DataTableAccess:
         value_dict = Dictionary[String, Object]()
         if values is not None:
             for col in values:
-                value_dict[col] = values[col]
+                if isinstance(values[col], int):
+                    value_dict[col] = System.Nullable[int](values[col])
+                else:
+                    value_dict[col] = values[col]
         result, new_muid = self._datatables[table_name].InsertByCommand(muid, None, value_dict, False, False)
 
     def delete(self, table_name, muid):
