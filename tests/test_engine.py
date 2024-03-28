@@ -6,7 +6,7 @@ from mikeplus.engines.swmm import SWMM
 
 
 def test_mike1d_engine():
-    res_1d_file = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius_RR_and_HDBaseDefault_Network_HD.res1d")
+    res_1d_file = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius_1_DEMOBaseDefault_Network_HD.res1d")
     if os.path.exists(res_1d_file):
         os.remove(res_1d_file)
     dbFile = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")

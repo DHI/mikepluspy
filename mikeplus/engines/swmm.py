@@ -14,13 +14,15 @@ class SWMM:
         self._result_file = None
 
     def run(self,
-            simMuid=None):
+            simMuid=None, verbose=False):
         """Run SWMM simulation
 
         Parameters
         ----------
         simMuid : string, optional
             simulation muid, it will use the current active simulation muid if simMuid is None, by default None
+        verbose : bool, optional
+            print log file or not, by default False
         
         Examples
         --------
@@ -33,9 +35,10 @@ class SWMM:
         if simMuid is None:
             simMuid = self._get_active_muid()
             if simMuid is None:
-                print("Simulation id can't be none.")
-                return
-        print("Simulation id is " + simMuid)
+                raise ValueError("Simulation id can't be none.")
+        
+        if verbose:            
+            print("Simulation id is " + simMuid)
         engine_tool = EngineTool()
         engine_tool.DataTables = self._dataTables
         cancel_source = CancellationTokenSource()
@@ -46,10 +49,12 @@ class SWMM:
         dir = os.path.dirname(os.path.abspath(self._result_file))
         file_name = os.path.splitext(os.path.split(self._result_file)[1])[0]
         log_file = os.path.join(dir, file_name + '.log')
-        if self._print_log(log_file) is False:
-            if (success is False):
+        if verbose:
+            if not success:
                 print("Simulation failed.")
-            else:
+                
+            log_file_made = self._print_log(log_file)
+            if log_file_made is False:
                 print("Simulation is finished without logFile generated.")
 
     @property
