@@ -16,6 +16,9 @@ clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
 
 from .datatableaccess import DataTableAccess
+from mikeplus.fieldTableNames.tableNames import CommonTabNames, CSTabNames, RiverTabNames, FloodTabNames, SWMMTabNames, WDTabNames
+from mikeplus.fieldTableNames.fieldNames import Fields
+
 import sys
 import warnings
 
