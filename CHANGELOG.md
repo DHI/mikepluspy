@@ -18,4 +18,3 @@
 - Fix setting the value of a database does not auto cast values. Int value can accept as double value now.
 - Fix inserting fails silently when no value is provided for 'Seq'
 - Handle Nullable value more user friendly
-- Enable intellisense for table names and table fields.
