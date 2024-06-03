@@ -7,7 +7,7 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "0.0.1"
+version = "2024.0.0"
 dependencies = [
     "numpy",
     'pythonnet<=2.5.2; python_version < "3.7.0"',
@@ -36,12 +36,12 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest","flake8","black","sphinx", "myst-parser","sphinx-book-theme"]
-test= ["pytest"]
+dev = ["pytest","flake8","black","sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
+test= ["pytest","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
 
 [project.urls]
-"Homepage" = "https://github.com/DHI/mikeplus-python"
-"Bug Tracker" = "https://github.com/DHI/mikeplus-python/issues"
+"Homepage" = "https://github.com/DHI/mikepluspy"
+"Bug Tracker" = "https://github.com/DHI/mikepluspy/issues"
 
 # mypy global options:
 

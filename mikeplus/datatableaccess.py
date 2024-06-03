@@ -49,6 +49,7 @@ class DataTableAccess:
         """
         if self.is_database_open():
             self.close_database()
+
         data_source = BaseDataSource.Create(self._file_path)
         data_source.OpenDatabase()
         datatables = DataTableContainer(True)
