@@ -13,7 +13,7 @@ MIKE+Py is a python interface for MIKE+. Its main features include:
 > * If you encounter any issues or have any feedback, please report them on [GitHub Issues](https://github.com/DHI/mikepluspy/issues).
 
 ## Requirements
-* MIKE+ 2024 (or greater) with valid license
+* MIKE+ 2024 update 1 (or greater) with valid license
 * Python x64 3.8 to 3.12
 * Windows operating system
 
@@ -26,7 +26,7 @@ The version of MIKE+Py you install must match the version of MIKE+ installed on 
 
 | MIKE+ Version | Install command|
 |:--------------|:---------------|
-| MIKE+ 2024    | `pip install https://github.com/DHI/mikepluspy/archive/refs/tags/v2024.0-latest.zip` |
+| MIKE+ 2024 update 1 | `pip install https://github.com/DHI/mikepluspy/archive/refs/tags/v2024.1-latest.zip` |
 
 
 ## Examples
