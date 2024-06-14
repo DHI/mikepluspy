@@ -1,0 +1,2053 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../engines/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.14">
+    
+    
+      
+        <title>Tools Guide - mikeplus</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.fad675c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tools-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="mikeplus" class="md-header__button md-logo" aria-label="mikeplus" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            mikeplus
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tools Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="mikeplus" class="md-nav__button md-logo" aria-label="mikeplus" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    mikeplus
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datatableaccess/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data table access guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../engines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Engines Guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Tools Guide
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Tools Guide
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get-back-to-mikeplus-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get back to mikeplus Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cathslopelengthprocess" class="md-nav__link">
+    <span class="md-ellipsis">
+      CathSlopeLengthProcess
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.catch_slope_length_process_tool.CathSlopeLengthProcess" class="md-nav__link">
+    <span class="md-ellipsis">
+      CathSlopeLengthProcess
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.catch_slope_length_process_tool.CathSlopeLengthProcess.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connectionrepairtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ConnectionRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.connection_repair_tool.ConnectionRepairTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ConnectionRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.connection_repair_tool.ConnectionRepairTool.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#importtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ImportTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.import_tool.ImportTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ImportTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.import_tool.ImportTool.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpolationtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      InterpolationTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      InterpolationTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.direct_assign_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      direct_assign_value()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_DEM" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolate_from_DEM()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_nearest_feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolate_from_nearest_feature()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_neighobour" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolate_from_neighobour()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolation_IDW" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolation_IDW()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#toporepairtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      TopoRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.topology_repair_tool.TopoRepairTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      TopoRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.topology_repair_tool.TopoRepairTool.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get-back-to-mikeplus-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get back to mikeplus Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cathslopelengthprocess" class="md-nav__link">
+    <span class="md-ellipsis">
+      CathSlopeLengthProcess
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.catch_slope_length_process_tool.CathSlopeLengthProcess" class="md-nav__link">
+    <span class="md-ellipsis">
+      CathSlopeLengthProcess
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.catch_slope_length_process_tool.CathSlopeLengthProcess.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connectionrepairtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ConnectionRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.connection_repair_tool.ConnectionRepairTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ConnectionRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.connection_repair_tool.ConnectionRepairTool.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#importtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ImportTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.import_tool.ImportTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      ImportTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.import_tool.ImportTool.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpolationtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      InterpolationTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      InterpolationTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.direct_assign_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      direct_assign_value()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_DEM" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolate_from_DEM()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_nearest_feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolate_from_nearest_feature()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_neighobour" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolate_from_neighobour()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.interpolation_tool.InterpolationTool.interpolation_IDW" class="md-nav__link">
+    <span class="md-ellipsis">
+      interpolation_IDW()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#toporepairtool" class="md-nav__link">
+    <span class="md-ellipsis">
+      TopoRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.topology_repair_tool.TopoRepairTool" class="md-nav__link">
+    <span class="md-ellipsis">
+      TopoRepairTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mikeplus.tools.topology_repair_tool.TopoRepairTool.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      run()
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="tools-guide">Tools Guide</h1>
+<h2 id="get-back-to-mikeplus-documentation">Get back to <a href="../#tools">mikeplus Documentation</a></h2>
+<h2 id="cathslopelengthprocess">CathSlopeLengthProcess</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="mikeplus.tools.catch_slope_length_process_tool.CathSlopeLengthProcess"></a>
+  <div class="doc doc-contents first">
+
+  
+      <p>This tool performs automatic estimation of slope and length for each catchment.</p>
+
+
+
+<p><strong>Examples:</strong></p>
+    <p>An example to calculate the slope and length for catchmetn of "imp3" based on a slope shapefile and dfs2 file. </p>
+<pre><code class="language-python">&gt;&gt;&gt; data_access = DataTableAccess(muppOrSqlite)
+&gt;&gt;&gt; data_access.open_database()
+&gt;&gt;&gt; catch_ids = [&quot;imp3&quot;]
+&gt;&gt;&gt; tool = CathSlopeLengthProcess(data_access.datatables)
+&gt;&gt;&gt; tool.run(catch_ids, &quot;../tests/testdata/catchSlopeLen/Catch_Slope.shp&quot;, &quot;tests/testdata/catchSlopeLen/dem.dfs2&quot;, 0)
+&gt;&gt;&gt; data_access.close_database()
+</code></pre>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.catch_slope_length_process_tool.CathSlopeLengthProcess.run" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">catch_ids</span><span class="p">,</span> <span class="n">line_layer</span><span class="p">,</span> <span class="n">dem_layer</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">min_slope</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">demUnitKey</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">overwrite_exist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Calculate the slope and length for each catchment and print progress information. </p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>catch_ids</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>a array of cathment muids</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>line_layer</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>a slope shape file path</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dem_layer</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>dem file path, can be dfs2 file path</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>direction</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Downstream = 0, Upstream = 1</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_slope</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>unit is one per one, by default 0.002</p>
+            </div>
+          </td>
+          <td>
+                <code>0.002</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>demUnitKey</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>int type data, please check MIKE unit key, by default 1000</p>
+            </div>
+          </td>
+          <td>
+                <code>1000</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>overwrite_exist</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>overwrite exist value or not, by default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="connectionrepairtool">ConnectionRepairTool</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="mikeplus.tools.connection_repair_tool.ConnectionRepairTool"></a>
+  <div class="doc doc-contents first">
+
+  
+      <p>For collection module, this class is to repair station connections, catchment connections and load point connections.
+For water distribute module, this class is to repair station connections and demand allocation connections.
+For SWMM, this class is to repair station connections and catchment connections.</p>
+
+
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">data_access</span> <span class="o">=</span> <span class="n">DataTableAccess</span><span class="p">(</span><span class="n">muppOrSqlite</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_access</span><span class="o">.</span><span class="n">open_database</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn_repair</span> <span class="o">=</span> <span class="n">ConnectionRepairTool</span><span class="p">(</span><span class="n">data_access</span><span class="o">.</span><span class="n">datatables</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn_repair</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_access</span><span class="o">.</span><span class="n">close_database</span><span class="p">()</span>
+</code></pre></div>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.connection_repair_tool.ConnectionRepairTool.run" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run the connection repair tool</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="importtool">ImportTool</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="mikeplus.tools.import_tool.ImportTool"></a>
+  <div class="doc doc-contents first">
+
+  
+      <p>This class is to import data into MIKE+ database. It also can export exist MIKE+ database data into different format.
+Please check MIKE+ manual to see which data format are supported.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>configFile</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dataTables</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="go">&gt;&gt;&gt;data_access = DataTableAccess(muppOrSqlite)</span>
+<span class="go">&gt;&gt;&gt;data_access.open_database()</span>
+<span class="go">&gt;&gt;&gt;import_tool = ImportTool(&quot;../tests/testdata/import/config.xml&quot;, data_access.datatables)</span>
+<span class="go">&gt;&gt;&gt;import_tool.run()</span>
+<span class="go">&gt;&gt;&gt;data_access.close_database()</span>
+</code></pre></div>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.import_tool.ImportTool.run" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run the import tool</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="interpolationtool">InterpolationTool</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="mikeplus.tools.interpolation_tool.InterpolationTool"></a>
+  <div class="doc doc-contents first">
+
+  
+      <p>The Interpolation and Assignment tool helps assign values to any field in the MIKE+ database either by taking the attribute value directly from 
+another fea­ture/attribute or by interpolating between any number of other features.</p>
+
+
+
+<p><strong>Examples:</strong></p>
+    <p>Interplate node diameter from connected links for the nodes which have NULL diameter.</p>
+<pre><code class="language-python">&gt;&gt;&gt; data_access = DataTableAccess(muppOrSqlite)
+&gt;&gt;&gt; data_access.open_database()
+&gt;&gt;&gt; tool = InterpolationTool(data_access.datatables)
+&gt;&gt;&gt; tool.interpolate_from_nearest_feature(&quot;msm_Node&quot;, &quot;Diameter&quot;, &quot;msm_Link&quot;, &quot;Diameter&quot;, Ture, False, None)
+&gt;&gt;&gt; data_access.close_database()
+</code></pre>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.interpolation_tool.InterpolationTool.direct_assign_value" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">direct_assign_value</span><span class="p">(</span><span class="n">target_Db_name</span><span class="p">,</span> <span class="n">target_attribute</span><span class="p">,</span> <span class="n">fixed_value</span><span class="p">,</span> <span class="n">only_null_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assign_val_as_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value_as_missing</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set the target attribute as the fixed value.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>target_Db_name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target table name, the table you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>target_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target attribute name, the field in the table, which you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>fixed_value</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The fixed value is used to set the missing value.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>only_null_values</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>assign_val_as_missing</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, assgined value as missing value. By default False</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>value_as_missing</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specify the value as the missing value, by default None</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_DEM" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">interpolate_from_DEM</span><span class="p">(</span><span class="n">target_Db_Name</span><span class="p">,</span> <span class="n">target_attribute</span><span class="p">,</span> <span class="n">raster_file</span><span class="p">,</span> <span class="n">item_number</span><span class="p">,</span> <span class="n">only_null_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assign_val_as_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value_as_missing</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Interpolate target attribute from specified item number in raster layer.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>target_Db_Name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target table name, the table you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>target_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target attribute name, the field in the table, which you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>raster_file</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>raster file path</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>item_number</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the item number in raster file used to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>only_null_values</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>assign_val_as_missing</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, assgined value as missing value. By default False</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>value_as_missing</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specify the value as the missing value, by default None</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_nearest_feature" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">interpolate_from_nearest_feature</span><span class="p">(</span><span class="n">target_Db_Name</span><span class="p">,</span> <span class="n">target_attribute</span><span class="p">,</span> <span class="n">source_layer_name</span><span class="p">,</span> <span class="n">source_attribute</span><span class="p">,</span> <span class="n">only_null_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assign_val_as_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value_as_missing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">search_radius</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Interpolate target attribute from nearest source in search radius.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>target_Db_Name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target table name, the table you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>target_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target attribute name, the field in the table, which you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>source_layer_name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>source_layer_name can be database table name, or a shape file path, the source is used to interpolate the target</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>source_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>source attribute name, field name of source layer</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>only_null_values</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>assign_val_as_missing</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, assgined value as missing value. By default False</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>value_as_missing</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specify the value as the missing value, by default None</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>search_radius</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the search radius to find the source, by default 300</p>
+            </div>
+          </td>
+          <td>
+                <code>300.0</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.interpolation_tool.InterpolationTool.interpolate_from_neighobour" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">interpolate_from_neighobour</span><span class="p">(</span><span class="n">target_Db_name</span><span class="p">,</span> <span class="n">target_attribute</span><span class="p">,</span> <span class="n">source_layer_name</span><span class="p">,</span> <span class="n">source_attribute</span><span class="p">,</span> <span class="n">only_null_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assign_val_as_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value_as_missing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assign_option</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alongPath</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_neighbours</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Interpolate target attribute from the source attribute along the network.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>target_Db_name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target table name, the table you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>target_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target attribute name, the field in the table, which you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>source_layer_name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>source table name, the table used to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>source_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>source attribute name, the field in source table used to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>only_null_values</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>assign_val_as_missing</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, assgined value as missing value. By default False</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>value_as_missing</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specify the value as the missing value, by default None</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>assign_option</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>assign option, by default 0
+AssignOption
+{
+    ClosestNode=0,
+    UpstreamElement=1,
+    DownstreamElement=2,
+    UpstreamMaxValue=3,
+    UpstreamMinValue=4,
+    DownlstreamMaxValue=5,
+    DownstreamMinValue=6,
+    MaxValueNeighbours=7,
+    MinValueNeighbours=8
+}</p>
+            </div>
+          </td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>alongPath</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, interpolate from neighbour. Otherwise, interpolate from network. By default False</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_neighbours</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the max neighbours with missing value along the network, by default 3</p>
+            </div>
+          </td>
+          <td>
+                <code>3</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.interpolation_tool.InterpolationTool.interpolation_IDW" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">interpolation_IDW</span><span class="p">(</span><span class="n">target_Db_name</span><span class="p">,</span> <span class="n">target_attribute</span><span class="p">,</span> <span class="n">source_layer_name</span><span class="p">,</span> <span class="n">source_attribute</span><span class="p">,</span> <span class="n">only_null_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assign_val_as_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value_as_missing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_IDW_points</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">search_radius</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Interpolate target attribute from the specified max number of sources in search radius.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>target_Db_name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target table name, the table you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>target_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>target attribute name, the field in the table, which you want to interpolate</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>source_layer_name</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>source_layer_name can be database table name, or a shape file path, the source is used to interpolate the target</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>source_attribute</code></td>
+          <td>
+                <code>string</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>source attribute name, field name of source layer</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>only_null_values</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>assign_val_as_missing</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, assgined value as missing value. By default False</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>value_as_missing</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specify the value as the missing value, by default None</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_IDW_points</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the max source number used to interpolate, by default 12</p>
+            </div>
+          </td>
+          <td>
+                <code>12</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>search_radius</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the search radius to find the source, by default 300.0</p>
+            </div>
+          </td>
+          <td>
+                <code>300.0</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="toporepairtool">TopoRepairTool</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="mikeplus.tools.topology_repair_tool.TopoRepairTool"></a>
+  <div class="doc doc-contents first">
+
+  
+      <p>TopoRepairTool offers a way to detect and repair topology or network geometry issues in the model.</p>
+
+
+
+<p><strong>Examples:</strong></p>
+    <p>Delete unlinked nodes and links, also delete overlapped nodes for the whole network.</p>
+<pre><code class="language-python">&gt;&gt;&gt; data_access = DataTableAccess(muppOrSqlite)
+&gt;&gt;&gt; data_access.open_database()
+&gt;&gt;&gt; repair_tool = TopoRepairTool(data_access.datatables)
+&gt;&gt;&gt; repair_tool.run(True, True, False, False, Flase, False, False)
+&gt;&gt;&gt; data_access.close_database()
+</code></pre>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="mikeplus.tools.topology_repair_tool.TopoRepairTool.run" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">delete_unLink_node_Link</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dissolve_overlap_node</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">correct_link_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">search_junction_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">create_junction_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">split_link_on_tjunction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_missing_zones</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">snap_distance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Offers a way to detect and repair topology or network geometry issues in the model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>delete_unLink_node_Link</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, isolated nodes (other than tanks) and links / pipes, disconnected from the rest of the network, will be removed. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dissolve_overlap_node</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, extra nodes within the specified search radius will be removed. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>correct_link_connection</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>When a link's end is not con­nected to a node, if this operation is true, it will connect it either to the closest exist­ing node within the specified search radius, or to a new node. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>search_junction_connection</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, it will connect to the closest exist­ing node within the specified search radius. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>create_junction_connection</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, it will connect to a new node. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>split_link_on_tjunction</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, when the end of a link overlaps a second link, this second link is split at the intersection and a node is inserted, and all the three resulting pipes are connected to this new node. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>add_missing_zones</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If true, refresh the list of network zones. By default True</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>snap_distance</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The distance used in dissolve the overlapped nodes, in correct link connection, and in split link on T junction, by default 0.1.</p>
+            </div>
+          </td>
+          <td>
+                <code>0.1</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.cd18aaf1.min.js"></script>
+      
+    
+  </body>
+</html>
