@@ -7,7 +7,7 @@ from System.Collections.Generic import List
 from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
-
+from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
 
 class DataTableAccess:
     '''
@@ -56,11 +56,13 @@ class DataTableAccess:
         datatables.SetActiveModel(data_source.ActiveModel)
         datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
         datatables.OnResetContainer(None, None)
+        datatables.UndoRedoManager = AmlUndoRedoManager()
         self._datatables = datatables
 
     def close_database(self):
         """Close database
         """
+        self._datatables.UndoRedoManager.ClearUndoRedoBuffer()
         self._datatables.DataSource.CloseDatabase()
         self._datatables.Dispose()
         self._datatables = None
