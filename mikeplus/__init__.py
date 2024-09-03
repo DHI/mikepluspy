@@ -1,10 +1,10 @@
 import clr
 
-__version__ = "2024.1.0"
+__version__ = "2025.0.0"
 
 clr.AddReference("DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf")
 from DHI.Mike.Install import MikeImport, MikeProducts
-MikeImport.Setup(22, MikeProducts.MikePlus)
+MikeImport.Setup(23, MikeProducts.MikePlus)
 
 clr.AddReference("System")
 clr.AddReference("System.Runtime")
