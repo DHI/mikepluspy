@@ -14,6 +14,7 @@ def test_opendatabase():
 # parameterize this test for different table name, MUIDs, fields, and expected values
 @pytest.mark.parametrize("table_name, muid, fields, expected_values", [
     ("msm_Link", "Link_30", "Length", [4.06]),
+    ('msm_Link', 'Link_30', ['Length', 'Diameter'], [4.06, 1.0]),
     ])
 def test_get_field_values(table_name, muid, fields, expected_values):
     file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
