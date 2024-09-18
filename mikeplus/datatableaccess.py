@@ -8,6 +8,8 @@ from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 
+from .dotnet import as_dotnet_list
+
 
 class DataTableAccess:
     '''
@@ -96,22 +98,22 @@ class DataTableAccess:
 
         Parameters
         ----------
-        table_name : string
-            table name
-        muid : string
-            muid
-        fields : string array
-            the fields want to get values
+        table_name : str
+            The name of the table to get values from. 
+        muid : str
+            The MUID of the row to get values for.
+        fields : str | List[str]
+            The name of the field(s) to get values for.
 
         Returns
         -------
-        array
-            the specified values get from the table
+        List
+            A list of the requested values in the same order as the fields argument.
         """
-        fieldList = List[str]()
-        for field in fields:
-            fieldList.Add(field)
-        values = self._datatables[table_name].GetFieldValues(muid, fieldList, False)
+        if not isinstance(fields, list):
+            fields = [fields]
+
+        values = self._datatables[table_name].GetFieldValues(muid, as_dotnet_list(fields), False)
         pyValues = []
         i = 0
         if values is not None and len(values) > 0:
