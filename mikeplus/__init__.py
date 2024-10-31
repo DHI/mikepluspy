@@ -20,9 +20,9 @@ import sys
 import warnings
 
 mike1dio = sys.modules.get("mikeio1d")
-if mike1dio != None:
+if mike1dio is not None:
     raise RuntimeError('mikeio1d module has been loaded. mikeio1d only can be loaded after mikeplus module.')
 
-mikeio = sys.modules.get("mikeid")
-if mikeio != None:
+mikeio = sys.modules.get("mikeio")
+if mikeio is not None:
     raise RuntimeError('mikeplus cannot currently be used with mikeio in the same script.')
