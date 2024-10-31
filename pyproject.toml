@@ -51,6 +51,6 @@ allow_redefinition = true
 warn_unreachable = true
 
 [tool.ruff]
-
 # ignore long lines
-ignore = ["E501", "E741"]
+lint.exclude = ["notebooks/**/*.ipynb"]
+lint.ignore = ["E501"]
