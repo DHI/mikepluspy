@@ -6,10 +6,10 @@ from DHI.Generic.MikeZero import eumUnit
 
 class CathSlopeLengthProcess:
     """This tool performs automatic estimation of slope and length for each catchment.
-    
+
     Examples
     --------
-    An example to calculate the slope and length for catchmetn of "imp3" based on a slope shapefile and dfs2 file. 
+    An example to calculate the slope and length for catchmetn of "imp3" based on a slope shapefile and dfs2 file.
     ```python
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
@@ -19,19 +19,21 @@ class CathSlopeLengthProcess:
     >>> data_access.close_database()
     ```
     """
-    def __init__(self,
-                 dataTables):
+
+    def __init__(self, dataTables):
         self._dataTables = dataTables
 
-    def run(self,
-            catch_ids,
-            line_layer,
-            dem_layer,
-            direction,
-            min_slope=0.002,
-            demUnitKey=1000,
-            overwrite_exist=True):
-        """Calculate the slope and length for each catchment and print progress information. 
+    def run(
+        self,
+        catch_ids,
+        line_layer,
+        dem_layer,
+        direction,
+        min_slope=0.002,
+        demUnitKey=1000,
+        overwrite_exist=True,
+    ):
+        """Calculate the slope and length for each catchment and print progress information.
 
         Parameters
         ----------
@@ -58,7 +60,17 @@ class CathSlopeLengthProcess:
         catch_list = List[str]()
         for selCatch in catch_ids:
             catch_list.Add(selCatch)
-        tool.CalculateSlopeLength(catch_list, overwrite_exist, min_slope, direction, line_layer, dem_layer, 1, unit, warnings)
+        tool.CalculateSlopeLength(
+            catch_list,
+            overwrite_exist,
+            min_slope,
+            direction,
+            line_layer,
+            dem_layer,
+            1,
+            unit,
+            warnings,
+        )
         tool.RuningProgress += self._on_tool_runing_progress
 
     def _on_tool_runing_progress(self, source, args):

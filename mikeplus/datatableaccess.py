@@ -12,7 +12,7 @@ from .dotnet import as_dotnet_list
 
 
 class DataTableAccess:
-    '''
+    """
     Class to manipulate data in MIKE+ database.
 
     Examples
@@ -28,9 +28,9 @@ class DataTableAccess:
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
     ```
-    '''
-    def __init__(self,
-                 db_or_mupp_file):
+    """
+
+    def __init__(self, db_or_mupp_file):
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)
         self._file_path = db_or_mupp_file
         self._datatables = None
@@ -39,16 +39,23 @@ class DataTableAccess:
         out = ["<DataTableContainer>"]
 
         if self.is_database_open():
-            out.append(f"Db major version: {str(self._datatables.DataSource.DbMajorVersion)}")
-            out.append(f"Db minor version: {str(self._datatables.DataSource.DbMinorVersion)}")
+            out.append(
+                f"Db major version: {str(self._datatables.DataSource.DbMajorVersion)}"
+            )
+            out.append(
+                f"Db minor version: {str(self._datatables.DataSource.DbMinorVersion)}"
+            )
             out.append(f"Active model: {str(self._datatables.DataSource.ActiveModel)}")
-            out.append(f"Unit system: {str(self._datatables.DataSource.UnitSystemOption)}")
-            out.append(f"Active simulation: {str(self._datatables.DataSource.ActiveSimulation)}")
+            out.append(
+                f"Unit system: {str(self._datatables.DataSource.UnitSystemOption)}"
+            )
+            out.append(
+                f"Active simulation: {str(self._datatables.DataSource.ActiveSimulation)}"
+            )
         return str.join("\n", out)
 
     def open_database(self):
-        """Open database
-        """
+        """Open database"""
         if self.is_database_open():
             return
         data_source = BaseDataSource.Create(self._file_path)
@@ -61,15 +68,14 @@ class DataTableAccess:
         self._datatables = datatables
 
     def close_database(self):
-        """Close database
-        """
+        """Close database"""
         self._datatables.DataSource.CloseDatabase()
         self._datatables.Dispose()
         self._datatables = None
 
     @property
     def datatables(self):
-        """ DataTableContainer """
+        """DataTableContainer"""
         return self._datatables
 
     def get_muid_where(self, table_name, where=None):
@@ -99,7 +105,7 @@ class DataTableAccess:
         Parameters
         ----------
         table_name : str
-            The name of the table to get values from. 
+            The name of the table to get values from.
         muid : str
             The MUID of the row to get values for.
         fields : str | List[str]
@@ -113,7 +119,9 @@ class DataTableAccess:
         if not isinstance(fields, list):
             fields = [fields]
 
-        values = self._datatables[table_name].GetFieldValues(muid, as_dotnet_list(fields), False)
+        values = self._datatables[table_name].GetFieldValues(
+            muid, as_dotnet_list(fields), False
+        )
         pyValues = []
         i = 0
         if values is not None and len(values) > 0:
@@ -142,7 +150,9 @@ class DataTableAccess:
         fieldList = List[str]()
         for field in fields:
             fieldList.Add(field)
-        fieldValueGet = self._datatables[table_name].GetMuidAndFieldsWhereOrder(fieldList, where)
+        fieldValueGet = self._datatables[table_name].GetMuidAndFieldsWhereOrder(
+            fieldList, where
+        )
         mydict = dict()
         for feildVal in fieldValueGet:
             mylist = list()
@@ -162,7 +172,7 @@ class DataTableAccess:
             muid
         column : string
             column name
-        value : 
+        value :
             the value want to set
         """
         self._datatables[table_name].SetValueByCommand(muid, column, value)
@@ -203,7 +213,9 @@ class DataTableAccess:
                     value_dict[col] = System.Nullable[int](values[col])
                 else:
                     value_dict[col] = values[col]
-        result, new_muid = self._datatables[table_name].InsertByCommand(muid, None, value_dict, False, False)
+        result, new_muid = self._datatables[table_name].InsertByCommand(
+            muid, None, value_dict, False, False
+        )
 
     def delete(self, table_name, muid):
         """Delete row with specified muid in table
@@ -227,6 +239,12 @@ class DataTableAccess:
         """
         if self._datatables is None:
             return False
-        is_open = self._datatables.DataSource is not None and self._datatables.DataSource.DbConnection is not None
-        is_open = is_open and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
+        is_open = (
+            self._datatables.DataSource is not None
+            and self._datatables.DataSource.DbConnection is not None
+        )
+        is_open = (
+            is_open
+            and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
+        )
         return is_open
