@@ -10,6 +10,12 @@ clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
 clr.AddReference("DHI.Amelia.Tools.EngineTool")
 
-from .engine1d import Engine1D
-from .epanet import EPANET
-from .swmm import SWMM
+from .engine1d import Engine1D  # noqa: E402
+from .epanet import EPANET  # noqa: E402
+from .swmm import SWMM  # noqa: E402
+
+__all__ = [
+    "Engine1D",
+    "EPANET",
+    "SWMM",
+]

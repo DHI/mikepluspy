@@ -1,9 +1,10 @@
-import clr
+import clr  # noqa: F401
 
 from System import String
 from System.Collections.Generic import List
 
-def as_dotnet_list(py_list: list, dotnet_type = None):
+
+def as_dotnet_list(py_list: list, dotnet_type=None):
     """
     Convert python list to .NET List.
 
@@ -23,7 +24,9 @@ def as_dotnet_list(py_list: list, dotnet_type = None):
         if isinstance(py_list[0], str):
             dotnet_type = String
         else:
-            raise NotImplementedError(f"Unsupported type '{type(py_list[0])}'. Please specify with dotnet_type.")
+            raise NotImplementedError(
+                f"Unsupported type '{type(py_list[0])}'. Please specify with dotnet_type."
+            )
 
     dotnet_list = List[dotnet_type]()
     for item in py_list:
