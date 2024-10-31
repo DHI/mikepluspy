@@ -21,18 +21,18 @@ class ImportTool:
     >>>import_tool.run()
     >>>data_access.close_database()
     """
-    def __init__(self,
-                 configFile,
-                 dataTables=None):
+
+    def __init__(self, configFile, dataTables=None):
         self._configFile = os.path.abspath(configFile)
         self._dataTables = dataTables
 
     def run(self):
-        """Run the import tool
-        """
+        """Run the import tool"""
         import_engine = ImportToolBase(self._dataTables)
         import_engine.Load(self._configFile)
-        FunctionHelper.ChangeFilePathInConfigToAbsolute(import_engine.JobConfigSectionsDic, self._configFile)
+        FunctionHelper.ChangeFilePathInConfigToAbsolute(
+            import_engine.JobConfigSectionsDic, self._configFile
+        )
         import_engine.OnTableDataProcessing += self._on_table_data_processing
         import_engine.Run()
 
