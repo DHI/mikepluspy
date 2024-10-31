@@ -1,7 +1,8 @@
 from pathlib import Path
 
-import mikeplus
+import mikeplus  # noqa: F401
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
+
 
 def create_sqlite_db(db_path: str | Path, srid: int = 25832):
     """
