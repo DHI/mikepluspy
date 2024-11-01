@@ -1,8 +1,6 @@
 import os.path
 
-import shapely.wkt
 import System
-import shapely
 from System import Object
 from System import String
 from System.Collections.Generic import Dictionary
@@ -11,7 +9,7 @@ from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
-from NetTopologySuite.Geometries import Geometry
+from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 
 from .dotnet import as_dotnet_list
 
@@ -182,7 +180,8 @@ class DataTableAccess:
         """
         if column.lower() == "geometry":
             geom = GeoAPIHelper.GetIGeometryFromWKT(value)
-            self._datatables[table_name].UpdateGeomByCommand(muid, geom)
+            geomTable = IMuGeomTable(self._datatables[table_name])
+            geomTable.UpdateGeomByCommand(muid, geom)
         else:
             self._datatables[table_name].SetValueByCommand(muid, column, value)
 
@@ -203,7 +202,8 @@ class DataTableAccess:
             if col.lower() == "geometry":
                 wkt = values[col]
                 geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
-                self._datatables[table_name].UpdateGeomByCommand(muid, geom)
+                geomTable = IMuGeomTable(self._datatables[table_name])
+                geomTable.UpdateGeomByCommand(muid, geom)
                 continue
             value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
