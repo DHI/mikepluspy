@@ -1,5 +1,6 @@
 import os.path
 import System
+import sys
 from System import Object
 from System import String
 from System.Collections.Generic import Dictionary
@@ -56,6 +57,7 @@ class DataTableAccess:
 
     def open_database(self):
         """Open database"""
+        sel._check_conflict()
         if self.is_database_open():
             return
         data_source = BaseDataSource.Create(self._file_path)
@@ -248,3 +250,18 @@ class DataTableAccess:
             and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
         )
         return is_open
+
+    def _check_conflict(self):
+        """Check if there are conflicts with mikeio and mikeioid"""
+
+        mike1dio = sys.modules.get("mikeio1d")
+        if mike1dio is not None:
+            raise RuntimeError(
+                "mikeio1d module has been loaded. mikeio1d only can be loaded after mikeplus module."
+            )
+
+        mikeio = sys.modules.get("mikeio")
+        if mikeio is not None:
+            raise RuntimeError(
+                "mikeplus cannot currently be used with mikeio in the same script."
+            )
