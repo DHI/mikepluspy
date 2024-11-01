@@ -1,5 +1,8 @@
 import os.path
+
+import shapely.wkt
 import System
+import shapely
 from System import Object
 from System import String
 from System.Collections.Generic import Dictionary
@@ -7,6 +10,8 @@ from System.Collections.Generic import List
 from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from NetTopologySuite.Geometries import Geometry
 
 from .dotnet import as_dotnet_list
 
@@ -175,7 +180,11 @@ class DataTableAccess:
         value :
             the value want to set
         """
-        self._datatables[table_name].SetValueByCommand(muid, column, value)
+        if column.lower() == "geometry":
+            geom = GeoAPIHelper.GetIGeometryFromWKT(value)
+            self._datatables[table_name].UpdateGeomByCommand(muid, geom)
+        else:
+            self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
         """Set values of specified muid in table
@@ -191,6 +200,11 @@ class DataTableAccess:
         """
         value_dict = Dictionary[String, Object]()
         for col in values:
+            if col.lower() == "geometry":
+                wkt = values[col]
+                geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
+                self._datatables[table_name].UpdateGeomByCommand(muid, geom)
+                continue
             value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
@@ -207,14 +221,18 @@ class DataTableAccess:
             the values want to insert, by default None
         """
         value_dict = Dictionary[String, Object]()
+        geom = None
         if values is not None:
             for col in values:
+                if col.lower() == "geometry":
+                    wkt = values[col]
+                    geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 if isinstance(values[col], int):
                     value_dict[col] = System.Nullable[int](values[col])
                 else:
                     value_dict[col] = values[col]
         result, new_muid = self._datatables[table_name].InsertByCommand(
-            muid, None, value_dict, False, False
+            muid, geom, value_dict, False, False
         )
 
     def delete(self, table_name, muid):
@@ -248,3 +266,4 @@ class DataTableAccess:
             and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
         )
         return is_open
+
