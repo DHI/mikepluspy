@@ -7,7 +7,8 @@ if (-not $year) {
     exit 1
 }
 
-Start-Process -FilePath ".\setup.exe" -ArgumentList "/s /v`"/qn`""
+$process = Start-Process -FilePath ".\setup.exe" -ArgumentList "/s /v`"/qn`"" -PassThru
+$process.WaitForExit()
 
 if (Test-Path "${env:ProgramFiles(x86)}\DHI\MIKE+") {
     $MIKE_INSTALL_PATH = "${env:ProgramFiles(x86)}\DHI\MIKE+"
