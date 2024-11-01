@@ -57,3 +57,6 @@ if ($fileContent -match $regexPattern) {
 
 Copy-Item -Path $tempFile -Destination $SHELL_CONFIG_FILE -Force
 Remove-Item -Path $tempFile -Force
+
+Write-Host "Contents of $SHELL_CONFIG_FILE:"
+Get-Content -Path $SHELL_CONFIG_FILE | ForEach-Object { Write-Host $_ }
