@@ -57,7 +57,7 @@ class DataTableAccess:
 
     def open_database(self):
         """Open database"""
-        sel._check_conflict()
+        self._check_conflict()
         if self.is_database_open():
             return
         data_source = BaseDataSource.Create(self._file_path)
