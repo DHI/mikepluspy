@@ -1,9 +1,11 @@
 name: Documentation
 
 on:
-  push:
-    branches:    
-      - main
+  workflow_dispatch:
+  
+  #push:
+  #  branches:    
+  #    - main
 
 jobs:
   build:
@@ -12,10 +14,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.8"
+        python-version: "3.12"
         
     - name: Install mikeplus
       run: pip install .[dev]

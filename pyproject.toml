@@ -10,8 +10,7 @@ name = "mikeplus"
 version = "2024.1.0"
 dependencies = [
     "numpy",
-    'pythonnet<=2.5.2; python_version < "3.7.0"',
-    'pythonnet>=3.0.0a2; python_version >= "3.7.0"',
+    'pythonnet>=3.0',
     "pandas",
 ]
 
@@ -20,14 +19,13 @@ authors = [
 ]
 description = "A python script package to manipulate MIKE+ database, run simulation by using MIKE+ data, run tools based on MIKE+ data"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -36,8 +34,9 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest","flake8","black","sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
-test= ["pytest","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
+dev = ["pytest", "ruff"]
+test = ["pytest"]
+doc =  ["sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
 
 [project.urls]
 "Homepage" = "https://github.com/DHI/mikepluspy"
@@ -52,6 +51,6 @@ allow_redefinition = true
 warn_unreachable = true
 
 [tool.ruff]
-
 # ignore long lines
-ignore = ["E501", "E741"]
+lint.exclude = ["notebooks/**/*.ipynb"]
+lint.ignore = ["E501"]

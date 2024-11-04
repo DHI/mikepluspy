@@ -1,4 +1,6 @@
-from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool import TopologyRepairParam
+from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool import (
+    TopologyRepairParam,
+)
 from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.Tools.TopologyRepairTool import CSTopologyRepairTool
 from DHI.Amelia.Tools.TopologyRepairTool import WDTopologyRepairTool
@@ -7,7 +9,7 @@ from System.Threading import CancellationTokenSource
 
 class TopoRepairTool:
     """TopoRepairTool offers a way to detect and repair topology or network geometry issues in the model.
-    
+
     Examples
     --------
     Delete unlinked nodes and links, also delete overlapped nodes for the whole network.
@@ -19,19 +21,21 @@ class TopoRepairTool:
     >>> data_access.close_database()
     ```
     """
-    def __init__(self,
-                 dataTables):
+
+    def __init__(self, dataTables):
         self._dataTables = dataTables
 
-    def run(self,
-            delete_unLink_node_Link=True,
-            dissolve_overlap_node=True,
-            correct_link_connection=True,
-            search_junction_connection=True,
-            create_junction_connection=True,
-            split_link_on_tjunction=True,
-            add_missing_zones=True,
-            snap_distance=0.1):
+    def run(
+        self,
+        delete_unLink_node_Link=True,
+        dissolve_overlap_node=True,
+        correct_link_connection=True,
+        search_junction_connection=True,
+        create_junction_connection=True,
+        split_link_on_tjunction=True,
+        add_missing_zones=True,
+        snap_distance=0.1,
+    ):
         """Offers a way to detect and repair topology or network geometry issues in the model.
 
         Parameters

@@ -4,16 +4,14 @@ from DHI.Mike.Install import MikeImport, MikeProducts
 
 
 class Engine1D:
-    """The Engine1D class can run MIKE1D simulation, print log file, and get the result file path.
-    """
-    def __init__(self,
-                 dataTables):
-        MikeImport.Setup(22, MikeProducts.MikePlus)
+    """The Engine1D class can run MIKE1D simulation, print log file, and get the result file path."""
+
+    def __init__(self, dataTables):
+        MikeImport.Setup(23, MikeProducts.MikePlus)
         self._dataTables = dataTables
         self._result_file = None
 
-    def run(self,
-            simMuid=None, verbose=False):
+    def run(self, simMuid=None, verbose=False):
         """Run MIKE1D simulation
 
         Parameters
@@ -38,7 +36,12 @@ class Engine1D:
             simMuid = muid[0]
 
         product_info = MikeImport.ActiveProduct()
-        mike1d_exec = Path(product_info.InstallRoot) / 'bin' / 'x64' / 'DHI.Mike1D.Application.exe'
+        mike1d_exec = (
+            Path(product_info.InstallRoot)
+            / "bin"
+            / "x64"
+            / "DHI.Mike1D.Application.exe"
+        )
         dbOrMuppFile = Path(self._dataTables.DataSource.BaseFullPath)
         dir = dbOrMuppFile.parent
         file_name = dbOrMuppFile.stem
@@ -46,11 +49,18 @@ class Engine1D:
         self._result_file = Path(dir) / f"{file_name}_{simMuid}.res1d"
         if verbose:
             print(f"Simulation is started. Simulation id is '{simMuid}'.")
-        subprocess.run([mike1d_exec, str(dbOrMuppFile), f"-simulationid={simMuid}", f"-logfilename={log_file}"])
+        subprocess.run(
+            [
+                mike1d_exec,
+                str(dbOrMuppFile),
+                f"-simulationid={simMuid}",
+                f"-logfilename={log_file}",
+            ]
+        )
         if verbose:
             if self._print_log(log_file) is False:
                 print("Simulation is finished without logFile generated.")
-                
+
     @property
     def result_file(self):
         """Get the current simulation result file path
