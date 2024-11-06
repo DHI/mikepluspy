@@ -24,11 +24,11 @@ class DataTableAccess:
     ```python
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
-    >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING(3 4,10 50,20 25)"}
+    >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING (3 4, 10 50, 20 25)"}
     >>> data_access.insert("msm_Link", "link_test", values)
     >>> fields = ["Diameter", "Description", "geometry"]
     >>> query = data_access.get_field_values("msm_Link", "link_test", fields)
-    >>> values = {'Diameter': 1.0, 'Description': 'updateValues', "geometry": "LINESTRING(4 5,20 60,30 35)"}
+    >>> values = {'Diameter': 1.0, 'Description': 'updateValues', "geometry": "LINESTRING (4 5, 20 60, 30 35)"}
     >>> data_access.set_values("msm_Link", "link_test", values)
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
