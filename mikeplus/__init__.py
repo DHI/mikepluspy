@@ -1,4 +1,3 @@
-import sys
 import clr
 
 __version__ = "2024.1.0"
@@ -21,12 +20,5 @@ clr.AddReference("DHI.Amelia.GlobalUtility")
 clr.AddReference("NetTopologySuite")
 
 from .datatableaccess import DataTableAccess  # noqa: E402
-
-
-mike1dio = sys.modules.get("mikeio1d")
-if mike1dio is not None:
-    raise RuntimeError(
-        "mikeio1d module has been loaded. mikeio1d only can be loaded after mikeplus module."
-    )
 
 __all__ = ["DataTableAccess"]

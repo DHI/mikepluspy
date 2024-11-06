@@ -1,3 +1,5 @@
+import pytest
+
 import os
 from mikeplus import DataTableAccess
 from mikeplus.tools.topology_repair_tool import TopoRepairTool
@@ -93,6 +95,7 @@ def test_catch_slope_len_tool():
     data_access.close_database()
 
 
+@pytest.mark.license_required
 def test_import_tool():
     dbFile = os.path.join("tests", "testdata", "import", "import.sqlite")
     data_access = DataTableAccess(dbFile)
