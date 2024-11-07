@@ -20,5 +20,6 @@ clr.AddReference("DHI.Amelia.GlobalUtility")
 clr.AddReference("NetTopologySuite")
 
 from .datatableaccess import DataTableAccess  # noqa: E402
+from .datatableaccess import DataTableDemoAccess  # noqa: E402
 
-__all__ = ["DataTableAccess"]
+__all__ = ["DataTableAccess", "DataTableDemoAccess"]
