@@ -17,6 +17,7 @@ clr.AddReference("DHI.Amelia.DataModule")
 clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
+clr.AddReference("NetTopologySuite")
 
 from .datatableaccess import DataTableAccess  # noqa: E402
 

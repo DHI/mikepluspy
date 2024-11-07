@@ -1,4 +1,5 @@
 import os.path
+
 import System
 import sys
 from System import Object
@@ -8,6 +9,8 @@ from System.Collections.Generic import List
 from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 
 from .dotnet import as_dotnet_list
 
@@ -22,10 +25,12 @@ class DataTableAccess:
     ```python
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
-    >>> values = {'Diameter': 2.0, 'Description': 'insertValues'}
+    >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING (3 4, 10 50, 20 25)"}
     >>> data_access.insert("msm_Link", "link_test", values)
-    >>> fields = ["Diameter", "Description"]
-    >>> values = data_access.get_field_values("msm_Link", "link_test", fields)
+    >>> fields = ["Diameter", "Description", "geometry"]
+    >>> query = data_access.get_field_values("msm_Link", "link_test", fields)
+    >>> values = {'Diameter': 1.0, 'Description': 'updateValues', "geometry": "LINESTRING (4 5, 20 60, 30 35)"}
+    >>> data_access.set_values("msm_Link", "link_test", values)
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
     ```
@@ -112,11 +117,13 @@ class DataTableAccess:
             The MUID of the row to get values for.
         fields : str | List[str]
             The name of the field(s) to get values for.
+            WTK (well-know-text) will be returned for geometry field.
 
         Returns
         -------
         List
             A list of the requested values in the same order as the fields argument.
+            WTK (well-know-text) will be returned for geometry field
         """
         if not isinstance(fields, list):
             fields = [fields]
@@ -128,7 +135,13 @@ class DataTableAccess:
         i = 0
         if values is not None and len(values) > 0:
             while i < len(values):
-                pyValues.append(values[i])
+                if fields[i].lower() == "geometry":
+                    wkt = None
+                    if values[i] is not None:
+                        wkt = GeoAPIHelper.GetWKTIGeometry(values[i])
+                    pyValues.append(wkt)
+                else:
+                    pyValues.append(values[i])
                 i += 1
         return pyValues
 
@@ -148,6 +161,7 @@ class DataTableAccess:
         -------
         dicationary
             muid and field values dictionary
+            WTK (well-know-text) will be returned for geometry field.
         """
         fieldList = List[str]()
         for field in fields:
@@ -158,8 +172,15 @@ class DataTableAccess:
         mydict = dict()
         for feildVal in fieldValueGet:
             mylist = list()
+            i = 0
             for val in feildVal.Value:
-                mylist.append(val)
+                if (fields[i]).lower() == "geometry":
+                    wkt = None
+                    if val is not None:
+                        wkt = GeoAPIHelper.GetWKTIGeometry(val)
+                    mylist.append(wkt)
+                else:
+                    mylist.append(val)
             mydict[feildVal.Key] = mylist
         return mydict
 
@@ -176,8 +197,19 @@ class DataTableAccess:
             column name
         value :
             the value want to set
+            WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+            Multiple geometry is not supported.
+            WTK example for point, line and polygon
+                - POINT (30 10)
+                - LINESTRING (30 10, 10 30, 40 40)
+                - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
         """
-        self._datatables[table_name].SetValueByCommand(muid, column, value)
+        if column.lower() == "geometry":
+            geom = GeoAPIHelper.GetIGeometryFromWKT(value)
+            geomTable = IMuGeomTable(self._datatables[table_name])
+            geomTable.UpdateGeomByCommand(muid, geom)
+        else:
+            self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
         """Set values of specified muid in table
@@ -190,9 +222,21 @@ class DataTableAccess:
             muid
         values : array
             field values want to set
+            WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+            Multiple geometry is not supported.
+            WTK example for point, line and polygon
+                - POINT (30 10)
+                - LINESTRING (30 10, 10 30, 40 40)
+                - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
         """
         value_dict = Dictionary[String, Object]()
         for col in values:
+            if col.lower() == "geometry":
+                wkt = values[col]
+                geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
+                geomTable = IMuGeomTable(self._datatables[table_name])
+                geomTable.UpdateGeomByCommand(muid, geom)
+                continue
             value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
@@ -207,16 +251,26 @@ class DataTableAccess:
             muid
         values : array, optional
             the values want to insert, by default None
+            WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+            Multiple geometry is not supported.
+            WTK example for point, line and polygon
+                - POINT (30 10)
+                - LINESTRING (30 10, 10 30, 40 40)
+                - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
         """
         value_dict = Dictionary[String, Object]()
+        geom = None
         if values is not None:
             for col in values:
+                if col.lower() == "geometry":
+                    wkt = values[col]
+                    geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 if isinstance(values[col], int):
                     value_dict[col] = System.Nullable[int](values[col])
                 else:
                     value_dict[col] = values[col]
         result, new_muid = self._datatables[table_name].InsertByCommand(
-            muid, None, value_dict, False, False
+            muid, geom, value_dict, False, False
         )
 
     def delete(self, table_name, muid):
