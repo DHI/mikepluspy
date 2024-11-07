@@ -60,26 +60,14 @@ class DataTableAccess:
             )
         return str.join("\n", out)
 
-    def open_database(self, license_time_out: int = None):
-        """Open database
-
-        Parameters
-        ----------
-        license_time_out : int, optional (under milli-second unit)
-            The default license query time out is 240000 milli-second.
-            If you have no license, you can reduce the license query time out.
-            This will inprove the data manpulate performance for network limited models.
-            If the model larger than the allowed size, the database manpulating and
-            engine simulation will fail.
-        """
+    def open_database(self):
+        """Open database"""
         self._check_conflict()
         if self.is_database_open():
             return
         data_source = BaseDataSource.Create(self._file_path)
         data_source.OpenDatabase()
-        datatables = DataTableContainer(True)
-        if license_time_out is not None:
-            datatables.LicenseTimeout = license_time_out
+        datatables = self._create_datatables()
         datatables.DataSource = data_source
         datatables.SetActiveModel(data_source.ActiveModel)
         datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
@@ -331,3 +319,21 @@ class DataTableAccess:
             raise RuntimeError(
                 "mikeplus cannot currently be used with mikeio in the same script."
             )
+
+    def _create_datatables(self):
+        datatables = DataTableContainer(True)
+        return datatables
+
+
+class DataTableDemoAccess(DataTableAccess):
+    """
+    This class only have demo access to MIKE+ database.
+    Please use DataTableAccess if the model is larger than demo size.
+
+    Usage case: It is used for demo model with very short license checking time. The license check is under failed status.
+    """
+
+    def _create_datatables(self):
+        datatables = super()._create_datatables()
+        datatables.LicenseTimeout = 1
+        return datatables

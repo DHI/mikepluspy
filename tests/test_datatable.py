@@ -1,13 +1,13 @@
 import pytest
 
 import os
-from mikeplus import DataTableAccess
+from mikeplus import DataTableDemoAccess
 
 
 def test_opendatabase():
     file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableAccess(file_name)
-    data_access.open_database(1)
+    data_access = DataTableDemoAccess(file_name)
+    data_access.open_database()
     assert data_access.is_database_open() is True
     data_access.close_database()
 
@@ -22,7 +22,7 @@ def test_opendatabase():
 )
 def test_get_field_values(table_name, muid, fields, expected_values):
     file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableAccess(file_name)
+    data_access = DataTableDemoAccess(file_name)
     data_access.open_database()
     values = data_access.get_field_values(table_name, muid, fields)
     assert values == expected_values
@@ -31,7 +31,7 @@ def test_get_field_values(table_name, muid, fields, expected_values):
 
 def test_manipulate_data():
     file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableAccess(file_name)
+    data_access = DataTableDemoAccess(file_name)
     data_access.open_database()
     muids = data_access.get_muid_where("msm_Link", "MUID='link_test'")
     if len(muids) == 1:
