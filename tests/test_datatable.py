@@ -7,7 +7,7 @@ from mikeplus import DataTableAccess
 def test_opendatabase():
     file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
     data_access = DataTableAccess(file_name)
-    data_access.open_database()
+    data_access.open_database(1)
     assert data_access.is_database_open() is True
     data_access.close_database()
 
