@@ -6,6 +6,7 @@ from mikeplus.engines.epanet import EPANET
 from mikeplus.engines.swmm import SWMM
 
 
+@pytest.mark.slow(reason="Test run slow because of the license check.")
 def test_mike1d_engine():
     res_1d_file = os.path.join(
         "tests", "testdata", "Db", "Sirius", "Sirius_1_DEMOBaseDefault_Network_HD.res1d"
@@ -45,6 +46,7 @@ def test_epanet_engine():
     assert os.path.exists(result_file)
 
 
+@pytest.mark.slow(reason="Test run slow because of the license check.")
 def test_swmm_engine():
     dbFile = os.path.join("tests", "testdata", "Db", "SWMM", "Simple_Network.sqlite")
     current_dir = os.getcwd()
