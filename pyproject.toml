@@ -54,3 +54,10 @@ warn_unreachable = true
 # ignore long lines
 lint.exclude = ["notebooks/**/*.ipynb"]
 lint.ignore = ["E501"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+markers = [
+    "slow: slow running tests",
+    "license_required: requires MIKE+ license",
+]
