@@ -22,16 +22,14 @@ def test_mike1d_engine():
     assert os.path.exists(res_1d_file)
 
 
-@pytest.mark.skip(
-    reason="Test not passing, not sure why. Investigate under separate issue."
-)
+@pytest.mark.slow(reason="Test run slow because of the license check.")
 def test_epanet_engine():
     dbFile = os.path.join(
         "tests",
         "testdata",
         "Db",
-        "Average DayDemand GPM",
-        "AverageDayDemand_GPM.sqlite",
+        "Epanet_Demo",
+        "Epanet_Demo.sqlite",
     )
     current_dir = os.getcwd()
     data_access = DataTableAccess(dbFile)
