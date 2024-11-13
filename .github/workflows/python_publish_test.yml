@@ -87,6 +87,6 @@ jobs:
             TWINE_USERNAME: '__token__'
             TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
           run: |
-            twine --verbose upload dist/*.whl
+            twine upload dist/*.whl
 
 
