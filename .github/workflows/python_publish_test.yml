@@ -68,7 +68,7 @@ jobs:
             pytest -v -m "not license_required and not slow"
 
         - name: Build package
-          run: python -m build
+          run: python -m build --wheel
 
         - name: Archive distributions
           uses: actions/upload-artifact@v4
@@ -76,7 +76,17 @@ jobs:
             name: release-dists
             path: dist/
 
-        - name: Publish package distributions to TestPyPI
-          uses: pypa/gh-action-pypi-publish@release/v1
-          with:
-            repository-url: https://test.pypi.org/legacy/
+        # Doesn't run on Windows ☹️
+        #- name: Publish package distributions to TestPyPI
+        #  uses: pypa/gh-action-pypi-publish@release/v1
+        #  with:
+        #    repository-url: https://test.pypi.org/legacy/
+    
+        - name: Publish
+          env:
+            TWINE_USERNAME: '__token__'
+            TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+          run: |
+            twine upload dist/*.whl
+
+
