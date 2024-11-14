@@ -14,25 +14,23 @@ MIKE+Py is a python interface for MIKE+. Its main features include:
 
 ## Requirements
 * MIKE+ 2024 (or greater) with valid license
-* Python x64 3.8 to 3.12
-* Windows operating system
+* Python x64 3.9 to 3.12
+* Windows
 
 ## Installation
 
 The version of MIKE+Py you install must match the version of MIKE+ installed on your desktop. 
 
-> [!NOTE]
-> MIKE+Py is not yet available on PyPI since it is in the initial development stages.
-
 | MIKE+ Version | Install command|
 |:--------------|:---------------|
-| MIKE+ 2024 Update 1 | `pip install https://github.com/DHI/mikepluspy/archive/refs/tags/v2024.1-latest.zip` |
-| MIKE+ 2024 | `pip install https://github.com/DHI/mikepluspy/archive/refs/tags/v2024.0-latest.zip` |
+| MIKE+ 2024 Update 1 | `pip install mikeplus==2024.1` |
+| MIKE+ 2024 | `pip install mikeplus==2024.0` |
 
 
 ## Examples
-Please check out the jupyter notebooks here: https://github.com/DHI/mikepluspy/tree/main/notebooks
+Please check out our [collection of jupyter notebooks] (https://github.com/DHI/mikepluspy/tree/main/notebooks) to get started with MIKE+Py.
 
 ## Where can I get help?
-* General help, new ideas and feature requests - [GitHub Discussions](http://github.com/DHI/mikepluspy/discussions) 
-* Bugs - [GitHub Issues](https://github.com/DHI/mikepluspy/issues) 
+* Bugs - [GitHub Issues](https://github.com/DHI/mikepluspy/issues)
+* Feature requests - [GitHub Issues](https://github.com/DHI/mikepluspy/issues) 
+* Other - [GitHub Discussions](http://github.com/DHI/mikepluspy/discussions)
