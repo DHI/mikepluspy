@@ -11,12 +11,8 @@ from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
-from typing import TYPE_CHECKING
 
 from .dotnet import as_dotnet_list
-
-if TYPE_CHECKING:
-    import shapely
 
 
 class DataTableAccess:
@@ -217,7 +213,7 @@ class DataTableAccess:
             if isinstance(value, str):
                 wkt = value
             else:
-                shapely = self._try_import_shapely()
+                shapely = self._get_shapely()
                 wkt = shapely.to_wkt(value)
             geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
             geomTable = IMuGeomTable(self._datatables[table_name])
@@ -255,7 +251,7 @@ class DataTableAccess:
                 if isinstance(geom_val, str):
                     wkt = geom_val
                 else:
-                    shapely = self._try_import_shapely()
+                    shapely = self._get_shapely()
                     wkt = shapely.to_wkt(geom_val)
                 geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 geomTable = IMuGeomTable(self._datatables[table_name])
@@ -296,7 +292,7 @@ class DataTableAccess:
                     if isinstance(geom_obj, str):
                         wkt = values[col]
                     else:
-                        shapely = self._try_import_shapely()
+                        shapely = self._get_shapely()
                         wkt = shapely.to_wkt(geom_obj)
                     geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 if isinstance(values[col], int):
@@ -358,17 +354,12 @@ class DataTableAccess:
         datatables = DataTableContainer(True)
         return datatables
 
-    def _try_import_shapely(self):
-        shapely_lib = sys.modules.get("shapely")
-        if shapely_lib is None:
-            try:
-                import shapely
-
-                shapely_lib = sys.modules.get("shapely")
-            except ImportError:
-                message = "This functionality requires installing the optional dependency shapely."
-                raise ImportError(message)
-        return shapely_lib
+    def _get_shapely(self):
+        shapely = sys.modules.get("shapely")
+        if shapely is None:
+            message = "This functionality requires installing the optional dependency shapely."
+            raise ImportError(message)
+        return shapely
 
 
 class DataTableDemoAccess(DataTableAccess):
