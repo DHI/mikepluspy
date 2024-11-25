@@ -197,15 +197,25 @@ class DataTableAccess:
             column name
         value :
             the value want to set
-            WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
-            Multiple geometry is not supported.
-            WTK example for point, line and polygon
-                - POINT (30 10)
-                - LINESTRING (30 10, 10 30, 40 40)
-                - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+            Geometry can be set for the 'geometry' field of geometry based tables. e.g. Node and Link
+            Two types of data format are supported. One is wkt which is string format, another is shapely geometry object.
+                - WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+                Multiple geometry is not supported.
+                WTK example for point, line and polygon
+                    - POINT (30 10)
+                    - LINESTRING (30 10, 10 30, 40 40)
+                    - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+                - shapely object is accept for geometry field. Please install shapely package first.
+                The supported geometry types are Point, LineString and Polygon
         """
         if column.lower() == "geometry":
-            geom = GeoAPIHelper.GetIGeometryFromWKT(value)
+            wkt = None
+            if isinstance(value, str):
+                wkt = value
+            else:
+                shapely = self._get_shapely()
+                wkt = shapely.to_wkt(value)
+            geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
             geomTable = IMuGeomTable(self._datatables[table_name])
             geomTable.UpdateGeomByCommand(muid, geom)
         else:
@@ -222,22 +232,32 @@ class DataTableAccess:
             muid
         values : array
             field values want to set
-            WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
-            Multiple geometry is not supported.
-            WTK example for point, line and polygon
-                - POINT (30 10)
-                - LINESTRING (30 10, 10 30, 40 40)
-                - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+            Geometry can be set for the 'geometry' field of geometry based tables. e.g. Node and Link
+            Two types of data format are supported. One is wkt which is string format, another is shapely geometry object.
+                - WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+                Multiple geometry is not supported.
+                WTK example for point, line and polygon
+                    - POINT (30 10)
+                    - LINESTRING (30 10, 10 30, 40 40)
+                    - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+                - shapely object is accept for geometry field. Please install shapely package first.
+                The supported geometry types are Point, LineString and Polygon
         """
         value_dict = Dictionary[String, Object]()
         for col in values:
             if col.lower() == "geometry":
-                wkt = values[col]
+                geom_val = values[col]
+                wkt = None
+                if isinstance(geom_val, str):
+                    wkt = geom_val
+                else:
+                    shapely = self._get_shapely()
+                    wkt = shapely.to_wkt(geom_val)
                 geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 geomTable = IMuGeomTable(self._datatables[table_name])
                 geomTable.UpdateGeomByCommand(muid, geom)
-                continue
-            value_dict[col] = values[col]
+            else:
+                value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
     def insert(self, table_name, muid, values=None):
@@ -251,19 +271,29 @@ class DataTableAccess:
             muid
         values : array, optional
             the values want to insert, by default None
-            WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
-            Multiple geometry is not supported.
-            WTK example for point, line and polygon
-                - POINT (30 10)
-                - LINESTRING (30 10, 10 30, 40 40)
-                - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+            Geometry can be set for the 'geometry' field of geometry based tables. e.g. Node and Link
+            Two types of data format are supported. One is wkt which is string format, another is shapely geometry object.
+                - WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+                Multiple geometry is not supported.
+                WTK example for point, line and polygon
+                    - POINT (30 10)
+                    - LINESTRING (30 10, 10 30, 40 40)
+                    - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+                - shapely object is accept for geometry field. Please install shapely package first.
+                The supported geometry types are Point, LineString and Polygon
         """
         value_dict = Dictionary[String, Object]()
         geom = None
         if values is not None:
             for col in values:
                 if col.lower() == "geometry":
-                    wkt = values[col]
+                    wkt = None
+                    geom_obj = values[col]
+                    if isinstance(geom_obj, str):
+                        wkt = values[col]
+                    else:
+                        shapely = self._get_shapely()
+                        wkt = shapely.to_wkt(geom_obj)
                     geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 if isinstance(values[col], int):
                     value_dict[col] = System.Nullable[int](values[col])
@@ -323,6 +353,13 @@ class DataTableAccess:
     def _create_datatables(self):
         datatables = DataTableContainer(True)
         return datatables
+
+    def _get_shapely(self):
+        shapely = sys.modules.get("shapely")
+        if shapely is None:
+            message = "This functionality requires installing the optional dependency shapely."
+            raise ImportError(message)
+        return shapely
 
 
 class DataTableDemoAccess(DataTableAccess):
