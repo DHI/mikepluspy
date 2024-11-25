@@ -69,3 +69,26 @@ def test_manipulate_data():
     muids = data_access.get_muid_where("msm_Link", "MUID='link_test'")
     assert len(muids) == 0
     data_access.close_database()
+
+
+def test_shapely_geometry():
+    from shapely.geometry import LineString
+
+    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
+    data_access = DataTableDemoAccess(file_name)
+    data_access.open_database()
+    muids = data_access.get_muid_where("msm_Link", "MUID='link_test'")
+    if len(muids) == 1:
+        data_access.delete("msm_Link", "link_test")
+    line = LineString([(0, 0), (10, 10)])
+    values = {"geometry": line}
+    data_access.insert("msm_Link", "link_shp_test", values)
+    fields = ["geometry"]
+    values = data_access.get_field_values("msm_Link", "link_shp_test", fields)
+    assert values[0] == "LINESTRING (0 0, 10 10)"
+    line = LineString([(10, 10), (20, 20)])
+    data_access.set_value("msm_Link", "link_shp_test", "geometry", line)
+    values = data_access.get_field_values("msm_Link", "link_shp_test", fields)
+    assert values[0] == "LINESTRING (10 10, 20 20)"
+    data_access.delete("msm_Link", "link_shp_test")
+    data_access.close_database()

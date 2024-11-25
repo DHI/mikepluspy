@@ -51,6 +51,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pytest
+          python -m pip install shapely
 
       - name: Install mikepluspy
         run: |
