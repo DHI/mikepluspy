@@ -11,6 +11,7 @@ from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
+from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
 
 from .dotnet import as_dotnet_list
 
@@ -72,10 +73,12 @@ class DataTableAccess:
         datatables.SetActiveModel(data_source.ActiveModel)
         datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
         datatables.OnResetContainer(None, None)
+        datatables.UndoRedoManager = AmlUndoRedoManager()
         self._datatables = datatables
 
     def close_database(self):
         """Close database"""
+        self._datatables.UndoRedoManager.ClearUndoRedoBuffer()
         self._datatables.DataSource.CloseDatabase()
         self._datatables.Dispose()
         self._datatables = None
