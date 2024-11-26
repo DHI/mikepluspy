@@ -1,5 +1,7 @@
 import os.path
+
 import System
+import sys
 from System import Object
 from System import String
 from System.Collections.Generic import Dictionary
@@ -7,8 +9,12 @@ from System.Collections.Generic import List
 from System.Data import ConnectionState
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
+
 from .dotnet import as_dotnet_list
+
 
 class DataTableAccess:
     """
@@ -20,10 +26,12 @@ class DataTableAccess:
     ```python
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
-    >>> values = {'Diameter': 2.0, 'Description': 'insertValues'}
+    >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING (3 4, 10 50, 20 25)"}
     >>> data_access.insert("msm_Link", "link_test", values)
-    >>> fields = ["Diameter", "Description"]
-    >>> values = data_access.get_field_values("msm_Link", "link_test", fields)
+    >>> fields = ["Diameter", "Description", "geometry"]
+    >>> query = data_access.get_field_values("msm_Link", "link_test", fields)
+    >>> values = {'Diameter': 1.0, 'Description': 'updateValues', "geometry": "LINESTRING (4 5, 20 60, 30 35)"}
+    >>> data_access.set_values("msm_Link", "link_test", values)
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
     ```
@@ -55,11 +63,12 @@ class DataTableAccess:
 
     def open_database(self):
         """Open database"""
+        self._check_conflict()
         if self.is_database_open():
             return
         data_source = BaseDataSource.Create(self._file_path)
         data_source.OpenDatabase()
-        datatables = DataTableContainer(True)
+        datatables = self._create_datatables()
         datatables.DataSource = data_source
         datatables.SetActiveModel(data_source.ActiveModel)
         datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
@@ -111,11 +120,13 @@ class DataTableAccess:
             The MUID of the row to get values for.
         fields : str | List[str]
             The name of the field(s) to get values for.
+            WTK (well-know-text) will be returned for geometry field.
 
         Returns
         -------
         List
             A list of the requested values in the same order as the fields argument.
+            WTK (well-know-text) will be returned for geometry field
         """
         if not isinstance(fields, list):
             fields = [fields]
@@ -127,7 +138,13 @@ class DataTableAccess:
         i = 0
         if values is not None and len(values) > 0:
             while i < len(values):
-                pyValues.append(values[i])
+                if fields[i].lower() == "geometry":
+                    wkt = None
+                    if values[i] is not None:
+                        wkt = GeoAPIHelper.GetWKTIGeometry(values[i])
+                    pyValues.append(wkt)
+                else:
+                    pyValues.append(values[i])
                 i += 1
         return pyValues
 
@@ -147,6 +164,7 @@ class DataTableAccess:
         -------
         dicationary
             muid and field values dictionary
+            WTK (well-know-text) will be returned for geometry field.
         """
         fieldList = List[str]()
         for field in fields:
@@ -157,8 +175,15 @@ class DataTableAccess:
         mydict = dict()
         for feildVal in fieldValueGet:
             mylist = list()
+            i = 0
             for val in feildVal.Value:
-                mylist.append(val)
+                if (fields[i]).lower() == "geometry":
+                    wkt = None
+                    if val is not None:
+                        wkt = GeoAPIHelper.GetWKTIGeometry(val)
+                    mylist.append(wkt)
+                else:
+                    mylist.append(val)
             mydict[feildVal.Key] = mylist
         return mydict
 
@@ -175,8 +200,29 @@ class DataTableAccess:
             column name
         value :
             the value want to set
+            Geometry can be set for the 'geometry' field of geometry based tables. e.g. Node and Link
+            Two types of data format are supported. One is wkt which is string format, another is shapely geometry object.
+                - WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+                Multiple geometry is not supported.
+                WTK example for point, line and polygon
+                    - POINT (30 10)
+                    - LINESTRING (30 10, 10 30, 40 40)
+                    - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+                - shapely object is accept for geometry field. Please install shapely package first.
+                The supported geometry types are Point, LineString and Polygon
         """
-        self._datatables[table_name].SetValueByCommand(muid, column, value)
+        if column.lower() == "geometry":
+            wkt = None
+            if isinstance(value, str):
+                wkt = value
+            else:
+                shapely = self._get_shapely()
+                wkt = shapely.to_wkt(value)
+            geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
+            geomTable = IMuGeomTable(self._datatables[table_name])
+            geomTable.UpdateGeomByCommand(muid, geom)
+        else:
+            self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
         """Set values of specified muid in table
@@ -189,10 +235,32 @@ class DataTableAccess:
             muid
         values : array
             field values want to set
+            Geometry can be set for the 'geometry' field of geometry based tables. e.g. Node and Link
+            Two types of data format are supported. One is wkt which is string format, another is shapely geometry object.
+                - WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+                Multiple geometry is not supported.
+                WTK example for point, line and polygon
+                    - POINT (30 10)
+                    - LINESTRING (30 10, 10 30, 40 40)
+                    - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+                - shapely object is accept for geometry field. Please install shapely package first.
+                The supported geometry types are Point, LineString and Polygon
         """
         value_dict = Dictionary[String, Object]()
         for col in values:
-            value_dict[col] = values[col]
+            if col.lower() == "geometry":
+                geom_val = values[col]
+                wkt = None
+                if isinstance(geom_val, str):
+                    wkt = geom_val
+                else:
+                    shapely = self._get_shapely()
+                    wkt = shapely.to_wkt(geom_val)
+                geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
+                geomTable = IMuGeomTable(self._datatables[table_name])
+                geomTable.UpdateGeomByCommand(muid, geom)
+            else:
+                value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
     def insert(self, table_name, muid, values=None):
@@ -206,16 +274,36 @@ class DataTableAccess:
             muid
         values : array, optional
             the values want to insert, by default None
+            Geometry can be set for the 'geometry' field of geometry based tables. e.g. Node and Link
+            Two types of data format are supported. One is wkt which is string format, another is shapely geometry object.
+                - WTK (well-know-text) is accept for geometry field. It uses ISO 19162:2019 standard.
+                Multiple geometry is not supported.
+                WTK example for point, line and polygon
+                    - POINT (30 10)
+                    - LINESTRING (30 10, 10 30, 40 40)
+                    - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
+                - shapely object is accept for geometry field. Please install shapely package first.
+                The supported geometry types are Point, LineString and Polygon
         """
         value_dict = Dictionary[String, Object]()
+        geom = None
         if values is not None:
             for col in values:
+                if col.lower() == "geometry":
+                    wkt = None
+                    geom_obj = values[col]
+                    if isinstance(geom_obj, str):
+                        wkt = values[col]
+                    else:
+                        shapely = self._get_shapely()
+                        wkt = shapely.to_wkt(geom_obj)
+                    geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 if isinstance(values[col], int):
                     value_dict[col] = System.Nullable[int](values[col])
                 else:
                     value_dict[col] = values[col]
         result, new_muid = self._datatables[table_name].InsertByCommand(
-            muid, None, value_dict, False, False
+            muid, geom, value_dict, False, False
         )
 
     def delete(self, table_name, muid):
@@ -249,3 +337,43 @@ class DataTableAccess:
             and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
         )
         return is_open
+
+    def _check_conflict(self):
+        """Check if there are conflicts with mikeio and mikeioid"""
+
+        mike1dio = sys.modules.get("mikeio1d")
+        if mike1dio is not None:
+            raise RuntimeError(
+                "mikeio1d module has been loaded. mikeio1d only can be loaded after mikeplus module."
+            )
+
+        mikeio = sys.modules.get("mikeio")
+        if mikeio is not None:
+            raise RuntimeError(
+                "mikeplus cannot currently be used with mikeio in the same script."
+            )
+
+    def _create_datatables(self):
+        datatables = DataTableContainer(True)
+        return datatables
+
+    def _get_shapely(self):
+        shapely = sys.modules.get("shapely")
+        if shapely is None:
+            message = "This functionality requires installing the optional dependency shapely."
+            raise ImportError(message)
+        return shapely
+
+
+class DataTableDemoAccess(DataTableAccess):
+    """
+    This class only have demo access to MIKE+ database.
+    Please use DataTableAccess if the model is larger than demo size.
+
+    Usage case: It is used for demo model with very short license checking time. The license check is under failed status.
+    """
+
+    def _create_datatables(self):
+        datatables = super()._create_datatables()
+        datatables.LicenseTimeout = 1
+        return datatables
