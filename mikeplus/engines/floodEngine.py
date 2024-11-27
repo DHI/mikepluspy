@@ -123,4 +123,7 @@ class FloodEngine:
         string list
             The result files path of current simulation
         """
-        return self._result_file
+        if self._result_files is None:
+            simMuid = self._get_active_muid()
+            self._result_file = self._get_result_files(simMuid)
+        return self._result_files
