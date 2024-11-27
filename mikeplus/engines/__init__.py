@@ -13,9 +13,11 @@ clr.AddReference("DHI.Amelia.Tools.EngineTool")
 from .engine1d import Engine1D  # noqa: E402
 from .epanet import EPANET  # noqa: E402
 from .swmm import SWMM  # noqa: E402
+from .floodEngine import FloodEngine  # noqa: E402
 
 __all__ = [
     "Engine1D",
     "EPANET",
     "SWMM",
+    "FloodEngine",
 ]
