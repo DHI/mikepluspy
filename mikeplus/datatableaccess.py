@@ -12,6 +12,7 @@ from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
+from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
 
 from .dotnet import as_dotnet_list
 from .dotnet import from_dotnet_datetime
@@ -77,6 +78,7 @@ class DataTableAccess:
         datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
         datatables.OnResetContainer(None, None)
         datatables.UndoRedoManager = AmlUndoRedoManager()
+        datatables.ImportExportPfsFile = ImportExportPfsFile()
         self._datatables = datatables
 
     def close_database(self):
