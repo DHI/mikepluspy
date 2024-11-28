@@ -11,11 +11,11 @@ from System.Collections.Generic import List
 class FloodEngine:
     """The FloodEngine class can run 1D/2D/FLOOD simulation, print log files, and get the result files path"""
 
-    def __init__(self, dataTables):
-        self._dataTables = dataTables
+    def __init__(self, data_tables):
+        self._data_tables = data_tables
         self._result_files = None
 
-    def run(self, simMuid=None, verbose=False):
+    def run(self, sim_muid=None, verbose=False):
         """Run 1D/2D/Flood simulation
 
         Parameters
@@ -33,18 +33,18 @@ class FloodEngine:
         >>>engine.run()
         >>>data_access.close_database()
         """
-        if simMuid is None:
-            simMuid = self._get_active_muid()
-            if simMuid is None:
+        if sim_muid is None:
+            sim_muid = self._get_active_muid()
+            if sim_muid is None:
                 raise ValueError("Simulation id can't be none.")
         if verbose:
-            print("Simulation id is " + simMuid)
+            print("Simulation id is " + sim_muid)
 
         engine_tool = EngineTool()
-        engine_tool.DataTables = self._dataTables
+        engine_tool.DataTables = self._data_tables
         msg = List[str]()
         launcher = DhiEngineSimpleLauncher()
-        success, launcher, msg = engine_tool.RunEngine_CS(launcher, msg, simMuid)
+        success, launcher, msg = engine_tool.RunEngine_CS(launcher, msg, sim_muid)
         if success and launcher is not None:
             launcher.Start()
         elif msg is not None and verbose:
@@ -52,48 +52,48 @@ class FloodEngine:
             print(joined_msg)
 
         if self._result_files is None:
-            self._result_files = self._get_result_files(simMuid)
+            self._result_files = self._get_result_files(sim_muid)
 
-        engineStart = False
+        engine_start = False
         while not launcher.IsEngineRunning:
             time.sleep(1)
-        engineStart = True
+        engine_start = True
 
-        while engineStart and not launcher.IsEngineExit:
+        while engine_start and not launcher.IsEngineExit:
             time.sleep(1)
 
         if verbose:
-            for log_file in self._get_log_files(simMuid, launcher.SimulationOption):
+            for log_file in self._get_log_files(sim_muid, launcher.SimulationOption):
                 self._print_log(log_file)
 
     def _get_active_muid(self):
-        muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
+        muid = self._data_tables["msm_Project"].GetMuidsWhere("ActiveProject=1")
         if muid is None and muid.Count == 0:
             return None
         return muid[0]
 
-    def _get_result_files(self, simMuid):
-        project = self._dataTables["msm_Project"]
+    def _get_result_files(self, sim_muid):
+        project = self._data_tables["msm_Project"]
         prj = IMsmProjectTable(project)
-        res_files_dictionary = prj.GetResultFilePath(simMuid)
+        res_files_dictionary = prj.GetResultFilePath(sim_muid)
         res_files = []
         for item in res_files_dictionary:
             res_files.append(os.path.abspath(item.Value))
         return res_files
 
-    def _get_log_files(self, simMuid, simOption):
-        dbOrMuppFile = Path(self._dataTables.DataSource.BaseFullPath)
-        dir = dbOrMuppFile.parent
-        file_name = dbOrMuppFile.stem
-        prefix = Path(dir) / f"{file_name}_{simMuid}"
+    def _get_log_files(self, sim_muid, sim_option):
+        db_mupp_file = Path(self._data_tables.DataSource.BaseFullPath)
+        dir = db_mupp_file.parent
+        file_name = db_mupp_file.stem
+        prefix = Path(dir) / f"{file_name}_{sim_muid}"
         log_files = []
-        if simOption == MUSimulationOption.CS_MIKE_1D:
+        if sim_option == MUSimulationOption.CS_MIKE_1D:
             log_files.append(f"{prefix}.log")
-        elif simOption == MUSimulationOption.CS_MIKE_21FM:
+        elif sim_option == MUSimulationOption.CS_MIKE_21FM:
             log_files.append(f"{prefix}_m21fm.log")
         elif (
-            simOption == MUSimulationOption.CS_MIKE_COUPLING
-            or simOption == MUSimulationOption.CS_MIKE_COUPLING_21FMModelLink
+            sim_option == MUSimulationOption.CS_MIKE_COUPLING
+            or sim_option == MUSimulationOption.CS_MIKE_COUPLING_21FMModelLink
         ):
             log_files.append(f"{prefix}_m1d.log")
             log_files.append(f"{prefix}_m21fm.log")
@@ -124,6 +124,6 @@ class FloodEngine:
             The result files path of current simulation
         """
         if self._result_files is None:
-            simMuid = self._get_active_muid()
-            self._result_file = self._get_result_files(simMuid)
+            sim_muid = self._get_active_muid()
+            self._result_files = self._get_result_files(sim_muid)
         return self._result_files
