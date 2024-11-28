@@ -23,9 +23,9 @@ The version of MIKE+Py you install must match the version of MIKE+ installed on 
 
 | MIKE+ Version | Install command|
 |:--------------|:---------------|
-| MIKE+ 2025 | `pip install mikeplus==2025` |
-| MIKE+ 2024 Update 1 | `pip install mikeplus==2024.1` |
-| MIKE+ 2024 | `pip install mikeplus==2024.0` |
+| MIKE+ 2025 | `pip install mikeplus` |
+| MIKE+ 2024 Update 1 | `pip install mikeplus==2024.1.*` |
+| MIKE+ 2024 | `pip install mikeplus==2024.0.*` |
 
 
 ## Examples
