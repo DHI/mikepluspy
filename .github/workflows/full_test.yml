@@ -1,4 +1,4 @@
-name: Full test MIKE+ 2025
+name: Full Test
 
 on:
   workflow_dispatch:

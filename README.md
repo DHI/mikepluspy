@@ -1,5 +1,10 @@
 ![logo](https://raw.githubusercontent.com/DHI/mikepluspy/main/images/logo/mikeplus-py.svg)
 # MIKE+Py: automate your workflows.
+ ![Python version](https://img.shields.io/pypi/pyversions/mikeplus.svg)
+ [![Full test](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml/badge.svg)](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml)
+[![PyPI version](https://badge.fury.io/py/mikeplus.svg)](https://badge.fury.io/py/mikeplus)
+![OS](https://img.shields.io/badge/OS-Windows-blue)
+![Downloads](https://img.shields.io/pypi/dm/mikeplus)
 
 MIKE+Py is a python interface for MIKE+. Its main features include:
 * Modifying the MIKE+ database in a way that is consistent with the GUI.
