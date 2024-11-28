@@ -27,7 +27,7 @@ jobs:
 
       - name: Unzip MIKE+ dependency
         run: |
-          7z x "2025_0.7z" -p${{ secrets.MIKE_2025_0_7Z }}
+          7z x "2025_0.7z" -p${{ secrets.MIKE_2024_0_7Z }} # Use secrets.MIKE_2024_0_7Z regardless of version
 
       - name: Install MIKE+ dependency
         run: |
