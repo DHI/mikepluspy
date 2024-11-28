@@ -2,6 +2,7 @@ import pytest
 
 import os
 from mikeplus import DataTableDemoAccess
+from datetime import datetime
 
 
 def test_opendatabase():
@@ -68,6 +69,24 @@ def test_manipulate_data():
     data_access.delete("msm_Link", "link_test")
     muids = data_access.get_muid_where("msm_Link", "MUID='link_test'")
     assert len(muids) == 0
+    field_values = {
+        "ComputationBegin": datetime(2023, 11, 1, 0, 0, 0, 0),
+        "ComputationEnd": datetime(2023, 11, 1, 1, 0, 0, 0),
+    }
+    data_access.insert("msm_Project", "sim_test", field_values)
+    fields = ["ComputationBegin", "ComputationEnd"]
+    values_get = data_access.get_field_values("msm_Project", "sim_test", fields)
+    assert values_get[0] == datetime(2023, 11, 1, 0, 0, 0, 0)
+    assert values_get[1] == datetime(2023, 11, 1, 1, 0, 0, 0)
+    field_values = {
+        "ComputationBegin": datetime(2023, 11, 1, 1, 0, 0, 0),
+        "ComputationEnd": datetime(2023, 11, 1, 2, 0, 0, 0),
+    }
+    data_access.set_values("msm_Project", "sim_test", field_values)
+    values_get = data_access.get_field_values("msm_Project", "sim_test", fields)
+    assert values_get[0] == datetime(2023, 11, 1, 1, 0, 0, 0)
+    assert values_get[1] == datetime(2023, 11, 1, 2, 0, 0, 0)
+    data_access.delete("msm_Project", "sim_test")
     data_access.close_database()
 
 
