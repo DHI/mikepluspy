@@ -12,8 +12,12 @@ from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
+from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
 
 from .dotnet import as_dotnet_list
+from .dotnet import from_dotnet_datetime
+from .dotnet import to_dotnet_datetime
+from datetime import datetime
 
 
 class DataTableAccess:
@@ -74,6 +78,7 @@ class DataTableAccess:
         datatables.SetEumAppUnitSystem(data_source.UnitSystemOption)
         datatables.OnResetContainer(None, None)
         datatables.UndoRedoManager = AmlUndoRedoManager()
+        datatables.ImportExportPfsFile = ImportExportPfsFile()
         self._datatables = datatables
 
     def close_database(self):
@@ -143,6 +148,8 @@ class DataTableAccess:
                     if values[i] is not None:
                         wkt = GeoAPIHelper.GetWKTIGeometry(values[i])
                     pyValues.append(wkt)
+                elif isinstance(values[i], System.DateTime):
+                    pyValues.append(from_dotnet_datetime(values[i]))
                 else:
                     pyValues.append(values[i])
                 i += 1
@@ -182,6 +189,8 @@ class DataTableAccess:
                     if val is not None:
                         wkt = GeoAPIHelper.GetWKTIGeometry(val)
                     mylist.append(wkt)
+                elif isinstance(val, System.DateTime):
+                    mylist.append(from_dotnet_datetime(val))
                 else:
                     mylist.append(val)
             mydict[feildVal.Key] = mylist
@@ -222,6 +231,8 @@ class DataTableAccess:
             geomTable = IMuGeomTable(self._datatables[table_name])
             geomTable.UpdateGeomByCommand(muid, geom)
         else:
+            if isinstance(value, datetime):
+                value = to_dotnet_datetime(value)
             self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
@@ -259,6 +270,8 @@ class DataTableAccess:
                 geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 geomTable = IMuGeomTable(self._datatables[table_name])
                 geomTable.UpdateGeomByCommand(muid, geom)
+            elif isinstance(values[col], datetime):
+                value_dict[col] = to_dotnet_datetime(values[col])
             else:
                 value_dict[col] = values[col]
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
@@ -300,6 +313,8 @@ class DataTableAccess:
                     geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 if isinstance(values[col], int):
                     value_dict[col] = System.Nullable[int](values[col])
+                elif isinstance(values[col], datetime):
+                    value_dict[col] = to_dotnet_datetime(values[col])
                 else:
                     value_dict[col] = values[col]
         result, new_muid = self._datatables[table_name].InsertByCommand(
