@@ -7,7 +7,7 @@ class Engine1D:
     """The Engine1D class can run MIKE1D simulation, print log file, and get the result file path."""
 
     def __init__(self, dataTables):
-        MikeImport.Setup(22, MikeProducts.MikePlus)
+        MikeImport.Setup(23, MikeProducts.MikePlus)
         self._dataTables = dataTables
         self._result_file = None
 

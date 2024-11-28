@@ -7,7 +7,7 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "2024.1.1"
+version = "2025.0.0"
 dependencies = [
     "numpy",
     'pythonnet>=3.0',
@@ -15,6 +15,7 @@ dependencies = [
 ]
 
 authors = [
+  { name="Ryan Walter Murray", email="rywm@dhigroup.com" },
   { name="Wen Wu", email="WUW@dhigroup.com" },
 ]
 description = "A python script package to manipulate MIKE+ database, run simulation by using MIKE+ data, run tools based on MIKE+ data"
