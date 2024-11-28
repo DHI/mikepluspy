@@ -61,7 +61,7 @@ def test_swmm_engine():
     assert os.path.exists(result_file)
 
 
-@pytest.mark.skip
+@pytest.mark.license_required
 def test_flood_engine():
     dbFile = os.path.join(
         "tests", "testdata", "Db", "2D Blue Beach", "100y_combined.sqlite"
