@@ -19,3 +19,8 @@
 - Fix inserting fails silently when no value is provided for 'Seq'
 - Handle Nullable value more user friendly
 - Added insert data with geometry and update geometry function
+
+## [2024.1.0] - 2024-11-28
+
+### Added
+- Editing date and timestamp values
