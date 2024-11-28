@@ -33,11 +33,11 @@ jobs:
 
         - name: Unzip MIKE+ dependency
           run: |
-            7z x "2024_1.7z" -p${{ secrets.MIKE_2024_0_7Z }}
+            7z x "2025_0.7z" -p${{ secrets.MIKE_2024_0_7Z }}
 
         - name: Install MIKE+ dependency
           run: |
-              ./install.ps1 2024
+              ./install.ps1 2025
 
         - name: Checkout code
           uses: actions/checkout@v3
