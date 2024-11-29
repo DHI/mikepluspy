@@ -20,7 +20,7 @@ jobs:
         python-version: "3.12"
         
     - name: Install mikeplus
-      run: pip install .[dev]
+      run: pip install .[doc]
     
     - name: MkDocs
       run: mkdocs build
