@@ -111,3 +111,23 @@ def test_shapely_geometry():
     assert values[0] == "LINESTRING (10 10, 20 20)"
     data_access.delete("msm_Link", "link_shp_test")
     data_access.close_database()
+
+
+def test_scenarios():
+    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
+    data_access = DataTableDemoAccess(file_name)
+    data_access.open_database()
+
+    assert data_access.scenarios == ["Base", "sub_scenario"]
+
+    assert data_access.active_scenario == "Base"
+    assert data_access.get_field_values("msm_Link", "Link_2", "Length") == [20.0]
+
+    data_access.activate_scenario("sub_scenario")
+    assert data_access.active_scenario == "sub_scenario"
+    assert data_access.get_field_values("msm_Link", "Link_2", "Length") == [24.0]
+
+    data_access.activate_scenario("Base")
+    assert data_access.active_scenario == "Base"
+
+    data_access.close_database()
