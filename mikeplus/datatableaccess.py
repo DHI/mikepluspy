@@ -18,6 +18,7 @@ from .dotnet import as_dotnet_list
 from .dotnet import from_dotnet_datetime
 from .dotnet import to_dotnet_datetime
 from datetime import datetime
+from warnings import warn
 
 
 class DataTableAccess:
@@ -45,24 +46,20 @@ class DataTableAccess:
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)
         self._file_path = db_or_mupp_file
         self._datatables = None
+        self._scenario_manager = None
 
     def __repr__(self):
         out = ["<DataTableContainer>"]
 
         if self.is_database_open():
-            out.append(
-                f"Db major version: {str(self._datatables.DataSource.DbMajorVersion)}"
-            )
-            out.append(
-                f"Db minor version: {str(self._datatables.DataSource.DbMinorVersion)}"
-            )
-            out.append(f"Active model: {str(self._datatables.DataSource.ActiveModel)}")
-            out.append(
-                f"Unit system: {str(self._datatables.DataSource.UnitSystemOption)}"
-            )
-            out.append(
-                f"Active simulation: {str(self._datatables.DataSource.ActiveSimulation)}"
-            )
+            data_source = self._datatables.DataSource
+            out.append(f"Db major version: {str(data_source.DbMajorVersion)}")
+            out.append(f"Db minor version: {str(data_source.DbMinorVersion)}")
+            out.append(f"Active model: {str(data_source.ActiveModel)}")
+            out.append(f"Unit system: {str(data_source.UnitSystemOption)}")
+            out.append(f"Active scenario: {str(self.active_scenario)}")
+            out.append(f"Active simulation: {str(data_source.ActiveSimulation)}")
+
         return str.join("\n", out)
 
     def open_database(self):
@@ -80,6 +77,7 @@ class DataTableAccess:
         datatables.UndoRedoManager = AmlUndoRedoManager()
         datatables.ImportExportPfsFile = ImportExportPfsFile()
         self._datatables = datatables
+        self._scenario_manager = data_source.ScenarioManager
 
     def close_database(self):
         """Close database"""
@@ -378,6 +376,40 @@ class DataTableAccess:
             message = "This functionality requires installing the optional dependency shapely."
             raise ImportError(message)
         return shapely
+
+    @property
+    def scenarios(self) -> list[str]:
+        """A list of model scenarios in the database."""
+        if not self.is_database_open():
+            warn("Cannot retrieve a list of scenarios. The database is closed.")
+            return []
+
+        return list(self._scenario_manager.GetScenarios())
+
+    @property
+    def active_scenario(self) -> str:
+        """Current active scenarion name."""
+        if not self.is_database_open():
+            warn("Cannot retrieve active scenario name. The database is closed.")
+            return
+
+        return self._scenario_manager.ActiveScenario.Name
+
+    def activate_scenario(self, scenario_name: str):
+        """
+        Activates a scenario from a given scenario name.
+
+        Parameters
+        ----------
+        scenario_name : str
+            Name of a scenario to activate.
+        """
+        if not self.is_database_open():
+            warn(f"Cannot activate scenario {scenario_name}. The database is closed.")
+            return
+
+        scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
+        self._scenario_manager.ActivateScenario(scenario_id, True)
 
 
 class DataTableDemoAccess(DataTableAccess):
