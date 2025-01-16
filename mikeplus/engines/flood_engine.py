@@ -1,4 +1,3 @@
-import os.path
 import time
 from pathlib import Path
 from DHI.Amelia.Tools.EngineTool import EngineTool
@@ -76,36 +75,30 @@ class FloodEngine:
         project = self._data_tables["msm_Project"]
         prj = IMsmProjectTable(project)
         res_files_dictionary = prj.GetResultFilePath(sim_muid)
-        res_files = []
-        for item in res_files_dictionary:
-            res_files.append(os.path.abspath(item.Value))
-        return res_files
+        return [Path(item.Value).resolve() for item in res_files_dictionary]
 
     def _get_log_files(self, sim_muid, sim_option):
         db_mupp_file = Path(self._data_tables.DataSource.BaseFullPath)
         dir = db_mupp_file.parent
         file_name = db_mupp_file.stem
-        prefix = Path(dir) / f"{file_name}_{sim_muid}"
+        prefix = dir / f"{file_name}_{sim_muid}"
         log_files = []
         if sim_option == MUSimulationOption.CS_MIKE_1D:
-            log_files.append(f"{prefix}.log")
+            log_files.append(prefix.with_suffix(".log"))
         elif sim_option == MUSimulationOption.CS_MIKE_21FM:
-            log_files.append(f"{prefix}_m21fm.log")
+            log_files.append(prefix.with_suffix("_m21fm.log"))
         elif (
             sim_option == MUSimulationOption.CS_MIKE_COUPLING
             or sim_option == MUSimulationOption.CS_MIKE_COUPLING_21FMModelLink
         ):
-            log_files.append(f"{prefix}_m1d.log")
-            log_files.append(f"{prefix}_m21fm.log")
-            log_files.append(f"{prefix}_mf.log")
+            log_files.append(prefix.with_suffix("_m1d.log"))
+            log_files.append(prefix.with_suffix("_m21fm.log"))
+            log_files.append(prefix.with_suffix("_mf.log"))
 
-        for file in log_files:
-            if not os.path.exists(file):
-                log_files.remove(file)
-        return log_files
+        return [file for file in log_files if file.exists()]
 
-    def _print_log(self, log_file):
-        if os.path.exists(log_file):
+    def _print_log(self, log_file: Path):
+        if log_file.exists():
             with open(log_file) as f:
                 lines = f.readlines()
                 for line in lines:
@@ -120,7 +113,8 @@ class FloodEngine:
 
         Returns
         -------
-        string list
+
+        list[Path]
             The result files path of current simulation
         """
         if self._result_files is None:

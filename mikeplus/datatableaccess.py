@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 
 import System
 import sys
@@ -43,7 +43,7 @@ class DataTableAccess:
     """
 
     def __init__(self, db_or_mupp_file):
-        db_or_mupp_file = os.path.abspath(db_or_mupp_file)
+        db_or_mupp_file = Path(db_or_mupp_file).resolve()
         self._file_path = db_or_mupp_file
         self._datatables = None
         self._scenario_manager = None
@@ -67,7 +67,7 @@ class DataTableAccess:
         self._check_conflict()
         if self.is_database_open():
             return
-        data_source = BaseDataSource.Create(self._file_path)
+        data_source = BaseDataSource.Create(str(self._file_path))
         data_source.OpenDatabase()
         datatables = self._create_datatables()
         datatables.DataSource = data_source

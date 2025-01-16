@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 from System.Collections.Generic import List
 from DHI.Amelia.Tools.CatchmentProcessing import CatchmentSlope
 from DHI.Generic.MikeZero import eumUnit
@@ -39,9 +39,9 @@ class CathSlopeLengthProcess:
         ----------
         catch_ids : string
             a array of cathment muids
-        line_layer : string
+        line_layer : str | Path
             a slope shape file path
-        dem_layer : string
+        dem_layer : str | Path
             dem file path, can be dfs2 file path
         direction : int
             Downstream = 0, Upstream = 1
@@ -52,8 +52,8 @@ class CathSlopeLengthProcess:
         overwrite_exist : bool, optional
             overwrite exist value or not, by default True
         """
-        line_layer = os.path.abspath(line_layer)
-        dem_layer = os.path.abspath(dem_layer)
+        line_layer = Path(line_layer).resolve()
+        dem_layer = Path(dem_layer).resolve()
         unit = eumUnit(demUnitKey)
         tool = CatchmentSlope(self._dataTables)
         warnings = List[str]()
@@ -65,8 +65,8 @@ class CathSlopeLengthProcess:
             overwrite_exist,
             min_slope,
             direction,
-            line_layer,
-            dem_layer,
+            str(line_layer),
+            str(dem_layer),
             1,
             unit,
             warnings,

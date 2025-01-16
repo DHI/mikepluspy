@@ -45,8 +45,8 @@ class Engine1D:
         dbOrMuppFile = Path(self._dataTables.DataSource.BaseFullPath)
         dir = dbOrMuppFile.parent
         file_name = dbOrMuppFile.stem
-        log_file = Path(dir) / f"{file_name}_{simMuid}.log"
-        self._result_file = Path(dir) / f"{file_name}_{simMuid}.res1d"
+        log_file = dir / f"{file_name}_{simMuid}.log"
+        self._result_file = dir / f"{file_name}_{simMuid}.res1d"
         if verbose:
             print(f"Simulation is started. Simulation id is '{simMuid}'.")
         subprocess.run(
@@ -67,13 +67,13 @@ class Engine1D:
 
         Returns
         -------
-        string
+        Path
             The result file path of current simulation
         """
         return self._result_file
 
-    def _print_log(self, logFile):
-        if Path(logFile).exists():
+    def _print_log(self, logFile: Path):
+        if logFile.exists():
             with open(logFile) as f:
                 lines = f.readlines()
                 for line in lines:
