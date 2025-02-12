@@ -36,6 +36,15 @@ The version of MIKE+Py you install must match the version of MIKE+ installed on 
 ## Examples
 Please check out our [collection of jupyter notebooks] (https://github.com/DHI/mikepluspy/tree/main/notebooks) to get started with MIKE+Py.
 
+## Known issues
+
+There's currently a known issue of using MIKE+Py together with MIKE IO and MIKE IO 1D.  We are working on fixing this and appreciate your patience.
+
+Workarounds:
+* Importing MIKE IO 1D *after* MIKE+Py will work.
+* Using Python's multiprocessing library to split imports (and workflows) into separate processes.
+* Split MIKE IO  and MIKE+Py / MIKE IO 1D workflows into separate scripts.
+
 ## Where can I get help?
 * Bugs - [GitHub Issues](https://github.com/DHI/mikepluspy/issues)
 * Feature requests - [GitHub Issues](https://github.com/DHI/mikepluspy/issues) 
