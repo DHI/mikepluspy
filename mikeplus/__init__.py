@@ -1,4 +1,4 @@
-__version__ = "2025.0.0"
+__version__ = "2025.0.1"
 
 from .conflicts import check_conflicts
 

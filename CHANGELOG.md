@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [2025.0.1] - 2025-02-12
+
+### Added
+- Better compatibility warnings for MIKE IO and MIKE IO 1D.
+- Override of compatibiltiy warnings with environment variable "MIKEPLUSPY_DISABLE_CONFLICT_CHECKS"
+
+### Added
+- Support for MIKE+ 2025.
+
 ## [2025.0.0] - 2025-11-28
 
 ### Added
