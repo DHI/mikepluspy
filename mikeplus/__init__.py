@@ -1,5 +1,9 @@
 __version__ = "2025.0.0"
 
+from .conflicts import check_conflicts
+
+check_conflicts()
+
 import clr
 
 clr.AddReference(
