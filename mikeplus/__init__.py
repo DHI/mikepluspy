@@ -1,6 +1,6 @@
-import clr
-
 __version__ = "2025.0.0"
+
+import clr
 
 clr.AddReference(
     "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"
