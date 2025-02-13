@@ -1,6 +1,10 @@
-import clr
+__version__ = "2025.0.1"
 
-__version__ = "2025.0.0"
+from .conflicts import check_conflicts
+
+check_conflicts()
+
+import clr  # noqa: E402
 
 clr.AddReference(
     "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"

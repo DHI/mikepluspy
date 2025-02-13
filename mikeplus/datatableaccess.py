@@ -17,6 +17,7 @@ from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFi
 from .dotnet import as_dotnet_list
 from .dotnet import from_dotnet_datetime
 from .dotnet import to_dotnet_datetime
+from .conflicts import check_conflicts
 from datetime import datetime
 from warnings import warn
 
@@ -64,7 +65,7 @@ class DataTableAccess:
 
     def open_database(self):
         """Open database"""
-        self._check_conflict()
+        check_conflicts()
         if self.is_database_open():
             return
         data_source = BaseDataSource.Create(self._file_path)
@@ -350,21 +351,6 @@ class DataTableAccess:
             and self._datatables.DataSource.DbConnection.State == ConnectionState.Open
         )
         return is_open
-
-    def _check_conflict(self):
-        """Check if there are conflicts with mikeio and mikeioid"""
-
-        mike1dio = sys.modules.get("mikeio1d")
-        if mike1dio is not None:
-            raise RuntimeError(
-                "mikeio1d module has been loaded. mikeio1d only can be loaded after mikeplus module."
-            )
-
-        mikeio = sys.modules.get("mikeio")
-        if mikeio is not None:
-            raise RuntimeError(
-                "mikeplus cannot currently be used with mikeio in the same script."
-            )
 
     def _create_datatables(self):
         datatables = DataTableContainer(True)
