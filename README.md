@@ -19,7 +19,7 @@ MIKE+Py is a python interface for MIKE+. Its main features include:
 
 ## Requirements
 * MIKE+ 2024 (or greater) with valid license
-* Python x64 3.9 to 3.12
+* Python x64 3.9 to 3.13
 * Windows
 
 ## Installation
