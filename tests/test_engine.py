@@ -78,4 +78,4 @@ def test_flood_engine():
     data_access.close_database()
     assert result_files is not None
     for file in result_files:
-        assert os.path.exists(result_files)
+        assert os.path.exists(file)
