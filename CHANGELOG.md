@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [2025.0.2] - 2025-02-18
+
+### Added
+- Support for Python 3.13
+
 ## [2025.0.1] - 2025-02-12
 
 ### Added
