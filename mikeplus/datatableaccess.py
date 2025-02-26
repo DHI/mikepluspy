@@ -4,15 +4,20 @@ import System
 import sys
 from System import Object
 from System import String
+from System import DateTime
 from System.Collections.Generic import Dictionary
 from System.Collections.Generic import List
 from System.Data import ConnectionState
+from System.Data import DbType
+
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
 from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
+from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
+
 
 from .dotnet import as_dotnet_list
 from .dotnet import from_dotnet_datetime
@@ -424,6 +429,62 @@ class DataTableAccess:
 
         scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
         self._scenario_manager.ActivateScenario(scenario_id, True)
+
+    def add_user_defined_column(
+        self,
+        table_name: str,
+        column_name: str,
+        column_data_type: str,
+        column_header: str | None = None,
+    ):
+        """
+        Add a user defined column to a table.
+
+        Parameters
+        ----------
+        table_name : str
+            Name of the table to add the column to.
+        column_name : str
+            Name of the column in the database.
+        column_data_type : str
+            Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
+        column_header : str | None
+            Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
+        """
+        table = self._get_table_with_validation(table_name)
+
+        column_data_type = column_data_type.lower()
+        match column_data_type:
+            case "integer":
+                column_data_type = DbType.Int32
+            case "double":
+                column_data_type = DbType.Double
+            case "string":
+                column_data_type = DbType.String
+            case "datetime":
+                column_data_type = DbType.DateTime
+            case _:
+                raise ValueError(
+                    f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
+                )
+
+        if column_header is None:
+            column_header = column_name
+
+        ret = table.AddUserDefinedColumn(
+            UserDefinedColumnType.NewDbField,  # Only NewDbField supported for now
+            column_header,
+            column_name,
+            column_data_type,
+            "",  # Expression columns not supported yet
+            "",  # Result columns not supported yet
+            "",  # Result columns not supported yet
+            0,  # Result columns not supported yet
+            DateTime.MinValue,  # Result columns not supported yet
+            False,  # Reset from database
+        )
+
+        return ret
 
 
 class DataTableDemoAccess(DataTableAccess):
