@@ -4,6 +4,8 @@ import os
 from mikeplus import DataTableDemoAccess
 from datetime import datetime
 
+from System import Int32
+
 
 def test_opendatabase():
     file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
@@ -129,5 +131,25 @@ def test_scenarios():
 
     data_access.activate_scenario("Base")
     assert data_access.active_scenario == "Base"
+
+    data_access.close_database()
+
+
+def test_add_user_defined_column():
+    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
+    data_access = DataTableDemoAccess(file_name)
+    data_access.open_database()
+    data_access.add_user_defined_column("msm_Link", "test_column", "integer")
+
+    # Should be None at first
+    values = data_access.get_field_values("msm_Link", "Link_29", "test_column")
+    assert values[0] is None
+
+    # Set the value
+    data_access.set_value(
+        "msm_Link", "Link_29", "test_column", Int32(42)
+    )  # TODO Wrapping in Int32 should not be imposed on user, but needed currently
+    values = data_access.get_field_values("msm_Link", "Link_29", "test_column")
+    assert values[0] == 42
 
     data_access.close_database()
