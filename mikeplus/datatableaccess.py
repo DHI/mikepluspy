@@ -92,6 +92,34 @@ class DataTableAccess:
         """DataTableContainer"""
         return self._datatables
 
+    @property
+    def table_names(self) -> list[str]:
+        """Returns a list of table names in the database."""
+        return [table.TableName for table in self._datatables.AllTables]
+
+    def _get_table_with_validation(self, table_name: str):
+        """Returns the table object or raises an error if the table does not exist."""
+        table = self._datatables.GetTable(table_name)
+        if table is None:
+            raise ValueError(f"Table '{table_name}' does not exist in the database.")
+        return table
+
+    def get_column_names(self, table_name: str) -> list[str]:
+        """Get column names of the specified table.
+
+        Parameters
+        ----------
+        table_name : str
+            The name of the table to get fields from.
+
+        Returns
+        -------
+        list[str]
+            A list of field names.
+        """
+        table = self._get_table_with_validation(table_name)
+        return [column.Field for column in table.Columns]
+
     def get_muid_where(self, table_name, where=None):
         """If where is none, get all the muids of the specified table. Otherwise get the muids in table which meet the condition.
 
