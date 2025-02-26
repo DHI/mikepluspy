@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.DataModule.Interface.Services import IMProjectTable
 from System.Threading import CancellationTokenSource
@@ -46,9 +46,7 @@ class SWMM:
         )
         if self._result_file is None:
             self._result_file = self._get_result_file(simMuid)
-        dir = os.path.dirname(os.path.abspath(self._result_file))
-        file_name = os.path.splitext(os.path.split(self._result_file)[1])[0]
-        log_file = os.path.join(dir, file_name + ".log")
+        log_file = self._result_file.with_suffix('.log')
         if verbose:
             if not success:
                 print("Simulation failed.")
@@ -63,7 +61,7 @@ class SWMM:
 
         Returns
         -------
-        string
+        Path
             The result file path of current simulation
         """
         if self._result_file is None:
@@ -72,7 +70,8 @@ class SWMM:
         return self._result_file
 
     def _print_log(self, log_file):
-        if os.path.exists(log_file):
+        log_file = Path(log_file)
+        if log_file.exists():
             with open(log_file) as f:
                 lines = f.readlines()
                 for line in lines:
@@ -88,7 +87,7 @@ class SWMM:
         res_file = None
         for item in res_files:
             res_file = item.Value
-        return os.path.abspath(res_file)
+        return Path(res_file).resolve()
 
     def _get_active_muid(self):
         muid = self._dataTables["mss_Project"].GetMuidsWhere("ActiveProject=1")

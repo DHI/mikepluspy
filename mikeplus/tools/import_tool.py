@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 from DHI.Amelia.Tools.ImportTool.ImportEngine import FunctionHelper
 from DHI.Amelia.Tools.ImportTool.ImportEngine import ImportToolBase
 
@@ -23,7 +23,7 @@ class ImportTool:
     """
 
     def __init__(self, configFile, dataTables=None):
-        self._configFile = os.path.abspath(configFile)
+        self._configFile = Path(configFile).resolve()
         self._dataTables = dataTables
 
     def run(self):

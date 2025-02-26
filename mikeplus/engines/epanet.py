@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
 from DHI.Amelia.DataModule.Interface.Services import IMwProjectTable
@@ -55,9 +55,7 @@ class EPANET:
         )
         if self._result_file is None:
             self._result_file = self._get_result_file(simMuid)
-        dir = os.path.dirname(os.path.abspath(self._result_file))
-        file_name = os.path.splitext(os.path.split(self._result_file)[1])[0]
-        log_file = os.path.join(dir, file_name + ".log")
+        log_file = self._result_file.with_suffix('.log')
         if verbose:
             log_file_made = self._print_log(log_file)
 
@@ -73,16 +71,17 @@ class EPANET:
 
         Returns
         -------
-        string
+        Path
             The result file path of current simulation
         """
         if self._result_file is None:
             simMuid = self._get_active_muid()
             self._result_file = self._get_result_file(simMuid)
-        return self._result_file
+        return Path(self._result_file)
 
     def _print_log(self, log_file):
-        if os.path.exists(log_file):
+        log_file = Path(log_file)
+        if log_file.exists():
             with open(log_file) as f:
                 lines = f.readlines()
                 for line in lines:
@@ -97,7 +96,7 @@ class EPANET:
         res_file = prj.GetEpanetResultFilePath(
             MUSimulationOption.WD_EPANET, None, simMuid
         )
-        return os.path.abspath(res_file)
+        return Path(res_file).resolve()
 
     def _get_active_muid(self):
         muid = self._dataTables["mw_Project"].GetMuidsWhere("ActiveProject=1")
