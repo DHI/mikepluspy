@@ -90,6 +90,26 @@ def test_manipulate_data():
     data_access.close_database()
 
 
+@pytest.mark.parametrize(
+    "table_name, muid, field_name, expected_value",
+    [
+        ("msm_Link", "Link_2", "diameter", 5.0),
+        ("msm_Link", "Link_2", "description", "Some new description"),
+        ("msm_Link", "Link_2", "enabled", 0),
+    ],
+)
+def test_set_value(table_name, muid, field_name, expected_value):
+    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
+    data_access = DataTableDemoAccess(file_name)
+    data_access.open_database()
+
+    data_access.set_value(table_name, muid, field_name, expected_value)
+    value = data_access.get_field_values(table_name, muid, field_name)
+    assert value == [expected_value]
+
+    data_access.close_database()
+
+
 def test_shapely_geometry():
     from shapely.geometry import LineString
 
