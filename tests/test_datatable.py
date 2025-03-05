@@ -446,3 +446,27 @@ def test_scenarios(data_access):
     # Test switching back to original scenario
     data_access.activate_scenario("Base")
     assert data_access.active_scenario == "Base"
+
+
+def test_set_integer_values(data_access):
+    """Test setting integer values using set_value and set_values methods."""
+    # Clean up any existing test data
+    muids = data_access.get_muid_where("msm_Link", "MUID='int_test'")
+    if len(muids) == 1:
+        data_access.delete("msm_Link", "int_test")
+    
+    # Insert test data
+    data_access.insert("msm_Link", "int_test", {"Diameter": 1.0})
+    
+    # Test set_value with integer
+    data_access.set_value("msm_Link", "int_test", "Diameter", 2)
+    value = data_access.get_field_values("msm_Link", "int_test", "Diameter")
+    assert value == [2.0]
+    
+    # Test set_values with integer
+    data_access.set_values("msm_Link", "int_test", {"Diameter": 3})
+    value = data_access.get_field_values("msm_Link", "int_test", "Diameter")
+    assert value == [3.0]
+    
+    # Clean up
+    data_access.delete("msm_Link", "int_test")
