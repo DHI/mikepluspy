@@ -4,7 +4,7 @@ import os
 from mikeplus import DataTableDemoAccess
 from datetime import datetime
 from shapely import wkt
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point, Polygon
 
 
 def test_open_database(sirius_db):
@@ -30,9 +30,20 @@ def data_access(sirius_db):
 @pytest.mark.parametrize(
     "table_name, muid, fields, expected_values",
     [
+        # Test getting float values
         ("msm_Link", "Link_30", "Length", [4.06]),
+        
+        # Test getting multiple fields (float and float)
         ("msm_Link", "Link_30", ["Length", "Diameter"], [4.06, 1.0]),
+        
+        # Test getting string values
         ("msm_Link", "Link_29", ["fromnodeid", "tonodeid"], ["Node_36", "Node_27"]),
+        
+        # Test getting integer values (Enabled is typically an integer field)
+        ("msm_Link", "Link_30", "Enabled", [1]),
+        
+        # Test getting geometry as WKT string
+        ("msm_Link", "Link_30", "geometry", ["LINESTRING (102067.80047607422 109100.27648925781, 102405.85711669922 108873.84887695313)"]),
     ],
 )
 def test_get_field_values(data_access: DataTableDemoAccess, table_name, muid, fields, expected_values):
@@ -65,18 +76,66 @@ def test_get_muid_where(data_access, table_name, where_clause, expected_count, e
 @pytest.mark.parametrize(
     "table_name, test_muid, field_values, verify_fields",
     [
-        # Test case 1: Basic Link with geometry as string
+        # Test case 1: Link with float value
         (
             "msm_Link", 
-            "link_test_1", 
+            "link_test_float", 
             {
-                "Diameter": 2.5,
-                "Description": "insert_test_1",
+                "Diameter": 2.5,  # float
+                "Description": "insert_float_test",
                 "geometry": "LINESTRING (3 4, 10 50, 20 25)",
             },
             ["Diameter", "Description", "geometry"]
         ),
-        # Test case 2: Project with datetime values
+        
+        # Test case 2: Link with integer value
+        (
+            "msm_Link", 
+            "link_test_int", 
+            {
+                "Diameter": 3.0,
+                "Description": "insert_int_test",
+                "Enabled": 1,  # integer
+            },
+            ["Diameter", "Description", "Enabled"]
+        ),
+        
+        # Test case 3: Link with string value
+        (
+            "msm_Link", 
+            "link_test_string", 
+            {
+                "Diameter": 1.8,
+                "Description": "This is a test string with special chars: !@#$%",  # complex string
+            },
+            ["Diameter", "Description"]
+        ),
+        
+        # Test case 4: Link with WKT geometry as string
+        (
+            "msm_Link", 
+            "link_test_wkt", 
+            {
+                "Diameter": 1.5,
+                "Description": "wkt_geometry_test",
+                "geometry": "LINESTRING (0 0, 5 5, 10 10)",  # WKT string
+            },
+            ["Diameter", "Description", "geometry"]
+        ),
+        
+        # Test case 5: Link with Shapely LineString geometry
+        (
+            "msm_Link", 
+            "link_test_shapely", 
+            {
+                "Diameter": 1.2,
+                "Description": "shapely_geometry_test",
+                "geometry": LineString([(0, 0), (10, 10), (20, 5)]),  # Shapely LineString
+            },
+            ["Diameter", "Description", "geometry"]
+        ),
+        
+        # Test case 6: Project with datetime values
         (
             "msm_Project", 
             "project_test_1", 
@@ -86,18 +145,6 @@ def test_get_muid_where(data_access, table_name, where_clause, expected_count, e
             },
             ["ComputationBegin", "ComputationEnd"]
         ),
-        # Test case 3: Link with Shapely geometry object
-        (
-            "msm_Link", 
-            "link_test_shapely", 
-            {
-                "Diameter": 1.5,
-                "Description": "shapely_test",
-                "geometry": LineString([(0, 0), (10, 10)]),
-            },
-            ["Diameter", "Description", "geometry"]
-        ),
-        
     ],
 )
 def test_insert(data_access: DataTableDemoAccess, table_name, test_muid, field_values, verify_fields):
@@ -124,9 +171,10 @@ def test_insert(data_access: DataTableDemoAccess, table_name, test_muid, field_v
         actual = values[i]
 
         if isinstance(expected, LineString):
-            actual = LineString(wkt.loads(actual))
-
-        assert actual == expected, f"Field {field} expected {expected} but got {actual}"
+            actual_geom = wkt.loads(actual)
+            assert actual_geom.equals(expected), f"Field {field} expected {expected} but got {actual}"
+        else:
+            assert actual == expected, f"Field {field} expected {expected} but got {actual}"
     
     # Clean up
     data_access.delete(table_name, test_muid)
@@ -135,26 +183,76 @@ def test_insert(data_access: DataTableDemoAccess, table_name, test_muid, field_v
 @pytest.mark.parametrize(
     "table_name, test_muid, initial_values, updated_values, verify_fields",
     [
-        # Test case 1: Update Link with basic values
+        # Test case 1: Update Link with float values
         (
             "msm_Link", 
-            "set_values_test_1", 
+            "set_values_test_float", 
             {
                 "Diameter": 2.5,
                 "Description": "initial_data",
                 "geometry": "LINESTRING (3 4, 10 50, 20 25)",
             },
             {
-                "Diameter": 1.0,
+                "Diameter": 3.75,  # float
                 "Description": "updated_data",
                 "geometry": "LINESTRING (4 5, 20 60, 30 35)",
             },
             ["Diameter", "Description", "geometry"]
         ),
-        # Test case 2: Update Project with datetime values
+        
+        # Test case 2: Update Link with integer values
+        (
+            "msm_Link", 
+            "set_values_test_int", 
+            {
+                "Diameter": 2.0,
+                "Enabled": 0,  # integer
+            },
+            {
+                "Diameter": 2.5,
+                "Enabled": 1,  # integer
+            },
+            ["Diameter", "Enabled"]
+        ),
+        
+        # Test case 3: Update Link with string values
+        (
+            "msm_Link", 
+            "set_values_test_string", 
+            {
+                "Description": "original description",
+                "fromnodeid": "Node_1",  # string
+                "tonodeid": "Node_2",    # string
+            },
+            {
+                "Description": "Complex string with special chars: !@#$%^",
+                "fromnodeid": "Updated_Node_1",  # string
+                "tonodeid": "Updated_Node_2",    # string
+            },
+            ["Description", "fromnodeid", "tonodeid"]
+        ),
+        
+        # Test case 4: Update Link with shapely LineString geometry
+        (
+            "msm_Link", 
+            "set_values_test_shapely", 
+            {
+                "Diameter": 1.0,
+                "Description": "initial geometry",
+                "geometry": "LINESTRING (0 0, 10 10)",
+            },
+            {
+                "Diameter": 1.5,
+                "Description": "updated geometry",
+                "geometry": LineString([(5, 5), (15, 15), (25, 5)]),  # Shapely LineString
+            },
+            ["Diameter", "Description", "geometry"]
+        ),
+        
+        # Test case 5: Update Project with datetime values
         (
             "msm_Project", 
-            "set_values_test_2", 
+            "set_values_test_datetime", 
             {
                 "ComputationBegin": datetime(2023, 11, 1, 0, 0, 0, 0),
                 "ComputationEnd": datetime(2023, 11, 1, 1, 0, 0, 0),
@@ -187,7 +285,12 @@ def test_set_values(data_access: DataTableDemoAccess, table_name, test_muid, ini
     for i, field in enumerate(verify_fields):
         expected = updated_values[field]
         actual = values[i]
-        assert actual == expected, f"Field {field} expected {expected} but got {actual}"
+        
+        if isinstance(expected, LineString):
+            actual_geom = wkt.loads(actual)
+            assert actual_geom.equals(expected), f"Field {field} expected {expected} but got {actual}"
+        else:
+            assert actual == expected, f"Field {field} expected {expected} but got {actual}"
     
     # Clean up
     data_access.delete(table_name, test_muid)
@@ -196,44 +299,47 @@ def test_set_values(data_access: DataTableDemoAccess, table_name, test_muid, ini
 @pytest.mark.parametrize(
     "table_name, test_muid, initial_values, field_to_update, new_value",
     [
-        # Test case 1: Update a single geometry field
+        # Test case 1: Update a WKT geometry field (string format)
         (
             "msm_Link", 
-            "set_value_test_1", 
+            "set_value_test_wkt", 
             {
                 "Diameter": 2.5,
                 "Description": "initial_data",
                 "geometry": "LINESTRING (3 4, 10 50, 20 25)",
             },
             "geometry", 
-            "LINESTRING (5 6, 30 70, 40 45)"
+            "LINESTRING (5 6, 30 70, 40 45)"  # WKT string
         ),
+        
         # Test case 2: Update a string field
         (
             "msm_Link", 
-            "set_value_test_2", 
+            "set_value_test_string", 
             {
                 "Diameter": 2.5,
                 "Description": "initial_data",
             },
             "Description", 
-            "updated_description"
+            "Complex string with special chars: !@#$%^"  # string
         ),
-        # Test case 3: Update a numeric field
+        
+        # Test case 3: Update a float field
         (
             "msm_Link", 
-            "set_value_test_3", 
+            "set_value_test_float", 
             {
                 "Diameter": 2.5,
                 "Description": "initial_data",
             },
             "Diameter", 
-            3.75
+            3.75  # float
         ),
+        
         # Test case 4: Update a datetime field
         (
             "msm_Project",
-            "set_value_test_4", 
+            "set_value_test_datetime", 
             {
                 "ComputationBegin": datetime(2023, 11, 1, 0, 0, 0, 0),
                 "ComputationEnd": datetime(2023, 11, 1, 1, 0, 0, 0),
@@ -241,19 +347,21 @@ def test_set_values(data_access: DataTableDemoAccess, table_name, test_muid, ini
             "ComputationBegin", 
             datetime(2023, 11, 1, 1, 0, 0, 0)
         ),
+        
         # Test case 5: Update an integer field
         (
             "msm_Link", 
-            "set_value_test_5", 
+            "set_value_test_int", 
             {
                 "Diameter": 2.5,
                 "Description": "initial_data",
                 "Enabled": 0
             },
             "Enabled", 
-            1
+            1  # integer
         ),
-        # Test case 6: Update geometry with Shapely object
+        
+        # Test case 6: Update geometry with Shapely LineString object
         (
             "msm_Link", 
             "set_value_test_shapely", 
@@ -263,7 +371,7 @@ def test_set_values(data_access: DataTableDemoAccess, table_name, test_muid, ini
                 "geometry": "LINESTRING (0 0, 10 10)",
             },
             "geometry", 
-            LineString([(10, 10), (20, 20)])
+            LineString([(10, 10), (20, 20), (30, 10)])  # Shapely LineString
         ),
     ],
 )
@@ -286,9 +394,10 @@ def test_set_value(data_access: DataTableDemoAccess, table_name, test_muid, init
     actual = values[0]
 
     if isinstance(new_value, LineString):
-        actual = wkt.loads(actual)
-
-    assert actual == new_value, f"Field {field_to_update} expected {new_value} but got {values[0]}"
+        actual_geom = wkt.loads(actual)
+        assert actual_geom.equals(new_value), f"Field {field_to_update} expected {new_value} but got {actual}"
+    else:
+        assert actual == new_value, f"Field {field_to_update} expected {new_value} but got {actual}"
     
     # Clean up
     data_access.delete(table_name, test_muid)
