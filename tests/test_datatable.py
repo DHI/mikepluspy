@@ -1,10 +1,9 @@
 import pytest
 
-import os
 from mikeplus import DataTableDemoAccess
 from datetime import datetime
 from shapely import wkt
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString
 
 
 def test_open_database(sirius_db):
