@@ -5,9 +5,8 @@ from mikeplus import DataTableDemoAccess
 from datetime import datetime
 
 
-def test_opendatabase():
-    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableDemoAccess(file_name)
+def test_opendatabase(sirius_db):
+    data_access = DataTableDemoAccess(sirius_db)
     data_access.open_database()
     assert data_access.is_database_open() is True
     data_access.close_database()
@@ -21,18 +20,16 @@ def test_opendatabase():
         ("msm_Link", "Link_30", ["Length", "Diameter"], [4.06, 1.0]),
     ],
 )
-def test_get_field_values(table_name, muid, fields, expected_values):
-    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableDemoAccess(file_name)
+def test_get_field_values(sirius_db, table_name, muid, fields, expected_values):
+    data_access = DataTableDemoAccess(sirius_db)
     data_access.open_database()
     values = data_access.get_field_values(table_name, muid, fields)
     assert values == expected_values
     data_access.close_database()
 
 
-def test_manipulate_data():
-    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableDemoAccess(file_name)
+def test_manipulate_data(sirius_db):
+    data_access = DataTableDemoAccess(sirius_db)
     data_access.open_database()
     muids = data_access.get_muid_where("msm_Link", "MUID='link_test'")
     if len(muids) == 1:
@@ -98,9 +95,8 @@ def test_manipulate_data():
         ("msm_Link", "Link_2", "enabled", 0),
     ],
 )
-def test_set_value(table_name, muid, field_name, expected_value):
-    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableDemoAccess(file_name)
+def test_set_value(sirius_db, table_name, muid, field_name, expected_value):
+    data_access = DataTableDemoAccess(sirius_db)
     data_access.open_database()
 
     data_access.set_value(table_name, muid, field_name, expected_value)
@@ -110,11 +106,10 @@ def test_set_value(table_name, muid, field_name, expected_value):
     data_access.close_database()
 
 
-def test_shapely_geometry():
+def test_shapely_geometry(sirius_db):
     from shapely.geometry import LineString
 
-    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableDemoAccess(file_name)
+    data_access = DataTableDemoAccess(sirius_db)
     data_access.open_database()
     muids = data_access.get_muid_where("msm_Link", "MUID='link_test'")
     if len(muids) == 1:
@@ -133,9 +128,8 @@ def test_shapely_geometry():
     data_access.close_database()
 
 
-def test_scenarios():
-    file_name = os.path.join("tests", "testdata", "Db", "Sirius", "Sirius.sqlite")
-    data_access = DataTableDemoAccess(file_name)
+def test_scenarios(sirius_db):
+    data_access = DataTableDemoAccess(sirius_db)
     data_access.open_database()
 
     assert data_access.scenarios == ["Base", "sub_scenario"]

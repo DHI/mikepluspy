@@ -10,11 +10,8 @@ from mikeplus.tools.catch_slope_length_process_tool import CathSlopeLengthProces
 from mikeplus.tools.import_tool import ImportTool
 
 
-def test_topology_repair_tool():
-    dbFile = os.path.join(
-        "tests", "testdata", "repairToolData", "RepairTestCase.sqlite"
-    )
-    data_access = DataTableDemoAccess(dbFile)
+def test_topology_repair_tool(repair_tool_db):
+    data_access = DataTableDemoAccess(repair_tool_db)
     data_access.open_database()
     repair_tool = TopoRepairTool(data_access.datatables)
     repair_tool.run()
@@ -33,9 +30,8 @@ def test_topology_repair_tool():
     data_access.close_database()
 
 
-def test_interpolate_tool():
-    dbFile = os.path.join("tests", "testdata", "interpolate", "inter.sqlite")
-    data_access = DataTableDemoAccess(dbFile)
+def test_interpolate_tool(interpolate_db):
+    data_access = DataTableDemoAccess(interpolate_db)
     data_access.open_database()
     data_access.set_value("msm_Node", "Node_1", "Diameter", None)
     data_access.set_value("msm_Node", "Node_2", "Diameter", None)
@@ -52,9 +48,8 @@ def test_interpolate_tool():
     assert field_val_get["Node_3"][0] == 3.0
 
 
-def test_connect_repair_tool():
-    dbFile = os.path.join("tests", "testdata", "connectionRepair", "repair.sqlite")
-    data_access = DataTableDemoAccess(dbFile)
+def test_connect_repair_tool(connection_repair_db):
+    data_access = DataTableDemoAccess(connection_repair_db)
     data_access.open_database()
     muids = data_access.get_muid_where("m_StationCon")
     for muid in muids:
@@ -71,9 +66,8 @@ def test_connect_repair_tool():
     data_access.close_database()
 
 
-def test_catch_slope_len_tool():
-    dbFile = os.path.join("tests", "testdata", "catchSlopeLen", "catch.sqlite")
-    data_access = DataTableDemoAccess(dbFile)
+def test_catch_slope_len_tool(catch_slope_len_db):
+    data_access = DataTableDemoAccess(catch_slope_len_db)
     data_access.open_database()
     field_values = {"ModelBSlope": 0.0, "ModelBLength": 0.0}
     fields = ["ModelBSlope", "ModelBLength"]
@@ -83,11 +77,17 @@ def test_catch_slope_len_tool():
     assert field_val_get[0] == 0.0
     assert field_val_get[1] == 0.0
     catch_ids = [muid]
+    
+    # Get the paths to the files in the temporary directory
+    db_dir = os.path.dirname(catch_slope_len_db)
+    shp_file = os.path.join(db_dir, "Catch_Slope.shp")
+    dem_file = os.path.join(db_dir, "dem.dfs2")
+    
     tool = CathSlopeLengthProcess(data_access.datatables)
     tool.run(
         catch_ids,
-        "tests/testdata/catchSlopeLen/Catch_Slope.shp",
-        "tests/testdata/catchSlopeLen/dem.dfs2",
+        shp_file,
+        dem_file,
         0,
     )
     field_val_get = data_access.get_field_values("msm_Catchment", muid, fields)
@@ -97,14 +97,18 @@ def test_catch_slope_len_tool():
 
 
 @pytest.mark.license_required
-def test_import_tool():
-    dbFile = os.path.join("tests", "testdata", "import", "import.sqlite")
-    data_access = DataTableAccess(dbFile)
+def test_import_tool(import_db):
+    data_access = DataTableAccess(import_db)
     data_access.open_database()
     muids = data_access.get_muid_where("msm_Link")
     for muid in muids:
         data_access.delete("msm_Link", muid)
-    import_tool = ImportTool("tests/testdata/import/config.xml", data_access.datatables)
+    
+    # Get the path to the config file in the temporary directory
+    db_dir = os.path.dirname(import_db)
+    config_file = os.path.join(db_dir, "config.xml")
+    
+    import_tool = ImportTool(config_file, data_access.datatables)
     import_tool.run()
     muids = data_access.get_muid_where("msm_Link")
     assert len(muids) == 575
