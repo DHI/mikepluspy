@@ -58,8 +58,13 @@ lint.exclude = ["notebooks/**/*.ipynb"]
 lint.ignore = ["E501"]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers"
+addopts = "--strict-markers --verbose"
 markers = [
-    "slow: slow running tests",
-    "license_required: requires MIKE+ license",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "license_required: marks tests that require a license (deselect with '-m \"not license_required\"')",
 ]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = ["always"]
