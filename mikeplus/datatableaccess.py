@@ -230,7 +230,9 @@ class DataTableAccess:
             geomTable = IMuGeomTable(self._datatables[table_name])
             geomTable.UpdateGeomByCommand(muid, geom)
         else:
-            if isinstance(value, datetime):
+            if isinstance(value, int):
+                value = System.Nullable[int](value)
+            elif isinstance(value, datetime):
                 value = to_dotnet_datetime(value)
             self._datatables[table_name].SetValueByCommand(muid, column, value)
 
@@ -269,6 +271,8 @@ class DataTableAccess:
                 geom = GeoAPIHelper.GetIGeometryFromWKT(wkt)
                 geomTable = IMuGeomTable(self._datatables[table_name])
                 geomTable.UpdateGeomByCommand(muid, geom)
+            elif isinstance(values[col], int):
+                value_dict[col] = System.Nullable[int](values[col])
             elif isinstance(values[col], datetime):
                 value_dict[col] = to_dotnet_datetime(values[col])
             else:
