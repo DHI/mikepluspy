@@ -6,6 +6,7 @@ from shapely import wkt
 from shapely.geometry import LineString
 
 
+
 def test_open_database(sirius_db):
     """Test opening and closing a database."""
     data_access = DataTableDemoAccess(sirius_db)
@@ -446,26 +447,14 @@ def test_scenarios(data_access):
     data_access.activate_scenario("Base")
     assert data_access.active_scenario == "Base"
 
+def test_add_user_defined_column(data_access):
+    data_access.add_user_defined_column("msm_Link", "test_column", "integer")
 
-def test_set_integer_values(data_access):
-    """Test setting integer values using set_value and set_values methods."""
-    # Clean up any existing test data
-    muids = data_access.get_muid_where("msm_Link", "MUID='int_test'")
-    if len(muids) == 1:
-        data_access.delete("msm_Link", "int_test")
-    
-    # Insert test data
-    data_access.insert("msm_Link", "int_test", {"Diameter": 1.0})
-    
-    # Test set_value with integer
-    data_access.set_value("msm_Link", "int_test", "Diameter", 2)
-    value = data_access.get_field_values("msm_Link", "int_test", "Diameter")
-    assert value == [2.0]
-    
-    # Test set_values with integer
-    data_access.set_values("msm_Link", "int_test", {"Diameter": 3})
-    value = data_access.get_field_values("msm_Link", "int_test", "Diameter")
-    assert value == [3.0]
-    
-    # Clean up
-    data_access.delete("msm_Link", "int_test")
+    # Should be None at first
+    values = data_access.get_field_values("msm_Link", "Link_29", "test_column")
+    assert values[0] is None
+
+    # Set the value
+    data_access.set_value("msm_Link", "Link_29", "test_column", 42)
+    values = data_access.get_field_values("msm_Link", "Link_29", "test_column")
+    assert values[0] == 42

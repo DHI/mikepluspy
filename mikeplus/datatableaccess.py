@@ -1,18 +1,25 @@
+from __future__ import annotations
+
 import os.path
 
 import System
 import sys
 from System import Object
 from System import String
+from System import DateTime
 from System.Collections.Generic import Dictionary
 from System.Collections.Generic import List
 from System.Data import ConnectionState
+from System.Data import DbType
+
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
 from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
+from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
+
 
 from .dotnet import as_dotnet_list
 from .dotnet import from_dotnet_datetime
@@ -91,6 +98,34 @@ class DataTableAccess:
     def datatables(self):
         """DataTableContainer"""
         return self._datatables
+
+    @property
+    def table_names(self) -> list[str]:
+        """Returns a list of table names in the database."""
+        return [table.TableName for table in self._datatables.AllTables]
+
+    def _get_table_with_validation(self, table_name: str):
+        """Returns the table object or raises an error if the table does not exist."""
+        table = self._datatables.GetTable(table_name)
+        if table is None:
+            raise ValueError(f"Table '{table_name}' does not exist in the database.")
+        return table
+
+    def get_column_names(self, table_name: str) -> list[str]:
+        """Get column names of the specified table.
+
+        Parameters
+        ----------
+        table_name : str
+            The name of the table to get fields from.
+
+        Returns
+        -------
+        list[str]
+            A list of field names.
+        """
+        table = self._get_table_with_validation(table_name)
+        return [column.Field for column in table.Columns]
 
     def get_muid_where(self, table_name, where=None):
         """If where is none, get all the muids of the specified table. Otherwise get the muids in table which meet the condition.
@@ -400,6 +435,61 @@ class DataTableAccess:
 
         scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
         self._scenario_manager.ActivateScenario(scenario_id, True)
+
+    def add_user_defined_column(
+        self,
+        table_name: str,
+        column_name: str,
+        column_data_type: str,
+        column_header: str | None = None,
+    ):
+        """
+        Add a user defined column to a table.
+
+        Parameters
+        ----------
+        table_name : str
+            Name of the table to add the column to.
+        column_name : str
+            Name of the column in the database.
+        column_data_type : str
+            Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
+        column_header : str | None
+            Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
+        """
+        table = self._get_table_with_validation(table_name)
+
+        column_data_type = column_data_type.lower()
+        if column_data_type == "integer":
+            column_data_type = DbType.Int32
+        elif column_data_type == "double":
+            column_data_type = DbType.Double
+        elif column_data_type == "string":
+            column_data_type = DbType.String
+        elif column_data_type == "datetime":
+            column_data_type = DbType.DateTime
+        else:
+            raise ValueError(
+                f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
+            )
+
+        if column_header is None:
+            column_header = column_name
+
+        ret = table.AddUserDefinedColumn(
+            UserDefinedColumnType.NewDbField,  # Only NewDbField supported for now
+            column_header,
+            column_name,
+            column_data_type,
+            "",  # Expression columns not supported yet
+            "",  # Result columns not supported yet
+            "",  # Result columns not supported yet
+            0,  # Result columns not supported yet
+            DateTime.MinValue,  # Result columns not supported yet
+            False,  # Reset from database
+        )
+
+        return ret
 
 
 class DataTableDemoAccess(DataTableAccess):
