@@ -37,7 +37,7 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "shapely"]
-test = ["pytest", "shapely"]
+test = ["pytest", "pytest-timeout", "shapely"]
 doc =  ["sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
 
 [project.urls]
@@ -58,10 +58,11 @@ lint.exclude = ["notebooks/**/*.ipynb"]
 lint.ignore = ["E501"]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --verbose"
+addopts = "--strict-markers --verbose --timeout=90 --timeout_method=thread"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "license_required: marks tests that require a license (deselect with '-m \"not license_required\"')",
+    "timeout: marks a test with a timeout value in seconds",
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
