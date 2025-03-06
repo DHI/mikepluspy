@@ -458,19 +458,18 @@ class DataTableAccess:
         table = self._get_table_with_validation(table_name)
 
         column_data_type = column_data_type.lower()
-        match column_data_type:
-            case "integer":
-                column_data_type = DbType.Int32
-            case "double":
-                column_data_type = DbType.Double
-            case "string":
-                column_data_type = DbType.String
-            case "datetime":
-                column_data_type = DbType.DateTime
-            case _:
-                raise ValueError(
-                    f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
-                )
+        if column_data_type == "integer":
+            column_data_type = DbType.Int32
+        elif column_data_type == "double":
+            column_data_type = DbType.Double
+        elif column_data_type == "string":
+            column_data_type = DbType.String
+        elif column_data_type == "datetime":
+            column_data_type = DbType.DateTime
+        else:
+            raise ValueError(
+                f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
+            )
 
         if column_header is None:
             column_header = column_name
