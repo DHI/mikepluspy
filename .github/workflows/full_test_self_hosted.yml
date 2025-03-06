@@ -2,15 +2,25 @@ name: Full Test (self-hosted)
 
 on:
   workflow_dispatch:
-  
+
   # push:
   #  branches: [ "main" ]
   # pull_request:
   #  branches: [ "main" ]
 
 jobs:
-  build:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Ruff
+        uses: chartboost/ruff-action@v1
+        with:
+          src: "."  # Adjust the source directory as needed
+
+  test:
     runs-on: self-hosted
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -18,7 +28,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: chartboost/ruff-action@v1 # Fail fast if there are any linting errors
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
