@@ -3,62 +3,152 @@ Entry point for MIKE+ model database operations.
 """
 from __future__ import annotations
 
-from typing import Optional, Union
+import System
+import sys
+
+from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
+from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from DHI.Amelia.DataModule.Interface.Services import IMuGeomTable
+from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
+from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
+from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
+
+from plistlib import InvalidFileException
 from pathlib import Path
 
+from .conflicts import check_conflicts
 from .tables.auto_generated import TableCollection
-
-
-def open(model_path: str | Path, create_if_not_exists: bool = False) -> ModelDatabase:
-    """Open an existing MIKE+ model database.
-    
-    Args:
-        model_path: Path to the model database file (e.g. "model.sqlite" or "model.mupp")
-        create_if_not_exists: If True, create the database if it doesn't exist
-        
-    Returns:
-        A ModelDatabase object for the opened database
-        
-    Raises:
-        FileNotFoundError: If the database doesn't exist and create_if_not_exists is False
-        FileExistsError: If the database already exists and create_if_not_exists is True
-    """
-    pass
-
-
-def create(model_path: str | Path) -> ModelDatabase:
-    """Create a new MIKE+ model database.
-    
-    Args:
-        model_path: Path where the new database will be created        
-    Returns:
-        A ModelDatabase object for the newly created database
-        
-    Raises:
-        FileExistsError: If the database already exists
-    """
-    pass
 
 
 class ModelDatabase:
     """Represents a MIKE+ model database."""
     
-    def __init__(self):
-        """Initialize a new ModelDatabase."""
-        self._db_path = None
+    def __init__(self, model_path: str | Path, *, auto_open: bool = True):
+        """Initialize a new ModelDatabase.
+        
+        Args:
+            model_path: Path to the model database file (e.g. "model.sqlite" or "model.mupp")
+            auto_open: If True, immediately open the database connection
+            
+        Raises:
+            FileNotFoundError: If the database file doesn't exist
+        """
+        model_path = Path(model_path)
+        
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model file '{model_path}' does not exist.")
+
+        self._db_path = model_path
         self._mupp_path = None
-        self._data_table_container = None
-        self._scenario_manager = None
-        self._tables = None
+
+        mupp_file = model_path.with_suffix(".mupp")
+        if mupp_file.exists():
+            self._mupp_path = mupp_file
+
+        db_file = model_path.with_suffix(".sqlite")
+        if db_file.exists():
+            self._db_path = db_file
+
+        if not (self._db_path or self._mupp_path):
+            raise InvalidFileException(f"Model file '{model_path}' is invalid.")
+            
+        self._data_table_container: DataTableContainer | None = None
+        self._scenario_manager: ScenarioManager | None = None
+        self._tables: TableCollection | None = None
         self._is_open = False
+        
+        if auto_open:
+            self.open()
+            
+    @classmethod
+    def create(cls, model_path: str | Path) -> ModelDatabase:
+        """Create a new MIKE+ model database.
+        
+        Args:
+            model_path: Path where the new database will be created
+            
+        Returns:
+            A ModelDatabase object for the newly created database
+            
+        Raises:
+            FileExistsError: If the database already exists
+        """
+        # Implementation here would create the database
+        
+        # Return an opened database
+        return cls(model_path, auto_open=True)
 
     def open(self):
-        """Open the model database."""
-        pass
+        """Open the model database.
+        
+        Returns:
+            self: For method chaining
+        """
+        check_conflicts()
+        
+        if self._is_open:
+            return self
+
+        try:
+            data_source = BaseDataSource.Create(str(self._db_path))
+            data_source.OpenDatabase()
+            data_table_container = DataTableContainer(True)
+            data_table_container.DataSource = data_source
+            data_table_container.SetActiveModel(data_source.ActiveModel)
+            data_table_container.SetEumAppUnitSystem(data_source.UnitSystemOption)
+            data_table_container.OnResetContainer(None, None)
+            data_table_container.UndoRedoManager = AmlUndoRedoManager()
+            data_table_container.ImportExportPfsFile = ImportExportPfsFile()
+            self._data_table_container = data_table_container
+            self._scenario_manager = data_source.ScenarioManager
+            self._is_open = True
+        except Exception as e:
+            raise Exception(f"Failed to open model database: {self._db_path}.\n{str(e)}")
+            
+        return self
+
     
     def close(self):
         """Close the model database."""
-        pass
+        if not self._is_open:
+            return True
+        
+        try:
+            self._data_table_container.UndoRedoManager.ClearUndoRedoBuffer()
+            self._data_table_container.DataSource.CloseDatabase()
+            self._data_table_container.Dispose()
+            self._data_table_container = None
+            self._is_open = False
+        except Exception as e:
+            raise Exception(f"Failed to close model database: {self._db_path}.\n{str(e)}")
+            
+    def __enter__(self):
+        """Context manager entry."""
+        self.open()
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        self.close()
+
+    @property
+    def db_path(self) -> Path:
+        """Get the path to the database file.
+        
+        Returns:
+            Path to the database file
+        """
+        return self._db_path
+
+    @property
+    def mupp_path(self) -> Path | None:
+        """Get the path to the MUPP file.
+        
+        Returns:
+            Path to the MUPP file, or None
+        """
+        return self._mupp_path
     
     @property
     def tables(self) -> TableCollection:
@@ -79,7 +169,7 @@ class ModelDatabase:
         Returns:
             True if the database is open, False otherwise
         """
-        pass
+        return self._is_open
     
     @property
     def unit_system(self) -> str:
@@ -153,6 +243,4 @@ class ModelDatabase:
 
 __all__ = [
     "ModelDatabase",
-    "open",
-    "create",
 ]

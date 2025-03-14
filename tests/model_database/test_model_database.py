@@ -5,37 +5,49 @@ import pytest
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from conftest import session_sirius_db as SessionSiriusDb
-
 from mikeplus.model_database import ModelDatabase
-from mikeplus.model_database import open
-from mikeplus.model_database import create
-
 
 class TestModelDatabaseOpen:
     """Tests for the model_database.open function."""
 
-    def test_open_existing_model(self, session_sirius_db: SessionSiriusDb):
+    def test_open_existing_model(self, session_sirius_db: Path):
         """Test opening an existing model database."""
-        # TODO: Implement test using the database fixtures
-        assert False
+        # Open via constructor
+        mdb = ModelDatabase(session_sirius_db)
+        assert isinstance(mdb, ModelDatabase)
+        assert mdb.is_open
+        assert mdb.db_path == session_sirius_db
+        assert mdb.mupp_path == session_sirius_db.with_suffix(".mupp")
+        mdb.close()
+        assert not mdb.is_open
+
+        # Open via constructor (without auto-open)
+        mdb2 = ModelDatabase(session_sirius_db, auto_open=False)
+        assert isinstance(mdb2, ModelDatabase)
+        assert not mdb2.is_open
+        assert mdb2.db_path == session_sirius_db
+        assert mdb2.mupp_path == session_sirius_db.with_suffix(".mupp")
+        mdb2.close()
+        assert not mdb2.is_open
+
+        # Open via context manager
+        with ModelDatabase(session_sirius_db) as mdb3:
+            assert mdb3.is_open
+            assert mdb3.db_path == session_sirius_db
+            assert mdb3.mupp_path == session_sirius_db.with_suffix(".mupp")
+
+        assert not mdb3.is_open
+
     
-    def test_open_nonexistent_model_raises_error(self, tmp_path):
+    def test_open_nonexistent_model_raises_error(self):
         """Test that opening a non-existent model raises FileNotFoundError."""
-        # TODO: Implement test
-        assert False
+        with pytest.raises(FileNotFoundError):
+            ModelDatabase(Path("/path/to/nonexistent/model.mupp"))
     
     def test_open_with_create_if_not_exists(self, tmp_path):
         """Test opening with create_if_not_exists=True creates a new database."""
         # TODO: Implement test
         assert False
-    
-    def test_open_with_pathlib_path(self, sirius_db):
-        """Test opening with a pathlib.Path object."""
-        # TODO: Implement test
-        assert False
-
 
 class TestModelDatabaseCreate:
     """Tests for the model_database.create function."""
