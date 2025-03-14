@@ -3,10 +3,7 @@ Tests for the utilities module for table code generation.
 """
 import pytest
 
-from mikeplus.tables.utilities import (
-    generate_table_class,
-    generate_table_collection_class,
-)
+from mikeplus.tables.utilities import generate_table_class
 
 
 class TestTableCodeGeneration:

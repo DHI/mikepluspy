@@ -4,8 +4,9 @@ Tests for the model_database module functionality.
 import pytest
 from pathlib import Path
 
-from mikeplus import model_database
 from mikeplus.model_database import ModelDatabase
+from mikeplus.model_database import open
+from mikeplus.model_database import create
 
 
 class TestModelDatabaseOpen:

@@ -150,3 +150,9 @@ class ModelDatabase:
             base_scenario: Name of the scenario to base the new one on
         """
         pass
+
+__all__ = [
+    "ModelDatabase",
+    "open",
+    "create",
+]
