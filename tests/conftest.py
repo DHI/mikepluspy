@@ -76,7 +76,7 @@ CATCH_SLOPE_LEN_DB = TEST_DATA_DIR / "catchSlopeLen" / "catch.sqlite"
 IMPORT_DB = TEST_DATA_DIR / "import" / "import.sqlite"
 
 
-def copy_database_folder(source_db_path, target_dir):
+def copy_database_folder(source_db_path, target_dir) -> Path:
     """
     Copy a database folder to a target directory recursively.
     
@@ -95,7 +95,7 @@ def copy_database_folder(source_db_path, target_dir):
     return target_dir / source_db_path.name
 
 
-def create_test_specific_db_copy(source_db_path, tmp_path, prefix):
+def create_test_specific_db_copy(source_db_path, tmp_path, prefix) -> Path:
     """
     Create a test-specific copy of a database folder.
     
@@ -121,63 +121,63 @@ def session_temp_dir():
 
 
 @pytest.fixture(scope="session")
-def session_sirius_db(session_temp_dir):
+def session_sirius_db(session_temp_dir) -> Path:
     """Copy the Sirius database folder once per test session."""
     target_dir = session_temp_dir / "session" / "Db" / "Sirius"
     return copy_database_folder(SIRIUS_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_epanet_demo_db(session_temp_dir):
+def session_epanet_demo_db(session_temp_dir) -> Path:
     """Copy the Epanet_Demo database folder once per test session."""
     target_dir = session_temp_dir / "session" / "Db" / "Epanet_Demo"
     return copy_database_folder(EPANET_DEMO_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_swmm_db(session_temp_dir):
+def session_swmm_db(session_temp_dir) -> Path:
     """Copy the SWMM database folder once per test session."""
     target_dir = session_temp_dir / "session" / "Db" / "SWMM"
     return copy_database_folder(SWMM_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_flood_db(session_temp_dir):
+def session_flood_db(session_temp_dir) -> Path:
     """Copy the 2D Blue Beach database folder once per test session."""
     target_dir = session_temp_dir / "session" / "Db" / "2D Blue Beach"
     return copy_database_folder(FLOOD_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_repair_tool_db(session_temp_dir):
+def session_repair_tool_db(session_temp_dir) -> Path:
     """Copy the RepairTestCase database folder once per test session."""
     target_dir = session_temp_dir / "session" / "repairToolData"
     return copy_database_folder(REPAIR_TOOL_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_interpolate_db(session_temp_dir):
+def session_interpolate_db(session_temp_dir) -> Path:
     """Copy the interpolate database folder once per test session."""
     target_dir = session_temp_dir / "session" / "interpolate"
     return copy_database_folder(INTERPOLATE_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_connection_repair_db(session_temp_dir):
+def session_connection_repair_db(session_temp_dir) -> Path:
     """Copy the connection repair database folder once per test session."""
     target_dir = session_temp_dir / "session" / "connectionRepair"
     return copy_database_folder(CONNECTION_REPAIR_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_catch_slope_len_db(session_temp_dir):
+def session_catch_slope_len_db(session_temp_dir) -> Path:
     """Copy the catch slope length database folder once per test session."""
     target_dir = session_temp_dir / "session" / "catchSlopeLen"
     return copy_database_folder(CATCH_SLOPE_LEN_DB, target_dir)
 
 
 @pytest.fixture(scope="session")
-def session_import_db(session_temp_dir):
+def session_import_db(session_temp_dir) -> Path:
     """Copy the import database folder once per test session."""
     target_dir = session_temp_dir / "session" / "import"
     return copy_database_folder(IMPORT_DB, target_dir)
@@ -191,63 +191,63 @@ def module_temp_dir():
 
 
 @pytest.fixture(scope="module")
-def module_sirius_db(module_temp_dir):
+def module_sirius_db(module_temp_dir) -> Path:
     """Copy the Sirius database folder once per test module."""
     target_dir = module_temp_dir / "module" / "Db" / "Sirius"
     return copy_database_folder(SIRIUS_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_epanet_demo_db(module_temp_dir):
+def module_epanet_demo_db(module_temp_dir) -> Path:
     """Copy the Epanet_Demo database folder once per test module."""
     target_dir = module_temp_dir / "module" / "Db" / "Epanet_Demo"
     return copy_database_folder(EPANET_DEMO_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_swmm_db(module_temp_dir):
+def module_swmm_db(module_temp_dir) -> Path:
     """Copy the SWMM database folder once per test module."""
     target_dir = module_temp_dir / "module" / "Db" / "SWMM"
     return copy_database_folder(SWMM_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_flood_db(module_temp_dir):
+def module_flood_db(module_temp_dir) -> Path:
     """Copy the 2D Blue Beach database folder once per test module."""
     target_dir = module_temp_dir / "module" / "Db" / "2D Blue Beach"
     return copy_database_folder(FLOOD_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_repair_tool_db(module_temp_dir):
+def module_repair_tool_db(module_temp_dir) -> Path:
     """Copy the RepairTestCase database folder once per test module."""
     target_dir = module_temp_dir / "module" / "repairToolData"
     return copy_database_folder(REPAIR_TOOL_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_interpolate_db(module_temp_dir):
+def module_interpolate_db(module_temp_dir) -> Path:
     """Copy the interpolate database folder once per test module."""
     target_dir = module_temp_dir / "module" / "interpolate"
     return copy_database_folder(INTERPOLATE_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_connection_repair_db(module_temp_dir):
+def module_connection_repair_db(module_temp_dir) -> Path:
     """Copy the connection repair database folder once per test module."""
     target_dir = module_temp_dir / "module" / "connectionRepair"
     return copy_database_folder(CONNECTION_REPAIR_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_catch_slope_len_db(module_temp_dir):
+def module_catch_slope_len_db(module_temp_dir) -> Path:
     """Copy the catch slope length database folder once per test module."""
     target_dir = module_temp_dir / "module" / "catchSlopeLen"
     return copy_database_folder(CATCH_SLOPE_LEN_DB, target_dir)
 
 
 @pytest.fixture(scope="module")
-def module_import_db(module_temp_dir):
+def module_import_db(module_temp_dir) -> Path:
     """Copy the import database folder once per test module."""
     target_dir = module_temp_dir / "module" / "import"
     return copy_database_folder(IMPORT_DB, target_dir)
@@ -261,117 +261,117 @@ def class_temp_dir():
 
 
 @pytest.fixture(scope="class")
-def class_sirius_db(class_temp_dir):
+def class_sirius_db(class_temp_dir) -> Path:
     """Copy the Sirius database folder once per test class."""
     target_dir = class_temp_dir / "class" / "Db" / "Sirius"
     return copy_database_folder(SIRIUS_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_epanet_demo_db(class_temp_dir):
+def class_epanet_demo_db(class_temp_dir) -> Path:
     """Copy the Epanet_Demo database folder once per test class."""
     target_dir = class_temp_dir / "class" / "Db" / "Epanet_Demo"
     return copy_database_folder(EPANET_DEMO_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_swmm_db(class_temp_dir):
+def class_swmm_db(class_temp_dir) -> Path:
     """Copy the SWMM database folder once per test class."""
     target_dir = class_temp_dir / "class" / "Db" / "SWMM"
     return copy_database_folder(SWMM_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_flood_db(class_temp_dir):
+def class_flood_db(class_temp_dir) -> Path:
     """Copy the 2D Blue Beach database folder once per test class."""
     target_dir = class_temp_dir / "class" / "Db" / "2D Blue Beach"
     return copy_database_folder(FLOOD_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_repair_tool_db(class_temp_dir):
+def class_repair_tool_db(class_temp_dir) -> Path:
     """Copy the RepairTestCase database folder once per test class."""
     target_dir = class_temp_dir / "class" / "repairToolData"
     return copy_database_folder(REPAIR_TOOL_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_interpolate_db(class_temp_dir):
+def class_interpolate_db(class_temp_dir) -> Path:
     """Copy the interpolate database folder once per test class."""
     target_dir = class_temp_dir / "class" / "interpolate"
     return copy_database_folder(INTERPOLATE_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_connection_repair_db(class_temp_dir):
+def class_connection_repair_db(class_temp_dir) -> Path:
     """Copy the connection repair database folder once per test class."""
     target_dir = class_temp_dir / "class" / "connectionRepair"
     return copy_database_folder(CONNECTION_REPAIR_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_catch_slope_len_db(class_temp_dir):
+def class_catch_slope_len_db(class_temp_dir) -> Path:
     """Copy the catch slope length database folder once per test class."""
     target_dir = class_temp_dir / "class" / "catchSlopeLen"
     return copy_database_folder(CATCH_SLOPE_LEN_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
-def class_import_db(class_temp_dir):
+def class_import_db(class_temp_dir) -> Path:
     """Copy the import database folder once per test class."""
     target_dir = class_temp_dir / "class" / "import"
     return copy_database_folder(IMPORT_DB, target_dir)
 
 
 @pytest.fixture(scope="function")
-def sirius_db(tmp_path):
+def sirius_db(tmp_path) -> Path:
     """Create a test-specific copy of the Sirius database folder."""
     return create_test_specific_db_copy(SIRIUS_DB, tmp_path, "test_sirius")
 
 
 @pytest.fixture(scope="function")
-def epanet_demo_db(tmp_path):
+def epanet_demo_db(tmp_path) -> Path:
     """Create a test-specific copy of the Epanet_Demo database folder."""
     return create_test_specific_db_copy(EPANET_DEMO_DB, tmp_path, "test_epanet_demo")
 
 
 @pytest.fixture(scope="function")
-def swmm_db(tmp_path):
+def swmm_db(tmp_path) -> Path:
     """Create a test-specific copy of the SWMM database folder."""
     return create_test_specific_db_copy(SWMM_DB, tmp_path, "test_swmm")
 
 
 @pytest.fixture(scope="function")
-def flood_db(tmp_path):
+def flood_db(tmp_path) -> Path:
     """Create a test-specific copy of the 2D Blue Beach database folder."""
     return create_test_specific_db_copy(FLOOD_DB, tmp_path, "test_flood")
 
 
 @pytest.fixture(scope="function")
-def repair_tool_db(tmp_path):
+def repair_tool_db(tmp_path) -> Path:
     """Create a test-specific copy of the RepairTestCase database folder."""
     return create_test_specific_db_copy(REPAIR_TOOL_DB, tmp_path, "test_repair_tool")
 
 
 @pytest.fixture(scope="function")
-def interpolate_db(tmp_path):
+def interpolate_db(tmp_path) -> Path:
     """Create a test-specific copy of the interpolate database folder."""
     return create_test_specific_db_copy(INTERPOLATE_DB, tmp_path, "test_interpolate")
 
 
 @pytest.fixture(scope="function")
-def connection_repair_db(tmp_path):
+def connection_repair_db(tmp_path) -> Path:
     """Create a test-specific copy of the connection repair database folder."""
     return create_test_specific_db_copy(CONNECTION_REPAIR_DB, tmp_path, "test_connection_repair")
 
 
 @pytest.fixture(scope="function")
-def catch_slope_len_db(tmp_path):
+def catch_slope_len_db(tmp_path) -> Path:
     """Create a test-specific copy of the catch slope length database folder."""
     return create_test_specific_db_copy(CATCH_SLOPE_LEN_DB, tmp_path, "test_catch_slope_len")
 
 
 @pytest.fixture(scope="function")
-def import_db(tmp_path):
+def import_db(tmp_path) -> Path:
     """Create a test-specific copy of the import database folder."""
     return create_test_specific_db_copy(IMPORT_DB, tmp_path, "test_import")

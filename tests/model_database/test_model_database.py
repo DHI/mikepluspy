@@ -3,6 +3,10 @@ Tests for the model_database module functionality.
 """
 import pytest
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from conftest import session_sirius_db as SessionSiriusDb
 
 from mikeplus.model_database import ModelDatabase
 from mikeplus.model_database import open
@@ -12,7 +16,7 @@ from mikeplus.model_database import create
 class TestModelDatabaseOpen:
     """Tests for the model_database.open function."""
 
-    def test_open_existing_model(self, sirius_db):
+    def test_open_existing_model(self, session_sirius_db: SessionSiriusDb):
         """Test opening an existing model database."""
         # TODO: Implement test using the database fixtures
         assert False
