@@ -197,6 +197,34 @@ class ModelDatabase:
         """
         return str(self._data_table_container.UnitSystemOption)
 
+# PROJCS["ETRS89 / UTM zone 32N",GEOGCS["ETRS89",DATUM["European_Terrestrial_Reference_System_1989",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6258"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4258"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",9],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","25832"]]
+
+    @property
+    def projection_string(self) -> str:
+        """Get the projection string of the database.
+        
+        Returns:
+            Projection string of the database
+        """
+        return str(self._data_source.ProjectionString)
+        
+    @property
+    def srid(self) -> int:
+        """Get the Spatial Reference ID (SRID) of the database.
+        
+        Returns:
+            SRID value as an integer
+        """
+        return self._data_source.Srid
+        
+    @property
+    def active_simulation(self) -> str:
+        """Get the active simulation of the database.
+        
+        Returns:
+            Active simulation name
+        """
+        return self._data_source.ActiveSimulation
 
     @property
     def version(self) -> str:

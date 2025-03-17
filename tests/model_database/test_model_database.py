@@ -120,6 +120,34 @@ class TestModelDatabase:
         """Test active_model property."""
         assert model_db.active_model == "CS_MIKE1D"
     
+    def test_projection_string(self, model_db):
+        """Test projection_string property."""
+        projection = model_db.projection_string
+        expected = (
+            r"""PROJCS["ETRS89 / UTM zone 32N","""
+            r"""GEOGCS["ETRS89",DATUM["European_Terrestrial_Reference_System_1989","""
+            r"""SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],"""
+            r"""TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6258"]],"""
+            r"""PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree","""
+            r"""0.0174532925199433,AUTHORITY["EPSG","9122"]],"""
+            r"""AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4258"]],"""
+            r"""PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],"""
+            r"""PARAMETER["central_meridian",9],PARAMETER["scale_factor",0.9996],"""
+            r"""PARAMETER["false_easting",500000],PARAMETER["false_northing",0],"""
+            r"""UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],"""
+            r"""AXIS["Northing",NORTH],AUTHORITY["EPSG","25832"]]"""
+        )
+        assert projection == expected
+    
+    def test_srid(self, model_db):
+        """Test srid property."""
+        srid = model_db.srid
+        assert srid == 25832
+    
+    def test_active_simulation(self, model_db):
+        """Test active_simulation property."""
+        simulation = model_db.active_simulation
+        assert simulation == "Sirius_1_DEMO"
     
     def test_close(self, model_db):
         """Test close method."""
