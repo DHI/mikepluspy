@@ -21,11 +21,11 @@ from .conflicts import check_conflicts
 from .tables.auto_generated import TableCollection
 
 
-class ModelDatabase:
+class Database:
     """Represents a MIKE+ model database."""
     
     def __init__(self, model_path: str | Path, *, auto_open: bool = True):
-        """Initialize a new ModelDatabase.
+        """Initialize a new Database.
         
         Args:
             model_path: Path to the model database file (e.g. "model.sqlite" or "model.mupp")
@@ -64,7 +64,7 @@ class ModelDatabase:
             self.open()
             
     @classmethod
-    def create(cls, model_path: str | Path, *, projection_string: str = "", srid: int = -1, auto_open: bool = True) -> ModelDatabase:
+    def create(cls, model_path: str | Path, *, projection_string: str = "", srid: int = -1, auto_open: bool = True) -> Database:
         """Create a new MIKE+ model database.
         
         Args:
@@ -74,7 +74,7 @@ class ModelDatabase:
             auto_open: If True, immediately open the database connection
             
         Returns:
-            A ModelDatabase object for the newly created database
+            A Database object for the newly created database
             
         Raises:
             FileExistsError: If the database already exists
@@ -97,8 +97,8 @@ class ModelDatabase:
         except Exception as e:
             raise Exception(f"Failed to create model database: {str(e)}")
 
-        mdb = cls(model_path, auto_open=auto_open)
-        return mdb
+        db = cls(model_path, auto_open=auto_open)
+        return db
 
     def open(self):
         """Open the model database.
@@ -134,8 +134,6 @@ class ModelDatabase:
         try:
             self._data_table_container.UndoRedoManager.ClearUndoRedoBuffer()
             self._data_table_container.DataSource.CloseDatabase()
-            self._data_table_container.Dispose()
-            self._data_table_container = None
             self._is_open = False
         except Exception as e:
             raise Exception(f"Failed to close model database: {self._db_path}.\n{str(e)}")
@@ -278,5 +276,5 @@ class ModelDatabase:
 
 
 __all__ = [
-    "ModelDatabase",
+    "Database",
 ]

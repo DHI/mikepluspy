@@ -3,19 +3,13 @@ Tests for the utilities module for table code generation.
 """
 import pytest
 
+
+from mikeplus.database import Database
 from mikeplus.tables.utilities import generate_table_class
 
 
 class TestTableCodeGeneration:
     """Tests for the table code generation utilities."""
-    
-    @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
-        from mikeplus import model_database
-        db = model_database.open(sirius_db)
-        yield db
-        db.close()
     
     @pytest.fixture
     def real_table_name(self):

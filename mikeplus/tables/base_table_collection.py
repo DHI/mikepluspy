@@ -19,10 +19,6 @@ class BaseTableCollection:
         self._data_table_container = data_table_container
         self._tables = {}
     
-    def _initialize_tables(self):
-        """Initialize table wrappers for all tables in the container."""
-        pass
-    
     def keys(self) -> List[str]:
         """Get a list of all table names.
         

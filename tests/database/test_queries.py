@@ -3,27 +3,26 @@ Tests for the query classes implementing the fluent SQL API.
 """
 import pytest
 
-from mikeplus.model_database import ModelDatabase
+from mikeplus.database import Database
 
 
 class TestBaseQuery:
     """Tests for the BaseQuery class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         # Use the sirius_db fixture from conftest.py
-        from mikeplus import model_database
-        db = model_database.open(sirius_db)
+        db = Database(sirius_db)
         yield db
         db.close()
     
     @pytest.fixture
-    def table(self, model_db):
+    def table(self, db):
         """Fixture providing a real table from the database."""
-        # Get a real table from the model database
+        # Get a real table from the database
         # Use one that's guaranteed to exist
-        return model_db.tables['msm_Project']
+        return db.tables['msm_Project']
     
     def test_where_clause(self, table):
         """Test adding where clauses."""
@@ -55,8 +54,8 @@ class TestSelectQuery:
     """Tests for the SelectQuery class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         # Use the sirius_db fixture from conftest.py
         from mikeplus import model_database
         db = model_database.open(sirius_db)
@@ -64,10 +63,10 @@ class TestSelectQuery:
         db.close()
     
     @pytest.fixture
-    def table(self, model_db):
+    def table(self, db):
         """Fixture providing a real table from the database."""
-        # Get a real table from the model database
-        return model_db.tables['msm_Project']
+        # Get a real table from the database
+        return db.tables['msm_Project']
     
     def test_select_all_columns(self, table):
         """Test selecting all columns."""
@@ -109,8 +108,8 @@ class TestInsertQuery:
     """Tests for the InsertQuery class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         # Use the sirius_db fixture from conftest.py
         from mikeplus import model_database
         db = model_database.open(sirius_db)
@@ -118,10 +117,10 @@ class TestInsertQuery:
         db.close()
     
     @pytest.fixture
-    def table(self, model_db):
+    def table(self, db):
         """Fixture providing a real table from the database."""
-        # Get a real table from the model database
-        return model_db.tables['msm_Project']
+        # Get a real table from the database
+        return db.tables['msm_Project']
     
     def test_values(self, table):
         """Test setting values to insert."""
@@ -138,8 +137,8 @@ class TestUpdateQuery:
     """Tests for the UpdateQuery class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         # Use the sirius_db fixture from conftest.py
         from mikeplus import model_database
         db = model_database.open(sirius_db)
@@ -147,10 +146,10 @@ class TestUpdateQuery:
         db.close()
     
     @pytest.fixture
-    def table(self, model_db):
+    def table(self, db):
         """Fixture providing a real table from the database."""
-        # Get a real table from the model database
-        return model_db.tables['msm_Project']
+        # Get a real table from the database
+        return db.tables['msm_Project']
     
     def test_set_values(self, table):
         """Test setting values to update."""
@@ -167,8 +166,8 @@ class TestDeleteQuery:
     """Tests for the DeleteQuery class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         # Use the sirius_db fixture from conftest.py
         from mikeplus import model_database
         db = model_database.open(sirius_db)
@@ -176,10 +175,10 @@ class TestDeleteQuery:
         db.close()
     
     @pytest.fixture
-    def table(self, model_db):
+    def table(self, db):
         """Fixture providing a real table from the database."""
-        # Get a real table from the model database
-        return model_db.tables['msm_Project']
+        # Get a real table from the database
+        return db.tables['msm_Project']
     
     def test_execute(self, table):
         """Test query execution."""

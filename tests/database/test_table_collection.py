@@ -11,18 +11,18 @@ class TestBaseTableCollection:
     """Tests for the BaseTableCollection class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         from mikeplus import model_database
         db = model_database.open(sirius_db)
         yield db
         db.close()
     
     @pytest.fixture
-    def table_collection(self, model_db):
+    def table_collection(self, db):
         """Fixture providing a BaseTableCollection instance."""
-        # Use the real table collection from model_db
-        return model_db.tables
+        # Use the real table collection from db
+        return db.tables
     
     def test_initialize_tables(self, table_collection):
         """Test _initialize_tables method."""
@@ -69,18 +69,18 @@ class TestTableCollection:
     """Tests for the auto-generated TableCollection class."""
     
     @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
+    def db(self, sirius_db):
+        """Fixture providing a Database instance."""
         from mikeplus import model_database
         db = model_database.open(sirius_db)
         yield db
         db.close()
     
     @pytest.fixture
-    def table_collection(self, model_db):
+    def table_collection(self, db):
         """Fixture providing a TableCollection instance."""
-        # Use the real table collection from model_db, which should be a TableCollection instance
-        return model_db.tables
+        # Use the real table collection from db, which should be a TableCollection instance
+        return db.tables
     
     def test_table_access(self, table_collection):
         """Test accessing tables through the collection."""
