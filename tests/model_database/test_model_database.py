@@ -118,11 +118,10 @@ class TestModelDatabase:
     
     def test_active_model(self, model_db):
         """Test active_model property."""
-        # TODO: Implement test
-        assert False
+        assert model_db.active_model == "CS_MIKE1D"
     
     
     def test_close(self, model_db):
         """Test close method."""
-        # TODO: Implement test
-        assert False
+        model_db.close()
+        assert not model_db.is_open

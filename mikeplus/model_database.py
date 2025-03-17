@@ -240,13 +240,13 @@ class ModelDatabase:
         self._scenario_manager.ActivateScenario(scenario_id, True)
     
     @property
-    def activate_model(self) -> str:
+    def active_model(self) -> str:
         """Get the name of the active model.
         
         Returns:
-            Name of the active model
+            str: Name of the active model
         """
-        pass
+        return str(self._data_source.ActiveModel)
 
 
 __all__ = [
