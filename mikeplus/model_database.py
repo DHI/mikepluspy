@@ -62,11 +62,14 @@ class ModelDatabase:
             self.open()
             
     @classmethod
-    def create(cls, model_path: str | Path) -> ModelDatabase:
+    def create(cls, model_path: str | Path, *, projection_string: str = "", srid: int = -1, auto_open: bool = True) -> ModelDatabase:
         """Create a new MIKE+ model database.
         
         Args:
             model_path: Path where the new database will be created
+            projection_string: The projection string for the database
+            srid: The SRID for the database, e.g. 4326 for WGS84
+            auto_open: If True, immediately open the database connection
             
         Returns:
             A ModelDatabase object for the newly created database
@@ -74,10 +77,26 @@ class ModelDatabase:
         Raises:
             FileExistsError: If the database already exists
         """
-        # Implementation here would create the database
-        
-        # Return an opened database
-        return cls(model_path, auto_open=True)
+        model_path = Path(model_path)
+        if model_path.exists():
+            raise FileExistsError(f"Model file '{model_path}' already exists.")
+
+        db_sqlite= model_path.with_suffix(".sqlite")
+
+        if projection_string and srid != -1:
+            raise ValueError("Projection string and SRID cannot be specified together.")
+
+        try:
+            data_source = BaseDataSource.Create(str(db_sqlite))
+            data_source.CreateDatabase()
+            data_source.OpenDatabase()
+            data_source.CreateModelTables(srid, projection_string)
+            data_source.CloseDatabase()
+        except Exception as e:
+            raise Exception(f"Failed to create model database: {str(e)}")
+
+        mdb = cls(model_path, auto_open=auto_open)
+        return mdb
 
     def open(self):
         """Open the model database.

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from mikeplus.model_database import ModelDatabase
 
 class TestModelDatabaseOpen:
-    """Tests for the model_database.open function."""
+    """Tests for the ModelDatabase opening functionality."""
 
     def test_open_existing_model(self, session_sirius_db: Path):
         """Test opening an existing model database."""
@@ -43,29 +43,32 @@ class TestModelDatabaseOpen:
         """Test that opening a non-existent model raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError):
             ModelDatabase(Path("/path/to/nonexistent/model.mupp"))
-    
-    def test_open_with_create_if_not_exists(self, tmp_path):
-        """Test opening with create_if_not_exists=True creates a new database."""
-        # TODO: Implement test
-        assert False
+
+        with pytest.raises(FileNotFoundError):
+            ModelDatabase(Path("/path/to/nonexistent/model.sqlite"))
 
 class TestModelDatabaseCreate:
-    """Tests for the model_database.create function."""
+    """Tests for the ModelDatabase creation functionality."""
 
-    def test_create_new_model(self, tmp_path):
+    def test_create_new_model(self, tmp_path: Path):
         """Test creating a new model database."""
-        # TODO: Implement test
-        assert False
+        db_path = tmp_path / "model.sqlite"
+
+        # Create model database
+        mdb = ModelDatabase.create(db_path)
+        assert isinstance(mdb, ModelDatabase)
+        assert mdb.is_open
+        assert mdb.db_path == db_path
+        mdb.close()
+        assert not mdb.is_open
+
+        # Check that the database file was created
+        assert db_path.exists()
     
-    def test_create_existing_model_raises_error(self, sirius_db):
+    def test_create_existing_model_raises_error(self, sirius_db: Path):
         """Test that creating an existing model raises FileExistsError."""
-        # TODO: Implement test
-        assert False
-    
-    def test_create_with_pathlib_path(self, tmp_path):
-        """Test creating with a pathlib.Path object."""
-        # TODO: Implement test
-        assert False
+        with pytest.raises(FileExistsError):
+            ModelDatabase.create(sirius_db)
 
 
 class TestModelDatabase:
@@ -75,7 +78,7 @@ class TestModelDatabase:
     def model_db(self, sirius_db):
         """Fixture providing a test ModelDatabase instance."""
         # TODO: Implement fixture to provide a test database using existing fixtures
-        db = model_database.open(sirius_db)
+        db = ModelDatabase(sirius_db)
         yield db
         db.close()
     
