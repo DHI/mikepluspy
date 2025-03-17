@@ -238,16 +238,6 @@ class ModelDatabase:
 
         scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
         self._scenario_manager.ActivateScenario(scenario_id, True)
-
-    
-    @property
-    def active_simulation(self) -> str:
-        """Get the name of the active simulation.
-        
-        Returns:
-            Name of the active simulation
-        """
-        pass
     
     @property
     def activate_model(self) -> str:
@@ -255,14 +245,6 @@ class ModelDatabase:
         
         Returns:
             Name of the active model
-        """
-        pass
-        
-    def set_active_simulation(self, simulation_name: str):
-        """Set the active simulation.
-        
-        Args:
-            simulation_name: Name of the simulation to activate
         """
         pass
 

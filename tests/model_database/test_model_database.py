@@ -115,25 +115,12 @@ class TestModelDatabase:
             model_db.active_scenario = "this_does_not_exist"
         assert model_db.active_scenario == "Base"
     
-    def test_active_simulation(self, model_db):
-        """Test active_simulation property."""
-        # TODO: Implement test
-        assert False
-    
-    def test_set_active_simulation(self, model_db):
-        """Test set_active_simulation method."""
-        # TODO: Implement test
-        assert False
     
     def test_active_model(self, model_db):
         """Test active_model property."""
         # TODO: Implement test
         assert False
     
-    def test_create_scenario(self, model_db):
-        """Test create_scenario method."""
-        # TODO: Implement test
-        assert False
     
     def test_close(self, model_db):
         """Test close method."""
