@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from mikeplus.model_database import ModelDatabase
+from mikeplus.tables.auto_generated import TableCollection
 
 class TestModelDatabaseOpen:
     """Tests for the ModelDatabase opening functionality."""
@@ -75,42 +76,44 @@ class TestModelDatabase:
     """Tests for the ModelDatabase class."""
 
     @pytest.fixture
-    def model_db(self, sirius_db):
+    def model_db(self, class_sirius_db: Path):
         """Fixture providing a test ModelDatabase instance."""
-        # TODO: Implement fixture to provide a test database using existing fixtures
-        db = ModelDatabase(sirius_db)
+        db = ModelDatabase(class_sirius_db)
         yield db
         db.close()
     
     def test_is_open(self, model_db):
         """Test is_open property."""
-        # TODO: Implement test
-        assert False
+        assert model_db.is_open
     
     def test_tables_property(self, model_db):
         """Test tables property returns a TableCollection."""
-        # TODO: Implement test
-        assert False
+        assert isinstance(model_db.tables, TableCollection)
     
     def test_unit_system(self, model_db):
         """Test unit_system property."""
-        # TODO: Implement test
-        assert False
+        assert model_db.unit_system == "MU_CS_SI"
     
     def test_version(self, model_db):
         """Test version property."""
-        # TODO: Implement test
-        assert False
+        assert model_db.version == "2025.0.0"
     
     def test_active_scenario(self, model_db):
         """Test active_scenario property."""
-        # TODO: Implement test
-        assert False
+        assert model_db.active_scenario == "Base"
+
+    def test_scenarios(self, model_db):
+        assert model_db.scenarios == ["Base", "sub_scenario"]
     
     def test_set_active_scenario(self, model_db):
         """Test set_active_scenario method."""
-        # TODO: Implement test
-        assert False
+        model_db.active_scenario = "sub_scenario"
+        assert model_db.active_scenario == "sub_scenario"
+        model_db.active_scenario = "Base"
+        assert model_db.active_scenario == "Base"
+        with pytest.raises(ValueError):
+            model_db.active_scenario = "this_does_not_exist"
+        assert model_db.active_scenario == "Base"
     
     def test_active_simulation(self, model_db):
         """Test active_simulation property."""

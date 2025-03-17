@@ -52,10 +52,12 @@ class ModelDatabase:
 
         if not (self._db_path or self._mupp_path):
             raise InvalidFileException(f"Model file '{model_path}' is invalid.")
-            
-        self._data_table_container: DataTableContainer | None = None
+        
+        self._data_source: BaseDataSource = BaseDataSource.Create(str(self._db_path))
+        self._data_table_container: DataTableContainer = DataTableContainer(True)
+        self._data_table_container.DataSource = self._data_source
+        self._tables: TableCollection = TableCollection(self._data_table_container)
         self._scenario_manager: ScenarioManager | None = None
-        self._tables: TableCollection | None = None
         self._is_open = False
         
         if auto_open:
@@ -110,17 +112,13 @@ class ModelDatabase:
             return self
 
         try:
-            data_source = BaseDataSource.Create(str(self._db_path))
-            data_source.OpenDatabase()
-            data_table_container = DataTableContainer(True)
-            data_table_container.DataSource = data_source
-            data_table_container.SetActiveModel(data_source.ActiveModel)
-            data_table_container.SetEumAppUnitSystem(data_source.UnitSystemOption)
-            data_table_container.OnResetContainer(None, None)
-            data_table_container.UndoRedoManager = AmlUndoRedoManager()
-            data_table_container.ImportExportPfsFile = ImportExportPfsFile()
-            self._data_table_container = data_table_container
-            self._scenario_manager = data_source.ScenarioManager
+            self._data_source.OpenDatabase()
+            self._data_table_container.SetActiveModel(self._data_source.ActiveModel)
+            self._data_table_container.SetEumAppUnitSystem(self._data_source.UnitSystemOption)
+            self._data_table_container.OnResetContainer(None, None)
+            self._data_table_container.UndoRedoManager = AmlUndoRedoManager()
+            self._data_table_container.ImportExportPfsFile = ImportExportPfsFile()
+            self._scenario_manager = self._data_source.ScenarioManager
             self._is_open = True
         except Exception as e:
             raise Exception(f"Failed to open model database: {self._db_path}.\n{str(e)}")
@@ -179,7 +177,7 @@ class ModelDatabase:
         Returns:
             TableCollection object
         """
-        pass
+        return self._tables
     
     @property
     def is_open(self) -> bool:
@@ -192,13 +190,14 @@ class ModelDatabase:
     
     @property
     def unit_system(self) -> str:
-        """Get the unit system of the database.
+        """Get the unit system of the database in MIKE+ format.
         
         Returns:
-            Unit system string
+            Unit system string (e.g. "MU_CS_SI")
         """
-        pass
-    
+        return str(self._data_table_container.UnitSystemOption)
+
+
     @property
     def version(self) -> str:
         """Get the version of the database.
@@ -206,16 +205,40 @@ class ModelDatabase:
         Returns:
             Version string
         """
-        pass
+        major_version = self._data_source.DbMajorVersion
+        minor_version = self._data_source.DbMinorVersion
+
+        return f"{major_version}.{minor_version}"
+
+    @property
+    def scenarios(self) -> list[str]:
+        """Get the list of available scenarios.
+
+        Returns:
+            List of scenario names
+        """
+        return list(self._scenario_manager.GetScenarios())
     
     @property
     def active_scenario(self) -> str:
-        """Get the name of the active scenario.
+        """Name of the active scenario
         
         Returns:
-            Name of the active scenario
+            str: Name of the active scenario
+
+        Notes:
+            This can be set to a new scenario name to activate a different scenario.
         """
-        pass
+        return self._scenario_manager.ActiveScenario.Name
+
+    @active_scenario.setter
+    def active_scenario(self, scenario_name: str):
+        if scenario_name not in self.scenarios:
+            raise ValueError(f"Scenario '{scenario_name}' does not exist. Valid scenarios: {self.scenarios}")
+
+        scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
+        self._scenario_manager.ActivateScenario(scenario_id, True)
+
     
     @property
     def active_simulation(self) -> str:
@@ -235,14 +258,6 @@ class ModelDatabase:
         """
         pass
         
-    def set_active_scenario(self, scenario_name: str):
-        """Set the active scenario.
-        
-        Args:
-            scenario_name: Name of the scenario to activate
-        """
-        pass
-    
     def set_active_simulation(self, simulation_name: str):
         """Set the active simulation.
         
@@ -250,15 +265,7 @@ class ModelDatabase:
             simulation_name: Name of the simulation to activate
         """
         pass
-    
-    def create_scenario(self, name: str, base_scenario: str):
-        """Create a new scenario based on an existing one.
-        
-        Args:
-            name: Name of the new scenario
-            base_scenario: Name of the scenario to base the new one on
-        """
-        pass
+
 
 __all__ = [
     "ModelDatabase",
