@@ -18,17 +18,17 @@ class BaseTable:
     @property
     def name(self) -> str:
         """Get the table name."""
-        pass
+        return self._net_table.TableName
         
     @property
     def display_name(self) -> str:
         """Get the display name for the table."""
-        pass
+        return self._net_table.TableDisplayName
         
     @property
     def description(self) -> str:
         """Get the table description."""
-        pass
+        return self._net_table.Description
         
     def get_muids(self, order_by=None) -> List[int]:
         """Get the list of MUIDs (IDs) from the table.

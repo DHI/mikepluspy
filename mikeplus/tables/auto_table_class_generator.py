@@ -169,13 +169,23 @@ class AutoTableClassGenerator:
 
         vars['base_table_collection_module'] = self.base_table_collection.__module__
         vars['base_table_collection'] = self.base_table_collection.__name__
+        vars['base_class_module'] = self.base_table.__module__
+        vars['base_class_name'] = self.base_table.__name__
+        
         vars['table_imports'] = self.generate_table_imports()
+        
+        table_init = "    def _init_tables(self) -> dict[str, BaseTable]:\n"
+        table_init += "        tables = {}\n"
+        for table in self.generated_tables.values():
+            instantiate_table = f"{table['class_name']}(self._data_table_container.GetTable('{table['table_name']}'))"
+            table_init += f"        tables['{table['table_name']}'] = {instantiate_table}\n"
+        table_init += "        return tables\n"
+        vars['table_init'] = table_init
 
         table_property_template = "    @property\n"
         table_property_template += "    def $table_name(self) -> $table_class_name:\n"
         table_property_template += '        """Table \'$table_name\' ($table_display_name)"""\n'
-        #table_property_template += "        return self._tables['$table_name']\n"
-        table_property_template += "        return None\n"
+        table_property_template += "        return self._tables['$table_name']\n"
         table_property_template = Template(table_property_template)
         
         table_properties = []

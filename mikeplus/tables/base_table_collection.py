@@ -1,7 +1,7 @@
 """
 Base table collection for MIKE+ database tables.
 """
-from typing import List, Any, Tuple
+from mikeplus.tables.base_table import BaseTable
 
 
 class BaseTableCollection:
@@ -17,33 +17,37 @@ class BaseTableCollection:
             data_table_container: The underlying data table container
         """
         self._data_table_container = data_table_container
-        self._tables = {}
+        self._tables = self._init_tables()
     
-    def keys(self) -> List[str]:
+    def _init_tables(self) -> dict[str, BaseTable]:
+        """Initialize the tables dictionary."""
+        return {}
+    
+    def keys(self):
         """Get a list of all table names.
         
         Returns:
             List of table names
         """
-        pass
+        return self._tables.keys()
     
-    def values(self) -> List[Any]:
+    def values(self):
         """Get a list of all table objects.
         
         Returns:
             List of table objects
         """
-        pass
+        return self._tables.values()
     
-    def items(self) -> List[Tuple[str, Any]]:
+    def items(self):
         """Get a list of (name, table) pairs.
         
         Returns:
             List of (name, table) tuples
         """
-        pass
+        return self._tables.items()
     
-    def __getitem__(self, table_name: str):
+    def __getitem__(self, table_name: str) -> BaseTable:
         """Get a table by name.
         
         Args:
@@ -51,11 +55,8 @@ class BaseTableCollection:
             
         Returns:
             The requested table
-            
-        Raises:
-            KeyError: If the table does not exist
         """
-        pass
+        return self._tables[table_name]
     
     def __contains__(self, table_name: str) -> bool:
         """Check if a table exists.
@@ -66,7 +67,7 @@ class BaseTableCollection:
         Returns:
             True if the table exists, False otherwise
         """
-        pass
+        return table_name in self._tables
     
     def __iter__(self):
         """Get an iterator over table names.
@@ -74,4 +75,4 @@ class BaseTableCollection:
         Returns:
             Iterator over table names
         """
-        pass
+        return iter(self._tables)
