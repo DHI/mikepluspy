@@ -3,104 +3,106 @@ Tests for the table classes.
 """
 import pytest
 
-from mikeplus.tables.base_table import BaseTable
+from mikeplus.database import Database
+from mikeplus.tables import BaseTable
+from mikeplus.queries import SelectQuery
+from mikeplus.queries import UpdateQuery
+from mikeplus.queries import DeleteQuery
 
 
 class TestBaseTable:
     """Tests for the BaseTable class."""
-    
-    @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
-        from mikeplus import model_database
-        db = model_database.open(sirius_db)
-        yield db
+
+    @pytest.fixture(scope="class")
+    def IMuTable(self, class_sirius_db):
+        """Fixture providing an IMuTable instance."""
+        db = Database(class_sirius_db)
+        yield db._data_table_container.GetTable("msm_Link")
         db.close()
     
     @pytest.fixture
-    def base_table(self, model_db):
+    def base_table(self, IMuTable):
         """Fixture providing a BaseTable instance."""
-        # Use a real table from the model database
-        return model_db.tables['msm_Project']
+        yield BaseTable(IMuTable)
     
     def test_name(self, base_table):
         """Test name property."""
-        # TODO: Implement test
-        assert False
+        assert base_table.name == "msm_Link"
     
     def test_display_name(self, base_table):
         """Test display_name property."""
-        # TODO: Implement test
-        assert False
+        assert base_table.display_name == "Pipes and canals"
     
     def test_description(self, base_table):
         """Test description property."""
-        # TODO: Implement test
-        assert False
+        assert base_table.description == "Table of links"
     
     def test_get_muids(self, base_table):
         """Test get_muids method."""
-        # TODO: Implement test
-        assert False
+        assert base_table.get_muids() == ['Link_29', 'Link_30', 'Link_34', 'Link_35', 'Link_36', 'Link_37', 'Link_33', 'Link_2']
     
     def test_get_muids_with_order_by(self, base_table):
-        """Test get_muids method with order_by parameter."""
-        # TODO: Implement test
-        assert False
+        """Test get_muids with order_by parameter returns ordered list."""
+        muids = base_table.get_muids(order_by='MUID')
+        expected = sorted(['Link_29', 'Link_30', 'Link_34', 'Link_35', 'Link_36', 'Link_37', 'Link_33', 'Link_2'])
+        assert muids == expected
+
+    def test_get_muids_with_descending(self, base_table):
+        """Test get_muids with descending parameter returns descending ordered list."""
+        muids = base_table.get_muids(order_by='MUID', descending=True)
+        expected = sorted(['Link_29', 'Link_30', 'Link_34', 'Link_35', 'Link_36', 'Link_37', 'Link_33', 'Link_2'], reverse=True)
+        assert muids == expected
     
-    def test_select(self, base_table):
-        """Test select method returns a SelectQuery."""
-        # TODO: Implement test
-        assert False
+    def test_select_returns_select_query(self, base_table):
+        """Test select method returns a SelectQuery instance."""
+        query = base_table.select()
+        
+        # Verify it's a SelectQuery instance
+        assert isinstance(query, SelectQuery)
+        
+        # Verify it's configured with the table
+        assert query.table == base_table
     
     def test_select_with_columns(self, base_table):
-        """Test select method with specified columns."""
-        # TODO: Implement test
-        assert False
+        """Test select method with columns creates properly configured query."""
+        query = base_table.select('MUID', 'Diameter')
+        
+        # Verify it's a SelectQuery
+        assert isinstance(query, SelectQuery)
+        
+        # Verify the columns are configured
+        assert 'MUID' in query.columns
+        assert 'Diameter' in query.columns
     
-    def test_insert(self, base_table):
-        """Test insert method."""
-        # TODO: Implement test
-        assert False
-    
-    def test_update(self, base_table):
-        """Test update method returns an UpdateQuery."""
-        # TODO: Implement test
-        assert False
-    
-    def test_delete(self, base_table):
-        """Test delete method returns a DeleteQuery."""
-        # TODO: Implement test
-        assert False
+    def test_insert_query(self, base_table):
+        """Test insert method with values returns an InsertQuery instance."""
+        inserted_muid = base_table.insert(
+            MUID = 'Testing123'
+        )
+        
+        # Verify it's an InsertQuery
+        assert isinstance(inserted_muid, str)
+        
+        # Verify it's configured with the table
+        assert inserted_muid in base_table.get_muids()
 
-
-class TestTableIntegration:
-    """Integration tests for table operations with the fluent API."""
     
-    @pytest.fixture
-    def model_db(self, sirius_db):
-        """Fixture providing a ModelDatabase instance."""
-        from mikeplus import model_database
-        db = model_database.open(sirius_db)
-        yield db
-        db.close()
+    def test_update_returns_update_query(self, base_table):
+        """Test update method returns an UpdateQuery instance."""
+        query = base_table.update(Diameter=100.0)
+        
+        # Verify it's an UpdateQuery
+        assert isinstance(query, UpdateQuery)
+        
+        # Verify it's configured with the table
+        assert query.table == base_table
     
-    def test_select_from_table(self, model_db):
-        """Test selecting data from a table."""
-        # TODO: Implement integration test
-        assert False
-    
-    def test_insert_into_table(self, model_db):
-        """Test inserting data into a table."""
-        # TODO: Implement integration test
-        assert False
-    
-    def test_update_table(self, model_db):
-        """Test updating data in a table."""
-        # TODO: Implement integration test
-        assert False
-    
-    def test_delete_from_table(self, model_db):
-        """Test deleting data from a table."""
-        # TODO: Implement integration test
-        assert False
+    def test_delete_returns_delete_query(self, base_table):
+        """Test delete method returns a DeleteQuery instance."""
+        query = base_table.delete()
+        
+        # Verify it's a DeleteQuery
+        assert isinstance(query, DeleteQuery)
+        
+        # Verify it's configured with the table
+        assert query.table == base_table

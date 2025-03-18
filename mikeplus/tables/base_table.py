@@ -29,17 +29,18 @@ class BaseTable:
     def description(self) -> str:
         """Get the table description."""
         return self._net_table.Description
-        
-    def get_muids(self, order_by=None) -> List[int]:
-        """Get the list of MUIDs (IDs) from the table.
+
+    def get_muids(self, order_by: str = None, descending: bool = False) -> list[str]:
+        """Get a list of MUIDs for the table.
         
         Args:
-            order_by: Optional column name to order results by
+            order_by: Column to order the MUIDs by
+            descending: Whether to order in descending order
             
         Returns:
-            List of MUIDs
+            A list of MUIDs
         """
-        pass
+        return list(self._net_table.GetMuids(order_by, descending))
         
     def select(self, *columns):
         """Create a SELECT query for this table.
