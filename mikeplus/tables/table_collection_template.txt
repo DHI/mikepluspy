@@ -1,9 +1,0 @@
-from $base_table_collection_module import $base_table_collection
-from $base_class_module import $base_class_name
-
-$table_imports
-
-class TableCollection($base_table_collection):
-    """Collection of auto-generated table classes for MIKE+ database tables."""
-$table_init
-$table_properties

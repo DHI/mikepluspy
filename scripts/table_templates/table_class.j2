@@ -1,0 +1,11 @@
+from {{ base_table_module }} import {{ base_table_name }}
+
+
+class {{ class_name }}({{ base_table_name }}):
+    """Table for {{ table_name }} ({{ table_display_name }})."""
+    
+    class Fields:
+        """Field names for {{ table_name }} table."""
+        {%- for field in field_constants %}
+        {{ field.name }} = "{{ field.value }}"
+        {%- endfor %}
