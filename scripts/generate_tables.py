@@ -25,8 +25,8 @@ Examples:
 
 The script generates:
 1. A Python class file for each table in the database
-2. A table_collection.py file containing a TableCollection class for accessing all tables
-3. An __init__.py file to make the generated code importable as a package
+2. a table_collection.py file containing a TableCollection class for accessing all tables
+3. an __init__.py file to make the generated code importable as a package
 
 Notes:
 - This script is a development tool and requires Jinja2 to be installed
@@ -239,3 +239,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+__all__ = ['AutoTableClassGenerator']
