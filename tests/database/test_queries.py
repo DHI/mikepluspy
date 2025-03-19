@@ -136,7 +136,7 @@ class TestSelectQuery:
 class TestInsertQuery:
     """Tests for the InsertQuery class."""
     
-    @pytest.fixture(scope="module")
+    @pytest.fixture(scope="class")
     def table(self, module_sirius_db):
         """Fixture providing a real table from the database."""
         db = Database(module_sirius_db)
@@ -191,127 +191,52 @@ class TestInsertQuery:
 class TestUpdateQuery:
     """Tests for the UpdateQuery class."""
     
-    @pytest.fixture
-    def db(self, sirius_db):
-        """Fixture providing a Database instance."""
-        # Use the sirius_db fixture from conftest.py
-        db = Database(sirius_db)
-        yield db
+    @pytest.fixture(scope="class")
+    def table(self, module_sirius_db):
+        """Fixture providing a real table from the database."""
+        db = Database(module_sirius_db)
+        yield db.tables.msm_Link
         db.close()
     
-    @pytest.fixture
-    def table(self, db):
-        """Fixture providing a real table from the database."""
-        # Get a real table from the database
-        return db.tables.msm_Link
-    
-    @pytest.fixture
-    def test_record(self, table):
-        """Fixture providing a test record that will be cleaned up."""
-        test_muid = 'test_update_query'
-        table.insert(
-            MUID=test_muid,
-            Diameter=10.0
-        )
-        
-        yield test_muid
-        
-        # Clean up
-        table.delete().where(f"MUID='{test_muid}'").execute()
-    
-    def test_set_values(self, table, test_record):
+    def test_set_values_all(self, table):
         """Test setting values to update."""
-        # Update the test record
-        query = table.update().set(Diameter=20.0).where(f"MUID='{test_record}'")
-        
-        # Check query properties
-        assert query._set_values == {'Diameter': 20.0}
-        assert f"MUID='{test_record}'" in query._where_clauses
-        
-        # Execute the update
-        rows_affected = query.execute()
-        assert rows_affected == 1
-        
-        # Verify the update
-        result = table.select().where(f"MUID='{test_record}'").execute()
-        assert test_record in result
-        assert result[test_record]['Diameter'] == 20.0
-    
-    def test_multiple_set_values(self, table, test_record):
-        """Test setting multiple values to update."""
-        # Update with multiple values
-        rows_affected = (
-            table.update()
-            .set(Diameter=30.0, DwLevel=5.5)
-            .where(f"MUID='{test_record}'")
-            .execute()
-        )
-        
-        assert rows_affected == 1
-        
-        # Verify the update
-        result = table.select().where(f"MUID='{test_record}'").execute()
-        assert result[test_record]['Diameter'] == 30.0
-        assert result[test_record]['DwLevel'] == 5.5
+        values = {
+            "Diameter" : 42.0,
+            "Description" : "Updated link",
+        }
+
+        existing_values = table.select(list(values.keys())).execute()
+        for muid in existing_values:
+            existing_values[muid] = dict(zip(list(values.keys()), existing_values[muid]))
+            
+
+        for muid, existing_value in existing_values.items():
+            assert values != existing_value, f"Values do not match for MUID {muid}"
+
+        query = UpdateQuery(table, values)
+        muids_updated = query.execute()
+        assert muids_updated == table.get_muids(), "All records should have been updated"
+
+        updated_values = table.select(list(values.keys())).execute()
+        for muid, updated_value in updated_values.items():
+            updated_value = dict(zip(list(values.keys()), updated_value))
+            assert values == updated_value, f"Values do not match for MUID {muid}"
 
 
 class TestDeleteQuery:
     """Tests for the DeleteQuery class."""
     
-    @pytest.fixture
-    def db(self, sirius_db):
-        """Fixture providing a Database instance."""
-        # Use the sirius_db fixture from conftest.py
-        db = Database(sirius_db)
-        yield db
+    @pytest.fixture(scope="class")
+    def table(self, module_sirius_db):
+        """Fixture providing a real table from the database."""
+        db = Database(module_sirius_db)
+        yield db.tables.msm_Link
         db.close()
     
-    @pytest.fixture
-    def table(self, db):
-        """Fixture providing a real table from the database."""
-        # Get a real table from the database
-        return db.tables.msm_Link
-    
-    def test_execute(self, table):
+    def test_delete_all(self, table):
         """Test query execution."""
-        # First insert a test record
-        test_muid = 'test_delete_query'
-        table.insert(
-            MUID=test_muid,
-            Diameter=42.0
-        )
-        
-        # Verify it exists
-        result = table.select().where(f"MUID='{test_muid}'").execute()
-        assert test_muid in result
-        
-        # Delete it
-        rows_affected = table.delete().where(f"MUID='{test_muid}'").execute()
-        assert rows_affected == 1
-        
-        # Verify it's gone
-        result = table.select().where(f"MUID='{test_muid}'").execute()
-        assert test_muid not in result
-    
-    def test_chained_delete(self, table):
-        """Test chained delete query."""
-        # Insert two test records
-        test_muid1 = 'test_delete_query1'
-        test_muid2 = 'test_delete_query2'
-        
-        table.insert(MUID=test_muid1, Diameter=50.0)
-        table.insert(MUID=test_muid2, Diameter=50.0)
-        
-        # Delete with chained conditions
-        rows_affected = (
-            table.delete()
-            .where(f"MUID='{test_muid1}'")
-            .or_where(f"MUID='{test_muid2}'")
-            .execute()
-        )
-        
-        assert rows_affected == 2
-        
-        # Verify both are gone
-        result = table.select().where(f"MUID='{test_muid1}' OR MUID='{test_muid2}'").execute()
-        assert len(result) == 0
+        existing_muids = table.get_muids()
+        query = DeleteQuery(table)
+        deleted_muids = query.execute()
+        assert deleted_muids == existing_muids
+        assert table.get_muids() == []

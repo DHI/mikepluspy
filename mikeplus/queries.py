@@ -186,7 +186,7 @@ class InsertQuery(BaseQuery):
 class UpdateQuery(BaseQuery):
     """Query class for UPDATE operations."""
     
-    def __init__(self, table: BaseTable, values: dict[str, any] | None = None):
+    def __init__(self, table: BaseTable, values: dict[str, any]):
         """Initialize a new UPDATE query.
         
         Args:
@@ -194,16 +194,37 @@ class UpdateQuery(BaseQuery):
             values: Column-value pairs to update
         """
         super().__init__(table)
-        self._sets = values or {}
+        self._values = values
         
     def execute(self):
         """Execute the UPDATE query.
         
         Returns:
-            Number of rows affected
+            List of MUIDs updated
         """
-        pass
+        net_table = self._table._net_table
+        
+        values = self._values.copy()
+        
+        net_values = Dictionary[String, Object]() if values else None
 
+        for column, value in values.items():
+            net_value = None
+            if isinstance(value, int):
+                net_value = Nullable[int](value)
+            elif isinstance(value, datetime):
+                net_value = to_dotnet_datetime(value)
+            else:
+                net_value = value
+            net_values[column] = net_value
+
+        muids = self._table.get_muids()
+        updated_muids = []
+        for muid in muids:
+            net_table.SetValuesByCommand(muid,net_values)
+            updated_muids.append(muid)
+
+        return updated_muids
 
 class DeleteQuery(BaseQuery):
     """Query class for DELETE operations."""
@@ -220,6 +241,10 @@ class DeleteQuery(BaseQuery):
         """Execute the DELETE query.
         
         Returns:
-            Number of rows affected
+            List of MUIDs deleted
         """
-        pass
+        net_table = self._table._net_table
+        muids = self._table.get_muids()
+        muids_net = as_dotnet_list(muids)
+        net_table.MultiDeleteByCommand(muids_net)
+        return muids

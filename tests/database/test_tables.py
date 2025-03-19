@@ -98,7 +98,7 @@ class TestBaseTable:
         
         # Verify it's configured with the table
         assert query._table == base_table
-        assert query._sets == update_values
+        assert query._values == update_values
     
     def test_delete_returns_delete_query(self, base_table):
         """Test delete method returns a DeleteQuery instance."""
