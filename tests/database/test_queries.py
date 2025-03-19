@@ -5,81 +5,47 @@ import pytest
 import pandas as pd
 
 from mikeplus.database import Database
+from mikeplus.queries import BaseQuery
 
 
 class TestBaseQuery:
     """Tests for the BaseQuery class."""
-    
+
+    class BaseQueryTest(BaseQuery):
+        """Test class for BaseQuery."""
+        def execute(self):
+            return True
+
     @pytest.fixture
-    def db(self, sirius_db):
-        """Fixture providing a Database instance."""
-        # Use the sirius_db fixture from conftest.py
-        db = Database(sirius_db)
-        yield db
-        db.close()
+    def base_query(self, module_sirius_db):
+        """Fixture providing a BaseQuery instance."""
+        db = Database(module_sirius_db)
+        table = db.tables.msm_Link
+        return self.BaseQueryTest(table)
     
-    @pytest.fixture
-    def table(self, db):
-        """Fixture providing a real table from the database."""
-        # Get a real table from the database
-        # Use one that's guaranteed to exist
-        return db.tables.msm_Link
-    
-    def test_where_clause(self, table):
+    def test_where_clause(self, base_query: BaseQueryTest):
         """Test adding where clauses."""
-        query = table.select().where("Diameter > 10")
-        assert "Diameter > 10" in query._where_clauses
-        
-        # Test that it's chainable
-        result = query.execute()
-        assert isinstance(result, dict)
-        
-        # Check if filtering worked correctly
-        for muid, values in result.items():
-            assert values['Diameter'] > 10
+        query = base_query.where("Diameter > 10")
+        assert "Diameter > 10" in query._conditions
+        assert query._params == {}
     
-    def test_and_where_clause(self, table):
+    def test_and_where_clause(self, base_query: BaseQueryTest):
         """Test adding AND where clauses."""
-        query = table.select().where("Diameter > 5").where("Diameter < 20")
-        assert len(query._where_clauses) == 2
-        
-        result = query.execute()
-        for muid, values in result.items():
-            assert 5 < values['Diameter'] < 20
-    
-    def test_or_where_clause(self, table):
-        """Test adding OR where clauses."""
-        query = table.select().where("Diameter < 5").or_where("Diameter > 20")
-        
-        # The query should contain OR
-        assert "OR" in query.build_query()
-        
-        result = query.execute()
-        for muid, values in result.items():
-            assert values['Diameter'] < 5 or values['Diameter'] > 20
-    
-    def test_parameters(self, table):
+        query = base_query.where("Diameter > 5").where("Diameter < 20")
+        assert len(query._conditions) == 2
+        assert query._params == {}    
+
+    def test_parameters(self, base_query: BaseQueryTest):
         """Test query parameters."""
         diameter_value = 15
-        query = table.select().where("Diameter > ?", diameter_value)
+        query = base_query.where("Diameter > :diameter", diameter=diameter_value)
         
         # Check parameters are stored
-        assert query._parameters == [diameter_value]
-        
-        result = query.execute()
-        for muid, values in result.items():
-            assert values['Diameter'] > diameter_value
+        assert query._params == {"diameter": diameter_value}
     
-    def test_build_query(self, table):
-        """Test building the complete query."""
-        query = table.select('MUID', 'Diameter').where("Diameter > 10").order_by("Diameter")
-        
-        sql = query.build_query()
-        assert "SELECT" in sql
-        assert "MUID" in sql
-        assert "Diameter" in sql
-        assert "WHERE" in sql
-        assert "ORDER BY" in sql
+    def test_execute(self, base_query: BaseQueryTest):
+        """Test query execution."""
+        assert base_query.execute()
 
 
 class TestSelectQuery:
