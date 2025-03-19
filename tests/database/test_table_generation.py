@@ -108,7 +108,7 @@ class TestTableGeneration:
             assert node_table is not None
             
             # Test field access
-            assert hasattr(node_table.Fields, "MUID")
+            assert hasattr(node_table.columns, "MUID")
             
             # Import a specific table class as well
             table_name = next(iter(generator.generated_tables.keys()))
