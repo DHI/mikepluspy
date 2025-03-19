@@ -120,7 +120,62 @@ class TestSelectQuery:
 
     def test_execute_with_where(self, table):
         """Test execution with where clause."""
-        return False
+        # Test basic where clause
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.where("Diameter = 1.0")
+        result = query.execute()
+        
+        # Verify we only get links with Diameter = 1.0
+        assert isinstance(result, dict)
+        assert all(row[1] == 1.0 for row in result.values())
+        
+        # Test where clause with parameters
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.where("Diameter > :min_diameter", {"min_diameter": 0.5})
+        result = query.execute()
+        
+        # Verify we only get links with Diameter > 0.5
+        assert isinstance(result, dict)
+        assert all(row[1] > 0.5 for row in result.values())
+
+        # Verify we get no links for an unreasonable high Diameter
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.where("Diameter > 100.0")
+        result = query.execute()
+        assert isinstance(result, dict)
+        assert len(result) == 0
+        
+        # Test getting a single row
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.where("MUID = 'Link_2'")
+        result = query.execute()
+        
+        # Verify we only get the row with MUID = Link_2
+        assert isinstance(result, dict)
+        assert len(result) == 1
+        assert result["Link_2"] == ["Link_2", 1.0]
+
+        # Test getting multiple MUIDs with IN clause
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.where("MUID IN ('Link_2', 'Link_29')")
+        result = query.execute()
+        
+        # Verify we get the rows with MUID = Link_2 and MUID = Link_29
+        assert isinstance(result, dict)
+        assert len(result) == 2
+        assert result["Link_2"] == ["Link_2", 1.0]
+        assert result["Link_29"] == ["Link_29", 1.0]
+
+        # Test an empty result
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.where("MUID = 'Link_2'")
+        query = query.where("MUID = 'Link_29'")
+        result = query.execute()
+        
+        # Verify we get no rows
+        assert isinstance(result, dict)
+        assert len(result) == 0
+        
     
     def test_to_pandas(self, table):
         """Test converting query result to pandas DataFrame."""

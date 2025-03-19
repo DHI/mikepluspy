@@ -34,7 +34,7 @@ class BaseQuery(ABC):
         self._conditions = []
         self._params = {}
         
-    def where(self, condition: str, **params):
+    def where(self, condition: str, params: dict[str, str] = {}):
         """Add a WHERE condition to the query.
         
         Args:
@@ -47,6 +47,23 @@ class BaseQuery(ABC):
         self._conditions.append(condition)
         self._params.update(params)
         return self
+    
+    def _build_where_clause(self):
+        """Build the WHERE clause from conditions.
+        
+        Returns:
+            String of the WHERE clause or None if no conditions
+        """
+        if not self._conditions:
+            return None
+        
+        wrapped_conditions = [f"({condition})" for condition in self._conditions]
+        where_clause = " AND ".join(wrapped_conditions)
+        
+        for key, value in self._params.items():
+            where_clause = where_clause.replace(f":{key}", str(value))
+        
+        return where_clause
     
     @abstractmethod
     def execute(self):
@@ -105,9 +122,14 @@ class SelectQuery(BaseQuery):
         """
         net_table = self._table._net_table
         
+        # Build where clause
+        where_clause = self._build_where_clause()
+        
         result = net_table.GetMuidAndFieldsWhereOrder(
             as_dotnet_list(self._columns),
+            where_clause,
         )
+        
         result = from_dotnet_dict(result)
         
         return result
