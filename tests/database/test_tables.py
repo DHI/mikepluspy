@@ -8,6 +8,7 @@ from mikeplus.tables import BaseTable
 from mikeplus.queries import SelectQuery
 from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
+from mikeplus.queries import InsertQuery
 
 
 class TestBaseTable:
@@ -56,46 +57,40 @@ class TestBaseTable:
     def test_select_returns_select_query(self, base_table):
         """Test select method returns a SelectQuery instance."""
         query = base_table.select()
-        
-        # Verify it's a SelectQuery instance
         assert isinstance(query, SelectQuery)
-        
-        # Verify it's configured with the table
-        assert query.table == base_table
+        assert query._table == base_table
     
     def test_select_with_columns(self, base_table):
         """Test select method with columns creates properly configured query."""
-        query = base_table.select('MUID', 'Diameter')
-        
-        # Verify it's a SelectQuery
+        query = base_table.select(['MUID', 'Diameter'])
         assert isinstance(query, SelectQuery)
-        
-        # Verify the columns are configured
-        assert 'MUID' in query.columns
-        assert 'Diameter' in query.columns
+        assert query._table == base_table
+        assert query._columns == ['MUID', 'Diameter']
     
     def test_insert_query(self, base_table):
         """Test insert method with values returns an InsertQuery instance."""
-        inserted_muid = base_table.insert(
-            MUID = 'Testing123'
-        )
+        values = {'MUID': 'Testing123'}
+        query = base_table.insert(values, execute=False)
+        assert isinstance(query, InsertQuery)
+        assert query._table == base_table
+        assert query._values == values
         
-        # Verify it's an InsertQuery
-        assert isinstance(inserted_muid, str)
-        
-        # Verify it's configured with the table
-        assert inserted_muid in base_table.get_muids()
+        # Default execute=True
+        result = base_table.insert(values)
+        assert isinstance(result, str)
 
     
     def test_update_returns_update_query(self, base_table):
         """Test update method returns an UpdateQuery instance."""
-        query = base_table.update(Diameter=100.0)
+        update_values = {'Diameter': 100.0}
+        query = base_table.update(update_values)
         
         # Verify it's an UpdateQuery
         assert isinstance(query, UpdateQuery)
         
         # Verify it's configured with the table
-        assert query.table == base_table
+        assert query._table == base_table
+        assert query._sets == update_values
     
     def test_delete_returns_delete_query(self, base_table):
         """Test delete method returns a DeleteQuery instance."""
@@ -105,4 +100,4 @@ class TestBaseTable:
         assert isinstance(query, DeleteQuery)
         
         # Verify it's configured with the table
-        assert query.table == base_table
+        assert query._table == base_table

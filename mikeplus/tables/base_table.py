@@ -1,7 +1,10 @@
 """
 Base table class for MIKE+ database tables.
 """
-from typing import List
+from mikeplus.queries import SelectQuery
+from mikeplus.queries import UpdateQuery
+from mikeplus.queries import DeleteQuery
+from mikeplus.queries import InsertQuery
 
 
 class BaseTable:
@@ -42,7 +45,7 @@ class BaseTable:
         """
         return list(self._net_table.GetMuids(order_by, descending))
         
-    def select(self, *columns):
+    def select(self, columns: list[str] = []):
         """Create a SELECT query for this table.
         
         Args:
@@ -51,26 +54,35 @@ class BaseTable:
         Returns:
             A new SelectQuery object
         """
-        pass
+        return SelectQuery(self, columns)
         
-    def insert(self, **values):
+    def insert(self, values: dict[str, any], execute=True):
         """Insert a row with the given values.
         
         Args:
             values: Column-value pairs to insert
+            execute: Whether to execute the query immediately (default: True)
             
         Returns:
-            The ID of the newly inserted row (MUID)
+            If execute is True, returns the ID of the newly inserted row (MUID)
+            If execute is False, returns an InsertQuery instance
         """
-        pass
+        query = InsertQuery(self, values=values)
+        if execute:
+            return query.execute()
+        return query
         
-    def update(self):
+    def update(self, values: dict[str, any]):
         """Create an UPDATE query for this table.
         
+        Args:
+            values: Column-value pairs to set in the UPDATE
+            
         Returns:
             A new UpdateQuery object
         """
-        pass
+        query = UpdateQuery(self, values)
+        return query
         
     def delete(self):
         """Create a DELETE query for this table.
@@ -78,4 +90,4 @@ class BaseTable:
         Returns:
             A new DeleteQuery object
         """
-        pass
+        return DeleteQuery(self)

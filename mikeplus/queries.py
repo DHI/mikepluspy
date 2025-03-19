@@ -1,13 +1,18 @@
 """
 Query implementation classes for database operations.
 """
-from typing import List, Dict, Any, Optional, Union, Tuple
+from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-class BaseQuery:
+if TYPE_CHECKING:
+    from .tables import BaseTable
+
+class BaseQuery(ABC):
     """Base class for all query types."""
     
-    def __init__(self, table):
+    def __init__(self, table: BaseTable):
         """Initialize a new query.
         
         Args:
@@ -27,8 +32,11 @@ class BaseQuery:
         Returns:
             self for chaining
         """
-        pass
+        self._conditions.append(condition)
+        self._params.update(params)
+        return self
     
+    @abstractmethod
     def execute(self):
         """Execute the query against the database.
         
@@ -41,7 +49,7 @@ class BaseQuery:
 class SelectQuery(BaseQuery):
     """Query class for SELECT operations."""
     
-    def __init__(self, table, columns):
+    def __init__(self, table: BaseTable, columns: list[str] = []):
         """Initialize a new SELECT query.
         
         Args:
@@ -53,18 +61,19 @@ class SelectQuery(BaseQuery):
         self._order_by = None
         self._limit = None
         self._offset = None
-        
+    
     def order_by(self, column: str, descending: bool = False):
         """Add an ORDER BY clause to the query.
         
         Args:
             column: Column name to order by
-            descending: True to sort in descending order
-            
+            descending: Whether to sort in descending order
+
         Returns:
             self for chaining
         """
-        pass
+        self._order_by = (column, descending)
+        return self
         
     def limit(self, limit: int, offset: int = 0):
         """Add a LIMIT clause to the query.
@@ -76,7 +85,9 @@ class SelectQuery(BaseQuery):
         Returns:
             self for chaining
         """
-        pass
+        self._limit = limit
+        self._offset = offset
+        return self
         
     def execute(self):
         """Execute the SELECT query.
@@ -85,30 +96,28 @@ class SelectQuery(BaseQuery):
             List of dictionaries representing rows
         """
         pass
+        
+    def to_pandas(self):
+        """Convert the query results to a pandas DataFrame.
+        
+        Returns:
+            A pandas DataFrame containing the query results
+        """
+        pass
 
 
 class InsertQuery(BaseQuery):
     """Query class for INSERT operations."""
     
-    def __init__(self, table):
+    def __init__(self, table: BaseTable, *, values: dict[str, any] | None = None):
         """Initialize a new INSERT query.
         
         Args:
             table: The table to insert into
+            values: Column-value pairs to insert
         """
         super().__init__(table)
-        self._values = {}
-        
-    def values(self, **values):
-        """Set the values to insert.
-        
-        Args:
-            values: Column-value pairs to insert
-            
-        Returns:
-            self for chaining
-        """
-        pass
+        self._values = values 
         
     def execute(self):
         """Execute the INSERT query.
@@ -122,25 +131,15 @@ class InsertQuery(BaseQuery):
 class UpdateQuery(BaseQuery):
     """Query class for UPDATE operations."""
     
-    def __init__(self, table):
+    def __init__(self, table: BaseTable, values: dict[str, any] | None = None):
         """Initialize a new UPDATE query.
         
         Args:
             table: The table to update
+            values: Column-value pairs to update
         """
         super().__init__(table)
-        self._sets = {}
-        
-    def set(self, **values):
-        """Set the values to update.
-        
-        Args:
-            values: Column-value pairs to update
-            
-        Returns:
-            self for chaining
-        """
-        pass
+        self._sets = values or {}
         
     def execute(self):
         """Execute the UPDATE query.
@@ -154,14 +153,14 @@ class UpdateQuery(BaseQuery):
 class DeleteQuery(BaseQuery):
     """Query class for DELETE operations."""
     
-    def __init__(self, table):
+    def __init__(self, table: BaseTable):
         """Initialize a new DELETE query.
         
         Args:
             table: The table to delete from
         """
         super().__init__(table)
-        
+    
     def execute(self):
         """Execute the DELETE query.
         
