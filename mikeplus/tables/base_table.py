@@ -6,10 +6,11 @@ from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
 from mikeplus.queries import InsertQuery
 
+from .base_table_columns import BaseColumns
 
 class BaseTable:
     """Base class representing a database table."""
-    
+
     def __init__(self, net_table):
         """Initialize a new table wrapper.
         
@@ -17,6 +18,14 @@ class BaseTable:
             net_table: The underlying .NET IMuTable object
         """
         self._net_table = net_table
+        self._columns = None
+    
+    @property
+    def columns(self) -> BaseColumns:
+        """Get the columns for the table."""
+        if self._columns is None:
+            self._columns = BaseColumns(self)
+        return self._columns
         
     @property
     def name(self) -> str:
