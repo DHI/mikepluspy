@@ -195,13 +195,31 @@ class UpdateQuery(BaseQuery):
         """
         super().__init__(table)
         self._values = values
+        self._all_rows = False
+        
+    def all(self):
+        """Explicitly indicate that this query should affect all rows.
+        
+        Returns:
+            self for chaining
+        """
+        self._all_rows = True
+        return self
         
     def execute(self):
         """Execute the UPDATE query.
         
         Returns:
             List of MUIDs updated
+            
+        Raises:
+            ValueError: If no WHERE conditions specified and all() not called
         """
+        # Safety check: if no conditions and all() not called, prevent accidental updates
+        if not self._conditions and not self._all_rows:
+            raise ValueError("Attempted to update all rows without explicit all() call. "
+                           "Use where() to specify conditions or all() to update all rows.")
+        
         net_table = self._table._net_table
         
         values = self._values.copy()
@@ -236,13 +254,31 @@ class DeleteQuery(BaseQuery):
             table: The table to delete from
         """
         super().__init__(table)
+        self._all_rows = False
+        
+    def all(self):
+        """Explicitly indicate that this query should affect all rows.
+        
+        Returns:
+            self for chaining
+        """
+        self._all_rows = True
+        return self
     
     def execute(self):
         """Execute the DELETE query.
         
         Returns:
             List of MUIDs deleted
+            
+        Raises:
+            ValueError: If no WHERE conditions specified and all() not called
         """
+        # Safety check: if no conditions and all() not called, prevent accidental deletes
+        if not self._conditions and not self._all_rows:
+            raise ValueError("Attempted to delete all rows without explicit all() call. "
+                           "Use where() to specify conditions or all() to delete all rows.")
+            
         net_table = self._table._net_table
         muids = self._table.get_muids()
         muids_net = as_dotnet_list(muids)

@@ -22,9 +22,9 @@ class TestBaseQuery:
             return True
 
     @pytest.fixture
-    def base_query(self, module_sirius_db):
+    def base_query(self, session_sirius_db):
         """Fixture providing a BaseQuery instance."""
-        db = Database(module_sirius_db)
+        db = Database(session_sirius_db)
         table = db.tables.msm_Link
         return self.BaseQueryTest(table)
     
@@ -137,9 +137,9 @@ class TestInsertQuery:
     """Tests for the InsertQuery class."""
     
     @pytest.fixture(scope="class")
-    def table(self, module_sirius_db):
+    def table(self, class_sirius_db):
         """Fixture providing a real table from the database."""
-        db = Database(module_sirius_db)
+        db = Database(class_sirius_db)
         yield db.tables.msm_Link
         db.close()
     
@@ -192,14 +192,23 @@ class TestUpdateQuery:
     """Tests for the UpdateQuery class."""
     
     @pytest.fixture(scope="class")
-    def table(self, module_sirius_db):
+    def table(self, class_sirius_db):
         """Fixture providing a real table from the database."""
-        db = Database(module_sirius_db)
+        db = Database(class_sirius_db)
         yield db.tables.msm_Link
         db.close()
+
+    def test_safety_check(self, table):
+        """Test that trying to update all rows without all() raises an error."""
+        values = {
+            "Diameter" : 99.0,
+        }
+        query = UpdateQuery(table, values)
+        with pytest.raises(ValueError):
+            query.execute()  
     
     def test_set_values_all(self, table):
-        """Test setting values to update."""
+        """Test setting values to update all rows with explicit all() call."""
         values = {
             "Diameter" : 42.0,
             "Description" : "Updated link",
@@ -214,29 +223,38 @@ class TestUpdateQuery:
             assert values != existing_value, f"Values do not match for MUID {muid}"
 
         query = UpdateQuery(table, values)
-        muids_updated = query.execute()
+        # Call all() to explicitly update all rows
+        muids_updated = query.all().execute()
         assert muids_updated == table.get_muids(), "All records should have been updated"
 
         updated_values = table.select(list(values.keys())).execute()
         for muid, updated_value in updated_values.items():
             updated_value = dict(zip(list(values.keys()), updated_value))
             assert values == updated_value, f"Values do not match for MUID {muid}"
-
+        
 
 class TestDeleteQuery:
     """Tests for the DeleteQuery class."""
     
     @pytest.fixture(scope="class")
-    def table(self, module_sirius_db):
+    def table(self, class_sirius_db):
         """Fixture providing a real table from the database."""
-        db = Database(module_sirius_db)
+        db = Database(class_sirius_db)
         yield db.tables.msm_Link
         db.close()
+
+    def test_safety_check(self, table):
+        """Test that trying to delete all rows without all() raises an error."""
+        query = DeleteQuery(table)
+        with pytest.raises(ValueError):
+            query.execute()
     
     def test_delete_all(self, table):
-        """Test query execution."""
+        """Test deleting all rows with explicit all() call."""
         existing_muids = table.get_muids()
         query = DeleteQuery(table)
-        deleted_muids = query.execute()
+        # Call all() to explicitly delete all rows
+        deleted_muids = query.all().execute()
         assert deleted_muids == existing_muids
         assert table.get_muids() == []
+    
