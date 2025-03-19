@@ -9,8 +9,17 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .tables import BaseTable
 
+from datetime import datetime
+
 from .dotnet import as_dotnet_list
 from .dotnet import from_dotnet_dict
+from .dotnet import from_dotnet_datetime
+from .dotnet import to_dotnet_datetime
+
+from System import String
+from System import Nullable
+from System import Object
+from System.Collections.Generic import Dictionary
 
 class BaseQuery(ABC):
     """Base class for all query types."""
@@ -120,7 +129,7 @@ class SelectQuery(BaseQuery):
 class InsertQuery(BaseQuery):
     """Query class for INSERT operations."""
     
-    def __init__(self, table: BaseTable, *, values: dict[str, any] | None = None):
+    def __init__(self, table: BaseTable, values: dict[str, any] = {}):
         """Initialize a new INSERT query.
         
         Args:
@@ -128,7 +137,7 @@ class InsertQuery(BaseQuery):
             values: Column-value pairs to insert
         """
         super().__init__(table)
-        self._values = values 
+        self._values = values
         
     def execute(self):
         """Execute the INSERT query.
@@ -136,7 +145,42 @@ class InsertQuery(BaseQuery):
         Returns:
             The ID of the newly inserted row
         """
-        pass
+        net_table = self._table._net_table
+        
+        values = self._values.copy()
+        muid = values.pop("MUID", net_table.CreateUniqueMuid())
+        
+        if net_table.IsMuidExistInActive(muid, None):
+            raise ValueError(f"MUID {muid} already exists in {self._table.name} for active scenario.")
+
+        geometry = values.pop("geometry", None)
+
+        if geometry:
+            if isinstance(geometry, str):
+                geometry = GeoAPIHelper.GetIGeometryFromWKT(geometry)
+            else:
+                shapely = self._get_shapely()
+                geometry = GeoAPIHelper.GetIGeometryFromWKT(shapely.to_wkt(geometry))
+
+        net_values = Dictionary[String, Object]() if values else None
+
+        for column, value in values.items():
+            net_value = None
+            if isinstance(value, int):
+                net_value = Nullable[int](value)
+            elif isinstance(value, datetime):
+                net_value = to_dotnet_datetime(value)
+            else:
+                net_value = value
+            net_values[column] = net_value
+
+        _, inserted_muid = net_table.InsertByCommand(
+            muid, 
+            geometry,
+            net_values,
+        )
+
+        return inserted_muid
 
 
 class UpdateQuery(BaseQuery):

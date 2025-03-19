@@ -84,7 +84,8 @@ class TestBaseTable:
         
         # Default execute=True
         result = base_table.insert(values)
-        assert isinstance(result, str)
+        assert result == values["MUID"]
+        assert result in base_table.get_muids()
 
     
     def test_update_returns_update_query(self, base_table):

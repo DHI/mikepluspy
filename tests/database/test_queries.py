@@ -136,52 +136,56 @@ class TestSelectQuery:
 class TestInsertQuery:
     """Tests for the InsertQuery class."""
     
-    @pytest.fixture
-    def db(self, sirius_db):
-        """Fixture providing a Database instance."""
-        # Use the sirius_db fixture from conftest.py
-        db = Database(sirius_db)
-        yield db
+    @pytest.fixture(scope="module")
+    def table(self, module_sirius_db):
+        """Fixture providing a real table from the database."""
+        db = Database(module_sirius_db)
+        yield db.tables.msm_Link
         db.close()
     
-    @pytest.fixture
-    def table(self, db):
-        """Fixture providing a real table from the database."""
-        # Get a real table from the database
-        return db.tables.msm_Link
-    
-    def test_insert_with_kwargs(self, table):
+    def test_insert(self, table: BaseTable):
         """Test inserting with keyword arguments."""
-        test_muid = 'test_insert_query'
-        result_muid = table.insert(
-            MUID=test_muid,
-            Diameter=12.5
-        )
+        values = {
+            "MUID" : "my_test_link",
+            "Diameter" : 12.5,
+            "Length" : 100.0,
+            "Description" : "Test link"
+        }
+        query = InsertQuery(table, values)
+        inserted_muid = query.execute()
         
-        assert result_muid == test_muid
-        
-        # Verify the insertion
-        result = table.select().where(f"MUID='{test_muid}'").execute()
-        assert test_muid in result
-        assert result[test_muid]['Diameter'] == 12.5
-        
-        # Clean up
-        table.delete().where(f"MUID='{test_muid}'").execute()
+        assert inserted_muid == values["MUID"]
+        assert inserted_muid in table.get_muids()
+
+        inserted_values = table.select(list(values.keys())).execute()[values["MUID"]]
+        inserted_values = dict(zip(list(values.keys()), inserted_values))
+        assert values == inserted_values
     
     def test_insert_auto_muid(self, table):
         """Test inserting without specifying MUID."""
-        muid = table.insert(Diameter=99.9)
+        values = {
+            "Diameter" : 12.5,
+            "Length" : 100.0,
+            "Description" : "Test link"
+        }
+        query = InsertQuery(table, values)
+        inserted_muid = query.execute()
         
-        assert muid is not None
-        assert isinstance(muid, str)
+        assert inserted_muid is not None
+        assert isinstance(inserted_muid, str)
         
-        # Verify the insertion
-        result = table.select().where(f"MUID='{muid}'").execute()
-        assert muid in result
-        assert result[muid]['Diameter'] == 99.9
+        assert inserted_muid in table.get_muids()
+
+    def test_insert_empty_values(self, table):
+        """Test inserting with empty values."""
+        values = {}
+        query = InsertQuery(table, values)
+        inserted_muid = query.execute()
         
-        # Clean up
-        table.delete().where(f"MUID='{muid}'").execute()
+        assert inserted_muid is not None
+        assert isinstance(inserted_muid, str)
+        
+        assert inserted_muid in table.get_muids()
 
 
 class TestUpdateQuery:
