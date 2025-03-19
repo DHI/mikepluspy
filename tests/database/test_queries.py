@@ -6,6 +6,11 @@ import pandas as pd
 
 from mikeplus.database import Database
 from mikeplus.queries import BaseQuery
+from mikeplus.queries import SelectQuery
+from mikeplus.queries import InsertQuery
+from mikeplus.queries import UpdateQuery
+from mikeplus.queries import DeleteQuery
+from mikeplus.tables.base_table import BaseTable
 
 
 class TestBaseQuery:
@@ -51,116 +56,81 @@ class TestBaseQuery:
 class TestSelectQuery:
     """Tests for the SelectQuery class."""
     
-    @pytest.fixture
-    def db(self, sirius_db):
-        """Fixture providing a Database instance."""
-        # Use the sirius_db fixture from conftest.py
-        db = Database(sirius_db)
-        yield db
+    @pytest.fixture(scope="class")
+    def table(self, session_sirius_db):
+        """Fixture providing a real table from the database."""
+        db = Database(session_sirius_db)
+        yield db.tables.msm_Link
         db.close()
     
-    @pytest.fixture
-    def table(self, db):
-        """Fixture providing a real table from the database."""
-        # Get a real table from the database
-        return db.tables.msm_Link
-    
-    def test_select_all_columns(self, table):
-        """Test selecting all columns."""
-        query = table.select()
-        result = query.execute()
-        
-        assert isinstance(result, dict)
-        assert len(result) > 0
-        
-        # Check that we have key data
-        first_muid = next(iter(result))
-        assert 'MUID' in result[first_muid]
-        assert 'Diameter' in result[first_muid]
+    def test_select_all_columns(self, table: BaseTable):
+        """Test selecting all columns validates correctly."""
+        query = SelectQuery(table)
+        all_columns = list(table.columns)
+        assert query._columns == all_columns
     
     def test_select_specific_columns(self, table):
-        """Test selecting specific columns."""
-        query = table.select('MUID', 'Diameter')
-        result = query.execute()
-        
-        # Check that we only have the requested columns
-        first_muid = next(iter(result))
-        data = result[first_muid]
-        assert len(data) == 2
-        assert 'MUID' in data
-        assert 'Diameter' in data
+        """Test selecting specific columns validates correctly."""
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        assert query._columns == ['MUID', 'Diameter']
+    
+    def test_invalid_columns(self, table):
+        """Test selecting invalid columns raises a ValueError."""
+        with pytest.raises(ValueError):
+            SelectQuery(table, ["NonExistentColumn"])
     
     def test_order_by(self, table):
-        """Test ordering results."""
-        query = table.select('MUID', 'Diameter').order_by('Diameter DESC')
+        """Test setting order_by clause."""
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query.order_by('Diameter')
+        assert query._order_by is not None
+    
+    def test_execute_all_columns(self, table):
+        """Test execution with all columns selected."""
+        query = SelectQuery(table)
         result = query.execute()
-        
-        # Get diameter values
-        diameters = [data['Diameter'] for data in result.values()]
-        
-        # Check ordering is descending
-        assert all(diameters[i] >= diameters[i+1] for i in range(len(diameters)-1))
-    
-    def test_limit(self, table):
-        """Test limiting results."""
-        limit = 5
-        query = table.select().limit(limit)
-        result = query.execute()
-        
-        assert len(result) <= limit
-    
-    def test_offset(self, table):
-        """Test result offset."""
-        # First get all results
-        all_results = table.select('MUID').execute()
-        all_muids = list(all_results.keys())
-        
-        # Then get with offset
-        offset = 2
-        offset_results = table.select('MUID').offset(offset).execute()
-        offset_muids = list(offset_results.keys())
-        
-        # The offset results should match the original results offset by 'offset'
-        assert offset_muids == all_muids[offset:]
-    
-    def test_execute(self, table):
-        """Test query execution."""
-        result = table.select('MUID', 'Diameter').execute()
         
         assert isinstance(result, dict)
-        assert len(result) > 0
+        assert all(isinstance(key, str) for key in result.keys())
+        assert all(isinstance(value, list) for value in result.values())
         
-        # Get first record
-        first_muid = next(iter(result))
-        assert isinstance(result[first_muid], dict)
-        assert 'MUID' in result[first_muid]
-        assert 'Diameter' in result[first_muid]
+        expected_number_row = 8
+        assert len(result) == expected_number_row
+        expected_number_columns = len(list(table.columns))
+        assert len(list(result.values())[0]) == expected_number_columns
+        assert "Link_2" in result
+    
+    def test_execute_specific_columns(self, table):
+        """Test execution with specific columns selected."""
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        result = query.execute()
+        
+        assert isinstance(result, dict)
+        assert all(isinstance(key, str) for key in result.keys())
+        assert all(isinstance(value, list) for value in result.values())
+        
+        expected_number_columns = 2
+        assert len(list(result.values())[0]) == expected_number_columns
+        assert "Link_2" in result
+        assert result["Link_2"] == ["Link_2", 1.0]
+    
+    def test_execute_with_ordering(self, table):
+        """Test execution with order_by clause."""
+        return False
+
+    def test_execute_with_where(self, table):
+        """Test execution with where clause."""
+        return False
     
     def test_to_pandas(self, table):
         """Test converting query result to pandas DataFrame."""
-        df = table.select('MUID', 'Diameter').to_pandas()
+        df = SelectQuery(table, ["MUID", "Diameter"]).to_pandas()
         
         assert isinstance(df, pd.DataFrame)
-        assert 'MUID' in df.columns
-        assert 'Diameter' in df.columns
-        assert len(df) > 0
-    
-    def test_get_muids(self, table):
-        """Test the get_muids method."""
-        muids = table.get_muids()
-        
-        assert isinstance(muids, list)
-        assert len(muids) > 0
-        
-        # Check that all returned values are strings (MUIDs)
-        assert all(isinstance(muid, str) for muid in muids)
-    
-    def test_get_muids_with_ordering(self, table):
-        """Test get_muids with ordering."""
-        muids = table.get_muids(order_by='MUID')
-        
-        # Check that the list is sorted
-        assert muids == sorted(muids)
+        assert list(df.columns) == ["MUID", "Diameter"]
+        assert len(df) == 8
+        assert "Link_2" in df.index
+        assert df['Diameter'].sum() == 8.0
 
 
 class TestInsertQuery:

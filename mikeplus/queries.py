@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .tables import BaseTable
 
+from .dotnet import as_dotnet_list
+from .dotnet import from_dotnet_dict
+
 class BaseQuery(ABC):
     """Base class for all query types."""
     
@@ -59,8 +62,18 @@ class SelectQuery(BaseQuery):
         super().__init__(table)
         self._columns = columns
         self._order_by = None
-        self._limit = None
-        self._offset = None
+
+        self._validate_columns()
+
+    def _validate_columns(self):
+        """Validate the columns specified in the query."""
+        self._columns = list(self._columns)
+        if not self._columns:
+            self._columns = list(self._table.columns)
+        else:
+            invalid_columns = [col for col in self._columns if col not in self._table.columns]
+            if invalid_columns:
+                raise ValueError(f"Invalid columns: {invalid_columns}")
     
     def order_by(self, column: str, descending: bool = False):
         """Add an ORDER BY clause to the query.
@@ -71,39 +84,37 @@ class SelectQuery(BaseQuery):
 
         Returns:
             self for chaining
-        """
+        """ 
         self._order_by = (column, descending)
         return self
         
-    def limit(self, limit: int, offset: int = 0):
-        """Add a LIMIT clause to the query.
-        
-        Args:
-            limit: Maximum number of rows to return
-            offset: Number of rows to skip
-            
-        Returns:
-            self for chaining
-        """
-        self._limit = limit
-        self._offset = offset
-        return self
-        
-    def execute(self):
+    def execute(self) -> dict[str, dict[str, any]]:
         """Execute the SELECT query.
         
         Returns:
-            List of dictionaries representing rows
+            Dictionary of dictionaries representing rows
         """
-        pass
+        net_table = self._table._net_table
         
+        result = net_table.GetMuidAndFieldsWhereOrder(
+            as_dotnet_list(self._columns),
+        )
+        result = from_dotnet_dict(result)
+        
+        return result
+    
     def to_pandas(self):
         """Convert the query results to a pandas DataFrame.
         
         Returns:
             A pandas DataFrame containing the query results
         """
-        pass
+        import pandas as pd
+        
+        result = self.execute()
+        df = pd.DataFrame(result).T
+        df.columns = self._columns
+        return df
 
 
 class InsertQuery(BaseQuery):

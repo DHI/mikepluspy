@@ -2,7 +2,7 @@ import clr  # noqa: F401
 
 import System
 from System import String
-from System.Collections.Generic import List
+from System.Collections.Generic import List, IDictionary
 import datetime
 
 
@@ -64,3 +64,47 @@ def from_dotnet_datetime(x, round_to_milliseconds=True):
         time = time.replace(microsecond=microseconds_rounded)
 
     return time
+
+
+def from_dotnet_dict(dotnet_dict):
+    """
+    Convert a .NET IDictionary to a Python dictionary.
+    
+    Parameters
+    ----------
+    dotnet_dict : System.Collections.Generic.IDictionary
+        The .NET dictionary to convert.
+        
+    Returns
+    -------
+    dict
+        Python dictionary with converted values based on their type.
+    """
+    if dotnet_dict is None:
+        return None
+        
+    result = {}
+    
+    # Iterate through the dictionary keys
+    for key in dotnet_dict.Keys:
+        value = dotnet_dict[key]
+        
+        # Convert the value based on its type
+        if hasattr(value, 'GetType') and value.GetType().IsGenericType and \
+           value.GetType().GetGenericTypeDefinition().FullName.startswith('System.Collections.Generic.List'):
+            # Convert .NET IList to Python list
+            py_value = [item for item in value]
+        elif isinstance(value, IDictionary):
+            # Recursively convert nested dictionaries
+            py_value = from_dotnet_dict(value)
+        elif isinstance(value, System.DateTime):
+            # Convert DateTime using existing function
+            py_value = from_dotnet_datetime(value)
+        else:
+            # Use the value as is for simple types
+            py_value = value
+        
+        # Add to the result dictionary
+        result[key] = py_value
+        
+    return result

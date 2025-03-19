@@ -9,6 +9,7 @@ from mikeplus.queries import SelectQuery
 from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
 from mikeplus.queries import InsertQuery
+from mikeplus.tables.base_table_columns import BaseColumns
 
 
 class TestBaseTable:
@@ -37,6 +38,12 @@ class TestBaseTable:
     def test_description(self, base_table):
         """Test description property."""
         assert base_table.description == "Table of links"
+
+    def test_columns(self, base_table):
+        """Test columns property."""
+        assert isinstance(base_table.columns, BaseColumns)
+        assert 'MUID' in base_table.columns
+        assert len(tuple(base_table.columns)) == 50
     
     def test_get_muids(self, base_table):
         """Test get_muids method."""
