@@ -1,6 +1,7 @@
 """
 .NET conversion utilities for Python-to-.NET and .NET-to-Python conversions.
 """
+from __future__ import annotations
 
 import clr  # noqa: F401
 import datetime
