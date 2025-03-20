@@ -83,8 +83,9 @@ class AutoTableClassGenerator:
         self.output_dir = Path(output_dir)
 
         self.data_table_container = data_table_container
+        self.temporary_dir = Path(tempfile.mkdtemp())
         if data_table_container is None:
-            self.data_table_container = self.create_data_table_container()
+            self.data_table_container = self.create_data_table_container(self.temporary_dir)
 
         self.base_table = base_table
         self.base_table_collection = base_table_collection
@@ -102,13 +103,20 @@ class AutoTableClassGenerator:
 
         self.generated_tables = {}
 
-    def create_data_table_container(self):
+    def __del__(self):
+        self.clean_temporary_dir()
+
+    def clean_temporary_dir(self):
+        for file in self.temporary_dir.iterdir():
+            file.unlink()
+        self.temporary_dir.rmdir()
+
+    def create_data_table_container(self, temp_dir: Path):
         """
         Create an empty data table container.
         """
         # Create a path to a temporary sqlite database without creating the file
-        temp_dir = tempfile.TemporaryDirectory(delete=False)
-        temp_db_path = Path(temp_dir.name) / f"{uuid.uuid4()}.sqlite"
+        temp_db_path = temp_dir / f"{uuid.uuid4()}.sqlite"
 
         db = Database.create(temp_db_path)
         db.close()
