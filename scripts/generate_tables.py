@@ -9,7 +9,7 @@ Usage:
     python scripts/generate_tables.py [options]
 
 Options:
-    --output-dir, -o    Directory where generated code will be saved 
+    --output-dir, -o    Directory where generated code will be saved
                         (default: ./mikeplus/tables/auto_generated)
     --database, -d      Path to MIKE+ database file (optional)
 
@@ -51,28 +51,29 @@ from mikeplus.tables.base_table_collection import BaseTableCollection
 class AutoTableClassGenerator:
     """
     Automatically generate tables classes and TableCollection from MIKE+ database.
-    
+
     Table classes are light-weight wrappers of IMuTable. TableCollection is a dict-like
     accessor for the generated table classes.
-    
+
     Args:
         output_dir: Directory where generated code will be saved. Parent directories will be created if needed.
         data_table_container: .NET IDataTableContainer object
         base_table: Base class that all generated table classes will inherit from.
         base_table_collection: Base class that the table collection will inherit from.
     """
-    
+
     def __init__(
         self,
         *,
-        output_dir: Path = Path(__file__).parent.parent / "mikeplus/tables/auto_generated",
-        data_table_container = None,
+        output_dir: Path = Path(__file__).parent.parent
+        / "mikeplus/tables/auto_generated",
+        data_table_container=None,
         base_table: Type = BaseTable,
         base_table_collection: Type = BaseTableCollection,
     ):
         """
         Initialize the AutoTableGenerator.
-        
+
         Args:
             output_dir: Directory where generated code will be saved. Parent directories will be created if needed.
             data_table_container: .NET IDataTableContainer object
@@ -84,19 +85,21 @@ class AutoTableClassGenerator:
         self.data_table_container = data_table_container
         if data_table_container is None:
             self.data_table_container = self.create_data_table_container()
-        
+
         self.base_table = base_table
         self.base_table_collection = base_table_collection
-        
+
         # Setup Jinja2 environment
         template_dir = Path(__file__).parent / "table_templates"
         self.jinja_env = Environment(loader=FileSystemLoader(template_dir))
-        
+
         # Load templates from files
         self.table_template = self.jinja_env.get_template("table_class.j2")
-        self.table_collection_template = self.jinja_env.get_template("table_collection.j2")
+        self.table_collection_template = self.jinja_env.get_template(
+            "table_collection.j2"
+        )
         self.init_template = self.jinja_env.get_template("init.j2")
-        
+
         self.generated_tables = {}
 
     def create_data_table_container(self):
@@ -118,11 +121,11 @@ class AutoTableClassGenerator:
         # Ensure output directory exists and clear previous files
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.clear_generated_files()
-        
+
         # Generate table class files for all tables
         for table in self.data_table_container.AllTables:
             self.generate_table_class(table)
-        
+
         # Generate table collection and __init__.py
         self.generate_table_collection_file()
         self.generate_init_file()
@@ -134,7 +137,7 @@ class AutoTableClassGenerator:
         py_files = list(self.output_dir.glob("**/*.py"))
         for file_path in py_files:
             file_path.unlink()
-        
+
         self.generated_tables = {}
 
     def generate_table_class(self, table) -> None:
@@ -143,35 +146,34 @@ class AutoTableClassGenerator:
         """
         # Generate names
         module_name = table.TableName
-        class_name = table.TableName + 'Table'
-        
+        class_name = table.TableName + "Table"
+
         # Build template context
         field_constants = [
-            {"name": column.Field, "value": column.Field}
-            for column in table.Columns
+            {"name": column.Field, "value": column.Field} for column in table.Columns
         ]
-        
+
         context = {
-            'table_name': table.TableName,
-            'table_display_name': table.TableDisplayName,
-            'class_name': class_name,
-            'field_constants': field_constants,
-            'base_table_module': self.base_table.__module__,
-            'base_table_name': self.base_table.__name__,
+            "table_name": table.TableName,
+            "table_display_name": table.TableDisplayName,
+            "class_name": class_name,
+            "field_constants": field_constants,
+            "base_table_module": self.base_table.__module__,
+            "base_table_name": self.base_table.__name__,
         }
-        
+
         # Generate and write code
         code = self.table_template.render(**context)
         file_path = self.output_dir / f"{module_name}.py"
         with open(file_path, "w") as f:
             f.write(code)
-        
+
         # Store metadata for table collection generation
         self.generated_tables[module_name] = {
-            'path': str(file_path),
-            'class_name': class_name,
-            'table_name': module_name,
-            'table_display_name': table.TableDisplayName
+            "path": str(file_path),
+            "class_name": class_name,
+            "table_name": module_name,
+            "table_display_name": table.TableDisplayName,
         }
 
     def generate_table_collection_file(self) -> None:
@@ -180,30 +182,30 @@ class AutoTableClassGenerator:
         """
         # Build template context
         context = {
-            'base_table_collection_module': self.base_table_collection.__module__,
-            'base_table_collection': self.base_table_collection.__name__,
-            'base_table_module': self.base_table.__module__,
-            'base_table_name': self.base_table.__name__,
-            'tables': list(self.generated_tables.values()),
+            "base_table_collection_module": self.base_table_collection.__module__,
+            "base_table_collection": self.base_table_collection.__name__,
+            "base_table_module": self.base_table.__module__,
+            "base_table_name": self.base_table.__name__,
+            "tables": list(self.generated_tables.values()),
         }
-        
+
         # Generate and write code
         code = self.table_collection_template.render(**context)
         file_path = self.output_dir / "table_collection.py"
         with open(file_path, "w") as f:
             f.write(code)
-    
+
     def generate_init_file(self) -> None:
         """
         Generate the __init__.py file for the generated package.
         """
         init_path = self.output_dir / "__init__.py"
-        
+
         # Build template context
         context = {
-            'tables': list(self.generated_tables.values()),
+            "tables": list(self.generated_tables.values()),
         }
-        
+
         # Generate and write code
         code = self.init_template.render(**context)
         with open(init_path, "w") as f:
@@ -214,23 +216,31 @@ def main():
     """
     Main entry point for the generate_tables script.
     """
-    parser = argparse.ArgumentParser(description='Generate table classes from MIKE+ database')
-    parser.add_argument('--output-dir', '-o', type=str, default='./mikeplus/tables/auto_generated',
-                        help='Output directory for generated files')
-    parser.add_argument('--database', '-d', type=str,
-                        help='Path to MIKE+ database file (optional)')
-    
+    parser = argparse.ArgumentParser(
+        description="Generate table classes from MIKE+ database"
+    )
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        type=str,
+        default="./mikeplus/tables/auto_generated",
+        help="Output directory for generated files",
+    )
+    parser.add_argument(
+        "--database", "-d", type=str, help="Path to MIKE+ database file (optional)"
+    )
+
     args = parser.parse_args()
-    
+
     # Setup basic generator options
-    kwargs = {'output_dir': Path(args.output_dir)}
-    
+    kwargs = {"output_dir": Path(args.output_dir)}
+
     # Add database if provided
     if args.database:
         print(f"Using database: {args.database}")
         db = Database(args.database)
-        kwargs['data_table_container'] = db._data_table_container
-    
+        kwargs["data_table_container"] = db._data_table_container
+
     print(f"Generating table classes to {args.output_dir}...")
     generator = AutoTableClassGenerator(**kwargs)
     generator.generate()
@@ -240,4 +250,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-__all__ = ['AutoTableClassGenerator']
+__all__ = ["AutoTableClassGenerator"]

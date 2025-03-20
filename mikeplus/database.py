@@ -1,6 +1,7 @@
 """
 Entry point for MIKE+ model database operations.
 """
+
 from __future__ import annotations
 
 
@@ -19,19 +20,19 @@ from .tables.auto_generated import TableCollection
 
 class Database:
     """Represents a MIKE+ model database."""
-    
+
     def __init__(self, model_path: str | Path, *, auto_open: bool = True):
         """Initialize a new Database.
-        
+
         Args:
             model_path: Path to the model database file (e.g. "model.sqlite" or "model.mupp")
             auto_open: If True, immediately open the database connection
-            
+
         Raises:
             FileNotFoundError: If the database file doesn't exist
         """
         model_path = Path(model_path)
-        
+
         if not model_path.exists():
             raise FileNotFoundError(f"Model file '{model_path}' does not exist.")
 
@@ -48,30 +49,37 @@ class Database:
 
         if not (self._db_path or self._mupp_path):
             raise InvalidFileException(f"Model file '{model_path}' is invalid.")
-        
+
         self._data_source: BaseDataSource = BaseDataSource.Create(str(self._db_path))
         self._data_table_container: DataTableContainer = DataTableContainer(True)
         self._data_table_container.DataSource = self._data_source
         self._tables: TableCollection = TableCollection(self._data_table_container)
         self._scenario_manager: ScenarioManager | None = None
         self._is_open = False
-        
+
         if auto_open:
             self.open()
-            
+
     @classmethod
-    def create(cls, model_path: str | Path, *, projection_string: str = "", srid: int = -1, auto_open: bool = True) -> Database:
+    def create(
+        cls,
+        model_path: str | Path,
+        *,
+        projection_string: str = "",
+        srid: int = -1,
+        auto_open: bool = True,
+    ) -> Database:
         """Create a new MIKE+ model database.
-        
+
         Args:
             model_path: Path where the new database will be created
             projection_string: The projection string for the database
             srid: The SRID for the database, e.g. 4326 for WGS84
             auto_open: If True, immediately open the database connection
-            
+
         Returns:
             A Database object for the newly created database
-            
+
         Raises:
             FileExistsError: If the database already exists
         """
@@ -79,7 +87,7 @@ class Database:
         if model_path.exists():
             raise FileExistsError(f"Model file '{model_path}' already exists.")
 
-        db_sqlite= model_path.with_suffix(".sqlite")
+        db_sqlite = model_path.with_suffix(".sqlite")
 
         if projection_string and srid != -1:
             raise ValueError("Projection string and SRID cannot be specified together.")
@@ -98,47 +106,52 @@ class Database:
 
     def open(self):
         """Open the model database.
-        
+
         Returns:
             self: For method chaining
         """
         check_conflicts()
-        
+
         if self._is_open:
             return self
 
         try:
             self._data_source.OpenDatabase()
             self._data_table_container.SetActiveModel(self._data_source.ActiveModel)
-            self._data_table_container.SetEumAppUnitSystem(self._data_source.UnitSystemOption)
+            self._data_table_container.SetEumAppUnitSystem(
+                self._data_source.UnitSystemOption
+            )
             self._data_table_container.OnResetContainer(None, None)
             self._data_table_container.UndoRedoManager = AmlUndoRedoManager()
             self._data_table_container.ImportExportPfsFile = ImportExportPfsFile()
             self._scenario_manager = self._data_source.ScenarioManager
             self._is_open = True
         except Exception as e:
-            raise Exception(f"Failed to open model database: {self._db_path}.\n{str(e)}")
-            
+            raise Exception(
+                f"Failed to open model database: {self._db_path}.\n{str(e)}"
+            )
+
         return self
 
-    
     def close(self):
         """Close the model database."""
         if not self._is_open:
             return True
-        
+
         try:
             self._data_table_container.UndoRedoManager.ClearUndoRedoBuffer()
             self._data_table_container.DataSource.CloseDatabase()
             self._is_open = False
         except Exception as e:
-            raise Exception(f"Failed to close model database: {self._db_path}.\n{str(e)}")
-            
+            raise Exception(
+                f"Failed to close model database: {self._db_path}.\n{str(e)}"
+            )
+
     def __enter__(self):
         """Context manager entry."""
         self.open()
         return self
-        
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
         self.close()
@@ -146,7 +159,7 @@ class Database:
     @property
     def db_path(self) -> Path:
         """Get the path to the database file.
-        
+
         Returns:
             Path to the database file
         """
@@ -155,12 +168,12 @@ class Database:
     @property
     def mupp_path(self) -> Path | None:
         """Get the path to the MUPP file.
-        
+
         Returns:
             Path to the MUPP file, or None
         """
         return self._mupp_path
-    
+
     @property
     def tables(self) -> TableCollection:
         """A collection of tables in the database.
@@ -172,20 +185,20 @@ class Database:
             TableCollection object
         """
         return self._tables
-    
+
     @property
     def is_open(self) -> bool:
         """Check if the database is open.
-        
+
         Returns:
             True if the database is open, False otherwise
         """
         return self._is_open
-    
+
     @property
     def unit_system(self) -> str:
         """Get the unit system of the database in MIKE+ format.
-        
+
         Returns:
             Unit system string (e.g. "MU_CS_SI")
         """
@@ -193,26 +206,26 @@ class Database:
 
     @property
     def projection_string(self) -> str:
-        """Get the projection string of the database.   
-        
+        """Get the projection string of the database.
+
         Returns:
             Projection string of the database
         """
         return str(self._data_source.ProjectionString)
-        
+
     @property
     def srid(self) -> int:
         """Get the Spatial Reference ID (SRID) of the database.
-        
+
         Returns:
             SRID value as an integer
         """
         return self._data_source.Srid
-        
+
     @property
     def active_simulation(self) -> str:
         """Get the active simulation of the database.
-        
+
         Returns:
             Active simulation name
         """
@@ -221,7 +234,7 @@ class Database:
     @property
     def version(self) -> str:
         """Get the version of the database.
-        
+
         Returns:
             Version string
         """
@@ -238,11 +251,11 @@ class Database:
             List of scenario names
         """
         return list(self._scenario_manager.GetScenarios())
-    
+
     @property
     def active_scenario(self) -> str:
         """Name of the active scenario
-        
+
         Returns:
             str: Name of the active scenario
 
@@ -254,15 +267,17 @@ class Database:
     @active_scenario.setter
     def active_scenario(self, scenario_name: str):
         if scenario_name not in self.scenarios:
-            raise ValueError(f"Scenario '{scenario_name}' does not exist. Valid scenarios: {self.scenarios}")
+            raise ValueError(
+                f"Scenario '{scenario_name}' does not exist. Valid scenarios: {self.scenarios}"
+            )
 
         scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
         self._scenario_manager.ActivateScenario(scenario_id, True)
-    
+
     @property
     def active_model(self) -> str:
         """Get the name of the active model.
-        
+
         Returns:
             str: Name of the active model
         """

@@ -77,12 +77,12 @@ def test_catch_slope_len_tool(catch_slope_len_db):
     assert field_val_get[0] == 0.0
     assert field_val_get[1] == 0.0
     catch_ids = [muid]
-    
+
     # Get the paths to the files in the temporary directory
     db_dir = os.path.dirname(catch_slope_len_db)
     shp_file = os.path.join(db_dir, "Catch_Slope.shp")
     dem_file = os.path.join(db_dir, "dem.dfs2")
-    
+
     tool = CathSlopeLengthProcess(data_access.datatables)
     tool.run(
         catch_ids,
@@ -103,11 +103,11 @@ def test_import_tool(import_db):
     muids = data_access.get_muid_where("msm_Link")
     for muid in muids:
         data_access.delete("msm_Link", muid)
-    
+
     # Get the path to the config file in the temporary directory
     db_dir = os.path.dirname(import_db)
     config_file = os.path.join(db_dir, "config.xml")
-    
+
     import_tool = ImportTool(config_file, data_access.datatables)
     import_tool.run()
     muids = data_access.get_muid_where("msm_Link")

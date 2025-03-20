@@ -79,31 +79,31 @@ IMPORT_DB = TEST_DATA_DIR / "import" / "import.sqlite"
 def copy_database_folder(source_db_path, target_dir) -> Path:
     """
     Copy a database folder to a target directory recursively.
-    
+
     Args:
         source_db_path (Path): Path to the source database file
         target_dir (Path): Target directory to copy the database folder to
-        
+
     Returns:
         Path: Path to the copied database file
     """
     source_dir = source_db_path.parent
-    
+
     if not target_dir.exists():
         shutil.copytree(source_dir, target_dir)
-    
+
     return target_dir / source_db_path.name
 
 
 def create_test_specific_db_copy(source_db_path, tmp_path, prefix) -> Path:
     """
     Create a test-specific copy of a database folder.
-    
+
     Args:
         source_db_path (Path): Path to the source database file
         tmp_path (Path): Temporary path for test
         prefix (str): Prefix for the directory name
-        
+
     Returns:
         Path: Path to the test-specific database file
     """
@@ -362,13 +362,17 @@ def interpolate_db(tmp_path) -> Path:
 @pytest.fixture(scope="function")
 def connection_repair_db(tmp_path) -> Path:
     """Create a test-specific copy of the connection repair database folder."""
-    return create_test_specific_db_copy(CONNECTION_REPAIR_DB, tmp_path, "test_connection_repair")
+    return create_test_specific_db_copy(
+        CONNECTION_REPAIR_DB, tmp_path, "test_connection_repair"
+    )
 
 
 @pytest.fixture(scope="function")
 def catch_slope_len_db(tmp_path) -> Path:
     """Create a test-specific copy of the catch slope length database folder."""
-    return create_test_specific_db_copy(CATCH_SLOPE_LEN_DB, tmp_path, "test_catch_slope_len")
+    return create_test_specific_db_copy(
+        CATCH_SLOPE_LEN_DB, tmp_path, "test_catch_slope_len"
+    )
 
 
 @pytest.fixture(scope="function")

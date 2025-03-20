@@ -55,6 +55,7 @@ warn_unreachable = true
 # ignore long lines
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 lint.ignore = ["E501"]
+format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers --verbose --timeout=90 --timeout_method=thread"

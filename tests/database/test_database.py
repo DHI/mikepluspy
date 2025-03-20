@@ -1,11 +1,13 @@
 """
 Tests for the database module functionality.
 """
+
 import pytest
 from pathlib import Path
 
 from mikeplus.database import Database
 from mikeplus.tables.auto_generated import TableCollection
+
 
 class TestDatabaseOpen:
     """Tests for the Database opening functionality."""
@@ -38,7 +40,6 @@ class TestDatabaseOpen:
 
         assert not db3.is_open
 
-    
     def test_open_nonexistent_model_raises_error(self):
         """Test that opening a non-existent model raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError):
@@ -46,6 +47,7 @@ class TestDatabaseOpen:
 
         with pytest.raises(FileNotFoundError):
             Database(Path("/path/to/nonexistent/model.sqlite"))
+
 
 class TestDatabaseCreate:
     """Tests for the Database creation functionality."""
@@ -64,7 +66,7 @@ class TestDatabaseCreate:
 
         # Check that the database file was created
         assert db_path.exists()
-    
+
     def test_create_existing_model_raises_error(self, sirius_db: Path):
         """Test that creating an existing model raises FileExistsError."""
         with pytest.raises(FileExistsError):
@@ -80,30 +82,30 @@ class TestDatabase:
         db = Database(class_sirius_db)
         yield db
         db.close()
-    
+
     def test_is_open(self, db):
         """Test is_open property."""
         assert db.is_open
-    
+
     def test_tables_property(self, db):
         """Test tables property returns a TableCollection."""
         assert isinstance(db.tables, TableCollection)
-    
+
     def test_unit_system(self, db):
         """Test unit_system property."""
         assert db.unit_system == "MU_CS_SI"
-    
+
     def test_version(self, db):
         """Test version property."""
         assert db.version == "2025.0.0"
-    
+
     def test_active_scenario(self, db):
         """Test active_scenario property."""
         assert db.active_scenario == "Base"
 
     def test_scenarios(self, db):
         assert db.scenarios == ["Base", "sub_scenario"]
-    
+
     def test_set_active_scenario(self, db):
         """Test set_active_scenario method."""
         db.active_scenario = "sub_scenario"
@@ -113,12 +115,11 @@ class TestDatabase:
         with pytest.raises(ValueError):
             db.active_scenario = "this_does_not_exist"
         assert db.active_scenario == "Base"
-    
-    
+
     def test_active_model(self, db):
         """Test active_model property."""
         assert db.active_model == "CS_MIKE1D"
-    
+
     def test_projection_string(self, db):
         """Test projection_string property."""
         projection = db.projection_string
@@ -137,17 +138,17 @@ class TestDatabase:
             r"""AXIS["Northing",NORTH],AUTHORITY["EPSG","25832"]]"""
         )
         assert projection == expected
-    
+
     def test_srid(self, db):
         """Test srid property."""
         srid = db.srid
         assert srid == 25832
-    
+
     def test_active_simulation(self, db):
         """Test active_simulation property."""
         simulation = db.active_simulation
         assert simulation == "Sirius_1_DEMO"
-    
+
     def test_close(self, db):
         """Test close method."""
         db.close()
