@@ -3,7 +3,6 @@ Tests for the database module functionality.
 """
 import pytest
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from mikeplus.database import Database
 from mikeplus.tables.auto_generated import TableCollection

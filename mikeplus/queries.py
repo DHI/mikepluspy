@@ -9,12 +9,10 @@ from typing import TYPE_CHECKING, TypeVar, Generic, Dict, List, Any
 if TYPE_CHECKING:
     from .tables import BaseTable
 
-from datetime import datetime
 
 # Replace imports from converters with imports from dotnet
 from .dotnet import DotNetConverter
 
-from System import String
 
 # Define a TypeVar for the return type of execute
 QueryResultT = TypeVar('QueryResultT')

@@ -53,7 +53,7 @@ warn_unreachable = true
 
 [tool.ruff]
 # ignore long lines
-lint.exclude = ["notebooks/**/*.ipynb"]
+lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 lint.ignore = ["E501"]
 
 [tool.pytest.ini_options]
