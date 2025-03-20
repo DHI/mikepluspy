@@ -43,7 +43,7 @@ class TestBaseQuery:
     def test_parameters(self, base_query: BaseQueryTest):
         """Test query parameters."""
         diameter_value = 15
-        query = base_query.where("Diameter > :diameter", diameter=diameter_value)
+        query = base_query.where("Diameter > :diameter", {"diameter": diameter_value})
         
         # Check parameters are stored
         assert query._params == {"diameter": diameter_value}
@@ -286,7 +286,41 @@ class TestUpdateQuery:
         for muid, updated_value in updated_values.items():
             updated_value = dict(zip(list(values.keys()), updated_value))
             assert values == updated_value, f"Values do not match for MUID {muid}"
+    
+    def test_update_with_where_clause(self, table):
+        """Test updating rows with a where clause to filter them."""
+        # Get all MUIDs first to check the count
+        all_muids = table.get_muids()
+        assert len(all_muids) > 1, "Need at least 2 rows for testing where clause"
         
+        # Define the values to update
+        values = {
+            "Diameter": 99.9,
+            "Description": "test_update_with_where_clause"
+        }
+        
+        # Get a specific MUID to filter on
+        target_muid = all_muids[0]
+        
+        # Create the update query with a where clause
+        query = UpdateQuery(table, values)
+        muids_updated = query.where("MUID = :muid", {"muid": target_muid}).execute()
+        
+        # Verify only one row was updated
+        assert len(muids_updated) == 1, "Only one row should be updated"
+        assert muids_updated[0] == target_muid, "The targeted MUID should be updated"
+        
+        # Verify the values were updated for the target MUID
+        updated_data = table.select(list(values.keys())).where("MUID = :muid", {"muid": target_muid}).execute()
+        updated_row = dict(zip(list(values.keys()), updated_data[target_muid]))
+        assert updated_row == values, "The values should be updated for the targeted row"
+        
+        # Verify other rows were not updated
+        other_muid = all_muids[1]  # Get another MUID
+        other_data = table.select(list(values.keys())).where("MUID = :muid", {"muid": other_muid}).execute()
+        other_row = dict(zip(list(values.keys()), other_data[other_muid]))
+        assert other_row != values, "Other rows should not be updated"
+
 
 class TestDeleteQuery:
     """Tests for the DeleteQuery class."""
@@ -306,10 +340,58 @@ class TestDeleteQuery:
     
     def test_delete_all(self, table):
         """Test deleting all rows with explicit all() call."""
-        existing_muids = table.get_muids()
+        initial_muids = table.get_muids()
+        assert len(initial_muids) > 0, "Table needs to have rows for test"
+        
         query = DeleteQuery(table)
         # Call all() to explicitly delete all rows
         deleted_muids = query.all().execute()
-        assert deleted_muids == existing_muids
-        assert table.get_muids() == []
+        
+        assert sorted(deleted_muids) == sorted(initial_muids), "All records should have been deleted"
+        assert len(table.get_muids()) == 0, "Table should be empty after delete"
     
+    def test_delete_with_where_clause(self, table):
+        """Test deleting rows with a where clause to filter them."""
+        # First, ensure we have at least a couple of rows to work with
+        # Insert some test data
+        link1 = {
+            "Diameter": 100.0,
+            "Description": "test_delete_with_where_clause_1"
+        }
+        link2 = {
+            "Diameter": 200.0,
+            "Description": "test_delete_with_where_clause_2"
+        }
+        
+        muid1 = table.insert(link1)
+        muid2 = table.insert(link2)
+        
+        # Confirm both records exist
+        all_muids = table.get_muids()
+        assert muid1 in all_muids, "First test record should exist"
+        assert muid2 in all_muids, "Second test record should exist"
+        
+        # Delete only the first record using a where clause
+        query = DeleteQuery(table)
+        deleted_muids = query.where("MUID = :muid", {"muid": muid1}).execute()
+        
+        # Verify only the first record was deleted
+        assert len(deleted_muids) == 1, "Only one row should be deleted"
+        assert deleted_muids[0] == muid1, "The targeted MUID should be deleted"
+        
+        # Verify the first record is gone
+        new_muids = table.get_muids()
+        assert muid1 not in new_muids, "First record should be deleted"
+        assert muid2 in new_muids, "Second record should still exist"
+        
+        # Delete the second row by diameter filter
+        query = DeleteQuery(table)
+        deleted_muids = query.where("Diameter = :diameter", {"diameter": 200.0}).execute()
+        
+        # Verify only the second record was deleted
+        assert len(deleted_muids) == 1, "Only one row should be deleted"
+        assert deleted_muids[0] == muid2, "The targeted MUID should be deleted"
+        
+        # Verify the second record is gone
+        new_muids = table.get_muids()
+        assert muid2 not in new_muids, "Second record should be deleted"

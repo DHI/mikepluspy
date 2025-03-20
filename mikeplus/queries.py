@@ -61,7 +61,10 @@ class BaseQuery(ABC):
         where_clause = " AND ".join(wrapped_conditions)
         
         for key, value in self._params.items():
-            where_clause = where_clause.replace(f":{key}", str(value))
+            if isinstance(value, (int, float)):
+                where_clause = where_clause.replace(f":{key}", str(value))
+            else:
+                where_clause = where_clause.replace(f":{key}", f"'{str(value)}'")
         
         return where_clause
     
@@ -258,10 +261,17 @@ class UpdateQuery(BaseQuery):
                 net_value = value
             net_values[column] = net_value
 
+        where_clause = self._build_where_clause()
+        
         muids = self._table.get_muids()
+        
+        if where_clause:
+            filtered_result = net_table.GetMuidsWhere(where_clause)
+            muids = list(filtered_result)
+        
         updated_muids = []
         for muid in muids:
-            net_table.SetValuesByCommand(muid,net_values)
+            net_table.SetValuesByCommand(muid, net_values)
             updated_muids.append(muid)
 
         return updated_muids
@@ -302,7 +312,15 @@ class DeleteQuery(BaseQuery):
                            "Use where() to specify conditions or all() to delete all rows.")
             
         net_table = self._table._net_table
+        
+        where_clause = self._build_where_clause()
+        
         muids = self._table.get_muids()
+        
+        if where_clause:
+            filtered_result = net_table.GetMuidsWhere(where_clause)
+            muids = list(filtered_result)
+            
         muids_net = as_dotnet_list(muids)
         net_table.MultiDeleteByCommand(muids_net)
         return muids
