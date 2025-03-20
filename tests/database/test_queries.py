@@ -114,9 +114,41 @@ class TestSelectQuery:
         assert "Link_2" in result
         assert result["Link_2"] == ["Link_2", 1.0]
     
-    def test_execute_with_ordering(self, table):
+    def test_execute_with_ordering(self, table: BaseTable):
         """Test execution with order_by clause."""
-        return False
+        muids = table.get_muids()
+        assert len(muids) > 0
+
+        query = SelectQuery(table, ["MUID", "Diameter"])
+        query = query.order_by('MUID')
+        result = query.execute()
+        
+        result_keys = list(result.keys())
+        assert result_keys == sorted(muids)
+
+        query.reset().order_by('MUID', descending=True)
+        result = query.execute()
+        
+        result_keys = list(result.keys())
+        assert result_keys == sorted(muids, reverse=True)
+
+        query = SelectQuery(table, ["Length"])
+        lengths = query.execute()
+        max_length = max(lengths.values())
+        min_length = min(lengths.values())
+
+        assert max_length > min_length
+        
+        query.reset().order_by('Length', descending=True)
+        lengths = list(query.execute().values())
+        
+        assert lengths[0] == max_length
+
+        query.reset().order_by('Length', descending=False)
+        lengths = list(query.execute().values())
+        
+        assert lengths[0] == min_length
+        
 
     def test_execute_with_where(self, table):
         """Test execution with where clause."""

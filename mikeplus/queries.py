@@ -161,10 +161,14 @@ class SelectQuery(BaseQuery[Dict[str, Dict[str, Any]]]):
         
         # Build where clause
         where_clause = self._build_where_clause()
+        order_column = self._order_by[0] if self._order_by else None
+        ascending = not self._order_by[1] if self._order_by else True # order_by uses descending, but GetMuidAndFieldsWhereOrder uses ascending
         
         result = net_table.GetMuidAndFieldsWhereOrder(
             as_dotnet_list(self._columns),
             where_clause,
+            order_column,
+            ascending,
         )
         
         result = from_dotnet_dict(result)
