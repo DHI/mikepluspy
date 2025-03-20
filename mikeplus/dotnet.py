@@ -1,10 +1,222 @@
+"""
+.NET conversion utilities for Python-to-.NET and .NET-to-Python conversions.
+"""
 import clr  # noqa: F401
+import datetime
+from typing import Any, Dict, Optional
 
 import System
-from System import String
-from System.Collections.Generic import List, IDictionary
-import datetime
+from System import String, Object, Nullable
+from System.Collections.Generic import List, IList, IDictionary, Dictionary
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 
+class DotNetConverter:
+    """
+    Handles conversions between Python and .NET data types.
+    """
+    
+    @staticmethod
+    def to_dotnet_value(value: Any) -> Any:
+        """
+        Convert a Python value to its appropriate .NET equivalent for database operations.
+        
+        Args:
+            value: The Python value to convert
+            
+        Returns:
+            The converted .NET value
+        """
+        if value is None:
+            return None
+        elif isinstance(value, int):
+            return Nullable[int](value)
+        elif isinstance(value, float):
+            return Nullable[float](value)
+        elif isinstance(value, bool):
+            return Nullable[bool](value)
+        elif isinstance(value, datetime.datetime):
+            return DotNetConverter.to_dotnet_datetime(value)
+        elif isinstance(value, str):
+            return value  # Strings automatically convert
+        elif isinstance(value, list):
+            return DotNetConverter.as_dotnet_list(value)
+        # Add other type conversions as needed
+        return value
+    
+    @staticmethod
+    def from_dotnet_value(value: Any) -> Any:
+        """
+        Convert a .NET value to its appropriate Python equivalent.
+        
+        Args:
+            value: The .NET value to convert
+            
+        Returns:
+            The converted Python value
+        """
+        if value is None:
+            return None
+        elif isinstance(value, System.DateTime):
+            return DotNetConverter.from_dotnet_datetime(value)
+        elif isinstance(value, IDictionary):
+            return DotNetConverter.from_dotnet_dictionary(value)
+        elif isinstance(value, IList[Object]):
+            return DotNetConverter.from_dotnet_list(value)
+        # Add other type conversions as needed
+        return value
+    
+    @staticmethod
+    def to_dotnet_dictionary(py_dict: Dict[str, Any]) -> Optional[Dictionary[String, Object]]:
+        """
+        Convert a Python dictionary to a .NET Dictionary.
+        
+        Args:
+            py_dict: Python dictionary to convert
+            
+        Returns:
+            .NET Dictionary with converted values
+        """
+        if not py_dict:
+            return None
+            
+        net_dict = Dictionary[String, Object]()
+        
+        for key, value in py_dict.items():
+            net_dict[key] = DotNetConverter.to_dotnet_value(value)
+            
+        return net_dict
+    
+    @staticmethod
+    def from_dotnet_dictionary(net_dict: IDictionary) -> Optional[Dict[str, Any]]:
+        """
+        Convert a .NET Dictionary to a Python dictionary.
+        
+        Args:
+            net_dict: .NET Dictionary to convert
+            
+        Returns:
+            Python dictionary with converted values
+        """
+        if net_dict is None:
+            return None
+            
+        result = {}
+        
+        # Iterate through the dictionary keys
+        for key in net_dict.Keys:
+            value = net_dict[key]
+            result[key] = DotNetConverter.from_dotnet_value(value)
+            
+        return result
+        
+    @staticmethod
+    def to_dotnet_geometry(geometry: str | Any) -> Any:
+        """
+        Convert a WKT geometry string to a .NET IGeometry object.
+        
+        Args:
+            geometry: WKT geometry string or shapely geometry object
+            
+        Returns:
+            .NET IGeometry object
+        """
+        return GeoAPIHelper.GetIGeometryFromWKT(geometry)
+        
+    @staticmethod
+    def as_dotnet_list(py_list: list, dotnet_type=None) -> List:
+        """
+        Convert a Python list to a .NET List.
+        
+        Args:
+            py_list: The Python list to convert
+            dotnet_type: Optional .NET type for the list elements
+            
+        Returns:
+            .NET List object
+        """
+        if not py_list:
+            return List[String]()  # Default to string type for empty lists
+            
+        if dotnet_type is None:
+            if isinstance(py_list[0], str):
+                dotnet_type = String
+            else:
+                raise NotImplementedError(
+                    f"Unsupported type '{type(py_list[0])}'. Please specify with dotnet_type."
+                )
+
+        dotnet_list = List[dotnet_type]()
+        for item in py_list:
+            dotnet_list.Add(item)
+        return dotnet_list
+    
+    @staticmethod
+    def to_dotnet_datetime(dt: datetime.datetime) -> System.DateTime:
+        """
+        Convert from python datetime to .NET System.DateTime.
+        
+        Args:
+            dt: Python datetime object
+            
+        Returns:
+            .NET System.DateTime object
+        """
+        dotnet_datetime = System.DateTime(
+            dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second
+        )
+        # Get .NET ticks microseconds
+        ticks = dt.microsecond * 10
+        dotnet_datetime = dotnet_datetime.AddTicks(ticks)
+        return dotnet_datetime
+
+    @staticmethod
+    def from_dotnet_datetime(dt: System.DateTime, round_to_milliseconds=True) -> datetime.datetime:
+        """
+        Convert from .NET System.DateTime to python datetime.
+        
+        Args:
+            dt: .NET System.DateTime object
+            round_to_milliseconds: Whether to round microseconds to milliseconds
+            
+        Returns:
+            Python datetime object
+        """
+        # Get microseconds from .NET ticks
+        microseconds = dt.Ticks % 10**7 // 10
+        time = datetime.datetime(
+            dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, microseconds
+        )
+
+        # Round to milliseconds if requested
+        if round_to_milliseconds:
+            microseconds_rounded = round(time.microsecond, -3)
+            if microseconds_rounded == 10**6:
+                time += datetime.timedelta(seconds=1)
+                microseconds_rounded = 0
+            time = time.replace(microsecond=microseconds_rounded)
+
+        return time
+
+    @staticmethod
+    def from_dotnet_list(net_list: IList) -> list[Any]:
+        """
+        Convert a .NET IList to a Python list.
+        
+        Args:
+            net_list: .NET IList object
+            
+        Returns:
+            Python list with converted values
+        """
+        if net_list is None:
+            return []
+            
+        # Pythonnet handles IList conversion automatically
+        return list(net_list)
+
+
+# For backward compatibility, keep the module-level functions
+# but make them delegate to the DotNetConverter class methods
 
 def as_dotnet_list(py_list: list, dotnet_type=None):
     """
@@ -22,48 +234,17 @@ def as_dotnet_list(py_list: list, dotnet_type=None):
     List[T]
         .NET List<T> object.
     """
-    if dotnet_type is None:
-        if isinstance(py_list[0], str):
-            dotnet_type = String
-        else:
-            raise NotImplementedError(
-                f"Unsupported type '{type(py_list[0])}'. Please specify with dotnet_type."
-            )
-
-    dotnet_list = List[dotnet_type]()
-    for item in py_list:
-        dotnet_list.Add(item)
-    return dotnet_list
+    return DotNetConverter.as_dotnet_list(py_list, dotnet_type)
 
 
 def to_dotnet_datetime(x):
     """Convert from python datetime to .NET System.DateTime."""
-    dotnet_datetime = System.DateTime(
-        x.year, x.month, x.day, x.hour, x.minute, x.second
-    )
-    # Get .NET ticks microseconds
-    ticks = x.microsecond * 10
-    dotnet_datetime = dotnet_datetime.AddTicks(ticks)
-    return dotnet_datetime
+    return DotNetConverter.to_dotnet_datetime(x)
 
 
 def from_dotnet_datetime(x, round_to_milliseconds=True):
     """Convert from .NET System.DateTime to python datetime."""
-    # Get microseconds from .NET ticks
-    microseconds = x.Ticks % 10**7 // 10
-    time = datetime.datetime(
-        x.Year, x.Month, x.Day, x.Hour, x.Minute, x.Second, microseconds
-    )
-
-    # Round to milliseconds if requested
-    if round_to_milliseconds:
-        microseconds_rounded = round(time.microsecond, -3)
-        if microseconds_rounded == 10**6:
-            time += datetime.timedelta(seconds=1)
-            microseconds_rounded = 0
-        time = time.replace(microsecond=microseconds_rounded)
-
-    return time
+    return DotNetConverter.from_dotnet_datetime(x, round_to_milliseconds)
 
 
 def from_dotnet_dict(dotnet_dict):
@@ -80,31 +261,4 @@ def from_dotnet_dict(dotnet_dict):
     dict
         Python dictionary with converted values based on their type.
     """
-    if dotnet_dict is None:
-        return None
-        
-    result = {}
-    
-    # Iterate through the dictionary keys
-    for key in dotnet_dict.Keys:
-        value = dotnet_dict[key]
-        
-        # Convert the value based on its type
-        if hasattr(value, 'GetType') and value.GetType().IsGenericType and \
-           value.GetType().GetGenericTypeDefinition().FullName.startswith('System.Collections.Generic.List'):
-            # Convert .NET IList to Python list
-            py_value = [item for item in value]
-        elif isinstance(value, IDictionary):
-            # Recursively convert nested dictionaries
-            py_value = from_dotnet_dict(value)
-        elif isinstance(value, System.DateTime):
-            # Convert DateTime using existing function
-            py_value = from_dotnet_datetime(value)
-        else:
-            # Use the value as is for simple types
-            py_value = value
-        
-        # Add to the result dictionary
-        result[key] = py_value
-        
-    return result
+    return DotNetConverter.from_dotnet_dictionary(dotnet_dict)

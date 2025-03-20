@@ -11,15 +11,10 @@ if TYPE_CHECKING:
 
 from datetime import datetime
 
-from .dotnet import as_dotnet_list
-from .dotnet import from_dotnet_dict
-from .dotnet import from_dotnet_datetime
-from .dotnet import to_dotnet_datetime
+# Replace imports from converters with imports from dotnet
+from .dotnet import DotNetConverter
 
 from System import String
-from System import Nullable
-from System import Object
-from System.Collections.Generic import Dictionary
 
 # Define a TypeVar for the return type of execute
 QueryResultT = TypeVar('QueryResultT')
@@ -165,13 +160,13 @@ class SelectQuery(BaseQuery[Dict[str, Dict[str, Any]]]):
         ascending = not self._order_by[1] if self._order_by else True # order_by uses descending, but GetMuidAndFieldsWhereOrder uses ascending
         
         result = net_table.GetMuidAndFieldsWhereOrder(
-            as_dotnet_list(self._columns),
+            DotNetConverter.as_dotnet_list(self._columns),
             where_clause,
             order_column,
             ascending,
         )
         
-        result = from_dotnet_dict(result)
+        result = DotNetConverter.from_dotnet_dictionary(result)
         
         return result
     
@@ -220,22 +215,12 @@ class InsertQuery(BaseQuery[str]):
 
         if geometry:
             if isinstance(geometry, str):
-                geometry = GeoAPIHelper.GetIGeometryFromWKT(geometry)
+                geometry = DotNetConverter.to_dotnet_geometry(geometry)
             else:
                 shapely = self._get_shapely()
-                geometry = GeoAPIHelper.GetIGeometryFromWKT(shapely.to_wkt(geometry))
+                geometry = DotNetConverter.to_dotnet_geometry(shapely.to_wkt(geometry))
 
-        net_values = Dictionary[String, Object]() if values else None
-
-        for column, value in values.items():
-            net_value = None
-            if isinstance(value, int):
-                net_value = Nullable[int](value)
-            elif isinstance(value, datetime):
-                net_value = to_dotnet_datetime(value)
-            else:
-                net_value = value
-            net_values[column] = net_value
+        net_values = DotNetConverter.to_dotnet_dictionary(values) if values else None
 
         _, inserted_muid = net_table.InsertByCommand(
             muid, 
@@ -284,17 +269,7 @@ class UpdateQuery(BaseQuery[List[str]]):
         
         values = self._values.copy()
         
-        net_values = Dictionary[String, Object]() if values else None
-
-        for column, value in values.items():
-            net_value = None
-            if isinstance(value, int):
-                net_value = Nullable[int](value)
-            elif isinstance(value, datetime):
-                net_value = to_dotnet_datetime(value)
-            else:
-                net_value = value
-            net_values[column] = net_value
+        net_values = DotNetConverter.to_dotnet_dictionary(values) if values else None
 
         where_clause = self._build_where_clause()
         
@@ -356,6 +331,6 @@ class DeleteQuery(BaseQuery[List[str]]):
             filtered_result = net_table.GetMuidsWhere(where_clause)
             muids = list(filtered_result)
             
-        muids_net = as_dotnet_list(muids)
+        muids_net = DotNetConverter.as_dotnet_list(muids)
         net_table.MultiDeleteByCommand(muids_net)
         return muids
