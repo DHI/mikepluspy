@@ -4,7 +4,7 @@ Query implementation classes for database operations.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar, Generic, Dict, List, Any
 
 if TYPE_CHECKING:
     from .tables import BaseTable
@@ -21,7 +21,10 @@ from System import Nullable
 from System import Object
 from System.Collections.Generic import Dictionary
 
-class BaseQuery(ABC):
+# Define a TypeVar for the return type of execute
+QueryResultT = TypeVar('QueryResultT')
+
+class BaseQuery(Generic[QueryResultT], ABC):
     """Base class for all query types."""
     
     def __init__(self, table: BaseTable):
@@ -33,6 +36,7 @@ class BaseQuery(ABC):
         self._table = table
         self._conditions = []
         self._params = {}
+        self._executed = False
         
     def where(self, condition: str, params: dict[str, str] = {}):
         """Add a WHERE condition to the query.
@@ -68,9 +72,39 @@ class BaseQuery(ABC):
         
         return where_clause
     
-    @abstractmethod
-    def execute(self):
+    def reset(self):
+        """Reset the query execution status to allow re-execution.
+        
+        Returns:
+            self for chaining
+        """
+        self._executed = False
+        return self
+    
+    def execute(self) -> QueryResultT:
         """Execute the query against the database.
+        
+        Template method that handles execution tracking and delegates to
+        _execute_impl for the actual query execution.
+        
+        Returns:
+            Query-type dependent result
+            
+        Raises:
+            RuntimeError: If the query has already been executed
+        """
+        if self._executed:
+            raise RuntimeError("Query has already been executed. Use reset() to execute again.")
+
+        self._executed = True
+        return self._execute_impl()
+    
+    @abstractmethod
+    def _execute_impl(self) -> QueryResultT:
+        """Implement the actual query execution.
+        
+        This abstract method must be implemented by subclasses to perform
+        the actual database operation.
         
         Returns:
             Query-type dependent result
@@ -78,7 +112,7 @@ class BaseQuery(ABC):
         pass
 
 
-class SelectQuery(BaseQuery):
+class SelectQuery(BaseQuery[Dict[str, Dict[str, Any]]]):
     """Query class for SELECT operations."""
     
     def __init__(self, table: BaseTable, columns: list[str] = []):
@@ -117,8 +151,8 @@ class SelectQuery(BaseQuery):
         self._order_by = (column, descending)
         return self
         
-    def execute(self) -> dict[str, dict[str, any]]:
-        """Execute the SELECT query.
+    def _execute_impl(self) -> Dict[str, Dict[str, Any]]:
+        """Implement the SELECT query execution.
         
         Returns:
             Dictionary of dictionaries representing rows
@@ -151,7 +185,7 @@ class SelectQuery(BaseQuery):
         return df
 
 
-class InsertQuery(BaseQuery):
+class InsertQuery(BaseQuery[str]):
     """Query class for INSERT operations."""
     
     def __init__(self, table: BaseTable, values: dict[str, any] = {}):
@@ -164,8 +198,8 @@ class InsertQuery(BaseQuery):
         super().__init__(table)
         self._values = values
         
-    def execute(self):
-        """Execute the INSERT query.
+    def _execute_impl(self) -> str:
+        """Implement the INSERT query execution.
         
         Returns:
             The ID of the newly inserted row
@@ -208,7 +242,7 @@ class InsertQuery(BaseQuery):
         return inserted_muid
 
 
-class UpdateQuery(BaseQuery):
+class UpdateQuery(BaseQuery[List[str]]):
     """Query class for UPDATE operations."""
     
     def __init__(self, table: BaseTable, values: dict[str, any]):
@@ -231,20 +265,17 @@ class UpdateQuery(BaseQuery):
         self._all_rows = True
         return self
         
-    def execute(self):
-        """Execute the UPDATE query.
+        
+    def _execute_impl(self) -> List[str]:
+        """Implement the UPDATE query execution.
         
         Returns:
             List of MUIDs updated
-            
-        Raises:
-            ValueError: If no WHERE conditions specified and all() not called
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
         if not self._conditions and not self._all_rows:
             raise ValueError("Attempted to update all rows without explicit all() call. "
                            "Use where() to specify conditions or all() to update all rows.")
-        
         net_table = self._table._net_table
         
         values = self._values.copy()
@@ -276,7 +307,7 @@ class UpdateQuery(BaseQuery):
 
         return updated_muids
 
-class DeleteQuery(BaseQuery):
+class DeleteQuery(BaseQuery[List[str]]):
     """Query class for DELETE operations."""
     
     def __init__(self, table: BaseTable):
@@ -297,8 +328,8 @@ class DeleteQuery(BaseQuery):
         self._all_rows = True
         return self
     
-    def execute(self):
-        """Execute the DELETE query.
+    def _execute_impl(self) -> List[str]:
+        """Implement the DELETE query execution.
         
         Returns:
             List of MUIDs deleted
@@ -310,7 +341,7 @@ class DeleteQuery(BaseQuery):
         if not self._conditions and not self._all_rows:
             raise ValueError("Attempted to delete all rows without explicit all() call. "
                            "Use where() to specify conditions or all() to delete all rows.")
-            
+        
         net_table = self._table._net_table
         
         where_clause = self._build_where_clause()

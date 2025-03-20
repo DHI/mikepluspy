@@ -16,9 +16,9 @@ from mikeplus.tables.base_table import BaseTable
 class TestBaseQuery:
     """Tests for the BaseQuery class."""
 
-    class BaseQueryTest(BaseQuery):
+    class BaseQueryTest(BaseQuery[bool]):
         """Test class for BaseQuery."""
-        def execute(self):
+        def _execute_impl(self) -> bool:
             return True
 
     @pytest.fixture
