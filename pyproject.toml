@@ -51,6 +51,14 @@ warn_return_any = false
 allow_redefinition = true
 warn_unreachable = true
 
+[[tool.mypy.overrides]]
+module = [
+    "DHI.*",
+    "System.*",
+    "clr"
+]
+ignore_missing_imports = true
+
 [tool.ruff]
 # ignore long lines
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
