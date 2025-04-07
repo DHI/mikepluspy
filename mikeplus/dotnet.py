@@ -2,6 +2,7 @@
 .NET conversion utilities for Python-to-.NET and .NET-to-Python conversions.
 """
 from __future__ import annotations
+from _typeshed import NoneType
 
 import clr  # noqa: F401
 import datetime
@@ -92,7 +93,7 @@ class DotNetConverter:
         return net_dict
 
     @staticmethod
-    def from_dotnet_dictionary(net_dict: IDictionary) -> Optional[Dict[str, Any]]:
+    def from_dotnet_dictionary(net_dict: IDictionary) -> dict[str, Any] | None:
         """
         Convert a .NET Dictionary to a Python dictionary.
 

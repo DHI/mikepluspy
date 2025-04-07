@@ -328,7 +328,7 @@ class TableCollection(BaseTableCollection):
     """Collection of auto-generated table classes for MIKE+ database tables."""
     
     def _init_tables(self) -> dict[str, BaseTable]:
-        tables = {}
+        tables: dict[str, BaseTable] = {}
         tables['m_Configuration'] = m_ConfigurationTable(self._data_table_container.GetTable('m_Configuration'))
         tables['m_Status'] = m_StatusTable(self._data_table_container.GetTable('m_Status'))
         tables['m_DefaultValue'] = m_DefaultValueTable(self._data_table_container.GetTable('m_DefaultValue'))

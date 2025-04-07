@@ -29,8 +29,8 @@ class BaseQuery(Generic[QueryResultT], ABC):
             table: The table this query operates on
         """
         self._table = table
-        self._conditions = []
-        self._params = {}
+        self._conditions: list[str] = []
+        self._params: dict[str, str] = {}
         self._executed = False
 
     def where(self, condition: str, params: dict[str, str] = {}):
@@ -109,7 +109,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         pass
 
 
-class SelectQuery(BaseQuery[Dict[str, Dict[str, Any]]]):
+class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     """Query class for SELECT operations."""
 
     def __init__(self, table: BaseTable, columns: list[str] = []):
@@ -121,7 +121,7 @@ class SelectQuery(BaseQuery[Dict[str, Dict[str, Any]]]):
         """
         super().__init__(table)
         self._columns = columns
-        self._order_by = None
+        self._order_by: tuple[str, bool] | None = None
 
         self._validate_columns()
 
@@ -150,7 +150,7 @@ class SelectQuery(BaseQuery[Dict[str, Dict[str, Any]]]):
         self._order_by = (column, descending)
         return self
 
-    def _execute_impl(self) -> Dict[str, Dict[str, Any]]:
+    def _execute_impl(self) -> dict[str, dict[str, Any]] | None:
         """Implement the SELECT query execution.
 
         Returns:

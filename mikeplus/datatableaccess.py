@@ -416,7 +416,7 @@ class DataTableAccess:
         """Current active scenarion name."""
         if not self.is_database_open():
             warn("Cannot retrieve active scenario name. The database is closed.")
-            return
+            return ""
 
         return self._scenario_manager.ActiveScenario.Name
 
