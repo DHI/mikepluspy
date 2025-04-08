@@ -1,5 +1,8 @@
-"""
-Query implementation classes for database operations.
+"""Query implementation classes for database operations.
+
+This module provides a set of query classes for working with MIKE+ database tables.
+It implements a fluent interface for common database operations (SELECT, INSERT,
+UPDATE, DELETE) with chainable methods and consistent error handling.
 """
 
 from __future__ import annotations
@@ -25,8 +28,10 @@ class BaseQuery(Generic[QueryResultT], ABC):
     def __init__(self, table: BaseTable):
         """Initialize a new query.
 
-        Args:
-            table: The table this query operates on
+        Parameters
+        ----------
+        table : BaseTable
+            The table this query operates on
         """
         self._table = table
         self._conditions: list[str] = []
@@ -36,12 +41,17 @@ class BaseQuery(Generic[QueryResultT], ABC):
     def where(self, condition: str, params: dict[str, str] = {}):
         """Add a WHERE condition to the query.
 
-        Args:
-            condition: SQL-like condition string
-            params: Named parameters for the condition
+        Parameters
+        ----------
+        condition : str
+            SQL-like condition string
+        params : dict of str to str, optional
+            Named parameters for the condition
 
-        Returns:
-            self for chaining
+        Returns
+        -------
+        self
+            For method chaining
         """
         self._conditions.append(condition)
         self._params.update(params)
@@ -50,7 +60,9 @@ class BaseQuery(Generic[QueryResultT], ABC):
     def _build_where_clause(self):
         """Build the WHERE clause from conditions.
 
-        Returns:
+        Returns
+        -------
+        str or None
             String of the WHERE clause or None if no conditions
         """
         if not self._conditions:
@@ -70,8 +82,10 @@ class BaseQuery(Generic[QueryResultT], ABC):
     def reset(self):
         """Reset the query execution status to allow re-execution.
 
-        Returns:
-            self for chaining
+        Returns
+        -------
+        self
+            For method chaining
         """
         self._executed = False
         return self
@@ -82,11 +96,15 @@ class BaseQuery(Generic[QueryResultT], ABC):
         Template method that handles execution tracking and delegates to
         _execute_impl for the actual query execution.
 
-        Returns:
+        Returns
+        -------
+        QueryResultT
             Query-type dependent result
 
-        Raises:
-            RuntimeError: If the query has already been executed
+        Raises
+        ------
+        RuntimeError
+            If the query has already been executed
         """
         if self._executed:
             raise RuntimeError(
@@ -103,8 +121,14 @@ class BaseQuery(Generic[QueryResultT], ABC):
         This abstract method must be implemented by subclasses to perform
         the actual database operation.
 
-        Returns:
+        Returns
+        -------
+        QueryResultT
             Query-type dependent result
+            
+        Notes
+        -----
+        This is an internal implementation method called by execute().
         """
         pass
 
@@ -115,9 +139,12 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     def __init__(self, table: BaseTable, columns: list[str] = []):
         """Initialize a new SELECT query.
 
-        Args:
-            table: The table to select from
-            columns: The columns to select
+        Parameters
+        ----------
+        table : BaseTable
+            The table to select from
+        columns : list of str, optional
+            The columns to select
         """
         super().__init__(table)
         self._columns = columns
@@ -140,12 +167,17 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     def order_by(self, column: str, descending: bool = False):
         """Add an ORDER BY clause to the query.
 
-        Args:
-            column: Column name to order by
-            descending: Whether to sort in descending order
+        Parameters
+        ----------
+        column : str
+            Column name to order by
+        descending : bool, optional
+            Whether to sort in descending order
 
-        Returns:
-            self for chaining
+        Returns
+        -------
+        self
+            For method chaining
         """
         self._order_by = (column, descending)
         return self
@@ -153,7 +185,9 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     def _execute_impl(self) -> dict[str, dict[str, Any]] | None:
         """Implement the SELECT query execution.
 
-        Returns:
+        Returns
+        -------
+        dict or None
             Dictionary of dictionaries representing rows
         """
         net_table = self._table._net_table
@@ -179,7 +213,9 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     def to_pandas(self):
         """Convert the query results to a pandas DataFrame.
 
-        Returns:
+        Returns
+        -------
+        pandas.DataFrame
             A pandas DataFrame containing the query results
         """
         import pandas as pd
@@ -196,9 +232,12 @@ class InsertQuery(BaseQuery[str]):
     def __init__(self, table: BaseTable, values: dict[str, Any] = {}):
         """Initialize a new INSERT query.
 
-        Args:
-            table: The table to insert into
-            values: Column-value pairs to insert
+        Parameters
+        ----------
+        table : BaseTable
+            The table to insert into
+        values : dict of str to Any, optional
+            Column-value pairs to insert
         """
         super().__init__(table)
         self._values = values
@@ -206,8 +245,10 @@ class InsertQuery(BaseQuery[str]):
     def _execute_impl(self) -> str:
         """Implement the INSERT query execution.
 
-        Returns:
-            The ID of the newly inserted row
+        Returns
+        -------
+        str
+            The MUID of the newly inserted row
         """
         net_table = self._table._net_table
 
@@ -241,9 +282,12 @@ class UpdateQuery(BaseQuery[list[str]]):
     def __init__(self, table: BaseTable, values: dict[str, Any]):
         """Initialize a new UPDATE query.
 
-        Args:
-            table: The table to update
-            values: Column-value pairs to update
+        Parameters
+        ----------
+        table : BaseTable
+            The table to update
+        values : dict of str to Any
+            Column-value pairs to update
         """
         super().__init__(table)
         self._values = values
@@ -252,8 +296,10 @@ class UpdateQuery(BaseQuery[list[str]]):
     def all(self):
         """Explicitly indicate that this query should affect all rows.
 
-        Returns:
-            self for chaining
+        Returns
+        -------
+        self
+            For method chaining
         """
         self._all_rows = True
         return self
@@ -261,7 +307,9 @@ class UpdateQuery(BaseQuery[list[str]]):
     def _execute_impl(self) -> list[str]:
         """Implement the UPDATE query execution.
 
-        Returns:
+        Returns
+        -------
+        list of str
             List of MUIDs updated
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
@@ -298,8 +346,10 @@ class DeleteQuery(BaseQuery[list[str]]):
     def __init__(self, table: BaseTable):
         """Initialize a new DELETE query.
 
-        Args:
-            table: The table to delete from
+        Parameters
+        ----------
+        table : BaseTable
+            The table to delete from
         """
         super().__init__(table)
         self._all_rows = False
@@ -307,8 +357,10 @@ class DeleteQuery(BaseQuery[list[str]]):
     def all(self):
         """Explicitly indicate that this query should affect all rows.
 
-        Returns:
-            self for chaining
+        Returns
+        -------
+        self
+            For method chaining
         """
         self._all_rows = True
         return self
@@ -316,11 +368,15 @@ class DeleteQuery(BaseQuery[list[str]]):
     def _execute_impl(self) -> list[str]:
         """Implement the DELETE query execution.
 
-        Returns:
+        Returns
+        -------
+        list of str
             List of MUIDs deleted
 
-        Raises:
-            ValueError: If no WHERE conditions specified and all() not called
+        Raises
+        ------
+        ValueError
+            If no WHERE conditions specified and all() not called
         """
         # Safety check: if no conditions and all() not called, prevent accidental deletes
         if not self._conditions and not self._all_rows:

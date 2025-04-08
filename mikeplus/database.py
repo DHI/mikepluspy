@@ -1,5 +1,8 @@
-"""
-Entry point for MIKE+ model database operations.
+"""Entry point for MIKE+ model database operations.
+
+This module provides the main Database class which serves as the primary interface 
+for working with MIKE+ databases. It handles opening, creating, and manipulating 
+MIKE+ model files, including access to tables and scenarios.
 """
 
 from __future__ import annotations
@@ -24,12 +27,17 @@ class Database:
     def __init__(self, model_path: str | Path, *, auto_open: bool = True):
         """Initialize a new Database.
 
-        Args:
-            model_path: Path to the model database file (e.g. "model.sqlite" or "model.mupp")
-            auto_open: If True, immediately open the database connection
+        Parameters
+        ----------
+        model_path : str or Path
+            Path to the model database file (e.g. "model.sqlite" or "model.mupp")
+        auto_open : bool
+            If True, immediately open the database connection
 
-        Raises:
-            FileNotFoundError: If the database file doesn't exist
+        Raises
+        ------
+        FileNotFoundError
+            If the database file doesn't exist
         """
         model_path = Path(model_path)
 
@@ -71,17 +79,26 @@ class Database:
     ) -> Database:
         """Create a new MIKE+ model database.
 
-        Args:
-            model_path: Path where the new database will be created
-            projection_string: The projection string for the database
-            srid: The SRID for the database, e.g. 4326 for WGS84
-            auto_open: If True, immediately open the database connection
+        Parameters
+        ----------
+        model_path : str or Path
+            Path where the new database will be created
+        projection_string : str, optional
+            The projection string for the database
+        srid : int, optional
+            The SRID for the database, e.g. 4326 for WGS84
+        auto_open : bool, optional
+            If True, immediately open the database connection
 
-        Returns:
+        Returns
+        -------
+        Database
             A Database object for the newly created database
 
-        Raises:
-            FileExistsError: If the database already exists
+        Raises
+        ------
+        FileExistsError
+            If the database already exists
         """
         model_path = Path(model_path)
         if model_path.exists():
@@ -107,8 +124,10 @@ class Database:
     def open(self):
         """Open the model database.
 
-        Returns:
-            self: For method chaining
+        Returns
+        -------
+        self
+            For method chaining
         """
         check_conflicts()
 
@@ -160,7 +179,9 @@ class Database:
     def db_path(self) -> Path:
         """Get the path to the database file.
 
-        Returns:
+        Returns
+        -------
+        Path
             Path to the database file
         """
         return self._db_path
@@ -169,7 +190,9 @@ class Database:
     def mupp_path(self) -> Path | None:
         """Get the path to the MUPP file.
 
-        Returns:
+        Returns
+        -------
+        Path or None
             Path to the MUPP file, or None
         """
         return self._mupp_path
@@ -178,11 +201,14 @@ class Database:
     def tables(self) -> TableCollection:
         """A collection of tables in the database.
 
-        This property provides access to all tables in the database, and is
+        This property provides access to all tables in the database through a 
+        fluent interface that allows for SQL-like operations on tables. It is 
         the primary entry point for working with tables.
-
-        Returns:
-            TableCollection object
+        
+        Returns
+        -------
+        TableCollection
+            Collection of all tables in the database
         """
         return self._tables
 
@@ -190,7 +216,9 @@ class Database:
     def is_open(self) -> bool:
         """Check if the database is open.
 
-        Returns:
+        Returns
+        -------
+        bool
             True if the database is open, False otherwise
         """
         return self._is_open
@@ -199,7 +227,9 @@ class Database:
     def unit_system(self) -> str:
         """Get the unit system of the database in MIKE+ format.
 
-        Returns:
+        Returns
+        -------
+        str
             Unit system string (e.g. "MU_CS_SI")
         """
         return str(self._data_table_container.UnitSystemOption)
@@ -208,7 +238,9 @@ class Database:
     def projection_string(self) -> str:
         """Get the projection string of the database.
 
-        Returns:
+        Returns
+        -------
+        str
             Projection string of the database
         """
         return str(self._data_source.ProjectionString)
@@ -217,16 +249,21 @@ class Database:
     def srid(self) -> int:
         """Get the Spatial Reference ID (SRID) of the database.
 
-        Returns:
+        Returns
+        -------
+        int
             SRID value as an integer
         """
         return self._data_source.Srid
 
     @property
     def active_simulation(self) -> str:
-        """Get the active simulation of the database.
+        """
+        Get the active simulation of the database.
 
-        Returns:
+        Returns
+        -------
+        str
             Active simulation name
         """
         return self._data_source.ActiveSimulation
@@ -235,7 +272,9 @@ class Database:
     def version(self) -> str:
         """Get the version of the database.
 
-        Returns:
+        Returns
+        -------
+        str
             Version string
         """
         major_version = self._data_source.DbMajorVersion
@@ -247,7 +286,9 @@ class Database:
     def scenarios(self) -> list[str]:
         """Get the list of available scenarios.
 
-        Returns:
+        Returns
+        -------
+        list of str
             List of scenario names
         """
         if not self._scenario_manager:
@@ -258,15 +299,18 @@ class Database:
     def active_scenario(self) -> str:
         """Name of the active scenario
 
-        Returns:
-            str: Name of the active scenario
+        Returns
+        -------
+        str
+            Name of the active scenario
 
-        Notes:
-            This can be set to a new scenario name to activate a different scenario.
+        Notes
+        -----
+        This can be set to a new scenario name to activate a different scenario.
         """
         if not self._scenario_manager:
             raise ValueError("Open the database with `open()` before accessing scenarios.")
-            
+
         return self._scenario_manager.ActiveScenario.Name
 
     @active_scenario.setter
@@ -286,8 +330,10 @@ class Database:
     def active_model(self) -> str:
         """Get the name of the active model.
 
-        Returns:
-            str: Name of the active model
+        Returns
+        -------
+        str
+            Name of the active model
         """
         return str(self._data_source.ActiveModel)
 

@@ -17,8 +17,10 @@ class BaseTable:
     def __init__(self, net_table):
         """Initialize a new table wrapper.
 
-        Args:
-            net_table: The underlying .NET IMuTable object
+        Parameters
+        ----------
+        net_table
+            The underlying .NET IMuTable object
         """
         self._net_table = net_table
         self._columns = None
@@ -48,11 +50,16 @@ class BaseTable:
     def get_muids(self, order_by: str | None = None, descending: bool = False) -> list[str]:
         """Get a list of MUIDs for the table.
 
-        Args:
-            order_by: Column to order the MUIDs by
-            descending: Whether to order in descending order
+        Parameters
+        ----------
+        order_by : str or None, optional
+            Column to order the MUIDs by
+        descending : bool, optional
+            Whether to order in descending order
 
-        Returns:
+        Returns
+        -------
+        list of str
             A list of MUIDs
         """
         return list(self._net_table.GetMuids(order_by, descending))
@@ -60,10 +67,14 @@ class BaseTable:
     def select(self, columns: list[str] = []):
         """Create a SELECT query for this table.
 
-        Args:
-            columns: The columns to select
+        Parameters
+        ----------
+        columns : list of str, optional
+            The columns to select
 
-        Returns:
+        Returns
+        -------
+        SelectQuery
             A new SelectQuery object
         """
         return SelectQuery(self, columns)
@@ -71,11 +82,16 @@ class BaseTable:
     def insert(self, values: dict[str, Any], execute=True):
         """Insert a row with the given values.
 
-        Args:
-            values: Column-value pairs to insert
-            execute: Whether to execute the query immediately (default: True)
+        Parameters
+        ----------
+        values : dict of str to Any
+            Column-value pairs to insert
+        execute : bool, optional
+            Whether to execute the query immediately (default: True)
 
-        Returns:
+        Returns
+        -------
+        str or InsertQuery
             If execute is True, returns the ID of the newly inserted row (MUID)
             If execute is False, returns an InsertQuery instance
         """
@@ -87,10 +103,14 @@ class BaseTable:
     def update(self, values: dict[str, Any]):
         """Create an UPDATE query for this table.
 
-        Args:
-            values: Column-value pairs to set in the UPDATE
+        Parameters
+        ----------
+        values : dict of str to Any
+            Column-value pairs to set in the UPDATE
 
-        Returns:
+        Returns
+        -------
+        UpdateQuery
             A new UpdateQuery object
         """
         query = UpdateQuery(self, values)
@@ -99,7 +119,9 @@ class BaseTable:
     def delete(self):
         """Create a DELETE query for this table.
 
-        Returns:
+        Returns
+        -------
+        DeleteQuery
             A new DeleteQuery object
         """
         return DeleteQuery(self)

@@ -30,13 +30,20 @@ from warnings import warn
 
 
 class DataTableAccess:
-    """
-    Class to manipulate data in MIKE+ database.
+    """Class to manipulate data in MIKE+ database.
 
+    This class provides direct access to tables in a MIKE+ database,
+    allowing for operations like inserting, updating, and deleting data.
+    
+    Parameters
+    ----------
+    db_or_mupp_file : str
+        Path to the .sqlite or .mupp database file
+    
     Examples
     --------
-    An example of insert a link into msm_Link table. Get field data from table and delete row from table
-    ```python
+    Insert a link into msm_Link table, get field data, and delete the row:
+    
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
     >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING (3 4, 10 50, 20 25)"}
@@ -47,7 +54,6 @@ class DataTableAccess:
     >>> data_access.set_values("msm_Link", "link_test", values)
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
-    ```
     """
 
     def __init__(self, db_or_mupp_file):
@@ -71,7 +77,14 @@ class DataTableAccess:
         return str.join("\n", out)
 
     def open_database(self):
-        """Open database"""
+        """Open the database connection.
+        
+        Opens the database and initializes the DataTableContainer.
+        
+        Returns
+        -------
+        None
+        """
         check_conflicts()
         if self.is_database_open():
             return
@@ -88,7 +101,14 @@ class DataTableAccess:
         self._scenario_manager = data_source.ScenarioManager
 
     def close_database(self):
-        """Close database"""
+        """Close the database connection.
+        
+        Clears the undo/redo buffer and closes the database connection.
+        
+        Returns
+        -------
+        None
+        """
         self._datatables.UndoRedoManager.ClearUndoRedoBuffer()
         self._datatables.DataSource.CloseDatabase()
         self._datatables.Dispose()
@@ -96,16 +116,44 @@ class DataTableAccess:
 
     @property
     def datatables(self):
-        """DataTableContainer"""
+        """Get the DataTableContainer object.
+        
+        Returns
+        -------
+        DataTableContainer
+            The underlying .NET DataTableContainer object
+        """
         return self._datatables
 
     @property
     def table_names(self) -> list[str]:
-        """Returns a list of table names in the database."""
+        """Get a list of all table names in the database.
+        
+        Returns
+        -------
+        list of str
+            Names of all tables in the database
+        """
         return [table.TableName for table in self._datatables.AllTables]
 
     def _get_table_with_validation(self, table_name: str):
-        """Returns the table object or raises an error if the table does not exist."""
+        """Get a table object with validation.
+        
+        Parameters
+        ----------
+        table_name : str
+            Name of the table to retrieve
+            
+        Returns
+        -------
+        object
+            The .NET table object
+            
+        Raises
+        ------
+        ValueError
+            If the table does not exist in the database
+        """
         table = self._datatables.GetTable(table_name)
         if table is None:
             raise ValueError(f"Table '{table_name}' does not exist in the database.")
@@ -128,19 +176,19 @@ class DataTableAccess:
         return [column.Field for column in table.Columns]
 
     def get_muid_where(self, table_name, where=None):
-        """If where is none, get all the muids of the specified table. Otherwise get the muids in table which meet the condition.
+        """Get MUIDs from a table that match a condition.
 
         Parameters
         ----------
-        table_name : string
-            table name
-        where : string, optional
-            the condition string, by default None
+        table_name : str
+            Name of the table to query
+        where : str, optional
+            SQL-like condition string, by default None (returns all MUIDs)
 
         Returns
         -------
-        array
-            the muids array
+        list of str
+            List of MUIDs that match the condition
         """
         muids = []
         muidGet = self._datatables[table_name].GetMuidsWhere(where)
@@ -372,7 +420,7 @@ class DataTableAccess:
         self._datatables[table_name].DeleteByCommand(muid)
 
     def is_database_open(self):
-        """Check if database if open
+        """Check if database if open.
 
         Returns
         -------
@@ -492,12 +540,18 @@ class DataTableAccess:
         return ret
 
 
-class DataTableDemoAccess(DataTableAccess):
-    """
-    This class only have demo access to MIKE+ database.
-    Please use DataTableAccess if the model is larger than demo size.
 
-    Usage case: It is used for demo model with very short license checking time. The license check is under failed status.
+class DataTableDemoAccess(DataTableAccess):
+    """Demo access to MIKE+ database with limited functionality.
+
+    This class should only be used for demo models with very short license
+    checking time, especially when license checks might fail.
+    For full-size models, use DataTableAccess instead.
+
+    Parameters
+    ----------
+    db_or_mupp_file : str
+        Path to the .sqlite or .mupp database file
     """
 
     def _create_datatables(self):
