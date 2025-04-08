@@ -1,6 +1,7 @@
 """
 Tests for the table code generation functionality.
 """
+from __future__ import annotations
 
 import importlib
 import sys

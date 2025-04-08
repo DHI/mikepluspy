@@ -1,6 +1,7 @@
 """
 Tests for the table classes.
 """
+from __future__ import annotations
 
 import pytest
 

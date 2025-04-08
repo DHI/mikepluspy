@@ -1,6 +1,7 @@
 """
 Tests for the database module functionality.
 """
+from __future__ import annotations
 
 import pytest
 from pathlib import Path
