@@ -118,15 +118,24 @@ class DotNetConverter:
     @staticmethod
     def to_dotnet_geometry(geometry: str | Any) -> Any:
         """
-        Convert a WKT geometry string to a .NET IGeometry object.
+        Convert a geometry to a .NET IGeometry object.
 
         Args:
-            geometry: WKT geometry string or shapely geometry object
+            geometry: WKT geometry string or any object with a .wkt attribute or to_wkt() method
 
         Returns:
-            .NET IGeometry object
+            .NET IGeometry object or None if geometry is None
         """
-        return GeoAPIHelper.GetIGeometryFromWKT(geometry)
+        if geometry is None:
+            return None
+            
+        if isinstance(geometry, str):
+            return GeoAPIHelper.GetIGeometryFromWKT(geometry)
+        else:
+            # If we have a shapely geometry object, we can just call to_wkt() on it
+            # No need to import shapely or check modules
+            wkt = geometry.wkt if hasattr(geometry, 'wkt') else geometry.to_wkt()
+            return GeoAPIHelper.GetIGeometryFromWKT(wkt)
 
     @staticmethod
     def as_dotnet_list(py_list: list, dotnet_type=None) -> List:

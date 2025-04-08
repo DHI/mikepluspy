@@ -250,8 +250,10 @@ class Database:
         Returns:
             List of scenario names
         """
-        return list(self._scenario_manager.GetScenarios())
+        if not self._scenario_manager:
+            raise ValueError("Open the database with `open()` before accessing scenarios.")
 
+        return list(self._scenario_manager.GetScenarios())
     @property
     def active_scenario(self) -> str:
         """Name of the active scenario
@@ -262,10 +264,16 @@ class Database:
         Notes:
             This can be set to a new scenario name to activate a different scenario.
         """
+        if not self._scenario_manager:
+            raise ValueError("Open the database with `open()` before accessing scenarios.")
+            
         return self._scenario_manager.ActiveScenario.Name
 
     @active_scenario.setter
     def active_scenario(self, scenario_name: str):
+        if not self._scenario_manager:
+            raise ValueError("Open the database with `open()` before accessing scenarios.")
+
         if scenario_name not in self.scenarios:
             raise ValueError(
                 f"Scenario '{scenario_name}' does not exist. Valid scenarios: {self.scenarios}"

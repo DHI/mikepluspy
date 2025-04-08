@@ -1,6 +1,7 @@
 """
 Base table class for MIKE+ database tables.
 """
+from typing import Any
 
 from mikeplus.queries import SelectQuery
 from mikeplus.queries import UpdateQuery
@@ -44,7 +45,7 @@ class BaseTable:
         """Get the table description."""
         return self._net_table.Description
 
-    def get_muids(self, order_by: str = None, descending: bool = False) -> list[str]:
+    def get_muids(self, order_by: str | None = None, descending: bool = False) -> list[str]:
         """Get a list of MUIDs for the table.
 
         Args:
@@ -67,7 +68,7 @@ class BaseTable:
         """
         return SelectQuery(self, columns)
 
-    def insert(self, values: dict[str, any], execute=True):
+    def insert(self, values: dict[str, Any], execute=True):
         """Insert a row with the given values.
 
         Args:
@@ -83,7 +84,7 @@ class BaseTable:
             return query.execute()
         return query
 
-    def update(self, values: dict[str, any]):
+    def update(self, values: dict[str, Any]):
         """Create an UPDATE query for this table.
 
         Args:

@@ -5,7 +5,7 @@ Query implementation classes for database operations.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, TypeVar, Generic, Dict, List, Any
+from typing import TYPE_CHECKING, TypeVar, Generic, Any
 
 if TYPE_CHECKING:
     from .tables import BaseTable
@@ -193,7 +193,7 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
 class InsertQuery(BaseQuery[str]):
     """Query class for INSERT operations."""
 
-    def __init__(self, table: BaseTable, values: dict[str, any] = {}):
+    def __init__(self, table: BaseTable, values: dict[str, Any] = {}):
         """Initialize a new INSERT query.
 
         Args:
@@ -222,11 +222,7 @@ class InsertQuery(BaseQuery[str]):
         geometry = values.pop("geometry", None)
 
         if geometry:
-            if isinstance(geometry, str):
-                geometry = DotNetConverter.to_dotnet_geometry(geometry)
-            else:
-                shapely = self._get_shapely()
-                geometry = DotNetConverter.to_dotnet_geometry(shapely.to_wkt(geometry))
+            geometry = DotNetConverter.to_dotnet_geometry(geometry)
 
         net_values = DotNetConverter.to_dotnet_dictionary(values) if values else None
 
@@ -239,10 +235,10 @@ class InsertQuery(BaseQuery[str]):
         return inserted_muid
 
 
-class UpdateQuery(BaseQuery[List[str]]):
+class UpdateQuery(BaseQuery[list[str]]):
     """Query class for UPDATE operations."""
 
-    def __init__(self, table: BaseTable, values: dict[str, any]):
+    def __init__(self, table: BaseTable, values: dict[str, Any]):
         """Initialize a new UPDATE query.
 
         Args:
@@ -262,7 +258,7 @@ class UpdateQuery(BaseQuery[List[str]]):
         self._all_rows = True
         return self
 
-    def _execute_impl(self) -> List[str]:
+    def _execute_impl(self) -> list[str]:
         """Implement the UPDATE query execution.
 
         Returns:
@@ -296,7 +292,7 @@ class UpdateQuery(BaseQuery[List[str]]):
         return updated_muids
 
 
-class DeleteQuery(BaseQuery[List[str]]):
+class DeleteQuery(BaseQuery[list[str]]):
     """Query class for DELETE operations."""
 
     def __init__(self, table: BaseTable):
@@ -317,7 +313,7 @@ class DeleteQuery(BaseQuery[List[str]]):
         self._all_rows = True
         return self
 
-    def _execute_impl(self) -> List[str]:
+    def _execute_impl(self) -> list[str]:
         """Implement the DELETE query execution.
 
         Returns:
