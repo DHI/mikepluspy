@@ -1,6 +1,8 @@
 """
 Base table class for MIKE+ database tables.
 """
+from __future__ import annotations
+
 from typing import Any
 
 from mikeplus.queries import SelectQuery

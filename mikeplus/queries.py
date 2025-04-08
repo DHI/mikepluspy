@@ -8,7 +8,7 @@ UPDATE, DELETE) with chainable methods and consistent error handling.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, TypeVar, Generic, Any
+from typing import TYPE_CHECKING, TypeVar, Generic, Any, Union
 
 if TYPE_CHECKING:
     from .tables import BaseTable
@@ -133,7 +133,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         pass
 
 
-class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
+class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
     """Query class for SELECT operations."""
 
     def __init__(self, table: BaseTable, columns: list[str] = []):
