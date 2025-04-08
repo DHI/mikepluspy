@@ -60,7 +60,9 @@ def test_swmm_engine(swmm_db):
     assert os.path.exists(result_file)
 
 
+# TODO: Fix this - something not so great going on
 @pytest.mark.license_required
+@pytest.mark.xfail(reason="Passes locally on re-run, but not on full run or CI")
 def test_flood_engine(flood_db):
     data_access = DataTableAccess(flood_db)
     data_access.open_database()

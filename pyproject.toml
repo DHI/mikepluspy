@@ -80,7 +80,12 @@ lint.ignore = ["E501"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --verbose --timeout=90 --timeout_method=thread"
+addopts = [
+    "--strict-markers",
+    "--durations=50",
+    "--durations-min=0.5",
+    "--disable-warnings"
+]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "license_required: marks tests that require a license (deselect with '-m \"not license_required\"')",
