@@ -36,7 +36,7 @@ jobs:
 
   test:
     runs-on: self-hosted
-    needs: lint
+    needs: lint, types
     strategy:
       fail-fast: false
       matrix:
