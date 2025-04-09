@@ -32,6 +32,7 @@ class FloodEngine:
         >>>engine = FloodEngine(data_access.datatables)
         >>>engine.run()
         >>>data_access.close_database()
+
         """
         if sim_muid is None:
             sim_muid = self._get_active_muid()
@@ -122,6 +123,7 @@ class FloodEngine:
         -------
         string list
             The result files path of current simulation
+
         """
         if self._result_files is None:
             sim_muid = self._get_active_muid()

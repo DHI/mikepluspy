@@ -29,6 +29,7 @@ class SWMM:
         >>>engine = SWMM(data_access.datatables)
         >>>engine.run()
         >>>data_access.close_database()
+
         """
         if simMuid is None:
             simMuid = self._get_active_muid()
@@ -65,6 +66,7 @@ class SWMM:
         -------
         string
             The result file path of current simulation
+
         """
         if self._result_file is None:
             simMuid = self._get_active_muid()

@@ -20,6 +20,7 @@ class TopoRepairTool:
     >>> repair_tool.run(True, True, False, False, Flase, False, False)
     >>> data_access.close_database()
     ```
+
     """
 
     def __init__(self, dataTables):
@@ -56,6 +57,7 @@ class TopoRepairTool:
             If true, refresh the list of network zones. By default True
         snap_distance : float, optional
             The distance used in dissolve the overlapped nodes, in correct link connection, and in split link on T junction, by default 0.1.
+
         """
         cancel_source = CancellationTokenSource()
         topology_param = TopologyRepairParam()

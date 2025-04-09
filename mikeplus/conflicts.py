@@ -22,8 +22,8 @@ def check_conflicts():
     ------
     ImportError
         If mikeio1d was imported before mikeplus or if mikeio is imported
-    """
 
+    """
     if DISABLE_CONFLICT_CHECKS:
         return
 

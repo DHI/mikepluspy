@@ -18,6 +18,7 @@ class InterpolationTool:
     >>> tool.interpolate_from_nearest_feature("msm_Node", "Diameter", "msm_Link", "Diameter", Ture, False, None)
     >>> data_access.close_database()
     ```
+
     """
 
     def __init__(self, dataTables):
@@ -54,6 +55,7 @@ class InterpolationTool:
             Specify the value as the missing value, by default None
         search_radius : float, optional
             the search radius to find the source, by default 300
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 1
@@ -101,6 +103,7 @@ class InterpolationTool:
             If true, assgined value as missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 0
@@ -152,6 +155,7 @@ class InterpolationTool:
             the max source number used to interpolate, by default 12
         search_radius : float, optional
             the search radius to find the source, by default 300.0
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 2
@@ -197,6 +201,7 @@ class InterpolationTool:
             If true, assgined value as missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 5
@@ -266,6 +271,7 @@ class InterpolationTool:
             If true, interpolate from neighbour. Otherwise, interpolate from network. By default False
         max_neighbours : int, optional
             the max neighbours with missing value along the network, by default 3
+
         """
         param = InterpolationToolParameters()
         if self.alongPath is True:

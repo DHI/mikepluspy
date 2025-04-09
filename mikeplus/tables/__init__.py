@@ -1,5 +1,4 @@
-"""
-Tables of MIKE+ database.
+"""Tables of MIKE+ database.
 
 This package contains the base table classes and the auto-generated table classes.
 """

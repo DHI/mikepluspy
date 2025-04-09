@@ -34,6 +34,7 @@ def open(model_path: Union[str, Path], **kwargs) -> Database:
     ------
     FileNotFoundError
         If the database file doesn't exist
+
     """
     return Database(model_path, **kwargs)
 
@@ -72,6 +73,7 @@ def create(
     ------
     FileExistsError
         If the database already exists
+
     """
     return Database.create(
         model_path,

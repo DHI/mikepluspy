@@ -18,6 +18,7 @@ class CathSlopeLengthProcess:
     >>> tool.run(catch_ids, "../tests/testdata/catchSlopeLen/Catch_Slope.shp", "tests/testdata/catchSlopeLen/dem.dfs2", 0)
     >>> data_access.close_database()
     ```
+
     """
 
     def __init__(self, dataTables):
@@ -51,6 +52,7 @@ class CathSlopeLengthProcess:
             int type data, please check MIKE unit key, by default 1000
         overwrite_exist : bool, optional
             overwrite exist value or not, by default True
+
         """
         line_layer = os.path.abspath(line_layer)
         dem_layer = os.path.abspath(dem_layer)

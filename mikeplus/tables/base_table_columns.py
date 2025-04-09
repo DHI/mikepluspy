@@ -17,6 +17,7 @@ class BaseColumns:
         ----------
         table : BaseTable
             Reference to the parent BaseTable instance
+
         """
         self._table = table
         self._column_names: tuple[str] = tuple(
@@ -30,6 +31,7 @@ class BaseColumns:
         -------
         iterator
             Iterator over column names
+
         """
         return iter(self._column_names)
 
@@ -45,5 +47,6 @@ class BaseColumns:
         -------
         bool
             True if the column exists, False otherwise
+
         """
         return item in self._column_names

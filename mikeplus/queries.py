@@ -32,6 +32,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         ----------
         table : BaseTable
             The table this query operates on
+
         """
         self._table = table
         self._conditions: list[str] = []
@@ -52,6 +53,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         -------
         self
             For method chaining
+
         """
         self._conditions.append(condition)
         self._params.update(params)
@@ -64,6 +66,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         -------
         str or None
             String of the WHERE clause or None if no conditions
+
         """
         if not self._conditions:
             return None
@@ -86,6 +89,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         -------
         self
             For method chaining
+
         """
         self._executed = False
         return self
@@ -105,6 +109,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         ------
         RuntimeError
             If the query has already been executed
+
         """
         if self._executed:
             raise RuntimeError(
@@ -129,6 +134,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         Notes
         -----
         This is an internal implementation method called by execute().
+
         """
         pass
 
@@ -145,6 +151,7 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
             The table to select from
         columns : list of str, optional
             The columns to select
+
         """
         super().__init__(table)
         self._columns = columns
@@ -178,6 +185,7 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
         -------
         self
             For method chaining
+
         """
         self._order_by = (column, descending)
         return self
@@ -189,6 +197,7 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
         -------
         dict or None
             Dictionary of dictionaries representing rows
+
         """
         net_table = self._table._net_table
 
@@ -217,6 +226,7 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
         -------
         pandas.DataFrame
             A pandas DataFrame containing the query results
+
         """
         import pandas as pd
 
@@ -238,6 +248,7 @@ class InsertQuery(BaseQuery[str]):
             The table to insert into
         values : dict of str to Any, optional
             Column-value pairs to insert
+
         """
         super().__init__(table)
         self._values = values
@@ -249,6 +260,7 @@ class InsertQuery(BaseQuery[str]):
         -------
         str
             The MUID of the newly inserted row
+
         """
         net_table = self._table._net_table
 
@@ -288,6 +300,7 @@ class UpdateQuery(BaseQuery[list[str]]):
             The table to update
         values : dict of str to Any
             Column-value pairs to update
+
         """
         super().__init__(table)
         self._values = values
@@ -300,6 +313,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         -------
         self
             For method chaining
+
         """
         self._all_rows = True
         return self
@@ -311,6 +325,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         -------
         list of str
             List of MUIDs updated
+
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
         if not self._conditions and not self._all_rows:
@@ -350,6 +365,7 @@ class DeleteQuery(BaseQuery[list[str]]):
         ----------
         table : BaseTable
             The table to delete from
+
         """
         super().__init__(table)
         self._all_rows = False
@@ -361,6 +377,7 @@ class DeleteQuery(BaseQuery[list[str]]):
         -------
         self
             For method chaining
+
         """
         self._all_rows = True
         return self
@@ -377,6 +394,7 @@ class DeleteQuery(BaseQuery[list[str]]):
         ------
         ValueError
             If no WHERE conditions specified and all() not called
+
         """
         # Safety check: if no conditions and all() not called, prevent accidental deletes
         if not self._conditions and not self._all_rows:

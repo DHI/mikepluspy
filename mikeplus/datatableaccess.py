@@ -57,6 +57,7 @@ class DataTableAccess:
     >>> data_access.set_values("msm_Link", "link_test", values)
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
+
     """
 
     def __init__(self, db_or_mupp_file):
@@ -96,6 +97,7 @@ class DataTableAccess:
         Returns
         -------
         None
+
         """
         check_conflicts()
         if self.is_database_open():
@@ -120,6 +122,7 @@ class DataTableAccess:
         Returns
         -------
         None
+
         """
         self._datatables.UndoRedoManager.ClearUndoRedoBuffer()
         self._datatables.DataSource.CloseDatabase()
@@ -134,6 +137,7 @@ class DataTableAccess:
         -------
         DataTableContainer
             The underlying .NET DataTableContainer object
+
         """
         return self._datatables
 
@@ -145,6 +149,7 @@ class DataTableAccess:
         -------
         list of str
             Names of all tables in the database
+
         """
         return [table.TableName for table in self._datatables.AllTables]
 
@@ -165,6 +170,7 @@ class DataTableAccess:
         ------
         ValueError
             If the table does not exist in the database
+
         """
         table = self._datatables.GetTable(table_name)
         if table is None:
@@ -183,6 +189,7 @@ class DataTableAccess:
         -------
         list[str]
             A list of field names.
+
         """
         table = self._get_table_with_validation(table_name)
         return [column.Field for column in table.Columns]
@@ -201,6 +208,7 @@ class DataTableAccess:
         -------
         list of str
             List of MUIDs that match the condition
+
         """
         muids = []
         muidGet = self._datatables[table_name].GetMuidsWhere(where)
@@ -226,6 +234,7 @@ class DataTableAccess:
         List
             A list of the requested values in the same order as the fields argument.
             WTK (well-know-text) will be returned for geometry field
+
         """
         if not isinstance(fields, list):
             fields = [fields]
@@ -266,6 +275,7 @@ class DataTableAccess:
         dicationary
             muid and field values dictionary
             WTK (well-know-text) will be returned for geometry field.
+
         """
         fieldList = List[str]()
         for field in fields:
@@ -313,6 +323,7 @@ class DataTableAccess:
                     - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
                 - shapely object is accept for geometry field. Please install shapely package first.
                 The supported geometry types are Point, LineString and Polygon
+
         """
         if column.lower() == "geometry":
             wkt = None
@@ -352,6 +363,7 @@ class DataTableAccess:
                     - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
                 - shapely object is accept for geometry field. Please install shapely package first.
                 The supported geometry types are Point, LineString and Polygon
+
         """
         value_dict = Dictionary[String, Object]()
         for col in values:
@@ -395,6 +407,7 @@ class DataTableAccess:
                     - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
                 - shapely object is accept for geometry field. Please install shapely package first.
                 The supported geometry types are Point, LineString and Polygon
+
         """
         value_dict = Dictionary[String, Object]()
         geom = None
@@ -428,6 +441,7 @@ class DataTableAccess:
             table name
         muid : string
             muid
+
         """
         self._datatables[table_name].DeleteByCommand(muid)
 
@@ -438,6 +452,7 @@ class DataTableAccess:
         -------
         bool
             the status of the database
+
         """
         if self._datatables is None:
             return False
@@ -481,13 +496,13 @@ class DataTableAccess:
         return self._scenario_manager.ActiveScenario.Name
 
     def activate_scenario(self, scenario_name: str):
-        """
-        Activates a scenario from a given scenario name.
+        """Activates a scenario from a given scenario name.
 
         Parameters
         ----------
         scenario_name : str
             Name of a scenario to activate.
+
         """
         if not self.is_database_open():
             warn(f"Cannot activate scenario {scenario_name}. The database is closed.")
@@ -503,8 +518,7 @@ class DataTableAccess:
         column_data_type: str,
         column_header: str | None = None,
     ):
-        """
-        Add a user defined column to a table.
+        """Add a user defined column to a table.
 
         Parameters
         ----------
@@ -516,6 +530,7 @@ class DataTableAccess:
             Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
         column_header : str | None
             Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
+
         """
         table = self._get_table_with_validation(table_name)
 
@@ -564,6 +579,7 @@ class DataTableDemoAccess(DataTableAccess):
     ----------
     db_or_mupp_file : str
         Path to the .sqlite or .mupp database file
+
     """
 
     def _create_datatables(self):

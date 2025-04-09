@@ -36,6 +36,7 @@ class DotNetConverter:
         -------
         Any
             The converted .NET value
+
         """
         if value is None:
             return None
@@ -67,6 +68,7 @@ class DotNetConverter:
         -------
         Any
             The converted Python value
+
         """
         if value is None:
             return None
@@ -94,6 +96,7 @@ class DotNetConverter:
         -------
         Dictionary[String, Object] or None
             .NET Dictionary with converted values
+
         """
         if not py_dict:
             return None
@@ -118,6 +121,7 @@ class DotNetConverter:
         -------
         dict[str, Any] or None
             Python dictionary with converted values
+
         """
         if net_dict is None:
             return None
@@ -144,6 +148,7 @@ class DotNetConverter:
         -------
         Any
             .NET IGeometry object or None if geometry is None
+
         """
         if geometry is None:
             return None
@@ -171,6 +176,7 @@ class DotNetConverter:
         -------
         List
             .NET List object
+
         """
         if not py_list:
             return List[String]()  # Default to string type for empty lists
@@ -190,8 +196,7 @@ class DotNetConverter:
 
     @staticmethod
     def to_dotnet_datetime(dt: datetime.datetime) -> System.DateTime:
-        """
-        Convert from Python datetime to .NET System.DateTime.
+        """Convert from Python datetime to .NET System.DateTime.
 
         Parameters
         ----------
@@ -202,6 +207,7 @@ class DotNetConverter:
         -------
         System.DateTime
             .NET DateTime object
+
         """
         dotnet_datetime = System.DateTime(
             dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second
@@ -215,8 +221,7 @@ class DotNetConverter:
     def from_dotnet_datetime(
         dt: System.DateTime, round_to_milliseconds=True
     ) -> datetime.datetime:
-        """
-        Convert from .NET System.DateTime to Python datetime.
+        """Convert from .NET System.DateTime to Python datetime.
 
         Parameters
         ----------
@@ -229,6 +234,7 @@ class DotNetConverter:
         -------
         datetime.datetime
             Python datetime object
+
         """
         # Get microseconds from .NET ticks
         microseconds = dt.Ticks % 10**7 // 10
@@ -248,14 +254,14 @@ class DotNetConverter:
 
     @staticmethod
     def from_dotnet_list(net_list: IList) -> list[Any]:
-        """
-        Convert a .NET IList to a Python list.
+        """Convert a .NET IList to a Python list.
 
         Args:
             net_list: .NET IList object
 
         Returns:
             Python list with converted values
+
         """
         if net_list is None:
             return []
@@ -269,8 +275,7 @@ class DotNetConverter:
 
 
 def as_dotnet_list(py_list: list, dotnet_type=None):
-    """
-    Convert Python list to .NET List.
+    """Convert Python list to .NET List.
 
     Parameters
     ----------
@@ -283,13 +288,13 @@ def as_dotnet_list(py_list: list, dotnet_type=None):
     -------
     List
         .NET List object
+
     """
     return DotNetConverter.as_dotnet_list(py_list, dotnet_type)
 
 
 def to_dotnet_datetime(x):
-    """
-    Convert from Python datetime to .NET System.DateTime.
+    """Convert from Python datetime to .NET System.DateTime.
 
     Parameters
     ----------
@@ -300,13 +305,13 @@ def to_dotnet_datetime(x):
     -------
     System.DateTime
         .NET DateTime object
+
     """
     return DotNetConverter.to_dotnet_datetime(x)
 
 
 def from_dotnet_datetime(x, round_to_milliseconds=True):
-    """
-    Convert from .NET System.DateTime to Python datetime.
+    """Convert from .NET System.DateTime to Python datetime.
 
     Parameters
     ----------
@@ -319,13 +324,13 @@ def from_dotnet_datetime(x, round_to_milliseconds=True):
     -------
     datetime.datetime
         Python datetime object
+
     """
     return DotNetConverter.from_dotnet_datetime(x, round_to_milliseconds)
 
 
 def from_dotnet_dict(dotnet_dict):
-    """
-    Convert a .NET IDictionary to a Python dictionary.
+    """Convert a .NET IDictionary to a Python dictionary.
 
     Parameters
     ----------
@@ -336,5 +341,6 @@ def from_dotnet_dict(dotnet_dict):
     -------
     dict
         Python dictionary with converted values based on their type
+
     """
     return DotNetConverter.from_dotnet_dictionary(dotnet_dict)

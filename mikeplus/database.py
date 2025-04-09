@@ -38,6 +38,7 @@ class Database:
         ------
         FileNotFoundError
             If the database file doesn't exist
+
         """
         model_path = Path(model_path)
 
@@ -99,6 +100,7 @@ class Database:
         ------
         FileExistsError
             If the database already exists
+
         """
         model_path = Path(model_path)
         if model_path.exists():
@@ -128,6 +130,7 @@ class Database:
         -------
         self
             For method chaining
+
         """
         check_conflicts()
 
@@ -183,6 +186,7 @@ class Database:
         -------
         Path
             Path to the database file
+
         """
         return self._db_path
 
@@ -194,6 +198,7 @@ class Database:
         -------
         Path or None
             Path to the MUPP file, or None
+
         """
         return self._mupp_path
 
@@ -209,6 +214,7 @@ class Database:
         -------
         TableCollection
             Collection of all tables in the database
+
         """
         return self._tables
 
@@ -220,6 +226,7 @@ class Database:
         -------
         bool
             True if the database is open, False otherwise
+
         """
         return self._is_open
 
@@ -231,6 +238,7 @@ class Database:
         -------
         str
             Unit system string (e.g. "MU_CS_SI")
+
         """
         return str(self._data_table_container.UnitSystemOption)
 
@@ -242,6 +250,7 @@ class Database:
         -------
         str
             Projection string of the database
+
         """
         return str(self._data_source.ProjectionString)
 
@@ -253,18 +262,19 @@ class Database:
         -------
         int
             SRID value as an integer
+
         """
         return self._data_source.Srid
 
     @property
     def active_simulation(self) -> str:
-        """
-        Get the active simulation of the database.
+        """Get the active simulation of the database.
 
         Returns
         -------
         str
             Active simulation name
+
         """
         return self._data_source.ActiveSimulation
 
@@ -276,6 +286,7 @@ class Database:
         -------
         str
             Version string
+
         """
         major_version = self._data_source.DbMajorVersion
         minor_version = self._data_source.DbMinorVersion
@@ -290,6 +301,7 @@ class Database:
         -------
         list of str
             List of scenario names
+
         """
         if not self._scenario_manager:
             raise ValueError("Open the database with `open()` before accessing scenarios.")
@@ -307,6 +319,7 @@ class Database:
         Notes
         -----
         This can be set to a new scenario name to activate a different scenario.
+
         """
         if not self._scenario_manager:
             raise ValueError("Open the database with `open()` before accessing scenarios.")
@@ -334,6 +347,7 @@ class Database:
         -------
         str
             Name of the active model
+
         """
         return str(self._data_source.ActiveModel)
 

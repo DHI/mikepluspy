@@ -1,5 +1,4 @@
-"""
-Base table class for MIKE+ database tables.
+"""Base table class for MIKE+ database tables.
 """
 from __future__ import annotations
 
@@ -23,6 +22,7 @@ class BaseTable:
         ----------
         net_table
             The underlying .NET IMuTable object
+
         """
         self._net_table = net_table
         self._columns = None
@@ -63,6 +63,7 @@ class BaseTable:
         -------
         list of str
             A list of MUIDs
+
         """
         return list(self._net_table.GetMuids(order_by, descending))
 
@@ -78,6 +79,7 @@ class BaseTable:
         -------
         SelectQuery
             A new SelectQuery object
+
         """
         return SelectQuery(self, columns)
 
@@ -96,6 +98,7 @@ class BaseTable:
         str or InsertQuery
             If execute is True, returns the ID of the newly inserted row (MUID)
             If execute is False, returns an InsertQuery instance
+
         """
         query = InsertQuery(self, values=values)
         if execute:
@@ -114,6 +117,7 @@ class BaseTable:
         -------
         UpdateQuery
             A new UpdateQuery object
+
         """
         query = UpdateQuery(self, values)
         return query
@@ -125,5 +129,6 @@ class BaseTable:
         -------
         DeleteQuery
             A new DeleteQuery object
+
         """
         return DeleteQuery(self)

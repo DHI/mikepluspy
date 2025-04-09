@@ -1,5 +1,4 @@
-"""
-Base table collection for MIKE+ database tables.
+"""Base table collection for MIKE+ database tables.
 """
 
 from mikeplus.tables.base_table import BaseTable
@@ -16,6 +15,7 @@ class BaseTableCollection:
 
         Args:
             data_table_container: The underlying data table container
+
         """
         self._data_table_container = data_table_container
         self._tables = self._init_tables()
@@ -29,6 +29,7 @@ class BaseTableCollection:
 
         Returns:
             List of table names
+
         """
         return self._tables.keys()
 
@@ -37,6 +38,7 @@ class BaseTableCollection:
 
         Returns:
             List of table objects
+
         """
         return self._tables.values()
 
@@ -45,6 +47,7 @@ class BaseTableCollection:
 
         Returns:
             List of (name, table) tuples
+
         """
         return self._tables.items()
 
@@ -56,6 +59,7 @@ class BaseTableCollection:
 
         Returns:
             The requested table
+
         """
         return self._tables[table_name]
 
@@ -67,6 +71,7 @@ class BaseTableCollection:
 
         Returns:
             True if the table exists, False otherwise
+
         """
         return table_name in self._tables
 
@@ -75,5 +80,6 @@ class BaseTableCollection:
 
         Returns:
             Iterator over table names
+
         """
         return iter(self._tables)

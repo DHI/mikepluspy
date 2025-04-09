@@ -28,6 +28,7 @@ class Engine1D:
         >>>engine = Egnine1D(data_access.datatables)
         >>>engine.run()
         >>>data_access.close_database()
+
         """
         if simMuid is None:
             muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
@@ -69,6 +70,7 @@ class Engine1D:
         -------
         string
             The result file path of current simulation
+
         """
         return self._result_file
 
