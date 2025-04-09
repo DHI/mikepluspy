@@ -21,7 +21,6 @@ class Engine1D:
         >>>engine = Engine1D(data_access.datatables)
         
         """
-        MikeImport.Setup(23, MikeProducts.MikePlus)
         self._dataTables = dataTables
         self._result_file = None
         
