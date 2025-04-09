@@ -3,26 +3,41 @@
 from pathlib import Path
 import subprocess
 from DHI.Mike.Install import MikeImport
+from ..database import Database
 
 
 class Engine1D:
     """Engine1D class for running MIKE 1D simulation."""
 
-    def __init__(self, dataTables):
-        """Initialize the Engine1D class with the given DataTables.
+    def __init__(self, database):
+        """Initialize the Engine1D class with the given Database.
 
         Parameters
         ----------
-        dataTables : DataTables
-            The DataTables object containing the data tables.
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
 
         Examples
         --------
-        >>>engine = Engine1D(data_access.datatables)
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = Engine1D(db)
         
         """
-        self._dataTables = dataTables
+        self._dataTables = self._get_data_tables(database)
         self._result_file = None
+
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
+        
         
     def run(self, simMuid=None, verbose=False):
         """Run MIKE1D simulation.
@@ -36,11 +51,12 @@ class Engine1D:
 
         Examples
         --------
-        >>>data_access = DataTableAccess(muppOrSqlite)
-        >>>data_access.open_database()
-        >>>engine = Egnine1D(data_access.datatables)
+        # Using Database object (preferred)
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = Engine1D(db)
         >>>engine.run()
-        >>>data_access.close_database()
+        >>>db.close()
 
         """
         if simMuid is None:

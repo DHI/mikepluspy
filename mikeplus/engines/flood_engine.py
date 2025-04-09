@@ -8,26 +8,41 @@ from DHI.Amelia.DataModule.Interface.Services import IMsmProjectTable
 from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
 from System.Collections.Generic import List
+from ..database import Database
 
 
 class FloodEngine:
     """FloodEngine class for running 1D/2D/FLOOD simulation."""
 
-    def __init__(self, data_tables):
-        """Initialize the FloodEngine class with the given DataTables.
+    def __init__(self, database):
+        """Initialize the FloodEngine class with the given Database.
 
         Parameters
         ----------
-        data_tables : DataTables
-            The DataTables object containing the data tables.
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
 
         Examples
         --------
-        >>>engine = FloodEngine(data_access.datatables)
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = FloodEngine(db)
         
         """
-        self._data_tables = data_tables
+        self._data_tables = self._get_data_tables(database)
         self._result_files = None
+
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
+
 
     def run(self, sim_muid=None, verbose=False):
         """Run 1D/2D/Flood simulation.
@@ -41,11 +56,11 @@ class FloodEngine:
 
         Examples
         --------
-        >>>data_access = DataTableAccess(muppOrSqlite)
-        >>>data_access.open_database()
-        >>>engine = FloodEngine(data_access.datatables)
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = FloodEngine(db)
         >>>engine.run()
-        >>>data_access.close_database()
+        >>>db.close()
 
         """
         if sim_muid is None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 import os
-from mikeplus import DataTableAccess
+from mikeplus import Database
 from mikeplus.engines.engine1d import Engine1D
 from mikeplus.engines.epanet import EPANET
 from mikeplus.engines.swmm import SWMM
@@ -18,19 +18,17 @@ def test_mike1d_engine(sirius_db):
     if os.path.exists(res_1d_file):
         os.remove(res_1d_file)
 
-    data_access = DataTableAccess(sirius_db)
-    data_access.open_database()
-    engine = Engine1D(data_access.datatables)
+    db = Database(sirius_db)
+    engine = Engine1D(db)
     engine.run()
-    data_access.close_database()
+    db.close()
     assert os.path.exists(res_1d_file)
 
 
 @pytest.mark.slow(reason="Test run slow because of the license check.")
 def test_epanet_engine(epanet_demo_db):
-    data_access = DataTableAccess(epanet_demo_db)
-    data_access.open_database()
-    engine = EPANET(data_access.datatables)
+    db = Database(epanet_demo_db)
+    engine = EPANET(db)
     result_file = engine.result_file
 
     if os.path.exists(result_file):
@@ -38,16 +36,15 @@ def test_epanet_engine(epanet_demo_db):
 
     current_dir = os.getcwd()
     engine.run_engine_epanet()
-    data_access.close_database()
+    db.close()
     os.chdir(current_dir)
     assert os.path.exists(result_file)
 
 
 @pytest.mark.slow(reason="Test run slow because of the license check.")
 def test_swmm_engine(swmm_db):
-    data_access = DataTableAccess(swmm_db)
-    data_access.open_database()
-    engine = SWMM(data_access.datatables)
+    db = Database(swmm_db)
+    engine = SWMM(db)
     result_file = engine.result_file
 
     if os.path.exists(result_file):
@@ -55,7 +52,7 @@ def test_swmm_engine(swmm_db):
 
     current_dir = os.getcwd()
     engine.run()
-    data_access.close_database()
+    db.close()
     os.chdir(current_dir)
     assert os.path.exists(result_file)
 
@@ -64,9 +61,8 @@ def test_swmm_engine(swmm_db):
 @pytest.mark.license_required
 @pytest.mark.xfail(reason="Passes locally on re-run, but not on full run or CI")
 def test_flood_engine(flood_db):
-    data_access = DataTableAccess(flood_db)
-    data_access.open_database()
-    engine = FloodEngine(data_access.datatables)
+    db = Database(flood_db)
+    engine = FloodEngine(db)
     result_files = engine.result_files
 
     if result_files is not None:
@@ -75,7 +71,7 @@ def test_flood_engine(flood_db):
                 os.remove(file)
 
     engine.run()
-    data_access.close_database()
+    db.close()
     assert result_files is not None
     for file in result_files:
         assert os.path.exists(file)
