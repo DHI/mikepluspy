@@ -94,6 +94,10 @@ def test_catch_slope_len_tool(catch_slope_len_db):
     shp_file = os.path.join(db_dir, "Catch_Slope.shp")
     dem_file = os.path.join(db_dir, "dem.dfs2")
 
+    assert os.path.exists(catch_slope_len_db), f"Database file does not exist: {catch_slope_len_db}"
+    assert os.path.exists(shp_file), "Catch_Slope.shp does not exist"
+    assert os.path.exists(dem_file), "dem.dfs2 does not exist"
+
     tool = CathSlopeLengthProcess(db)
     tool.run(
         [muid],
