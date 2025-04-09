@@ -160,6 +160,7 @@ class AutoTableClassGenerator:
 
         IMuTableInterface = "DHI.Amelia.DataModule.Interface.Services.IMuTable"
         IMuGeomTableInterface = "DHI.Amelia.DataModule.Interface.Services.IMuGeomTable"
+        IMuNodeBasedTable = "DHI.Amelia.DataModule.Interface.Services.IMuNodeBasedTable"
         
         interface_to_class = {
             IMuTableInterface: {
@@ -170,6 +171,10 @@ class AutoTableClassGenerator:
                 "name": "BaseGeometryTable",
                 "module": "mikeplus.tables.base_geometry_table"
             },
+            IMuNodeBasedTable: {
+                "name": "BaseNodeTable",
+                "module": "mikeplus.tables.base_node_table"
+            },
             # Add more interface mappings as needed in the future
         }
         
@@ -177,6 +182,7 @@ class AutoTableClassGenerator:
         interface_priority = [
             IMuTableInterface,
             IMuGeomTableInterface,
+            IMuNodeBasedTable,
             # Add other interfaces in order of specificity in the future
         ]
 

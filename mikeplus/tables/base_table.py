@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from mikeplus.dotnet import get_implementation as impl
+
 from mikeplus.queries import SelectQuery
 from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
@@ -23,7 +25,7 @@ class BaseTable:
             The underlying .NET IMuTable object
 
         """
-        self._net_table = net_table
+        self._net_table = impl(net_table, raw=True)
         self._columns = None
 
     def __repr__(self) -> str:

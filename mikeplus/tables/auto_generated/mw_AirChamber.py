@@ -1,5 +1,5 @@
-from mikeplus.tables.base_geometry_table import BaseGeometryTable
-from mikeplus.tables.base_geometry_table import BaseColumns
+from mikeplus.tables.base_node_table import BaseNodeTable
+from mikeplus.tables.base_node_table import BaseColumns
 
 class mw_AirChamberTableColumns(BaseColumns):
     """Column names for mw_AirChamber (Air-chambers)."""
@@ -28,7 +28,7 @@ class mw_AirChamberTableColumns(BaseColumns):
     Description = "Description"
     Note = "Note"
 
-class mw_AirChamberTable(BaseGeometryTable):
+class mw_AirChamberTable(BaseNodeTable):
     """Table for mw_AirChamber (Air-chambers)."""
     
     @property

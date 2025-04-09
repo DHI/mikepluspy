@@ -15,6 +15,30 @@ from System import String, Object, Nullable
 from System.Collections.Generic import List, IList, IDictionary, Dictionary
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 
+def get_implementation(net_object: Any, raw: bool = False) -> Any:
+    """Get the implementation of a .NET interface object.
+
+    Parameters
+    ----------
+    net_object : Any
+        The .NET object to get the implementation for
+    raw : bool, optional
+        When true, returns pure CLR object.
+        When false, returns Python.NET marshalled/encoded object.
+
+    Returns
+    -------
+    Any
+        The implementation of the .NET object
+
+    """
+    if not hasattr(net_object, "__implementation__"):
+        raise ValueError("Expected Python.NET interface object, got: f{net_object}")
+
+    if not raw:
+        return net_object.__implementation__
+    else:
+        return net_object.__raw_implementation__
 
 class DotNetConverter:
     """Handles conversions between Python and .NET data types.

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_geometry_table import BaseGeometryTable
-from mikeplus.tables.base_geometry_table import BaseColumns
+from mikeplus.tables.base_node_table import BaseNodeTable
+from mikeplus.tables.base_node_table import BaseColumns
 
 class mw_JunctionTableColumns(BaseColumns):
     """Column names for mw_Junction (Junctions)."""
@@ -31,7 +31,7 @@ class mw_JunctionTableColumns(BaseColumns):
     gF = "gF"
     smF = "smF"
 
-class mw_JunctionTable(BaseGeometryTable):
+class mw_JunctionTable(BaseNodeTable):
     """Table for mw_Junction (Junctions)."""
     
     @property
