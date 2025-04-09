@@ -1,3 +1,5 @@
+"""The Catchment Slope Length Process tool from MIKE+."""
+
 import os.path
 from System.Collections.Generic import List
 from DHI.Amelia.Tools.CatchmentProcessing import CatchmentSlope
@@ -5,7 +7,7 @@ from DHI.Generic.MikeZero import eumUnit
 
 
 class CathSlopeLengthProcess:
-    """This tool performs automatic estimation of slope and length for each catchment.
+    """The Catchment Slope Length Process tool from MIKE+.
 
     Examples
     --------
@@ -22,8 +24,16 @@ class CathSlopeLengthProcess:
     """
 
     def __init__(self, dataTables):
-        self._dataTables = dataTables
+        """Initialize the CathSlopeLengthProcess with the given DataTables.
+        
+        Parameters
+        ----------
+        dataTables : DataTableContainer
+            The DataTables to be used by the CathSlopeLengthProcess.
 
+        """
+        self._dataTables = dataTables
+    
     def run(
         self,
         catch_ids,

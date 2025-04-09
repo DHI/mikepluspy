@@ -26,7 +26,8 @@ class BaseTableCollection:
     def keys(self):
         """Get a list of all table names.
 
-        Returns:
+        Returns
+        -------
             List of table names
 
         """
@@ -35,7 +36,8 @@ class BaseTableCollection:
     def values(self):
         """Get a list of all table objects.
 
-        Returns:
+        Returns
+        -------
             List of table objects
 
         """
@@ -44,7 +46,8 @@ class BaseTableCollection:
     def items(self):
         """Get a list of (name, table) pairs.
 
-        Returns:
+        Returns
+        -------
             List of (name, table) tuples
 
         """
@@ -56,7 +59,8 @@ class BaseTableCollection:
         Args:
             table_name: Name of the table to get
 
-        Returns:
+        Returns
+        -------
             The requested table
 
         """
@@ -68,7 +72,8 @@ class BaseTableCollection:
         Args:
             table_name: Name of the table to check
 
-        Returns:
+        Returns
+        -------
             True if the table exists, False otherwise
 
         """
@@ -77,7 +82,8 @@ class BaseTableCollection:
     def __iter__(self):
         """Get an iterator over table names.
 
-        Returns:
+        Returns
+        -------
             Iterator over table names
 
         """

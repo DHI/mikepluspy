@@ -1,3 +1,4 @@
+"""SWMM class for running SWMM simulation."""
 import os.path
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.DataModule.Interface.Services import IMProjectTable
@@ -6,9 +7,21 @@ from System.Collections.Generic import List
 
 
 class SWMM:
-    """The SWMM class can run SWMM simulation, get active simulation muid, print log file, and get the result file path."""
+    """SWMM class for running SWMM simulation."""
 
     def __init__(self, dataTables):
+        """Initialize the SWMM class with the given DataTables.
+
+        Parameters
+        ----------
+        dataTables : DataTables
+            The DataTables object containing the data tables.
+
+        Examples
+        --------
+        >>>engine = SWMM(data_access.datatables)
+        
+        """
         self._dataTables = dataTables
         self._result_file = None
 

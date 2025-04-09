@@ -1,3 +1,5 @@
+"""FloodEngine class for running 1D/2D/FLOOD simulation."""
+
 import os.path
 import time
 from pathlib import Path
@@ -9,9 +11,21 @@ from System.Collections.Generic import List
 
 
 class FloodEngine:
-    """The FloodEngine class can run 1D/2D/FLOOD simulation, print log files, and get the result files path."""
+    """FloodEngine class for running 1D/2D/FLOOD simulation."""
 
     def __init__(self, data_tables):
+        """Initialize the FloodEngine class with the given DataTables.
+
+        Parameters
+        ----------
+        data_tables : DataTables
+            The DataTables object containing the data tables.
+
+        Examples
+        --------
+        >>>engine = FloodEngine(data_access.datatables)
+        
+        """
         self._data_tables = data_tables
         self._result_files = None
 
@@ -20,7 +34,7 @@ class FloodEngine:
 
         Parameters
         ----------
-        simMuid : string, optional
+        sim_muid : string, optional
             simulation muid, it will use the current active simulation muid if simMuid is None, by default None.
         verbose : bool, optional
             print log file or not, by default False.

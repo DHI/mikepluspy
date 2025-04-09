@@ -76,11 +76,16 @@ ignore_missing_imports = true
 
 [tool.ruff]
 include = ["pyproject.toml", "mikeplus/**/*.py"]
-lint.extend-select = ["D", "PD", "NPY", "FA"]
-# ignore long lines
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
-lint.ignore = ["E501"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
+
+lint.extend-select = ["D", "PD", "NPY", "FA"]
+lint.pydocstyle.convention = "numpy"
+
+# ignore long lines
+lint.ignore = ["E501"]
+
+
 
 [tool.pytest.ini_options]
 addopts = [

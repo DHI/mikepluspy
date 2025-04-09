@@ -1,3 +1,4 @@
+"""The Interpolation and Assignment tool from MIKE+."""
 from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import (
     InterpolationToolParameters,
 )
@@ -5,23 +6,31 @@ from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
 
 
 class InterpolationTool:
-    """The Interpolation and Assignment tool helps assign values to any field in the MIKE+ database either by taking the attribute value directly from
-    another fea­ture/attribute or by interpolating between any number of other features.
+    """The Interpolation and Assignment tool from MIKE+.
 
     Examples
     --------
     Interplate node diameter from connected links for the nodes which have NULL diameter.
+
     ```python
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
     >>> tool = InterpolationTool(data_access.datatables)
-    >>> tool.interpolate_from_nearest_feature("msm_Node", "Diameter", "msm_Link", "Diameter", Ture, False, None)
+    >>> tool.interpolate_from_nearest_feature("msm_Node", "Diameter", "msm_Link", "Diameter", True, False, None)
     >>> data_access.close_database()
     ```
 
     """
 
     def __init__(self, dataTables):
+        """Initialize the InterpolationTool with the given DataTables.
+
+        Parameters
+        ----------
+        dataTables : DataTableContainer
+            The DataTables to be used by the InterpolationTool.
+
+        """
         self._dataTables = dataTables
 
     def interpolate_from_nearest_feature(

@@ -1,16 +1,30 @@
+"""Engine1D class for running MIKE 1D simulation."""
+
 from pathlib import Path
 import subprocess
 from DHI.Mike.Install import MikeImport, MikeProducts
 
 
 class Engine1D:
-    """The Engine1D class can run MIKE1D simulation, print log file, and get the result file path."""
+    """Engine1D class for running MIKE 1D simulation."""
 
     def __init__(self, dataTables):
+        """Initialize the Engine1D class with the given DataTables.
+
+        Parameters
+        ----------
+        dataTables : DataTables
+            The DataTables object containing the data tables.
+
+        Examples
+        --------
+        >>>engine = Engine1D(data_access.datatables)
+        
+        """
         MikeImport.Setup(23, MikeProducts.MikePlus)
         self._dataTables = dataTables
         self._result_file = None
-
+        
     def run(self, simMuid=None, verbose=False):
         """Run MIKE1D simulation.
 

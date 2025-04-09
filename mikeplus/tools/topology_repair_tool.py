@@ -1,3 +1,4 @@
+"""The Topology Repair Tool from MIKE+."""
 from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool import (
     TopologyRepairParam,
 )
@@ -24,6 +25,14 @@ class TopoRepairTool:
     """
 
     def __init__(self, dataTables):
+        """Initialize the TopoRepairTool with the given DataTables.
+
+        Parameters
+        ----------
+        dataTables : DataTableContainer
+            The DataTables to be used by the TopoRepairTool.
+            
+        """
         self._dataTables = dataTables
 
     def run(

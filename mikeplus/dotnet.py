@@ -259,7 +259,8 @@ class DotNetConverter:
         Args:
             net_list: .NET IList object
 
-        Returns:
+        Returns
+        -------
             Python list with converted values
 
         """

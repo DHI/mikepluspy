@@ -231,9 +231,9 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
         import pandas as pd
 
         result = self.execute()
-        df = pd.DataFrame(result).T
-        df.columns = self._columns
-        return df
+        df_result = pd.DataFrame(result).T
+        df_result.columns = self._columns
+        return df_result
 
 
 class InsertQuery(BaseQuery[str]):

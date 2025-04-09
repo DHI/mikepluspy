@@ -1,3 +1,5 @@
+"""EPANET class for running EPANET simulation."""
+
 import os.path
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
@@ -7,9 +9,21 @@ from System.Collections.Generic import List
 
 
 class EPANET:
-    """The EPANET class can run EPANET simulation, get active simulation muid, print log file, and get the result file path."""
+    """EPANET class for running EPANET simulation."""
 
     def __init__(self, dataTables):
+        """Initialize the EPANET class with the given DataTables.
+
+        Parameters
+        ----------
+        dataTables : DataTables
+            The DataTables object containing the data tables.
+
+        Examples
+        --------
+        >>>engine = EPANET(data_access.datatables)
+        
+        """
         self._dataTables = dataTables
         self._result_file = None
 

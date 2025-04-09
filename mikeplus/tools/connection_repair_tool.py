@@ -1,10 +1,9 @@
+"""The Connection Repair Tool from MIKE+."""
 from DHI.Amelia.Tools.ConnectionRepairEngine import ConnectionRepairEngine
 
 
 class ConnectionRepairTool:
-    """For collection module, this class is to repair station connections, catchment connections and load point connections.
-    For water distribute module, this class is to repair station connections and demand allocation connections.
-    For SWMM, this class is to repair station connections and catchment connections.
+    """The Connection Repair Tool from MIKE+.
 
     Examples
     --------
@@ -17,6 +16,14 @@ class ConnectionRepairTool:
     """
 
     def __init__(self, dataTables):
+        """Initialize the ConnectionRepairTool with the given DataTables.
+        
+        Parameters
+        ----------
+        dataTables : DataTableContainer
+            The DataTables to be used by the ConnectionRepairTool.
+
+        """
         self._dataTables = dataTables
 
     def run(self):

@@ -1,3 +1,9 @@
+"""DataTableAccess class for manipulating data in MIKE+ database.
+
+.. deprecated:: 2025.0.3
+   This class will be removed in version 2026.0.0. Use ``Database`` class instead.
+"""
+
 from __future__ import annotations
 
 import os.path
@@ -61,6 +67,14 @@ class DataTableAccess:
     """
 
     def __init__(self, db_or_mupp_file):
+        """Initialize the DataTableAccess object.
+
+        Parameters
+        ----------
+        db_or_mupp_file : str
+            Path to the .sqlite or .mupp database file.
+
+        """
         warn(
             "DataTableAccess is deprecated since version 2025.0.3 and will be removed in version 2026.0.0.\n"
             "\n"
@@ -76,8 +90,9 @@ class DataTableAccess:
         self._scenario_manager = None
 
     def __repr__(self):
+        """Get string representation of the DataTableAccess object."""
         out = ["<DataTableContainer>"]
-
+    
         if self.is_database_open():
             data_source = self._datatables.DataSource
             out.append(f"Db major version: {str(data_source.DbMajorVersion)}")

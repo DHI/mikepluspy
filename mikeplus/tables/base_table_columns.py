@@ -1,3 +1,5 @@
+"""Base class for column enumeration-like access."""
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
