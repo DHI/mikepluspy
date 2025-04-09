@@ -3,6 +3,7 @@ from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import
     InterpolationToolParameters,
 )
 from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
+from ..database import Database
 
 
 class InterpolationTool:
@@ -10,28 +11,39 @@ class InterpolationTool:
 
     Examples
     --------
-    Interplate node diameter from connected links for the nodes which have NULL diameter.
+    Interpolate node diameter from connected links for the nodes which have NULL diameter.
 
     ```python
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
-    >>> tool = InterpolationTool(data_access.datatables)
+    >>> from mikeplus import Database
+    >>> db = Database("path/to/model.sqlite")
+    >>> tool = InterpolationTool(db)
     >>> tool.interpolate_from_nearest_feature("msm_Node", "Diameter", "msm_Link", "Diameter", True, False, None)
-    >>> data_access.close_database()
+    >>> db.close()
     ```
 
     """
 
-    def __init__(self, dataTables):
-        """Initialize the InterpolationTool with the given DataTables.
+    def __init__(self, database):
+        """Initialize the InterpolationTool with the given Database.
 
         Parameters
         ----------
-        dataTables : DataTableContainer
-            The DataTables to be used by the InterpolationTool.
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
 
         """
-        self._dataTables = dataTables
+        self._dataTables = self._get_data_tables(database)
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
 
     def interpolate_from_nearest_feature(
         self,

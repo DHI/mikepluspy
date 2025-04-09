@@ -4,6 +4,7 @@ import os.path
 from System.Collections.Generic import List
 from DHI.Amelia.Tools.CatchmentProcessing import CatchmentSlope
 from DHI.Generic.MikeZero import eumUnit
+from ..database import Database
 
 
 class CathSlopeLengthProcess:
@@ -11,28 +12,39 @@ class CathSlopeLengthProcess:
 
     Examples
     --------
-    An example to calculate the slope and length for catchmetn of "imp3" based on a slope shapefile and dfs2 file.
+    An example to calculate the slope and length for catchment of "imp3" based on a slope shapefile and dfs2 file.
     ```python
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
+    >>> from mikeplus import Database
+    >>> db = Database("path/to/model.sqlite")
     >>> catch_ids = ["imp3"]
-    >>> tool = CathSlopeLengthProcess(data_access.datatables)
+    >>> tool = CathSlopeLengthProcess(db)
     >>> tool.run(catch_ids, "../tests/testdata/catchSlopeLen/Catch_Slope.shp", "tests/testdata/catchSlopeLen/dem.dfs2", 0)
-    >>> data_access.close_database()
+    >>> db.close()
     ```
 
     """
 
-    def __init__(self, dataTables):
-        """Initialize the CathSlopeLengthProcess with the given DataTables.
+    def __init__(self, database):
+        """Initialize the CathSlopeLengthProcess with the given Database.
         
         Parameters
         ----------
-        dataTables : DataTableContainer
-            The DataTables to be used by the CathSlopeLengthProcess.
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
 
         """
-        self._dataTables = dataTables
+        self._dataTables = self._get_data_tables(database)
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
     
     def run(
         self,

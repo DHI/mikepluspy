@@ -5,35 +5,49 @@ from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool impor
 from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.Tools.TopologyRepairTool import CSTopologyRepairTool
 from DHI.Amelia.Tools.TopologyRepairTool import WDTopologyRepairTool
+from ..database import Database
 from System.Threading import CancellationTokenSource
 
 
 class TopoRepairTool:
-    """TopoRepairTool offers a way to detect and repair topology or network geometry issues in the model.
+    """Topology repair tool for MIKE+.
+
+    TopoRepairTool provides methods to repair the topology of a MIKE+ model.
 
     Examples
     --------
     Delete unlinked nodes and links, also delete overlapped nodes for the whole network.
     ```python
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
-    >>> repair_tool = TopoRepairTool(data_access.datatables)
-    >>> repair_tool.run(True, True, False, False, Flase, False, False)
-    >>> data_access.close_database()
+    >>> from mikeplus import Database
+    >>> db = Database("path/to/model.sqlite")
+    >>> repair_tool = TopoRepairTool(db)
+    >>> repair_tool.run(True, True, False, False, False, False, False)
+    >>> db.close()
     ```
 
     """
 
-    def __init__(self, dataTables):
-        """Initialize the TopoRepairTool with the given DataTables.
+    def __init__(self, database):
+        """Initialize the TopoRepairTool with the given Database.
 
         Parameters
         ----------
-        dataTables : DataTableContainer
-            The DataTables to be used by the TopoRepairTool.
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
             
         """
-        self._dataTables = dataTables
+        self._dataTables = self._get_data_tables(database)
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
 
     def run(
         self,
