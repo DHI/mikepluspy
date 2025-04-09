@@ -1,5 +1,4 @@
-"""Base table class for MIKE+ database tables.
-"""
+"""Base table class for MIKE+ database tables."""
 from __future__ import annotations
 
 from typing import Any

@@ -217,7 +217,7 @@ class DataTableAccess:
         return muids
 
     def get_field_values(self, table_name, muid, fields):
-        """Get field values
+        """Get field values.
 
         Parameters
         ----------
@@ -259,7 +259,7 @@ class DataTableAccess:
         return pyValues
 
     def get_muid_field_values(self, table_name, fields, where=None):
-        """Get muid and field values dictionary
+        """Get muid and field values dictionary.
 
         Parameters
         ----------
@@ -301,7 +301,7 @@ class DataTableAccess:
         return mydict
 
     def set_value(self, table_name, muid, column, value):
-        """Set value of specified muid and column in table
+        """Set value of specified muid and column in table.
 
         Parameters
         ----------
@@ -343,7 +343,7 @@ class DataTableAccess:
             self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
-        """Set values of specified muid in table
+        """Set values of specified muid in table.
 
         Parameters
         ----------
@@ -387,7 +387,7 @@ class DataTableAccess:
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
     def insert(self, table_name, muid, values=None):
-        """Insert row into table with specified muid
+        """Insert row into table with specified muid.
 
         Parameters
         ----------
@@ -433,7 +433,7 @@ class DataTableAccess:
         )
 
     def delete(self, table_name, muid):
-        """Delete row with specified muid in table
+        """Delete row with specified muid in table.
 
         Parameters
         ----------

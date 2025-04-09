@@ -27,7 +27,7 @@ class ImportTool:
         self._dataTables = dataTables
 
     def run(self):
-        """Run the import tool"""
+        """Run the import tool."""
         import_engine = ImportToolBase(self._dataTables)
         import_engine.Load(self._configFile)
         FunctionHelper.ChangeFilePathInConfigToAbsolute(

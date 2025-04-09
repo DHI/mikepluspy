@@ -12,7 +12,7 @@ class Engine1D:
         self._result_file = None
 
     def run(self, simMuid=None, verbose=False):
-        """Run MIKE1D simulation
+        """Run MIKE1D simulation.
 
         Parameters
         ----------
@@ -64,7 +64,7 @@ class Engine1D:
 
     @property
     def result_file(self):
-        """Get the current simulation result file path
+        """Get the current simulation result file path.
 
         Returns
         -------

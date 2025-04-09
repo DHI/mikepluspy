@@ -309,7 +309,7 @@ class Database:
         return list(self._scenario_manager.GetScenarios())
     @property
     def active_scenario(self) -> str:
-        """Name of the active scenario
+        """Name of the active scenario.
 
         Returns
         -------

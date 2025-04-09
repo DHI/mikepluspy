@@ -9,14 +9,14 @@ from System.Collections.Generic import List
 
 
 class FloodEngine:
-    """The FloodEngine class can run 1D/2D/FLOOD simulation, print log files, and get the result files path"""
+    """The FloodEngine class can run 1D/2D/FLOOD simulation, print log files, and get the result files path."""
 
     def __init__(self, data_tables):
         self._data_tables = data_tables
         self._result_files = None
 
     def run(self, sim_muid=None, verbose=False):
-        """Run 1D/2D/Flood simulation
+        """Run 1D/2D/Flood simulation.
 
         Parameters
         ----------
@@ -117,7 +117,7 @@ class FloodEngine:
 
     @property
     def result_files(self):
-        """Get the current simulation result files path
+        """Get the current simulation result files path.
 
         Returns
         -------

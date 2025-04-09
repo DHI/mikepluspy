@@ -1,5 +1,4 @@
-"""Base table collection for MIKE+ database tables.
-"""
+"""Base table collection for MIKE+ database tables."""
 
 from mikeplus.tables.base_table import BaseTable
 

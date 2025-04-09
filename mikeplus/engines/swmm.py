@@ -13,7 +13,7 @@ class SWMM:
         self._result_file = None
 
     def run(self, simMuid=None, verbose=False):
-        """Run SWMM simulation
+        """Run SWMM simulation.
 
         Parameters
         ----------
@@ -60,7 +60,7 @@ class SWMM:
 
     @property
     def result_file(self):
-        """Get the current simulation result file path
+        """Get the current simulation result file path.
 
         Returns
         -------

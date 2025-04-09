@@ -14,7 +14,7 @@ class EPANET:
         self._result_file = None
 
     def run_engine_epanet(self, simMuid=None, verbose=False):
-        """Run EPANET simulation
+        """Run EPANET simulation.
 
         Parameters
         ----------
@@ -70,7 +70,7 @@ class EPANET:
 
     @property
     def result_file(self):
-        """Get the current simulation result file path
+        """Get the current simulation result file path.
 
         Returns
         -------
