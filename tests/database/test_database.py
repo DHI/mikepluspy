@@ -154,3 +154,26 @@ class TestDatabase:
         """Test close method."""
         db.close()
         assert not db.is_open
+        
+    def test_top_level_imports(self, tmp_path: Path):
+        """Test that top-level imports work correctly."""
+        from mikeplus import Database
+        from mikeplus import open
+        from mikeplus import create
+
+        new_db_path = tmp_path / "new_test_db.sqlite"
+        db = create(new_db_path)
+        assert db.is_open
+        assert new_db_path.exists()
+        db.close()
+        
+        db = Database(new_db_path)
+        assert db.is_open
+        db.close()
+        
+        db = open(new_db_path)
+        assert db.is_open
+        db.close()
+        
+        
+        
