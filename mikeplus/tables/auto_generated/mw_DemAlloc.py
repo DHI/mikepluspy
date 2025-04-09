@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_DemAllocTableColumns(BaseColumns):
     """Column names for mw_DemAlloc (Demand allocations)."""
@@ -19,7 +19,7 @@ class mw_DemAllocTableColumns(BaseColumns):
     Dem_Owner = "Dem_Owner"
     Description = "Description"
 
-class mw_DemAllocTable(BaseTable):
+class mw_DemAllocTable(BaseGeometryTable):
     """Table for mw_DemAlloc (Demand allocations)."""
     
     @property

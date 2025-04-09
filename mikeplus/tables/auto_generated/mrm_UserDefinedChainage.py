@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_UserDefinedChainageTableColumns(BaseColumns):
     """Column names for mrm_UserDefinedChainage (User defined chainage)."""
@@ -10,7 +10,7 @@ class mrm_UserDefinedChainageTableColumns(BaseColumns):
     GeomY = "GeomY"
     Chainage = "Chainage"
 
-class mrm_UserDefinedChainageTable(BaseTable):
+class mrm_UserDefinedChainageTable(BaseGeometryTable):
     """Table for mrm_UserDefinedChainage (User defined chainage)."""
     
     @property

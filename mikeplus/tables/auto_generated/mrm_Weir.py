@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_WeirTableColumns(BaseColumns):
     """Column names for mrm_Weir (Weirs)."""
@@ -48,7 +48,7 @@ class mrm_WeirTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_WeirTable(BaseTable):
+class mrm_WeirTable(BaseGeometryTable):
     """Table for mrm_Weir (Weirs)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_MeshLocalAreaTableColumns(BaseColumns):
     """Column names for m2d_MeshLocalArea (Mesh polygon marker)."""
@@ -10,7 +10,7 @@ class m2d_MeshLocalAreaTableColumns(BaseColumns):
     LocalOptionNo = "LocalOptionNo"
     LocalMaxArea = "LocalMaxArea"
 
-class m2d_MeshLocalAreaTable(BaseTable):
+class m2d_MeshLocalAreaTable(BaseGeometryTable):
     """Table for m2d_MeshLocalArea (Mesh polygon marker)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_PumpTableColumns(BaseColumns):
     """Column names for mrm_Pump (Pumps)."""
@@ -18,7 +18,7 @@ class mrm_PumpTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_PumpTable(BaseTable):
+class mrm_PumpTable(BaseGeometryTable):
     """Table for mrm_Pump (Pumps)."""
     
     @property

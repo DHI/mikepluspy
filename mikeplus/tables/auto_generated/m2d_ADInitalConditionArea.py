@@ -1,11 +1,11 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_ADInitalConditionAreaTableColumns(BaseColumns):
     """Column names for m2d_ADInitalConditionArea (2D AD initial conditions)."""
     MUID = "MUID"
 
-class m2d_ADInitalConditionAreaTable(BaseTable):
+class m2d_ADInitalConditionAreaTable(BaseGeometryTable):
     """Table for m2d_ADInitalConditionArea (2D AD initial conditions)."""
     
     @property

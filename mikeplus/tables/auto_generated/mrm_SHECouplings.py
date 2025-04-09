@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_SHECouplingsTableColumns(BaseColumns):
     """Column names for mrm_SHECouplings (Groundwater couplings)."""
@@ -35,7 +35,7 @@ class mrm_SHECouplingsTableColumns(BaseColumns):
     CoupleToSaturatedZoneDrainageNo = "CoupleToSaturatedZoneDrainageNo"
     NetworkGridCode = "NetworkGridCode"
 
-class mrm_SHECouplingsTable(BaseTable):
+class mrm_SHECouplingsTable(BaseGeometryTable):
     """Table for mrm_SHECouplings (Groundwater couplings)."""
     
     @property

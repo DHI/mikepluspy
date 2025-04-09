@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_StorageTableColumns(BaseColumns):
     """Column names for mrm_Storage (Storages)."""
@@ -16,7 +16,7 @@ class mrm_StorageTableColumns(BaseColumns):
     NetTypeNo = "NetTypeNo"
     Description = "Description"
 
-class mrm_StorageTable(BaseTable):
+class mrm_StorageTable(BaseGeometryTable):
     """Table for mrm_Storage (Storages)."""
     
     @property

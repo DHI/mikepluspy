@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_OrificeTableColumns(BaseColumns):
     """Column names for msm_Orifice (Orifices)."""
@@ -28,7 +28,7 @@ class msm_OrificeTableColumns(BaseColumns):
     NetTypeNo = "NetTypeNo"
     Description = "Description"
 
-class msm_OrificeTable(BaseTable):
+class msm_OrificeTable(BaseGeometryTable):
     """Table for msm_Orifice (Orifices)."""
     
     @property

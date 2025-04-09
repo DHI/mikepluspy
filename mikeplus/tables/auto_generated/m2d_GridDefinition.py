@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_GridDefinitionTableColumns(BaseColumns):
     """Column names for m2d_GridDefinition (Grid definition)."""
@@ -18,7 +18,7 @@ class m2d_GridDefinitionTableColumns(BaseColumns):
     GridBoundaryWidth = "GridBoundaryWidth"
     GridIndent = "GridIndent"
 
-class m2d_GridDefinitionTable(BaseTable):
+class m2d_GridDefinitionTable(BaseGeometryTable):
     """Table for m2d_GridDefinition (Grid definition)."""
     
     @property

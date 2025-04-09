@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mss_RaingaugeTableColumns(BaseColumns):
     """Column names for mss_Raingauge (Raingauge)."""
@@ -17,7 +17,7 @@ class mss_RaingaugeTableColumns(BaseColumns):
     Description = "Description"
     Tag = "Tag"
 
-class mss_RaingaugeTable(BaseTable):
+class mss_RaingaugeTable(BaseGeometryTable):
     """Table for mss_Raingauge (Raingauge)."""
     
     @property

@@ -1,11 +1,11 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_ADInfiltrationAreaTableColumns(BaseColumns):
     """Column names for m2d_ADInfiltrationArea (2D AD infiltration)."""
     MUID = "MUID"
 
-class m2d_ADInfiltrationAreaTable(BaseTable):
+class m2d_ADInfiltrationAreaTable(BaseGeometryTable):
     """Table for m2d_ADInfiltrationArea (2D AD infiltration)."""
     
     @property

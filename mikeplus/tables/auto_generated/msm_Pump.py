@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_PumpTableColumns(BaseColumns):
     """Column names for msm_Pump (Pumps)."""
@@ -31,7 +31,7 @@ class msm_PumpTableColumns(BaseColumns):
     NetTypeNo = "NetTypeNo"
     Description = "Description"
 
-class msm_PumpTable(BaseTable):
+class msm_PumpTable(BaseGeometryTable):
     """Table for msm_Pump (Pumps)."""
     
     @property

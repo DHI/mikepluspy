@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_DambreakTableColumns(BaseColumns):
     """Column names for mrm_Dambreak (Dambreak)."""
@@ -68,7 +68,7 @@ class mrm_DambreakTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_DambreakTable(BaseTable):
+class mrm_DambreakTable(BaseGeometryTable):
     """Table for mrm_Dambreak (Dambreak)."""
     
     @property

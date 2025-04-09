@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_CouplingTableColumns(BaseColumns):
     """Column names for m2d_Coupling (1D-2D couplings)."""
@@ -37,7 +37,7 @@ class m2d_CouplingTableColumns(BaseColumns):
     Freeboard = "Freeboard"
     DQRelationID = "DQRelationID"
 
-class m2d_CouplingTable(BaseTable):
+class m2d_CouplingTable(BaseGeometryTable):
     """Table for m2d_Coupling (1D-2D couplings)."""
     
     @property

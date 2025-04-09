@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mss_OrificeTableColumns(BaseColumns):
     """Column names for mss_Orifice (Orifices)."""
@@ -23,7 +23,7 @@ class mss_OrificeTableColumns(BaseColumns):
     Description = "Description"
     Tag = "Tag"
 
-class mss_OrificeTable(BaseTable):
+class mss_OrificeTable(BaseGeometryTable):
     """Table for mss_Orifice (Orifices)."""
     
     @property

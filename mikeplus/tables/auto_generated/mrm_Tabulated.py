@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_TabulatedTableColumns(BaseColumns):
     """Column names for mrm_Tabulated (Tabulated)."""
@@ -15,7 +15,7 @@ class mrm_TabulatedTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_TabulatedTable(BaseTable):
+class mrm_TabulatedTable(BaseGeometryTable):
     """Table for mrm_Tabulated (Tabulated)."""
     
     @property

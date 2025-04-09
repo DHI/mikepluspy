@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_LinkTableColumns(BaseColumns):
     """Column names for msm_Link (Pipes and canals)."""
@@ -54,7 +54,7 @@ class msm_LinkTableColumns(BaseColumns):
     Description = "Description"
     ChainageData = "ChainageData"
 
-class msm_LinkTable(BaseTable):
+class msm_LinkTable(BaseGeometryTable):
     """Table for msm_Link (Pipes and canals)."""
     
     @property

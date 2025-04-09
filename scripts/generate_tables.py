@@ -148,6 +148,49 @@ class AutoTableClassGenerator:
 
         self.generated_tables = {}
 
+    def determine_base_class(self, table):
+        """
+        Determine the appropriate base class for a table based on the .NET interface it implements.
+        
+        Returns a tuple of (base_class_name, base_class_module)
+        """
+        # Get all implemented interfaces
+        table_type = table.GetType()
+        implemented_interfaces = [interface.FullName for interface in table_type.GetInterfaces()]
+
+        IMuTableInterface = "DHI.Amelia.DataModule.Interface.Services.IMuTable"
+        IMuGeomTableInterface = "DHI.Amelia.DataModule.Interface.Services.IMuGeomTable"
+        
+        interface_to_class = {
+            IMuTableInterface: {
+                "name": "BaseTable",
+                "module": "mikeplus.tables.base_table"
+            },
+            IMuGeomTableInterface: {
+                "name": "BaseGeometryTable",
+                "module": "mikeplus.tables.base_geometry_table"
+            },
+            # Add more interface mappings as needed in the future
+        }
+        
+        # Priority of class to use (lower indices = lower priority)
+        interface_priority = [
+            IMuTableInterface,
+            IMuGeomTableInterface,
+            # Add other interfaces in order of specificity in the future
+        ]
+
+        for key in interface_to_class:
+            if key not in interface_priority:
+                raise Exception(f"Missing interface priority for '{key}'")
+        
+        for interface in reversed(interface_priority):
+            if interface in implemented_interfaces:
+                return interface_to_class[interface]["name"], interface_to_class[interface]["module"]
+
+        raise Exception(f"Could not determine base class for table {table.TableName}")
+                    
+
     def generate_table_class(self, table) -> None:
         """
         Generate a table class file for a specific table.
@@ -155,6 +198,9 @@ class AutoTableClassGenerator:
         # Generate names
         module_name = table.TableName
         class_name = table.TableName + "Table"
+
+        # Determine the appropriate base class
+        base_class_name, base_class_module = self.determine_base_class(table)
 
         # Build template context
         field_constants = [
@@ -166,8 +212,8 @@ class AutoTableClassGenerator:
             "table_display_name": table.TableDisplayName,
             "class_name": class_name,
             "field_constants": field_constants,
-            "base_table_module": self.base_table.__module__,
-            "base_table_name": self.base_table.__name__,
+            "base_table_module": base_class_module,
+            "base_table_name": base_class_name,
         }
 
         # Generate and write code

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_TankTableColumns(BaseColumns):
     """Column names for mw_Tank (Tanks)."""
@@ -40,7 +40,7 @@ class mw_TankTableColumns(BaseColumns):
     Description = "Description"
     Note = "Note"
 
-class mw_TankTable(BaseTable):
+class mw_TankTable(BaseGeometryTable):
     """Table for mw_Tank (Tanks)."""
     
     @property

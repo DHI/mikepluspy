@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_CouplingEngineConnTableColumns(BaseColumns):
     """Column names for m2d_CouplingEngineConn (Coupling engine connections)."""
@@ -9,7 +9,7 @@ class m2d_CouplingEngineConnTableColumns(BaseColumns):
     FaceNo = "FaceNo"
     CouplingCrestLevel = "CouplingCrestLevel"
 
-class m2d_CouplingEngineConnTable(BaseTable):
+class m2d_CouplingEngineConnTable(BaseGeometryTable):
     """Table for m2d_CouplingEngineConn (Coupling engine connections)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mwRes_ValveCriticalityTableColumns(BaseColumns):
     """Column names for mwRes_ValveCriticality (Valve criticality)."""
@@ -10,7 +10,7 @@ class mwRes_ValveCriticalityTableColumns(BaseColumns):
     ListClosedValve = "ListClosedValve"
     sumlength = "sumlength"
 
-class mwRes_ValveCriticalityTable(BaseTable):
+class mwRes_ValveCriticalityTable(BaseGeometryTable):
     """Table for mwRes_ValveCriticality (Valve criticality)."""
     
     @property

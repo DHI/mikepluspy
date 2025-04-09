@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_EddyViscosityAreaTableColumns(BaseColumns):
     """Column names for m2d_EddyViscosityArea (2D eddy viscosity)."""
@@ -9,7 +9,7 @@ class m2d_EddyViscosityAreaTableColumns(BaseColumns):
     EddyViscosity = "EddyViscosity"
     Description = "Description"
 
-class m2d_EddyViscosityAreaTable(BaseTable):
+class m2d_EddyViscosityAreaTable(BaseGeometryTable):
     """Table for m2d_EddyViscosityArea (2D eddy viscosity)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_StructureCulvertTableColumns(BaseColumns):
     """Column names for m2d_StructureCulvert (2D culverts)."""
@@ -32,7 +32,7 @@ class m2d_StructureCulvertTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class m2d_StructureCulvertTable(BaseTable):
+class m2d_StructureCulvertTable(BaseGeometryTable):
     """Table for m2d_StructureCulvert (2D culverts)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_BridgeTableColumns(BaseColumns):
     """Column names for mrm_Bridge (Bridges)."""
@@ -14,7 +14,7 @@ class mrm_BridgeTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_BridgeTable(BaseTable):
+class mrm_BridgeTable(BaseGeometryTable):
     """Table for mrm_Bridge (Bridges)."""
     
     @property

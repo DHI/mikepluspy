@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_DAUpdateParaTableColumns(BaseColumns):
     """Column names for mrm_DAUpdatePara (Update parameters)."""
@@ -29,7 +29,7 @@ class mrm_DAUpdateParaTableColumns(BaseColumns):
     StdDevUpperValue = "StdDevUpperValue"
     Description = "Description"
 
-class mrm_DAUpdateParaTable(BaseTable):
+class mrm_DAUpdateParaTable(BaseGeometryTable):
     """Table for mrm_DAUpdatePara (Update parameters)."""
     
     @property

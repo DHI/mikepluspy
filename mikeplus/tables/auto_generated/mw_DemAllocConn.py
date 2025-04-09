@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_DemAllocConnTableColumns(BaseColumns):
     """Column names for mw_DemAllocConn (Demand allocation connection)."""
@@ -8,7 +8,7 @@ class mw_DemAllocConnTableColumns(BaseColumns):
     DemAllocID = "DemAllocID"
     LocationTypeNo = "LocationTypeNo"
 
-class mw_DemAllocConnTable(BaseTable):
+class mw_DemAllocConnTable(BaseGeometryTable):
     """Table for mw_DemAllocConn (Demand allocation connection)."""
     
     @property

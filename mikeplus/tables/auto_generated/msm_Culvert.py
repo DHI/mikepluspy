@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_CulvertTableColumns(BaseColumns):
     """Column names for msm_Culvert (Culverts)."""
@@ -41,7 +41,7 @@ class msm_CulvertTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class msm_CulvertTable(BaseTable):
+class msm_CulvertTable(BaseGeometryTable):
     """Table for msm_Culvert (Culverts)."""
     
     @property

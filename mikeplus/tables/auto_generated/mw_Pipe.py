@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_PipeTableColumns(BaseColumns):
     """Column names for mw_Pipe (Pipes)."""
@@ -44,7 +44,7 @@ class mw_PipeTableColumns(BaseColumns):
     PMapZone = "PMapZone"
     UserLno = "UserLno"
 
-class mw_PipeTable(BaseTable):
+class mw_PipeTable(BaseGeometryTable):
     """Table for mw_Pipe (Pipes)."""
     
     @property

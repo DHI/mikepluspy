@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_GateTableColumns(BaseColumns):
     """Column names for mrm_Gate (Gates)."""
@@ -50,7 +50,7 @@ class mrm_GateTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_GateTable(BaseTable):
+class mrm_GateTable(BaseGeometryTable):
     """Table for mrm_Gate (Gates)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_EnergyLossTableColumns(BaseColumns):
     """Column names for mrm_EnergyLoss (Energy losses)."""
@@ -26,7 +26,7 @@ class mrm_EnergyLossTableColumns(BaseColumns):
     Element_S = "Element_S"
     Description = "Description"
 
-class mrm_EnergyLossTable(BaseTable):
+class mrm_EnergyLossTable(BaseGeometryTable):
     """Table for mrm_EnergyLoss (Energy losses)."""
     
     @property

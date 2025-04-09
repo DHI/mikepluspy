@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mss_PumpTableColumns(BaseColumns):
     """Column names for mss_Pump (Pumps)."""
@@ -19,7 +19,7 @@ class mss_PumpTableColumns(BaseColumns):
     Description = "Description"
     Tag = "Tag"
 
-class mss_PumpTable(BaseTable):
+class mss_PumpTable(BaseGeometryTable):
     """Table for mss_Pump (Pumps)."""
     
     @property

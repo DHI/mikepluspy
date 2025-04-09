@@ -1,11 +1,11 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_ADDispersionAreaTableColumns(BaseColumns):
     """Column names for m2d_ADDispersionArea (2D AD dispersion)."""
     MUID = "MUID"
 
-class m2d_ADDispersionAreaTable(BaseTable):
+class m2d_ADDispersionAreaTable(BaseGeometryTable):
     """Table for m2d_ADDispersionArea (2D AD dispersion)."""
     
     @property

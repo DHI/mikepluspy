@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m_StationConTableColumns(BaseColumns):
     """Column names for m_StationCon (Sensor connections)."""
@@ -8,7 +8,7 @@ class m_StationConTableColumns(BaseColumns):
     LocationID = "LocationID"
     LocationTypeNo = "LocationTypeNo"
 
-class m_StationConTable(BaseTable):
+class m_StationConTable(BaseGeometryTable):
     """Table for m_StationCon (Sensor connections)."""
     
     @property

@@ -1,11 +1,11 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_ADEvaporationAreaTableColumns(BaseColumns):
     """Column names for m2d_ADEvaporationArea (2D AD evaporation)."""
     MUID = "MUID"
 
-class m2d_ADEvaporationAreaTable(BaseTable):
+class m2d_ADEvaporationAreaTable(BaseGeometryTable):
     """Table for m2d_ADEvaporationArea (2D AD evaporation)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mrm_BranchTableColumns(BaseColumns):
     """Column names for mrm_Branch (Rivers)."""
@@ -26,7 +26,7 @@ class mrm_BranchTableColumns(BaseColumns):
     WaveApproximationTypeNo = "WaveApproximationTypeNo"
     Description = "Description"
 
-class mrm_BranchTable(BaseTable):
+class mrm_BranchTable(BaseGeometryTable):
     """Table for mrm_Branch (Rivers)."""
     
     @property

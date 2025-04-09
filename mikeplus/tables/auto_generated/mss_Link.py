@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mss_LinkTableColumns(BaseColumns):
     """Column names for mss_Link (Conduits)."""
@@ -50,7 +50,7 @@ class mss_LinkTableColumns(BaseColumns):
     Enabled = "Enabled"
     Element_S = "Element_S"
 
-class mss_LinkTable(BaseTable):
+class mss_LinkTable(BaseGeometryTable):
     """Table for mss_Link (Conduits)."""
     
     @property

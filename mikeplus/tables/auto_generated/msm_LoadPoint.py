@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_LoadPointTableColumns(BaseColumns):
     """Column names for msm_LoadPoint (Load points)."""
@@ -22,7 +22,7 @@ class msm_LoadPointTableColumns(BaseColumns):
     LoadLocation = "LoadLocation"
     Date = "Date"
 
-class msm_LoadPointTable(BaseTable):
+class msm_LoadPointTable(BaseGeometryTable):
     """Table for msm_LoadPoint (Load points)."""
     
     @property

@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_InfiltrationTableColumns(BaseColumns):
     """Column names for m2d_Infiltration (2D infiltration)."""
@@ -13,7 +13,7 @@ class m2d_InfiltrationTableColumns(BaseColumns):
     Initial = "Initial"
     Description = "Description"
 
-class m2d_InfiltrationTable(BaseTable):
+class m2d_InfiltrationTable(BaseGeometryTable):
     """Table for m2d_Infiltration (2D infiltration)."""
     
     @property

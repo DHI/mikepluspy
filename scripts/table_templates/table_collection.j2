@@ -9,7 +9,7 @@ class TableCollection({{ base_table_collection }}):
     """Collection of auto-generated table classes for MIKE+ database tables."""
     
     def _init_tables(self) -> dict[str, {{ base_table_name }}]:
-        tables = {}
+        tables: dict[str, {{ base_table_name }}] = {}
         {%- for table in tables %}
         tables['{{ table.table_name }}'] = {{ table.class_name }}(self._data_table_container.GetTable('{{ table.table_name }}'))
         {%- endfor %}

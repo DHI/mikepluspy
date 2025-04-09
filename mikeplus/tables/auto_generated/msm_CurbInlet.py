@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_CurbInletTableColumns(BaseColumns):
     """Column names for msm_CurbInlet (Curb inlets)."""
@@ -27,7 +27,7 @@ class msm_CurbInletTableColumns(BaseColumns):
     AssetName = "AssetName"
     DataSource = "DataSource"
 
-class msm_CurbInletTable(BaseTable):
+class msm_CurbInletTable(BaseGeometryTable):
     """Table for msm_CurbInlet (Curb inlets)."""
     
     @property

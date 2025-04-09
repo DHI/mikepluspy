@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_CatchmentTableColumns(BaseColumns):
     """Column names for msm_Catchment (Catchments)."""
@@ -113,7 +113,7 @@ class msm_CatchmentTableColumns(BaseColumns):
     NetTypeNo = "NetTypeNo"
     Description = "Description"
 
-class msm_CatchmentTable(BaseTable):
+class msm_CatchmentTable(BaseGeometryTable):
     """Table for msm_Catchment (Catchments)."""
     
     @property

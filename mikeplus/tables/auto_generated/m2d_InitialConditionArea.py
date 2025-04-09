@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_InitialConditionAreaTableColumns(BaseColumns):
     """Column names for m2d_InitialConditionArea (2D initial conditions)."""
@@ -9,7 +9,7 @@ class m2d_InitialConditionAreaTableColumns(BaseColumns):
     WaterLevel = "WaterLevel"
     Description = "Description"
 
-class m2d_InitialConditionAreaTable(BaseTable):
+class m2d_InitialConditionAreaTable(BaseGeometryTable):
     """Table for m2d_InitialConditionArea (2D initial conditions)."""
     
     @property

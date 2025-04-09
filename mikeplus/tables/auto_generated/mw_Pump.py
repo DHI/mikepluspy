@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_PumpTableColumns(BaseColumns):
     """Column names for mw_Pump (Pumps)."""
@@ -50,7 +50,7 @@ class mw_PumpTableColumns(BaseColumns):
     Note = "Note"
     CDate = "CDate"
 
-class mw_PumpTable(BaseTable):
+class mw_PumpTable(BaseGeometryTable):
     """Table for mw_Pump (Pumps)."""
     
     @property

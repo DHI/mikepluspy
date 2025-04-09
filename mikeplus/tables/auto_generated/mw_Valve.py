@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_ValveTableColumns(BaseColumns):
     """Column names for mw_Valve (Valves)."""
@@ -32,7 +32,7 @@ class mw_ValveTableColumns(BaseColumns):
     LevelOpen = "LevelOpen"
     LevelClose = "LevelClose"
 
-class mw_ValveTable(BaseTable):
+class mw_ValveTable(BaseGeometryTable):
     """Table for mw_Valve (Valves)."""
     
     @property

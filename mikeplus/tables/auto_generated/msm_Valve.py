@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_ValveTableColumns(BaseColumns):
     """Column names for msm_Valve (Valves)."""
@@ -23,7 +23,7 @@ class msm_ValveTableColumns(BaseColumns):
     NetTypeNo = "NetTypeNo"
     Description = "Description"
 
-class msm_ValveTable(BaseTable):
+class msm_ValveTable(BaseGeometryTable):
     """Table for msm_Valve (Valves)."""
     
     @property

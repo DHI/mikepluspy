@@ -1,12 +1,12 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mss_CatchConTableColumns(BaseColumns):
     """Column names for mss_CatchCon (SWMM catchment connections)."""
     MUID = "MUID"
     CatchID = "CatchID"
 
-class mss_CatchConTable(BaseTable):
+class mss_CatchConTable(BaseGeometryTable):
     """Table for mss_CatchCon (SWMM catchment connections)."""
     
     @property

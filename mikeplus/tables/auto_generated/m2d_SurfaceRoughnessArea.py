@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_SurfaceRoughnessAreaTableColumns(BaseColumns):
     """Column names for m2d_SurfaceRoughnessArea (2D surface roughness)."""
@@ -11,7 +11,7 @@ class m2d_SurfaceRoughnessAreaTableColumns(BaseColumns):
     Roughness = "Roughness"
     Description = "Description"
 
-class m2d_SurfaceRoughnessAreaTable(BaseTable):
+class m2d_SurfaceRoughnessAreaTable(BaseGeometryTable):
     """Table for m2d_SurfaceRoughnessArea (2D surface roughness)."""
     
     @property

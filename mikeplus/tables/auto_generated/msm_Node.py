@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_NodeTableColumns(BaseColumns):
     """Column names for msm_Node (Nodes)."""
@@ -46,7 +46,7 @@ class msm_NodeTableColumns(BaseColumns):
     NetTypeNo = "NetTypeNo"
     Description = "Description"
 
-class msm_NodeTable(BaseTable):
+class msm_NodeTable(BaseGeometryTable):
     """Table for msm_Node (Nodes)."""
     
     @property

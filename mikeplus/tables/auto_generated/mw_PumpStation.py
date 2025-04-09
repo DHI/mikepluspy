@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class mw_PumpStationTableColumns(BaseColumns):
     """Column names for mw_PumpStation (Pump stations)."""
@@ -12,7 +12,7 @@ class mw_PumpStationTableColumns(BaseColumns):
     Description = "Description"
     Note = "Note"
 
-class mw_PumpStationTable(BaseTable):
+class mw_PumpStationTable(BaseGeometryTable):
     """Table for mw_PumpStation (Pump stations)."""
     
     @property

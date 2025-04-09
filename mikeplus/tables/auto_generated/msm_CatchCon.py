@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_CatchConTableColumns(BaseColumns):
     """Column names for msm_CatchCon (Catchment connections)."""
@@ -19,7 +19,7 @@ class msm_CatchConTableColumns(BaseColumns):
     RoutingShape = "RoutingShape"
     Description = "Description"
 
-class msm_CatchConTable(BaseTable):
+class msm_CatchConTable(BaseGeometryTable):
     """Table for msm_CatchCon (Catchment connections)."""
     
     @property

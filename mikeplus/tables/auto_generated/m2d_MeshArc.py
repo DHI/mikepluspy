@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class m2d_MeshArcTableColumns(BaseColumns):
     """Column names for m2d_MeshArc (Mesh arc)."""
@@ -8,7 +8,7 @@ class m2d_MeshArcTableColumns(BaseColumns):
     Attribute = "Attribute"
     FromInactiveAreaNo = "FromInactiveAreaNo"
 
-class m2d_MeshArcTable(BaseTable):
+class m2d_MeshArcTable(BaseGeometryTable):
     """Table for m2d_MeshArc (Mesh arc)."""
     
     @property

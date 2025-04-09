@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_LoadPointConnectionTableColumns(BaseColumns):
     """Column names for msm_LoadPointConnection (Load point connections)."""
@@ -8,7 +8,7 @@ class msm_LoadPointConnectionTableColumns(BaseColumns):
     LocationID = "LocationID"
     LocationTypeNo = "LocationTypeNo"
 
-class msm_LoadPointConnectionTable(BaseTable):
+class msm_LoadPointConnectionTable(BaseGeometryTable):
     """Table for msm_LoadPointConnection (Load point connections)."""
     
     @property
