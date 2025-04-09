@@ -81,6 +81,7 @@ class Database:
         projection_string: str = "",
         srid: int = -1,
         auto_open: bool = True,
+        overwrite: bool = False,
     ) -> Database:
         """Create a new MIKE+ model database.
 
@@ -94,6 +95,8 @@ class Database:
             The SRID for the database, e.g. 4326 for WGS84
         auto_open : bool, optional
             If True, immediately open the database connection
+        overwrite : bool, optional (default is False)
+            If True, overwrite the existing database file if it exists
 
         Returns
         -------
@@ -103,14 +106,18 @@ class Database:
         Raises
         ------
         FileExistsError
-            If the database already exists
+            If the database already exists (except if overwrite is True)
 
         """
         model_path = Path(model_path)
-        if model_path.exists():
-            raise FileExistsError(f"Model file '{model_path}' already exists.")
-
         db_sqlite = model_path.with_suffix(".sqlite")
+
+        if overwrite:
+            model_path.unlink(missing_ok=True)
+            db_sqlite.unlink(missing_ok=True)
+
+        if model_path.exists() or db_sqlite.exists():
+            raise FileExistsError(f"Model file '{model_path}' already exists.")
 
         if projection_string and srid != -1:
             raise ValueError("Projection string and SRID cannot be specified together.")
