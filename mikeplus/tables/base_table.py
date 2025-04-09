@@ -26,6 +26,10 @@ class BaseTable:
         self._net_table = net_table
         self._columns = None
 
+    def __repr__(self) -> str:
+        """Get string representation."""
+        return f"{self.__class__.__name__}<{self.display_name}>"
+    
     @property
     def columns(self) -> BaseColumns:
         """Get the columns for the table."""

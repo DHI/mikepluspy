@@ -39,6 +39,10 @@ class BaseQuery(Generic[QueryResultT], ABC):
         self._params: dict[str, str] = {}
         self._executed = False
 
+    def __repr__(self) -> str:
+        """Get nice string representation."""
+        return f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
+    
     def where(self, condition: str, params: dict[str, str] = {}):
         """Add a WHERE condition to the query.
 

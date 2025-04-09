@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import subprocess
-from DHI.Mike.Install import MikeImport, MikeProducts
+from DHI.Mike.Install import MikeImport
 
 
 class Engine1D:

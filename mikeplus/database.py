@@ -69,6 +69,10 @@ class Database:
         if auto_open:
             self.open()
 
+    def __repr__(self) -> str:
+        """Get nice string representation."""
+        return f"Database<'{self._db_path.name}'>"
+    
     @classmethod
     def create(
         cls,

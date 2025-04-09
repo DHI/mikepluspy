@@ -19,6 +19,10 @@ class BaseTableCollection:
         self._data_table_container = data_table_container
         self._tables = self._init_tables()
 
+    def __repr__(self) -> str:
+        """Get string representation."""
+        return f"{self.__class__.__name__}<{len(self._tables)} tables>"
+    
     def _init_tables(self) -> dict[str, BaseTable]:
         """Initialize the tables dictionary."""
         return {}
