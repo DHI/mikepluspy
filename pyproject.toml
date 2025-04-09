@@ -42,6 +42,7 @@ dev = [
     "jinja2>=3.0.0",
     "mypy>=1.15.0",
     "pandas-stubs>=2.2.2.240807",
+    "ipykernel>=6.29.5",
 ]
 test = [
     "pytest",
