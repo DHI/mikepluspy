@@ -32,6 +32,9 @@ from warnings import warn
 class DataTableAccess:
     """Class to manipulate data in MIKE+ database.
 
+    .. deprecated:: 2025.0.3
+       This class will be removed in version 2026.0.0. Use ``Database`` class instead.
+
     This class provides direct access to tables in a MIKE+ database,
     allowing for operations like inserting, updating, and deleting data.
     
@@ -57,6 +60,15 @@ class DataTableAccess:
     """
 
     def __init__(self, db_or_mupp_file):
+        warn(
+            "DataTableAccess is deprecated since version 2025.0.3 and will be removed in version 2026.0.0.\n"
+            "\n"
+            "Use Database class instead:\n"
+            "  from mikeplus import Database\n"
+            "  db = Database('path/to/model.sqlite')\n"
+            "  # Use db.tables to access tables\n",
+            DeprecationWarning, stacklevel=2
+        )
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)
         self._file_path = db_or_mupp_file
         self._datatables = None
