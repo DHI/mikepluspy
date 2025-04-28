@@ -1,29 +1,53 @@
+"""The Topology Repair Tool from MIKE+."""
 from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool import (
     TopologyRepairParam,
 )
 from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.Tools.TopologyRepairTool import CSTopologyRepairTool
 from DHI.Amelia.Tools.TopologyRepairTool import WDTopologyRepairTool
+from ..database import Database
 from System.Threading import CancellationTokenSource
 
 
 class TopoRepairTool:
-    """TopoRepairTool offers a way to detect and repair topology or network geometry issues in the model.
+    """Topology repair tool for MIKE+.
+
+    TopoRepairTool provides methods to repair the topology of a MIKE+ model.
 
     Examples
     --------
     Delete unlinked nodes and links, also delete overlapped nodes for the whole network.
     ```python
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
-    >>> repair_tool = TopoRepairTool(data_access.datatables)
-    >>> repair_tool.run(True, True, False, False, Flase, False, False)
-    >>> data_access.close_database()
+    >>> from mikeplus import Database
+    >>> db = Database("path/to/model.sqlite")
+    >>> repair_tool = TopoRepairTool(db)
+    >>> repair_tool.run(True, True, False, False, False, False, False)
+    >>> db.close()
     ```
+
     """
 
-    def __init__(self, dataTables):
-        self._dataTables = dataTables
+    def __init__(self, database):
+        """Initialize the TopoRepairTool with the given Database.
+
+        Parameters
+        ----------
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
+            
+        """
+        self._dataTables = self._get_data_tables(database)
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
 
     def run(
         self,
@@ -56,6 +80,7 @@ class TopoRepairTool:
             If true, refresh the list of network zones. By default True
         snap_distance : float, optional
             The distance used in dissolve the overlapped nodes, in correct link connection, and in split link on T junction, by default 0.1.
+
         """
         cancel_source = CancellationTokenSource()
         topology_param = TopologyRepairParam()

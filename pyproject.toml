@@ -13,7 +13,6 @@ dependencies = [
     'pythonnet>=3.0',
     "pandas",
 ]
-
 authors = [
   { name="Ryan Walter Murray", email="rywm@dhigroup.com" },
   { name="Wen Wu", email="WUW@dhigroup.com" },
@@ -36,8 +35,23 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "ruff", "shapely"]
-test = ["pytest", "pytest-timeout", "shapely"]
+dev = [
+    "pytest",
+    "ruff",
+    "shapely",
+    "jinja2>=3.0.0",
+    "mypy>=1.15.0",
+    "pandas-stubs>=2.2.2.240807",
+    "ipykernel>=6.29.5",
+]
+test = [
+    "pytest",
+    "pytest-timeout",
+    "shapely",
+    "jinja2>=3.0.0",
+    "mypy>=1.15.0",
+    "pandas-stubs>=2.2.2.240807",
+]
 doc =  ["sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
 
 [project.urls]
@@ -52,13 +66,34 @@ warn_return_any = false
 allow_redefinition = true
 warn_unreachable = true
 
+[[tool.mypy.overrides]]
+module = [
+    "DHI.*",
+    "System.*",
+    "clr"
+]
+ignore_missing_imports = true
+
 [tool.ruff]
+include = ["pyproject.toml", "mikeplus/**/*.py"]
+lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
+format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
+
+lint.extend-select = ["D", "PD", "NPY", "FA"]
+lint.pydocstyle.convention = "numpy"
+
 # ignore long lines
-lint.exclude = ["notebooks/**/*.ipynb"]
 lint.ignore = ["E501"]
 
+
+
 [tool.pytest.ini_options]
-addopts = "--strict-markers --verbose --timeout=90 --timeout_method=thread"
+addopts = [
+    "--strict-markers",
+    "--durations=50",
+    "--durations-min=0.5",
+    "--disable-warnings"
+]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "license_required: marks tests that require a license (deselect with '-m \"not license_required\"')",

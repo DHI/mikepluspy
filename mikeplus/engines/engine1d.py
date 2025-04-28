@@ -1,18 +1,46 @@
+"""Engine1D class for running MIKE 1D simulation."""
+
 from pathlib import Path
 import subprocess
-from DHI.Mike.Install import MikeImport, MikeProducts
+from DHI.Mike.Install import MikeImport
+from ..database import Database
 
 
 class Engine1D:
-    """The Engine1D class can run MIKE1D simulation, print log file, and get the result file path."""
+    """Engine1D class for running MIKE 1D simulation."""
 
-    def __init__(self, dataTables):
-        MikeImport.Setup(23, MikeProducts.MikePlus)
-        self._dataTables = dataTables
+    def __init__(self, database):
+        """Initialize the Engine1D class with the given Database.
+
+        Parameters
+        ----------
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
+
+        Examples
+        --------
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = Engine1D(db)
+        
+        """
+        self._dataTables = self._get_data_tables(database)
         self._result_file = None
 
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
+        
+        
     def run(self, simMuid=None, verbose=False):
-        """Run MIKE1D simulation
+        """Run MIKE1D simulation.
 
         Parameters
         ----------
@@ -23,11 +51,13 @@ class Engine1D:
 
         Examples
         --------
-        >>>data_access = DataTableAccess(muppOrSqlite)
-        >>>data_access.open_database()
-        >>>engine = Egnine1D(data_access.datatables)
+        # Using Database object (preferred)
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = Engine1D(db)
         >>>engine.run()
-        >>>data_access.close_database()
+        >>>db.close()
+
         """
         if simMuid is None:
             muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
@@ -63,12 +93,13 @@ class Engine1D:
 
     @property
     def result_file(self):
-        """Get the current simulation result file path
+        """Get the current simulation result file path.
 
         Returns
         -------
         string
             The result file path of current simulation
+
         """
         return self._result_file
 

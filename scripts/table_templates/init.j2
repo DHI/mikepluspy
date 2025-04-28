@@ -1,0 +1,17 @@
+"""Auto-generated table classes for MIKE+ database.
+
+DO NOT MANUALLY MODIFY THIS PACKAGE! Use AutoTableClassGenerator to regenerate.
+"""
+
+{%- for table in tables %}
+from .{{ table.table_name }} import {{ table.class_name }}
+{%- endfor %}
+
+from .table_collection import TableCollection
+
+__all__ = [
+    "TableCollection",
+{%- for table in tables %}
+    "{{ table.class_name }}",
+{%- endfor %}
+]

@@ -1,3 +1,5 @@
+"""Package containing access to various MIKE+ tools."""
+
 import clr
 
 clr.AddReference("System")

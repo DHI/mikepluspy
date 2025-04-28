@@ -1,19 +1,46 @@
+"""SWMM class for running SWMM simulation."""
 import os.path
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.DataModule.Interface.Services import IMProjectTable
 from System.Threading import CancellationTokenSource
 from System.Collections.Generic import List
+from ..database import Database
 
 
 class SWMM:
-    """The SWMM class can run SWMM simulation, get active simulation muid, print log file, and get the result file path."""
+    """SWMM class for running SWMM simulation."""
 
-    def __init__(self, dataTables):
-        self._dataTables = dataTables
+    def __init__(self, database):
+        """Initialize the SWMM class with the given Database.
+
+        Parameters
+        ----------
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
+
+        Examples
+        --------
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = SWMM(db)
+        
+        """
+        self._dataTables = self._get_data_tables(database)
         self._result_file = None
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
 
     def run(self, simMuid=None, verbose=False):
-        """Run SWMM simulation
+        """Run SWMM simulation.
 
         Parameters
         ----------
@@ -24,11 +51,12 @@ class SWMM:
 
         Examples
         --------
-        >>>data_access = DataTableAccess(muppOrSqlite)
-        >>>data_access.open_database()
-        >>>engine = SWMM(data_access.datatables)
+        >>>from mikeplus import Database
+        >>>db = Database("path/to/model.sqlite")
+        >>>engine = SWMM(db)
         >>>engine.run()
-        >>>data_access.close_database()
+        >>>db.close()
+
         """
         if simMuid is None:
             simMuid = self._get_active_muid()
@@ -59,12 +87,13 @@ class SWMM:
 
     @property
     def result_file(self):
-        """Get the current simulation result file path
+        """Get the current simulation result file path.
 
         Returns
         -------
         string
             The result file path of current simulation
+
         """
         if self._result_file is None:
             simMuid = self._get_active_muid()

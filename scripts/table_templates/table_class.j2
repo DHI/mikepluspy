@@ -1,0 +1,18 @@
+from {{ base_table_module }} import {{ base_table_name }}
+from {{ base_table_module }} import BaseColumns
+
+class {{ class_name }}Columns(BaseColumns):
+    """Column names for {{ table_name }} ({{ table_display_name }})."""
+    {%- for field in field_constants %}
+    {{ field.name }} = "{{ field.value }}"
+    {%- endfor %}
+
+class {{ class_name }}({{ base_table_name }}):
+    """Table for {{ table_name }} ({{ table_display_name }})."""
+    
+    @property
+    def columns(self) -> {{ class_name }}Columns:
+        """Get the columns for the table."""
+        if self._columns is None:
+            self._columns = {{ class_name }}Columns(self)
+        return self._columns

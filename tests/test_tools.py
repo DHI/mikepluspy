@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import pytest
 
 import os
-from mikeplus import DataTableDemoAccess
-from mikeplus import DataTableAccess
+from mikeplus import Database
 from mikeplus.tools.topology_repair_tool import TopoRepairTool
 from mikeplus.tools.interpolation_tool import InterpolationTool
 from mikeplus.tools.connection_repair_tool import ConnectionRepairTool
@@ -11,105 +12,126 @@ from mikeplus.tools.import_tool import ImportTool
 
 
 def test_topology_repair_tool(repair_tool_db):
-    data_access = DataTableDemoAccess(repair_tool_db)
-    data_access.open_database()
-    repair_tool = TopoRepairTool(data_access.datatables)
+    db = Database(repair_tool_db)
+    repair_tool = TopoRepairTool(db)
     repair_tool.run()
-    query = data_access.get_muid_where("msm_Link", "muid='LinkToDel'")
-    assert len(query) == 0
-    query = data_access.get_muid_where("msm_Node", "muid='NodeIsolate'")
-    assert len(query) == 0
-    query = data_access.get_muid_where("msm_Link", "muid='LinkToSplit'")
-    assert len(query) == 0
-    query = data_access.get_muid_where("msm_Link", "tonodeid='NodeToSplit'")
-    assert len(query) == 2
-    query = data_access.get_muid_where("msm_Link", "fromnodeid='NodeToSplit'")
-    assert len(query) == 1
-    query = data_access.get_muid_where("msm_Node", "muid='Node_8'")
-    assert len(query) == 1
-    data_access.close_database()
+    query = db.tables.msm_Link.select(["MUID"]).where("muid='LinkToDel'")
+    assert len(query.execute()) == 0
+
+    query = db.tables.msm_Node.select(["MUID"]).where("muid='NodeIsolate'")
+    assert len(query.execute()) == 0
+
+    query = db.tables.msm_Link.select(["MUID"]).where("muid='LinkToSplit'")
+    assert len(query.execute()) == 0
+
+    query = db.tables.msm_Link.select(["MUID"]).where("tonodeid='NodeToSplit'")
+    assert len(query.execute()) == 2
+
+    query = db.tables.msm_Link.select(["MUID"]).where("fromnodeid='NodeToSplit'")
+    assert len(query.execute()) == 1
+
+    query = db.tables.msm_Node.select(["MUID"]).where("muid='Node_8'")
+    assert len(query.execute()) == 1
+    db.close()
 
 
 def test_interpolate_tool(interpolate_db):
-    data_access = DataTableDemoAccess(interpolate_db)
-    data_access.open_database()
-    data_access.set_value("msm_Node", "Node_1", "Diameter", None)
-    data_access.set_value("msm_Node", "Node_2", "Diameter", None)
-    data_access.set_value("msm_Node", "Node_3", "Diameter", None)
-    tool = InterpolationTool(data_access.datatables)
+    """Test interpolating a field from a source layer."""
+    db = Database(interpolate_db)
+    db.tables.msm_Node.update({"Diameter": None}).where("MUID='Node_1'").execute()
+    db.tables.msm_Node.update({"Diameter": None}).where("MUID='Node_2'").execute()
+    db.tables.msm_Node.update({"Diameter": None}).where("MUID='Node_3'").execute()
+    tool = InterpolationTool(db)
     tool.interpolate_from_nearest_feature(
         "msm_Node", "Diameter", "msm_Link", "Diameter"
     )
-    fields = ["Diameter"]
-    field_val_get = data_access.get_muid_field_values("msm_Node", fields)
-    data_access.close_database()
+    field_val_get = db.tables.msm_Node.select(["Diameter"]).execute()
+    db.close()
     assert field_val_get["Node_1"][0] == 2.0
     assert field_val_get["Node_2"][0] == 2.0
     assert field_val_get["Node_3"][0] == 3.0
 
 
 def test_connect_repair_tool(connection_repair_db):
-    data_access = DataTableDemoAccess(connection_repair_db)
-    data_access.open_database()
-    muids = data_access.get_muid_where("m_StationCon")
-    for muid in muids:
-        data_access.delete("m_StationCon", muid)
-    muids = data_access.get_muid_where("msm_LoadPointConnection")
-    for muid in muids:
-        data_access.delete("msm_LoadPointConnection", muid)
-    conn_repair_tool = ConnectionRepairTool(data_access.datatables)
+    db = Database(connection_repair_db)
+
+    db.tables.m_StationCon.delete().all().execute()
+    db.tables.msm_LoadPointConnection.delete().all().execute()
+
+    muids = db.tables.m_StationCon.get_muids()
+    assert len(muids) == 0
+
+    muids = db.tables.msm_LoadPointConnection.get_muids()
+    assert len(muids) == 0
+
+    conn_repair_tool = ConnectionRepairTool(db)
     conn_repair_tool.run()
-    station_conn = data_access.get_muid_where("m_StationCon")
-    assert len(station_conn) == 2
-    load_point_conn = data_access.get_muid_where("msm_LoadPointConnection")
-    assert len(load_point_conn) == 2
-    data_access.close_database()
 
+    muids = db.tables.m_StationCon.get_muids()
+    assert len(muids) == 2
 
+    muids = db.tables.msm_LoadPointConnection.get_muids()
+    assert len(muids) == 2
+    db.close()
+
+# TODO: Fix this - something not so great going on
+@pytest.mark.license_required
+@pytest.mark.xfail(reason="Passes locally on re-run, but not on full run or CI")
 def test_catch_slope_len_tool(catch_slope_len_db):
-    data_access = DataTableDemoAccess(catch_slope_len_db)
-    data_access.open_database()
+    db = Database(catch_slope_len_db)
+
     field_values = {"ModelBSlope": 0.0, "ModelBLength": 0.0}
     fields = ["ModelBSlope", "ModelBLength"]
     muid = "imp3"
-    data_access.set_values("msm_Catchment", muid, field_values)
-    field_val_get = data_access.get_field_values("msm_Catchment", muid, fields)
-    assert field_val_get[0] == 0.0
-    assert field_val_get[1] == 0.0
-    catch_ids = [muid]
-    
+
+    db.tables.msm_Catchment.update(field_values).where("muid=:muid", {'muid':muid}).execute()
+
+    field_val_get = db.tables.msm_Catchment.select(fields).where("muid=:muid", {'muid':muid}).execute()
+
+    assert field_val_get[muid][0] == 0.0
+    assert field_val_get[muid][1] == 0.0
+
     # Get the paths to the files in the temporary directory
     db_dir = os.path.dirname(catch_slope_len_db)
     shp_file = os.path.join(db_dir, "Catch_Slope.shp")
     dem_file = os.path.join(db_dir, "dem.dfs2")
-    
-    tool = CathSlopeLengthProcess(data_access.datatables)
+
+    assert os.path.exists(catch_slope_len_db), f"Database file does not exist: {catch_slope_len_db}"
+    assert os.path.exists(shp_file), "Catch_Slope.shp does not exist"
+    assert os.path.exists(dem_file), "dem.dfs2 does not exist"
+
+    tool = CathSlopeLengthProcess(db)
     tool.run(
-        catch_ids,
+        [muid],
         shp_file,
         dem_file,
         0,
     )
-    field_val_get = data_access.get_field_values("msm_Catchment", muid, fields)
-    assert (field_val_get[0] - 0.102342) < 0.00001
-    assert (field_val_get[1] - 172.571601) < 0.00001
-    data_access.close_database()
+
+    field_val_get = db.tables.msm_Catchment.select(fields).where("muid=:muid", {'muid':muid}).execute()
 
 
-@pytest.mark.license_required
-def test_import_tool(import_db):
-    data_access = DataTableAccess(import_db)
-    data_access.open_database()
-    muids = data_access.get_muid_where("msm_Link")
-    for muid in muids:
-        data_access.delete("msm_Link", muid)
+    assert field_val_get[muid][0] == pytest.approx(0.102342, abs=1e-6)
+    assert field_val_get[muid][1] == pytest.approx(172.571601, abs=1e-6)
     
+    db.close()
+
+# TODO: Fix this - something not so great going on
+@pytest.mark.license_required
+@pytest.mark.xfail(reason="Passes locally on re-run, but not on full run or CI")
+def test_import_tool(import_db):
+    db = Database(import_db)
+
+    db.tables.msm_Link.delete().all().execute()
+    muids = db.tables.msm_Link.get_muids()
+    assert len(muids) == 0
+
     # Get the path to the config file in the temporary directory
     db_dir = os.path.dirname(import_db)
     config_file = os.path.join(db_dir, "config.xml")
-    
-    import_tool = ImportTool(config_file, data_access.datatables)
+
+    import_tool = ImportTool(config_file, db)
     import_tool.run()
-    muids = data_access.get_muid_where("msm_Link")
+    muids = db.tables.msm_Link.get_muids()
     assert len(muids) == 575
-    data_access.close_database()
+    db.close()

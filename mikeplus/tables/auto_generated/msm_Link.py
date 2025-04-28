@@ -1,0 +1,65 @@
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
+
+class msm_LinkTableColumns(BaseColumns):
+    """Column names for msm_Link (Pipes and canals)."""
+    MUID = "MUID"
+    Enabled = "Enabled"
+    FromNodeID = "FromNodeID"
+    ToNodeID = "ToNodeID"
+    TypeNo = "TypeNo"
+    Height = "Height"
+    Width = "Width"
+    Diameter = "Diameter"
+    Length = "Length"
+    GeometricLength = "GeometricLength"
+    UpLevel = "UpLevel"
+    DwLevel = "DwLevel"
+    UpLevel_C = "UpLevel_C"
+    DwLevel_C = "DwLevel_C"
+    Slope = "Slope"
+    MaxDx = "MaxDx"
+    CrsID = "CrsID"
+    TopographyID = "TopographyID"
+    FlowRegNo = "FlowRegNo"
+    RegulationTypeNo = "RegulationTypeNo"
+    FunctionID = "FunctionID"
+    ControlNodeAID = "ControlNodeAID"
+    ControlNodeBID = "ControlNodeBID"
+    NonReturnNo = "NonReturnNo"
+    SpecLocalWaveNo = "SpecLocalWaveNo"
+    WaveApproximationTypeNo = "WaveApproximationTypeNo"
+    FricTypeNo = "FricTypeNo"
+    FricNo = "FricNo"
+    MaterialID = "MaterialID"
+    Manning = "Manning"
+    Rough = "Rough"
+    HWCoef = "HWCoef"
+    ManTop = "ManTop"
+    ManBott = "ManBott"
+    ManExp = "ManExp"
+    PMApprNo = "PMApprNo"
+    SlotNo = "SlotNo"
+    Slot = "Slot"
+    GridNo = "GridNo"
+    Grid = "Grid"
+    UseRoutingNo = "UseRoutingNo"
+    RoutingTypeNo = "RoutingTypeNo"
+    RoutingDelay = "RoutingDelay"
+    RoutingShape = "RoutingShape"
+    DataSource = "DataSource"
+    AssetName = "AssetName"
+    Element_S = "Element_S"
+    NetTypeNo = "NetTypeNo"
+    Description = "Description"
+    ChainageData = "ChainageData"
+
+class msm_LinkTable(BaseGeometryTable):
+    """Table for msm_Link (Pipes and canals)."""
+    
+    @property
+    def columns(self) -> msm_LinkTableColumns:
+        """Get the columns for the table."""
+        if self._columns is None:
+            self._columns = msm_LinkTableColumns(self)
+        return self._columns

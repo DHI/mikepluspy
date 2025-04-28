@@ -1,3 +1,9 @@
+"""DataTableAccess class for manipulating data in MIKE+ database.
+
+.. deprecated:: 2025.0.3
+   This class will be removed in version 2026.0.0. Use ``Database`` class instead.
+"""
+
 from __future__ import annotations
 
 import os.path
@@ -30,13 +36,23 @@ from warnings import warn
 
 
 class DataTableAccess:
-    """
-    Class to manipulate data in MIKE+ database.
+    """Class to manipulate data in MIKE+ database.
 
+    .. deprecated:: 2025.0.3
+       This class will be removed in version 2026.0.0. Use ``Database`` class instead.
+
+    This class provides direct access to tables in a MIKE+ database,
+    allowing for operations like inserting, updating, and deleting data.
+    
+    Parameters
+    ----------
+    db_or_mupp_file : str
+        Path to the .sqlite or .mupp database file
+    
     Examples
     --------
-    An example of insert a link into msm_Link table. Get field data from table and delete row from table
-    ```python
+    Insert a link into msm_Link table, get field data, and delete the row:
+    
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
     >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING (3 4, 10 50, 20 25)"}
@@ -47,18 +63,36 @@ class DataTableAccess:
     >>> data_access.set_values("msm_Link", "link_test", values)
     >>> data_access.delete("msm_Link", "link_test")
     >>> data_access.close_database()
-    ```
+
     """
 
     def __init__(self, db_or_mupp_file):
+        """Initialize the DataTableAccess object.
+
+        Parameters
+        ----------
+        db_or_mupp_file : str
+            Path to the .sqlite or .mupp database file.
+
+        """
+        warn(
+            "DataTableAccess is deprecated since version 2025.0.3 and will be removed in version 2026.0.0.\n"
+            "\n"
+            "Use Database class instead:\n"
+            "  from mikeplus import Database\n"
+            "  db = Database('path/to/model.sqlite')\n"
+            "  # Use db.tables to access tables\n",
+            DeprecationWarning, stacklevel=2
+        )
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)
         self._file_path = db_or_mupp_file
         self._datatables = None
         self._scenario_manager = None
 
     def __repr__(self):
+        """Get string representation of the DataTableAccess object."""
         out = ["<DataTableContainer>"]
-
+    
         if self.is_database_open():
             data_source = self._datatables.DataSource
             out.append(f"Db major version: {str(data_source.DbMajorVersion)}")
@@ -71,7 +105,15 @@ class DataTableAccess:
         return str.join("\n", out)
 
     def open_database(self):
-        """Open database"""
+        """Open the database connection.
+        
+        Opens the database and initializes the DataTableContainer.
+        
+        Returns
+        -------
+        None
+
+        """
         check_conflicts()
         if self.is_database_open():
             return
@@ -88,7 +130,15 @@ class DataTableAccess:
         self._scenario_manager = data_source.ScenarioManager
 
     def close_database(self):
-        """Close database"""
+        """Close the database connection.
+        
+        Clears the undo/redo buffer and closes the database connection.
+        
+        Returns
+        -------
+        None
+
+        """
         self._datatables.UndoRedoManager.ClearUndoRedoBuffer()
         self._datatables.DataSource.CloseDatabase()
         self._datatables.Dispose()
@@ -96,16 +146,47 @@ class DataTableAccess:
 
     @property
     def datatables(self):
-        """DataTableContainer"""
+        """Get the DataTableContainer object.
+        
+        Returns
+        -------
+        DataTableContainer
+            The underlying .NET DataTableContainer object
+
+        """
         return self._datatables
 
     @property
     def table_names(self) -> list[str]:
-        """Returns a list of table names in the database."""
+        """Get a list of all table names in the database.
+        
+        Returns
+        -------
+        list of str
+            Names of all tables in the database
+
+        """
         return [table.TableName for table in self._datatables.AllTables]
 
     def _get_table_with_validation(self, table_name: str):
-        """Returns the table object or raises an error if the table does not exist."""
+        """Get a table object with validation.
+        
+        Parameters
+        ----------
+        table_name : str
+            Name of the table to retrieve
+            
+        Returns
+        -------
+        object
+            The .NET table object
+            
+        Raises
+        ------
+        ValueError
+            If the table does not exist in the database
+
+        """
         table = self._datatables.GetTable(table_name)
         if table is None:
             raise ValueError(f"Table '{table_name}' does not exist in the database.")
@@ -123,24 +204,26 @@ class DataTableAccess:
         -------
         list[str]
             A list of field names.
+
         """
         table = self._get_table_with_validation(table_name)
         return [column.Field for column in table.Columns]
 
     def get_muid_where(self, table_name, where=None):
-        """If where is none, get all the muids of the specified table. Otherwise get the muids in table which meet the condition.
+        """Get MUIDs from a table that match a condition.
 
         Parameters
         ----------
-        table_name : string
-            table name
-        where : string, optional
-            the condition string, by default None
+        table_name : str
+            Name of the table to query
+        where : str, optional
+            SQL-like condition string, by default None (returns all MUIDs)
 
         Returns
         -------
-        array
-            the muids array
+        list of str
+            List of MUIDs that match the condition
+
         """
         muids = []
         muidGet = self._datatables[table_name].GetMuidsWhere(where)
@@ -149,7 +232,7 @@ class DataTableAccess:
         return muids
 
     def get_field_values(self, table_name, muid, fields):
-        """Get field values
+        """Get field values.
 
         Parameters
         ----------
@@ -166,6 +249,7 @@ class DataTableAccess:
         List
             A list of the requested values in the same order as the fields argument.
             WTK (well-know-text) will be returned for geometry field
+
         """
         if not isinstance(fields, list):
             fields = [fields]
@@ -190,7 +274,7 @@ class DataTableAccess:
         return pyValues
 
     def get_muid_field_values(self, table_name, fields, where=None):
-        """Get muid and field values dictionary
+        """Get muid and field values dictionary.
 
         Parameters
         ----------
@@ -206,6 +290,7 @@ class DataTableAccess:
         dicationary
             muid and field values dictionary
             WTK (well-know-text) will be returned for geometry field.
+
         """
         fieldList = List[str]()
         for field in fields:
@@ -231,7 +316,7 @@ class DataTableAccess:
         return mydict
 
     def set_value(self, table_name, muid, column, value):
-        """Set value of specified muid and column in table
+        """Set value of specified muid and column in table.
 
         Parameters
         ----------
@@ -253,6 +338,7 @@ class DataTableAccess:
                     - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
                 - shapely object is accept for geometry field. Please install shapely package first.
                 The supported geometry types are Point, LineString and Polygon
+
         """
         if column.lower() == "geometry":
             wkt = None
@@ -272,7 +358,7 @@ class DataTableAccess:
             self._datatables[table_name].SetValueByCommand(muid, column, value)
 
     def set_values(self, table_name, muid, values):
-        """Set values of specified muid in table
+        """Set values of specified muid in table.
 
         Parameters
         ----------
@@ -292,6 +378,7 @@ class DataTableAccess:
                     - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
                 - shapely object is accept for geometry field. Please install shapely package first.
                 The supported geometry types are Point, LineString and Polygon
+
         """
         value_dict = Dictionary[String, Object]()
         for col in values:
@@ -315,7 +402,7 @@ class DataTableAccess:
         self._datatables[table_name].SetValuesByCommand(muid, value_dict)
 
     def insert(self, table_name, muid, values=None):
-        """Insert row into table with specified muid
+        """Insert row into table with specified muid.
 
         Parameters
         ----------
@@ -335,6 +422,7 @@ class DataTableAccess:
                     - POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
                 - shapely object is accept for geometry field. Please install shapely package first.
                 The supported geometry types are Point, LineString and Polygon
+
         """
         value_dict = Dictionary[String, Object]()
         geom = None
@@ -360,7 +448,7 @@ class DataTableAccess:
         )
 
     def delete(self, table_name, muid):
-        """Delete row with specified muid in table
+        """Delete row with specified muid in table.
 
         Parameters
         ----------
@@ -368,16 +456,18 @@ class DataTableAccess:
             table name
         muid : string
             muid
+
         """
         self._datatables[table_name].DeleteByCommand(muid)
 
     def is_database_open(self):
-        """Check if database if open
+        """Check if database if open.
 
         Returns
         -------
         bool
             the status of the database
+
         """
         if self._datatables is None:
             return False
@@ -416,18 +506,18 @@ class DataTableAccess:
         """Current active scenarion name."""
         if not self.is_database_open():
             warn("Cannot retrieve active scenario name. The database is closed.")
-            return
+            return ""
 
         return self._scenario_manager.ActiveScenario.Name
 
     def activate_scenario(self, scenario_name: str):
-        """
-        Activates a scenario from a given scenario name.
+        """Activates a scenario from a given scenario name.
 
         Parameters
         ----------
         scenario_name : str
             Name of a scenario to activate.
+
         """
         if not self.is_database_open():
             warn(f"Cannot activate scenario {scenario_name}. The database is closed.")
@@ -443,8 +533,7 @@ class DataTableAccess:
         column_data_type: str,
         column_header: str | None = None,
     ):
-        """
-        Add a user defined column to a table.
+        """Add a user defined column to a table.
 
         Parameters
         ----------
@@ -456,6 +545,7 @@ class DataTableAccess:
             Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
         column_header : str | None
             Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
+
         """
         table = self._get_table_with_validation(table_name)
 
@@ -492,12 +582,19 @@ class DataTableAccess:
         return ret
 
 
-class DataTableDemoAccess(DataTableAccess):
-    """
-    This class only have demo access to MIKE+ database.
-    Please use DataTableAccess if the model is larger than demo size.
 
-    Usage case: It is used for demo model with very short license checking time. The license check is under failed status.
+class DataTableDemoAccess(DataTableAccess):
+    """Demo access to MIKE+ database with limited functionality.
+
+    This class should only be used for demo models with very short license
+    checking time, especially when license checks might fail.
+    For full-size models, use DataTableAccess instead.
+
+    Parameters
+    ----------
+    db_or_mupp_file : str
+        Path to the .sqlite or .mupp database file
+
     """
 
     def _create_datatables(self):

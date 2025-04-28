@@ -1,27 +1,49 @@
+"""The Interpolation and Assignment tool from MIKE+."""
 from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import (
     InterpolationToolParameters,
 )
 from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
+from ..database import Database
 
 
 class InterpolationTool:
-    """The Interpolation and Assignment tool helps assign values to any field in the MIKE+ database either by taking the attribute value directly from
-    another fea­ture/attribute or by interpolating between any number of other features.
+    """The Interpolation and Assignment tool from MIKE+.
 
     Examples
     --------
-    Interplate node diameter from connected links for the nodes which have NULL diameter.
+    Interpolate node diameter from connected links for the nodes which have NULL diameter.
+
     ```python
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
-    >>> tool = InterpolationTool(data_access.datatables)
-    >>> tool.interpolate_from_nearest_feature("msm_Node", "Diameter", "msm_Link", "Diameter", Ture, False, None)
-    >>> data_access.close_database()
+    >>> from mikeplus import Database
+    >>> db = Database("path/to/model.sqlite")
+    >>> tool = InterpolationTool(db)
+    >>> tool.interpolate_from_nearest_feature("msm_Node", "Diameter", "msm_Link", "Diameter", True, False, None)
+    >>> db.close()
     ```
+
     """
 
-    def __init__(self, dataTables):
-        self._dataTables = dataTables
+    def __init__(self, database):
+        """Initialize the InterpolationTool with the given Database.
+
+        Parameters
+        ----------
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
+
+        """
+        self._dataTables = self._get_data_tables(database)
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
 
     def interpolate_from_nearest_feature(
         self,
@@ -54,6 +76,7 @@ class InterpolationTool:
             Specify the value as the missing value, by default None
         search_radius : float, optional
             the search radius to find the source, by default 300
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 1
@@ -101,6 +124,7 @@ class InterpolationTool:
             If true, assgined value as missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 0
@@ -152,6 +176,7 @@ class InterpolationTool:
             the max source number used to interpolate, by default 12
         search_radius : float, optional
             the search radius to find the source, by default 300.0
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 2
@@ -197,6 +222,7 @@ class InterpolationTool:
             If true, assgined value as missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
+
         """
         param = InterpolationToolParameters()
         param.assigmentMethod = 5
@@ -266,6 +292,7 @@ class InterpolationTool:
             If true, interpolate from neighbour. Otherwise, interpolate from network. By default False
         max_neighbours : int, optional
             the max neighbours with missing value along the network, by default 3
+
         """
         param = InterpolationToolParameters()
         if self.alongPath is True:

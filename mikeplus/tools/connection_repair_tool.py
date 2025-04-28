@@ -1,26 +1,45 @@
+"""The Connection Repair Tool from MIKE+."""
 from DHI.Amelia.Tools.ConnectionRepairEngine import ConnectionRepairEngine
+from ..database import Database
 
 
 class ConnectionRepairTool:
-    """
-    For collection module, this class is to repair station connections, catchment connections and load point connections.
-    For water distribute module, this class is to repair station connections and demand allocation connections.
-    For SWMM, this class is to repair station connections and catchment connections.
+    """The Connection Repair Tool from MIKE+.
 
     Examples
     --------
-    >>> data_access = DataTableAccess(muppOrSqlite)
-    >>> data_access.open_database()
-    >>> conn_repair = ConnectionRepairTool(data_access.datatables)
+    >>> from mikeplus import Database
+    >>> db = Database("path/to/model.sqlite")
+    >>> conn_repair = ConnectionRepairTool(db)
     >>> conn_repair.run()
-    >>> data_access.close_database()
+    >>> db.close()
+
     """
 
-    def __init__(self, dataTables):
-        self._dataTables = dataTables
+    def __init__(self, database):
+        """Initialize the ConnectionRepairTool with the given Database.
+        
+        Parameters
+        ----------
+        database : Database or DataTables
+            A Database object for the MIKE+ model, or for backward compatibility,
+            a DataTables object from DataTableAccess.
+
+        """
+        self._dataTables = self._get_data_tables(database)
+        
+    def _get_data_tables(self, database):
+        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
+        if isinstance(database, Database):
+            if not database.is_open:
+                database.open()
+            return database._data_table_container
+
+        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
+        return database
 
     def run(self):
-        """Run the connection repair tool"""
+        """Run the connection repair tool."""
         tool = ConnectionRepairEngine(self._dataTables)
         tool.Run()
         tool.RuningProgress += self._on_tool_runing_progress
