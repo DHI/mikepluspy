@@ -59,7 +59,7 @@ class Database:
         if not (self._db_path or self._mupp_path):
             raise InvalidFileException(f"Model file '{model_path}' is invalid.")
 
-        self._data_source: BaseDataSource = BaseDataSource.Create(str(self._db_path))
+        self._data_source: BaseDataSource = BaseDataSource.Create(self._db_path.resolve().as_posix())
         self._data_table_container: DataTableContainer = DataTableContainer(True)
         self._data_table_container.DataSource = self._data_source
         self._tables: TableCollection = TableCollection(self._data_table_container)
