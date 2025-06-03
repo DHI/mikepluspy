@@ -41,8 +41,10 @@ class BaseQuery(Generic[QueryResultT], ABC):
 
     def __repr__(self) -> str:
         """Get nice string representation."""
-        return f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
-    
+        return (
+            f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
+        )
+
     def where(self, condition: str, params: dict[str, str] = {}):
         """Add a WHERE condition to the query.
 
@@ -134,7 +136,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
         -------
         QueryResultT
             Query-type dependent result
-            
+
         Notes
         -----
         This is an internal implementation method called by execute().

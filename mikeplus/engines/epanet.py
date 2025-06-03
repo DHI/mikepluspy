@@ -26,11 +26,11 @@ class EPANET:
         >>>from mikeplus import Database
         >>>db = Database("path/to/model.sqlite")
         >>>engine = EPANET(db)
-        
+
         """
         self._dataTables = self._get_data_tables(database)
         self._result_file = None
-        
+
     def _get_data_tables(self, database):
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):

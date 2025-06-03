@@ -1,4 +1,5 @@
 """SWMM class for running SWMM simulation."""
+
 import os.path
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.DataModule.Interface.Services import IMProjectTable
@@ -24,11 +25,11 @@ class SWMM:
         >>>from mikeplus import Database
         >>>db = Database("path/to/model.sqlite")
         >>>engine = SWMM(db)
-        
+
         """
         self._dataTables = self._get_data_tables(database)
         self._result_file = None
-        
+
     def _get_data_tables(self, database):
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):

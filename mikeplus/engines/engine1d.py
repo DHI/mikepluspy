@@ -1,4 +1,5 @@
 """Engine1D class for running MIKE 1D simulation."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,6 +12,8 @@ from ..dotnet import get_implementation
 from ..database import Database
 
 DataTableContainer = Any
+
+
 class Engine1D:
     """Engine1D class for running MIKE 1D simulation."""
 
@@ -28,11 +31,13 @@ class Engine1D:
         >>>from mikeplus import Database
         >>>db = Database("path/to/model.sqlite")
         >>>engine = Engine1D(db)
-        
+
         """
         self._data_tables = self._get_data_tables(database)
 
-    def _get_data_tables(self, database: Database | DataTableContainer) -> DataTableContainer:
+    def _get_data_tables(
+        self, database: Database | DataTableContainer
+    ) -> DataTableContainer:
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):
             if not database.is_open:
@@ -41,7 +46,7 @@ class Engine1D:
 
         # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
         return database
-    
+
     def run(self, sim_muid: str | None = None):
         """Run MIKE1D simulation.
 
@@ -65,23 +70,23 @@ class Engine1D:
 
         engine_tool = EngineTool()
         engine_tool.DataTables = self._data_tables
-        
+
         success, launcher, messages = engine_tool.RunEngine_CS(None, None, sim_muid)
 
         if not success or launcher is None:
             messages = ". ".join(list(messages))
             raise RuntimeError(f"Simulation failed to start: {messages}")
-        
+
         launcher.Start()
-            
+
         start_time = time.time()
-        timeout_start = 30.0 
+        timeout_start = 30.0
         time.sleep(0.5)
         while not launcher.IsEngineRunning:
             if time.time() - start_time > timeout_start:
                 break
             time.sleep(0.1)
-            
+
         while launcher.IsEngineRunning:
             time.sleep(0.1)
 
@@ -90,12 +95,12 @@ class Engine1D:
 
     def get_result_files(self, sim_muid: str | None = None) -> list[Path]:
         """Get result files for a simulation MUID.
-        
+
         Parameters
         ----------
         sim_muid : str, optional
             Simulation MUID. If None, uses the active simulation MUID.
-            
+
         Returns
         -------
         list
@@ -103,24 +108,24 @@ class Engine1D:
         """
         if sim_muid is None:
             sim_muid = self.get_active_sim_muid()
-            
+
         project_table = self._data_tables["msm_Project"]
         project_table = get_implementation(project_table)
         res_files_dictionary = project_table.GetResultFilePath(sim_muid)
         res_files = []
         for item in res_files_dictionary:
             res_files.append(Path(item.Value).absolute())
-        
+
         return res_files
 
     def get_active_sim_muid(self) -> str:
         """Get the active simulation MUID from the database.
-        
+
         Returns
         -------
         str
             The active simulation MUID.
-            
+
         Raises
         ------
         ValueError

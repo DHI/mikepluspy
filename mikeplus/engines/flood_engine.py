@@ -28,7 +28,7 @@ class FloodEngine:
         >>>from mikeplus import Database
         >>>db = Database("path/to/model.sqlite")
         >>>engine = FloodEngine(db)
-        
+
         """
         self._data_tables = self._get_data_tables(database)
         self._result_files = None
@@ -42,7 +42,6 @@ class FloodEngine:
 
         # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
         return database
-
 
     def run(self, sim_muid=None, verbose=False):
         """Run 1D/2D/Flood simulation.

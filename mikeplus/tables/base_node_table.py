@@ -1,8 +1,10 @@
 """Base table class for MIKE+ database tables with a node-based geometry."""
+
 from __future__ import annotations
 
 from .base_geometry_table import BaseGeometryTable
-from .base_table_columns import BaseColumns # noqa: F401
+from .base_table_columns import BaseColumns  # noqa: F401
+
 
 class BaseNodeTable(BaseGeometryTable):
     """Base class representing a database table with node-based geometry."""

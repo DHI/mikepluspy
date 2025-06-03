@@ -1,4 +1,5 @@
 """The Topology Repair Tool from MIKE+."""
+
 from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool import (
     TopologyRepairParam,
 )
@@ -35,10 +36,10 @@ class TopoRepairTool:
         database : Database or DataTables
             A Database object for the MIKE+ model, or for backward compatibility,
             a DataTables object from DataTableAccess.
-            
+
         """
         self._dataTables = self._get_data_tables(database)
-        
+
     def _get_data_tables(self, database):
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):

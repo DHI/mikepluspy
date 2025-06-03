@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class BaseColumns:
     """Base class for column enumeration-like access.
-    
+
     Provides dictionary-like access to table columns.
     """
 
@@ -28,7 +28,7 @@ class BaseColumns:
 
     def __iter__(self):
         """Make the columns iterable.
-        
+
         Returns
         -------
         iterator
@@ -39,12 +39,12 @@ class BaseColumns:
 
     def __contains__(self, item):
         """Check if a column exists.
-        
+
         Parameters
         ----------
         item : str
             Column name to check
-            
+
         Returns
         -------
         bool

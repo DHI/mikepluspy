@@ -26,7 +26,7 @@ class CathSlopeLengthProcess:
 
     def __init__(self, database):
         """Initialize the CathSlopeLengthProcess with the given Database.
-        
+
         Parameters
         ----------
         database : Database or DataTables
@@ -35,7 +35,7 @@ class CathSlopeLengthProcess:
 
         """
         self._dataTables = self._get_data_tables(database)
-        
+
     def _get_data_tables(self, database):
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):
@@ -45,7 +45,7 @@ class CathSlopeLengthProcess:
 
         # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
         return database
-    
+
     def run(
         self,
         catch_ids,
