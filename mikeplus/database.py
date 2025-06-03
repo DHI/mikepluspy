@@ -19,6 +19,7 @@ from pathlib import Path
 
 from .conflicts import check_conflicts
 from .tables.auto_generated import TableCollection
+from .simulation_runner import SimulationRunner
 
 
 class Database:
@@ -70,6 +71,8 @@ class Database:
 
         if auto_open:
             self.open()
+
+        self._runner = SimulationRunner(self)
 
     def __repr__(self) -> str:
         """Get nice string representation."""
@@ -371,6 +374,34 @@ class Database:
         """
         return str(self._data_source.ActiveModel)
 
+    def run(self, simulation_muid: str | None = None, model_option: str | None = None) -> list[Path]:
+        """Runs a simulation.
+
+        Parameters
+        ----------
+        simulation_muid : str, optional
+            Simulation MUID. Defaults to the active simulation.
+        model_option : str | MUModelOption, optional
+            Model option. Defaults to active model if None.
+
+        Examples
+        --------
+        >>> with mp.open("path/to/model.sqlite") as db:
+        ...     results = db.run()
+
+        >>> with mp.open("path/to/model.sqlite") as db:
+        ...     results = db.run("My Simulation")
+
+        >>> db = mp.open("path/to/model.sqlite")
+        >>> results = db.run("My Simulation")
+        >>> db.close()
+
+        Returns
+        -------
+        list[Path]
+            Paths to the result files.
+        """
+        return self._runner.run(simulation_muid, model_option)
 
 __all__ = [
     "Database",
