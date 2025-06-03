@@ -14,15 +14,15 @@ def test_mike1d_engine(sirius_db):
     db = Database(sirius_db)
     engine = Engine1D(db)
     
-    engine_result_files = engine.result_files
-    
-    for res_file in engine_result_files:
+    result_files = engine.get_result_files()
+
+    for res_file in result_files:
         if os.path.exists(res_file):
             os.remove(res_file)
     
     engine.run()
     
-    for res_file in engine.result_files:
+    for res_file in result_files:
         assert os.path.exists(res_file)
         
     db.close()
