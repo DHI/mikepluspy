@@ -1,4 +1,11 @@
-"""FloodEngine class for running 1D/2D/FLOOD simulation."""
+"""
+FloodEngine class for running 1D/2D/FLOOD simulation.
+
+.. deprecated:: 2025.1.0
+   The 'mikeplus.engines.flood_engine' module is deprecated to simplify the codebase and provide a more simulation-oriented API.
+   Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for Flood simulations.
+   This module will be removed in version 2026.0.0.
+"""
 
 import os.path
 import time
@@ -8,13 +15,21 @@ from DHI.Amelia.DataModule.Interface.Services import IMsmProjectTable
 from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
 from System.Collections.Generic import List
-from ..database import Database
+from __future__ import annotations
+import warnings
 
 
 class FloodEngine:
     """FloodEngine class for running 1D/2D/FLOOD simulation."""
 
     def __init__(self, database):
+        warnings.warn(
+            "The 'FloodEngine' class is deprecated since version 2025.1.0 and will be removed in version 2026.0.0. "
+            "It was deprecated to simplify the codebase and provide a more simulation-oriented API. "
+            "Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for Flood simulations.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         """Initialize the FloodEngine class with the given Database.
 
         Parameters

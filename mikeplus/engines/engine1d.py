@@ -1,6 +1,14 @@
-"""Engine1D class for running MIKE 1D simulation."""
+"""
+Engine1D class for running MIKE 1D simulation.
+
+.. deprecated:: 2025.1.0
+   The 'mikeplus.engines.engine1d' module is deprecated to simplify the codebase and provide a more simulation-oriented API.
+   Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for MIKE 1D simulations.
+   This module will be removed in version 2026.0.0.
+"""
 
 from __future__ import annotations
+import warnings
 
 from pathlib import Path
 from typing import Any
@@ -18,6 +26,13 @@ class Engine1D:
     """Engine1D class for running MIKE 1D simulation."""
 
     def __init__(self, database: Database | DataTableContainer):
+        warnings.warn(
+            "The 'Engine1D' class is deprecated since version 2025.1.0 and will be removed in version 2026.0.0. "
+            "It was deprecated to simplify the codebase and provide a more simulation-oriented API. "
+            "Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for MIKE 1D simulations.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         """Initialize the Engine1D class with the given Database.
 
         Parameters
