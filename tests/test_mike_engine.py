@@ -64,9 +64,9 @@ def test_mike_engine_run_swmm(sirius_db):
     db.close()
 
 
-def test_mike_engine_run_epanet(sirius_db):
+def test_mike_engine_run_epanet(epanet_demo_db):
     """Test running an EPANET simulation."""
-    db = Database(sirius_db)
+    db = Database(epanet_demo_db)
     engine = MikeEngine(db)
     
     # Run the simulation

@@ -5,13 +5,13 @@ from __future__ import annotations
 import time
 from typing import List, Optional
 from pathlib import Path
-from unittest import result
-
 from DHI.Amelia.Tools.EngineTool import EngineTool
-from System.Collections.Generic import List as DotNetList
+from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
+from System.Threading import CancellationTokenSource
+from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
+
 
 from ..database import Database
-from ..dotnet import get_implementation
 
 
 class MikeEngine:
@@ -77,7 +77,7 @@ class MikeEngine:
         result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
         return [Path(f) for f in result_files]
     
-    def run_epanet(self, sim_muid: Optional[str] = None) -> List[Path]:
+    def run_epanet(self, sim_muid: str | None = None) -> list[Path]:
         """Run EPANET simulation.
 
         Parameters
@@ -87,11 +87,43 @@ class MikeEngine:
 
         Returns
         -------
-        List[Path]
+        list[Path]
             List of result file paths as Path objects.
         """
-        # Stub implementation
-        return []
+        if sim_muid is None:
+            sim_muid = self._database.active_simulation
+
+        
+        launcher = DhiEngineSimpleLauncher()   
+        success, messages = self._engine_tool.RunEngine_AllEpanet(
+            MUSimulationOption.WD_EPANET,
+            CancellationTokenSource().Token,
+            launcher=launcher,
+            simMuid=sim_muid,
+        )
+        
+        if not success or launcher is None:
+            messages_str = ". ".join(list(messages)) if messages else "Unknown error"
+            raise RuntimeError(f"Simulation failed to start: {messages_str}")
+
+        launcher.Start()
+
+        # Wait for the engine to start
+        start_time = time.time()
+        timeout_start = 30.0
+        time.sleep(0.5)
+        while not launcher.IsEngineRunning:
+            if time.time() - start_time > timeout_start:
+                break
+            time.sleep(0.1)
+            
+        # Wait for the engine to complete
+        while launcher.IsEngineRunning:
+            time.sleep(0.1)
+
+        project_table = self._database.tables.mw_Project._net_table
+        result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
+        return [Path(f) for f in result_files]
     
     def run_swmm(self, sim_muid: Optional[str] = None) -> List[Path]:
         """Run SWMM simulation.
