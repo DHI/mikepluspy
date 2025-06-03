@@ -6,15 +6,17 @@ SWMM class for running SWMM simulation.
    Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for SWMM simulations.
    This module will be removed in version 2026.0.0.
 """
+from __future__ import annotations
 
 import os.path
+import warnings
+
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.DataModule.Interface.Services import IMProjectTable
 from System.Threading import CancellationTokenSource
 from System.Collections.Generic import List
+
 from ..database import Database
-from __future__ import annotations
-import warnings
 
 
 class SWMM:

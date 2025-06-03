@@ -6,17 +6,18 @@ EPANET class for running EPANET simulation.
    Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for EPANET simulations.
    This module will be removed in version 2026.0.0.
 """
+from __future__ import annotations
 
 import os.path
+import warnings
+
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
 from DHI.Amelia.DataModule.Interface.Services import IMwProjectTable
 from System.Threading import CancellationTokenSource
 from System.Collections.Generic import List
-from ..database import Database
-from __future__ import annotations
-import warnings
 
+from ..database import Database
 
 class EPANET:
     """EPANET class for running EPANET simulation."""
