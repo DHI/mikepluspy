@@ -1,4 +1,5 @@
 """Engine1D class for running MIKE 1D simulation."""
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
