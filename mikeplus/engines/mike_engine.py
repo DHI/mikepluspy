@@ -35,8 +35,8 @@ class MikeEngine:
         self._engine_tool = EngineTool()
         self._engine_tool.DataTables = self._database._data_table_container
     
-    def run_1d(self, sim_muid: str | None = None) -> list[Path]:
-        """Run MIKE 1D simulation.
+    def run_cs(self, sim_muid: str | None = None) -> list[Path]:
+        """Run simulations for 'Rivers, collection system and overland flows'.
 
         Parameters
         ----------
@@ -77,15 +77,13 @@ class MikeEngine:
         result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
         return [Path(f) for f in result_files]
     
-    def run_epanet(self, sim_muid: Optional[str] = None, verbose: bool = False) -> List[Path]:
+    def run_epanet(self, sim_muid: Optional[str] = None) -> List[Path]:
         """Run EPANET simulation.
 
         Parameters
         ----------
         sim_muid : str, optional
             Simulation MUID. If None, uses the active simulation MUID.
-        verbose : bool, optional
-            Print log file or not.
 
         Returns
         -------
@@ -95,33 +93,13 @@ class MikeEngine:
         # Stub implementation
         return []
     
-    def run_swmm(self, sim_muid: Optional[str] = None, verbose: bool = False) -> List[Path]:
+    def run_swmm(self, sim_muid: Optional[str] = None) -> List[Path]:
         """Run SWMM simulation.
 
         Parameters
         ----------
         sim_muid : str, optional
             Simulation MUID. If None, uses the active simulation MUID.
-        verbose : bool, optional
-            Print log file or not.
-
-        Returns
-        -------
-        List[Path]
-            List of result file paths as Path objects.
-        """
-        # Stub implementation
-        return []
-    
-    def run_flood(self, sim_muid: Optional[str] = None, verbose: bool = False) -> List[Path]:
-        """Run 1D/2D/Flood simulation.
-
-        Parameters
-        ----------
-        sim_muid : str, optional
-            Simulation MUID. If None, uses the active simulation MUID.
-        verbose : bool, optional
-            Print log file or not.
 
         Returns
         -------
