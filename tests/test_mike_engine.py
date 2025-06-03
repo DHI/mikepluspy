@@ -45,9 +45,9 @@ def test_mike_engine_run_flood(flood_db):
     
     db.close()
 
-def test_mike_engine_run_swmm(sirius_db):
+def test_mike_engine_run_swmm(swmm_db):
     """Test running a SWMM simulation."""
-    db = Database(sirius_db)
+    db = Database(swmm_db)
     engine = MikeEngine(db)
     
     # Run the simulation

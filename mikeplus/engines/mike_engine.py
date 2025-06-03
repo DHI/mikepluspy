@@ -116,7 +116,7 @@ class MikeEngine:
             if time.time() - start_time > timeout_start:
                 break
             time.sleep(0.1)
-            
+
         # Wait for the engine to complete
         while launcher.IsEngineRunning:
             time.sleep(0.1)
@@ -138,5 +138,36 @@ class MikeEngine:
         List[Path]
             List of result file paths as Path objects.
         """
-        # Stub implementation
-        return []
+        if sim_muid is None:
+            sim_muid = self._database.active_simulation
+
+        launcher = DhiEngineSimpleLauncher()
+        success, messages = self._engine_tool.RunEngine_AllSWMM(
+            CancellationTokenSource().Token, 
+            launcher=launcher,
+            simMuid=sim_muid,
+        )
+
+        if not success or launcher is None:
+            messages_str = ". ".join(list(messages)) if messages else "Unknown error"
+            raise RuntimeError(f"Simulation failed to start: {messages_str}")
+
+        launcher.Start()
+
+        # Wait for the engine to start
+        start_time = time.time()
+        timeout_start = 30.0
+        time.sleep(0.5)
+        while not launcher.IsEngineRunning:
+            if time.time() - start_time > timeout_start:
+                break
+            time.sleep(0.1)
+
+        # Wait for the engine to complete
+        while launcher.IsEngineRunning:
+            time.sleep(0.1)
+
+        # Get result files
+        project_table = self._database.tables.mss_Project._net_table
+        result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
+        return [Path(f) for f in result_files]
