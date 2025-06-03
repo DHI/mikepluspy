@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .database import Database
 
 from System import Enum
 from System import String
@@ -13,9 +17,6 @@ from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
 from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
-
-from .database import Database
-
 class SimulationRunner:
     """Runs MIKE+ simulations."""
 
@@ -62,11 +63,11 @@ class SimulationRunner:
             possible_options = ", ".join(Enum.GetNames(MUModelOption))
             raise ValueError(f"Invalid model option: {model_option}. Valid options: {possible_options}")
 
-        if model_option == CS_MIKE1D:
+        if model_option == MUModelOption.CS_MIKE1D:
             return self.run_cs(muid)
-        elif model_option == CS_SWMM:
+        elif model_option == MUModelOption.CS_SWMM:
             return self.run_swmm(muid)
-        elif model_option == WD_EPANET:
+        elif model_option == MUModelOption.WD_EPANET:
             return self.run_epanet(muid)
         else:
             raise ValueError(f"No simulation runner for model option: {model_option}")

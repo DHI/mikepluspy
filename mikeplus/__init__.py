@@ -19,11 +19,12 @@ clr.AddReference("System")
 clr.AddReference("System.Runtime")
 clr.AddReference("System.Runtime.InteropServices")
 clr.AddReference("System.Data")
+clr.AddReference("NetTopologySuite")
 clr.AddReference("DHI.Amelia.DataModule")
 clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
-clr.AddReference("NetTopologySuite")
+clr.AddReference("DHI.Amelia.Tools.EngineTool")
 
 from .datatableaccess import DataTableAccess  # noqa: E402
 from .datatableaccess import DataTableDemoAccess  # noqa: E402
