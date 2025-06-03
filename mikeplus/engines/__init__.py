@@ -1,7 +1,5 @@
 """MIKE+ Engine classes."""
 
-import clr
-
 from .engine1d import Engine1D  # noqa: E402
 from .epanet import EPANET  # noqa: E402
 from .swmm import SWMM  # noqa: E402

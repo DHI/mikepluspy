@@ -375,7 +375,7 @@ class Database:
         return str(self._data_source.ActiveModel)
 
     def run(self, simulation_muid: str | None = None, model_option: str | None = None) -> list[Path]:
-        """Runs a simulation.
+        """Run a simulation.
 
         Parameters
         ----------

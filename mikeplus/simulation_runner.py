@@ -21,7 +21,7 @@ class SimulationRunner:
     """Runs MIKE+ simulations."""
 
     def __init__(self, database: Database):
-        """Initializes SimulationRunner with a MIKE+ database.
+        """Initialize SimulationRunner with a MIKE+ database.
 
         Parameters
         ----------
@@ -40,7 +40,7 @@ class SimulationRunner:
         self._engine_tool.DataTables = self._database._data_table_container
 
     def run(self, muid: str | None = None, model_option: str | None = None) -> list[Path]:
-        """Runs a simulation.
+        """Run a simulation.
 
         Parameters
         ----------
@@ -73,7 +73,7 @@ class SimulationRunner:
             raise ValueError(f"No simulation runner for model option: {model_option}")
     
     def run_cs(self, sim_muid: str | None = None) -> list[Path]:
-        """Runs a Collection System (CS) simulation.
+        """Run a Collection System (CS) simulation.
 
         Covers rivers, collection systems, and overland flows.
 
@@ -100,7 +100,7 @@ class SimulationRunner:
         return self._get_result_files("msm_Project", sim_muid)
     
     def run_epanet(self, sim_muid: str | None = None) -> list[Path]:
-        """Runs an EPANET water distribution simulation.
+        """Run an EPANET water distribution simulation.
 
         Parameters
         ----------
@@ -129,8 +129,8 @@ class SimulationRunner:
         
         return self._get_result_files("mw_Project", sim_muid)
     
-    def run_swmm(self, sim_muid: Optional[str] = None) -> List[Path]:
-        """Runs an SWMM urban drainage simulation.
+    def run_swmm(self, sim_muid: str | None = None) -> List[Path]:
+        """Run an SWMM urban drainage simulation.
 
         Parameters
         ----------
@@ -159,14 +159,14 @@ class SimulationRunner:
         return self._get_result_files("mss_Project", sim_muid)
         
     def _get_sim_muid(self, sim_muid: str | None) -> str:
-        """Gets simulation MUID, or active simulation MUID if None."""
+        """Get simulation MUID, or active simulation MUID if None."""
         if sim_muid is None:
             return self._database.active_simulation
         return sim_muid
     
     def _handle_engine_launch(self, success: bool, launcher: DhiEngineSimpleLauncher, 
                              messages: List[String]) -> None:
-        """Handles engine launch: starts launcher or raises error."""
+        """Handle engine launch: starts launcher or raises error."""
         if not success or launcher is None:
             messages_str = ". ".join(messages) if messages else "Unknown error"
             raise RuntimeError(f"Simulation failed to start: {messages_str}")
@@ -174,7 +174,7 @@ class SimulationRunner:
         launcher.Start()
     
     def _wait_for_engine_completion(self, launcher: DhiEngineSimpleLauncher) -> None:
-        """Waits for the DHI engine simulation to complete."""
+        """Wait for the DHI engine simulation to complete."""
         start_time = time.time()
         timeout_start = 30.0
         time.sleep(0.5)
@@ -187,7 +187,7 @@ class SimulationRunner:
             time.sleep(0.1)
     
     def _get_result_files(self, project_table_name: str, sim_muid: str) -> List[Path]:
-        """Gets result file paths for the completed simulation."""
+        """Get result file paths for the completed simulation."""
         project_table = getattr(self._database.tables, project_table_name)._net_table
         result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
         return [Path(f) for f in result_files]
