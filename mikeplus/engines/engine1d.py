@@ -1,20 +1,28 @@
 """Engine1D class for running MIKE 1D simulation."""
 
+from __future__ import annotations
+
 from pathlib import Path
-import subprocess
-from DHI.Mike.Install import MikeImport
+from typing import Any
+import time
+
+from DHI.Amelia.Tools.EngineTool import EngineTool
+
+from ..dotnet import get_implementation
 from ..database import Database
+
+DataTableContainer = Any
 
 
 class Engine1D:
     """Engine1D class for running MIKE 1D simulation."""
 
-    def __init__(self, database):
+    def __init__(self, database: Database | DataTableContainer):
         """Initialize the Engine1D class with the given Database.
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database or DataTableContainer
             A Database object for the MIKE+ model, or for backward compatibility,
             a DataTables object from DataTableAccess.
 
@@ -23,12 +31,13 @@ class Engine1D:
         >>>from mikeplus import Database
         >>>db = Database("path/to/model.sqlite")
         >>>engine = Engine1D(db)
-        
-        """
-        self._dataTables = self._get_data_tables(database)
-        self._result_file = None
 
-    def _get_data_tables(self, database):
+        """
+        self._data_tables = self._get_data_tables(database)
+
+    def _get_data_tables(
+        self, database: Database | DataTableContainer
+    ) -> DataTableContainer:
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):
             if not database.is_open:
@@ -37,17 +46,14 @@ class Engine1D:
 
         # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
         return database
-        
-        
-    def run(self, simMuid=None, verbose=False):
+
+    def run(self, sim_muid: str | None = None):
         """Run MIKE1D simulation.
 
         Parameters
         ----------
-        simMuid : string, optional
-            simulation muid, it will use the current active simulation muid if simMuid is None, by default None.
-        verbose : bool, optional
-            print log file or not, by default False.
+        sim_muid : string, optional
+            simulation muid, it will use the current active simulation muid if sim_muid is None, by default None.
 
         Examples
         --------
@@ -59,56 +65,73 @@ class Engine1D:
         >>>db.close()
 
         """
-        if simMuid is None:
-            muid = self._dataTables["msm_Project"].GetMuidsWhere("ActiveProject=1")
-            if muid is None and muid.Count == 0:
-                raise ValueError("Simulation id can't be none.")
-            simMuid = muid[0]
+        if sim_muid is None:
+            sim_muid = self.get_active_sim_muid()
 
-        product_info = MikeImport.ActiveProduct()
-        mike1d_exec = (
-            Path(product_info.InstallRoot)
-            / "bin"
-            / "x64"
-            / "DHI.Mike1D.Application.exe"
-        )
-        dbOrMuppFile = Path(self._dataTables.DataSource.BaseFullPath)
-        dir = dbOrMuppFile.parent
-        file_name = dbOrMuppFile.stem
-        log_file = Path(dir) / f"{file_name}_{simMuid}.log"
-        self._result_file = Path(dir) / f"{file_name}_{simMuid}.res1d"
-        if verbose:
-            print(f"Simulation is started. Simulation id is '{simMuid}'.")
-        subprocess.run(
-            [
-                mike1d_exec,
-                str(dbOrMuppFile),
-                f"-simulationid={simMuid}",
-                f"-logfilename={log_file}",
-            ]
-        )
-        if verbose:
-            if self._print_log(log_file) is False:
-                print("Simulation is finished without logFile generated.")
+        engine_tool = EngineTool()
+        engine_tool.DataTables = self._data_tables
 
-    @property
-    def result_file(self):
-        """Get the current simulation result file path.
+        success, launcher, messages = engine_tool.RunEngine_CS(None, None, sim_muid)
+
+        if not success or launcher is None:
+            messages = ". ".join(list(messages))
+            raise RuntimeError(f"Simulation failed to start: {messages}")
+
+        launcher.Start()
+
+        start_time = time.time()
+        timeout_start = 30.0
+        time.sleep(0.5)
+        while not launcher.IsEngineRunning:
+            if time.time() - start_time > timeout_start:
+                break
+            time.sleep(0.1)
+
+        while launcher.IsEngineRunning:
+            time.sleep(0.1)
+
+        result_files = self.get_result_files(sim_muid)
+        return result_files
+
+    def get_result_files(self, sim_muid: str | None = None) -> list[Path]:
+        """Get result files for a simulation MUID.
+
+        Parameters
+        ----------
+        sim_muid : str, optional
+            Simulation MUID. If None, uses the active simulation MUID.
 
         Returns
         -------
-        string
-            The result file path of current simulation
-
+        list
+            List of result file paths as Path objects.
         """
-        return self._result_file
+        if sim_muid is None:
+            sim_muid = self.get_active_sim_muid()
 
-    def _print_log(self, logFile):
-        if Path(logFile).exists():
-            with open(logFile) as f:
-                lines = f.readlines()
-                for line in lines:
-                    print(line)
-            return True
-        else:
-            return False
+        project_table = self._data_tables["msm_Project"]
+        project_table = get_implementation(project_table)
+        res_files_dictionary = project_table.GetResultFilePath(sim_muid)
+        res_files = []
+        for item in res_files_dictionary:
+            res_files.append(Path(item.Value).absolute())
+
+        return res_files
+
+    def get_active_sim_muid(self) -> str:
+        """Get the active simulation MUID from the database.
+
+        Returns
+        -------
+        str
+            The active simulation MUID.
+
+        Raises
+        ------
+        ValueError
+            If no active simulation MUID is found.
+        """
+        muid = self._data_tables["msm_Project"].GetMuidsWhere("ActiveProject=1")
+        if muid is None or muid.Count == 0:
+            raise ValueError("No active simulation found in the database.")
+        return muid[0]

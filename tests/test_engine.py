@@ -11,18 +11,21 @@ from mikeplus.engines.flood_engine import FloodEngine
 
 @pytest.mark.slow(reason="Test run slow because of the license check.")
 def test_mike1d_engine(sirius_db):
-    # Extract the directory from sirius_db to construct the result path
-    db_dir = os.path.dirname(sirius_db)
-    res_1d_file = os.path.join(db_dir, "Sirius_1_DEMOBaseDefault_Network_HD.res1d")
-
-    if os.path.exists(res_1d_file):
-        os.remove(res_1d_file)
-
     db = Database(sirius_db)
     engine = Engine1D(db)
+    
+    result_files = engine.get_result_files()
+
+    for res_file in result_files:
+        if os.path.exists(res_file):
+            os.remove(res_file)
+    
     engine.run()
+    
+    for res_file in result_files:
+        assert os.path.exists(res_file)
+        
     db.close()
-    assert os.path.exists(res_1d_file)
 
 
 @pytest.mark.slow(reason="Test run slow because of the license check.")

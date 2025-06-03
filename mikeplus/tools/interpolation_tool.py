@@ -1,4 +1,5 @@
 """The Interpolation and Assignment tool from MIKE+."""
+
 from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import (
     InterpolationToolParameters,
 )
@@ -34,7 +35,7 @@ class InterpolationTool:
 
         """
         self._dataTables = self._get_data_tables(database)
-        
+
     def _get_data_tables(self, database):
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):

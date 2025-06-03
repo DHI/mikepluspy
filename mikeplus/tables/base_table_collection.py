@@ -22,7 +22,7 @@ class BaseTableCollection:
     def __repr__(self) -> str:
         """Get string representation."""
         return f"{self.__class__.__name__}<{len(self._tables)} tables>"
-    
+
     def _init_tables(self) -> dict[str, BaseTable]:
         """Initialize the tables dictionary."""
         return {}

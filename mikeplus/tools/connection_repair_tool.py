@@ -1,4 +1,5 @@
 """The Connection Repair Tool from MIKE+."""
+
 from DHI.Amelia.Tools.ConnectionRepairEngine import ConnectionRepairEngine
 from ..database import Database
 
@@ -18,7 +19,7 @@ class ConnectionRepairTool:
 
     def __init__(self, database):
         """Initialize the ConnectionRepairTool with the given Database.
-        
+
         Parameters
         ----------
         database : Database or DataTables
@@ -27,7 +28,7 @@ class ConnectionRepairTool:
 
         """
         self._dataTables = self._get_data_tables(database)
-        
+
     def _get_data_tables(self, database):
         """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
         if isinstance(database, Database):

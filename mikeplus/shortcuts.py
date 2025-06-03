@@ -45,7 +45,7 @@ def create(
     projection_string: str = "",
     srid: int = -1,
     auto_open: bool = True,
-    **kwargs
+    **kwargs,
 ) -> Database:
     """Create a new MIKE+ model database.
 
@@ -80,5 +80,5 @@ def create(
         projection_string=projection_string,
         srid=srid,
         auto_open=auto_open,
-        **kwargs
+        **kwargs,
     )

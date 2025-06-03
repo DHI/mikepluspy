@@ -4,6 +4,7 @@ This module provides a set of utility functions and classes for handling
 the conversion of data types between Python and .NET. It is primarily used
 for database operations and interacting with the MIKE+ .NET API.
 """
+
 from __future__ import annotations
 
 import clr  # noqa: F401
@@ -14,6 +15,7 @@ import System
 from System import String, Object, Nullable
 from System.Collections.Generic import List, IList, IDictionary, Dictionary
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+
 
 def get_implementation(net_object: Any, raw: bool = False) -> Any:
     """Get the implementation of a .NET interface object.
@@ -40,9 +42,10 @@ def get_implementation(net_object: Any, raw: bool = False) -> Any:
     else:
         return net_object.__raw_implementation__
 
+
 class DotNetConverter:
     """Handles conversions between Python and .NET data types.
-    
+
     This class provides static methods for converting between Python and .NET
     data types, including primitives, collections, and geometric objects.
     """
@@ -176,13 +179,13 @@ class DotNetConverter:
         """
         if geometry is None:
             return None
-            
+
         if isinstance(geometry, str):
             return GeoAPIHelper.GetIGeometryFromWKT(geometry)
         else:
             # If we have a shapely geometry object, we can just call to_wkt() on it
             # No need to import shapely or check modules
-            wkt = geometry.wkt if hasattr(geometry, 'wkt') else geometry.to_wkt()
+            wkt = geometry.wkt if hasattr(geometry, "wkt") else geometry.to_wkt()
             return GeoAPIHelper.GetIGeometryFromWKT(wkt)
 
     @staticmethod

@@ -1,4 +1,5 @@
 """Base table class for MIKE+ database tables."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -31,7 +32,7 @@ class BaseTable:
     def __repr__(self) -> str:
         """Get string representation."""
         return f"{self.__class__.__name__}<{self.display_name}>"
-    
+
     @property
     def columns(self) -> BaseColumns:
         """Get the columns for the table."""
@@ -54,7 +55,9 @@ class BaseTable:
         """Get the table description."""
         return self._net_table.Description
 
-    def get_muids(self, order_by: str | None = None, descending: bool = False) -> list[str]:
+    def get_muids(
+        self, order_by: str | None = None, descending: bool = False
+    ) -> list[str]:
         """Get a list of MUIDs for the table.
 
         Parameters

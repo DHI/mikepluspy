@@ -43,16 +43,16 @@ class DataTableAccess:
 
     This class provides direct access to tables in a MIKE+ database,
     allowing for operations like inserting, updating, and deleting data.
-    
+
     Parameters
     ----------
     db_or_mupp_file : str
         Path to the .sqlite or .mupp database file
-    
+
     Examples
     --------
     Insert a link into msm_Link table, get field data, and delete the row:
-    
+
     >>> data_access = DataTableAccess(muppOrSqlite)
     >>> data_access.open_database()
     >>> values = {'Diameter': 2.0, 'Description': 'insertValues', "geometry": "LINESTRING (3 4, 10 50, 20 25)"}
@@ -82,7 +82,8 @@ class DataTableAccess:
             "  from mikeplus import Database\n"
             "  db = Database('path/to/model.sqlite')\n"
             "  # Use db.tables to access tables\n",
-            DeprecationWarning, stacklevel=2
+            DeprecationWarning,
+            stacklevel=2,
         )
         db_or_mupp_file = os.path.abspath(db_or_mupp_file)
         self._file_path = db_or_mupp_file
@@ -92,7 +93,7 @@ class DataTableAccess:
     def __repr__(self):
         """Get string representation of the DataTableAccess object."""
         out = ["<DataTableContainer>"]
-    
+
         if self.is_database_open():
             data_source = self._datatables.DataSource
             out.append(f"Db major version: {str(data_source.DbMajorVersion)}")
@@ -106,9 +107,9 @@ class DataTableAccess:
 
     def open_database(self):
         """Open the database connection.
-        
+
         Opens the database and initializes the DataTableContainer.
-        
+
         Returns
         -------
         None
@@ -131,9 +132,9 @@ class DataTableAccess:
 
     def close_database(self):
         """Close the database connection.
-        
+
         Clears the undo/redo buffer and closes the database connection.
-        
+
         Returns
         -------
         None
@@ -147,7 +148,7 @@ class DataTableAccess:
     @property
     def datatables(self):
         """Get the DataTableContainer object.
-        
+
         Returns
         -------
         DataTableContainer
@@ -159,7 +160,7 @@ class DataTableAccess:
     @property
     def table_names(self) -> list[str]:
         """Get a list of all table names in the database.
-        
+
         Returns
         -------
         list of str
@@ -170,17 +171,17 @@ class DataTableAccess:
 
     def _get_table_with_validation(self, table_name: str):
         """Get a table object with validation.
-        
+
         Parameters
         ----------
         table_name : str
             Name of the table to retrieve
-            
+
         Returns
         -------
         object
             The .NET table object
-            
+
         Raises
         ------
         ValueError
@@ -580,7 +581,6 @@ class DataTableAccess:
         )
 
         return ret
-
 
 
 class DataTableDemoAccess(DataTableAccess):

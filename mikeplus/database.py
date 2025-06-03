@@ -1,7 +1,7 @@
 """Entry point for MIKE+ model database operations.
 
-This module provides the main Database class which serves as the primary interface 
-for working with MIKE+ databases. It handles opening, creating, and manipulating 
+This module provides the main Database class which serves as the primary interface
+for working with MIKE+ databases. It handles opening, creating, and manipulating
 MIKE+ model files, including access to tables and scenarios.
 """
 
@@ -59,7 +59,9 @@ class Database:
         if not (self._db_path or self._mupp_path):
             raise InvalidFileException(f"Model file '{model_path}' is invalid.")
 
-        self._data_source: BaseDataSource = BaseDataSource.Create(str(self._db_path))
+        self._data_source: BaseDataSource = BaseDataSource.Create(
+            self._db_path.resolve().as_posix()
+        )
         self._data_table_container: DataTableContainer = DataTableContainer(True)
         self._data_table_container.DataSource = self._data_source
         self._tables: TableCollection = TableCollection(self._data_table_container)
@@ -72,7 +74,7 @@ class Database:
     def __repr__(self) -> str:
         """Get nice string representation."""
         return f"Database<'{self._db_path.name}'>"
-    
+
     @classmethod
     def create(
         cls,
@@ -217,10 +219,10 @@ class Database:
     def tables(self) -> TableCollection:
         """A collection of tables in the database.
 
-        This property provides access to all tables in the database through a 
-        fluent interface that allows for SQL-like operations on tables. It is 
+        This property provides access to all tables in the database through a
+        fluent interface that allows for SQL-like operations on tables. It is
         the primary entry point for working with tables.
-        
+
         Returns
         -------
         TableCollection
@@ -315,9 +317,12 @@ class Database:
 
         """
         if not self._scenario_manager:
-            raise ValueError("Open the database with `open()` before accessing scenarios.")
+            raise ValueError(
+                "Open the database with `open()` before accessing scenarios."
+            )
 
         return list(self._scenario_manager.GetScenarios())
+
     @property
     def active_scenario(self) -> str:
         """Name of the active scenario.
@@ -333,14 +338,18 @@ class Database:
 
         """
         if not self._scenario_manager:
-            raise ValueError("Open the database with `open()` before accessing scenarios.")
+            raise ValueError(
+                "Open the database with `open()` before accessing scenarios."
+            )
 
         return self._scenario_manager.ActiveScenario.Name
 
     @active_scenario.setter
     def active_scenario(self, scenario_name: str):
         if not self._scenario_manager:
-            raise ValueError("Open the database with `open()` before accessing scenarios.")
+            raise ValueError(
+                "Open the database with `open()` before accessing scenarios."
+            )
 
         if scenario_name not in self.scenarios:
             raise ValueError(
