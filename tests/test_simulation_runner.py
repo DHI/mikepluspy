@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-import os
 from pathlib import Path
 from mikeplus import Database
-from mikeplus.engines.mike_engine import SimulationRunner
+from mikeplus.simulation_runner import SimulationRunner
 
 
 def test_mike_engine_run_1d(sirius_db):
