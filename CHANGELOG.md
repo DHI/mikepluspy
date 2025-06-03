@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Modernized Engine1D to use EngineTool, aligning with other engine implementations and improving reliability.
+
 ## [2025.0.2] - 2025-02-18
 
 ### Added
