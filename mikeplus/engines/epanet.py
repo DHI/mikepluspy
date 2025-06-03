@@ -6,6 +6,7 @@ EPANET class for running EPANET simulation.
    Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for EPANET simulations.
    This module will be removed in version 2026.0.0.
 """
+
 from __future__ import annotations
 
 import os.path
@@ -19,6 +20,7 @@ from System.Collections.Generic import List
 
 from ..database import Database
 
+
 class EPANET:
     """EPANET class for running EPANET simulation."""
 
@@ -28,7 +30,7 @@ class EPANET:
             "It was deprecated to simplify the codebase and provide a more simulation-oriented API. "
             "Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for EPANET simulations.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         """Initialize the EPANET class with the given Database.
 

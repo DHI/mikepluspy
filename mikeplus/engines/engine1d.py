@@ -31,7 +31,7 @@ class Engine1D:
             "It was deprecated to simplify the codebase and provide a more simulation-oriented API. "
             "Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for MIKE 1D simulations.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         """Initialize the Engine1D class with the given Database.
 

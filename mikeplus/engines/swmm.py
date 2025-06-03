@@ -6,6 +6,7 @@ SWMM class for running SWMM simulation.
    Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for SWMM simulations.
    This module will be removed in version 2026.0.0.
 """
+
 from __future__ import annotations
 
 import os.path
@@ -28,7 +29,7 @@ class SWMM:
             "It was deprecated to simplify the codebase and provide a more simulation-oriented API. "
             "Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for SWMM simulations.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         """Initialize the SWMM class with the given Database.
 

@@ -374,7 +374,9 @@ class Database:
         """
         return str(self._data_source.ActiveModel)
 
-    def run(self, simulation_muid: str | None = None, model_option: str | None = None) -> list[Path]:
+    def run(
+        self, simulation_muid: str | None = None, model_option: str | None = None
+    ) -> list[Path]:
         """Run a simulation.
 
         Parameters
@@ -402,6 +404,7 @@ class Database:
             Paths to the result files.
         """
         return self._runner.run(simulation_muid, model_option)
+
 
 __all__ = [
     "Database",
