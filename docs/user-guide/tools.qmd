@@ -1,116 +1,72 @@
 # Tools
 
-MIKE+Py provides access to several MIKE+ processing tools. These tools can be used to perform common data processing and model setup tasks programmatically.
+MIKE+Py provides access to several MIKE+ data processing tools through the `mikepluspy.tools` module. These tools allow you to perform common data manipulation and preparation tasks programmatically.
 
-## General Usage
+## {{< fa tools >}} Available Tools
 
-1.  Import the specific tool class from `mikeplus.tools`.
-2.  Instantiate the tool, passing your opened `Database` object to its constructor.
-3.  Call the tool's `run()` method with the appropriate parameters.
+The following tools are available:
+
+*   **`ImportTool`**: Imports data into your MIKE+ model using an XML configuration file.
+*   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
+*   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
+*   **`ConnectionRepairTool`**: Repairs network connectivity issues.
+*   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
+
+## {{< fa play >}} General Usage
+
+To use a tool, first import it from `mikepluspy.tools`. Then, create an instance of the tool, passing your opened `Database` object to its constructor.
 
 ```python
-import mikepluspy as mp
-from mikeplus.tools import TopoRepairTool # Example: Topology Repair Tool
-
-db_path = "path/to/your/model.sqlite"
-
-with mp.open(db_path) as db:
-    # Example: Using the Topology Repair Tool
-    topo_repair = TopoRepairTool(db)
-    try:
-        # Run with default parameters (or specify as needed)
-        topo_repair.run()
-        print("Topology Repair Tool finished.")
-    except Exception as e:
-        print(f"Topology Repair Tool failed: {e}")
+from mikepluspy.tools import InterpolationTool
+# Assuming 'db' is your opened mikepluspy.Database object
+interpolation_tool = InterpolationTool(db)
 ```
 
-## Available Tools
+Once you have a tool instance, you can call its methods to perform specific actions.
 
-### CathSlopeLengthProcess
-Calculates slope and length for catchments.
-Location: `mikeplus.tools.CathSlopeLengthProcess`
+## {{< fa code >}} Examples
 
-```python
-from mikeplus.tools import CathSlopeLengthProcess
+Here are a couple of examples to illustrate how to use these tools.
 
-# with mp.open(db_path) as db:
-#     catch_ids_to_process = ["catchment_1", "catchment_2"]
-#     slope_shapefile = "path/to/Catch_Slope.shp"
-#     dem_file = "path/to/dem.dfs2"
-#
-#     tool = CathSlopeLengthProcess(db)
-#     tool.run(catch_ids_to_process, slope_shapefile, dem_file, direction=0) # direction 0 for Downstream
-```
+### Import Tool
 
-### ConnectionRepairTool
-Repairs network connections (e.g., snapping nodes to links).
-Location: `mikeplus.tools.ConnectionRepairTool`
+The `ImportTool` can import data into your MIKE+ model using an XML configuration file. For instance, to import data from an XML file:
 
 ```python
-from mikeplus.tools import ConnectionRepairTool
+from mikepluspy.tools import ImportTool
 
-# with mp.open(db_path) as db:
-#     tool = ConnectionRepairTool(db)
-#     tool.run()
-```
-
-### ImportTool
-Imports data into the MIKE+ database using an XML configuration file (generated from MIKE+ GUI).
-Location: `mikeplus.tools.ImportTool`
-
-```python
-from mikeplus.tools import ImportTool
-
-# config_file_path = "path/to/import_config.xml"
-# # Can be run with an existing db or None to create a new one based on config
-# with mp.open(db_path) as db: # or tool = ImportTool(config_file_path, database=None)
-#    tool = ImportTool(config_file_path, db)
-#    tool.run()
+import_tool = ImportTool("path/to/your/xml/file.xml", db)
+import_tool.run()
 ```
 
 ### InterpolationTool
-Interpolates and assigns attribute values to network elements.
-Location: `mikeplus.tools.InterpolationTool`
 
-It offers several methods:
-*   `interpolate_from_nearest_feature(...)`
-*   `interpolate_from_DEM(...)`
-*   `interpolation_IDW(...)` (Inverse Distance Weighting)
-*   `direct_assign_value(...)`
-*   `interpolate_from_neighbour(...)`
+The `InterpolationTool` can assign values to features based on proximity or DEM data. For instance, to interpolate the `GroundLevel` for nodes in the `msm_Node` table from a DEM file:
 
 ```python
-from mikeplus.tools import InterpolationTool
-
-# with mp.open(db_path) as db:
-#     tool = InterpolationTool(db)
-#     # Example: Interpolate node diameter from connected links
-#     tool.interpolate_from_nearest_feature(
-#         target_Db_Name="msm_Node",
-#         target_attribute="Diameter",
-#         source_layer_name="msm_Link",
-#         source_attribute="Diameter",
-#         only_null_values=True
-#     )
+# interpolation_tool = InterpolationTool(db) # Instantiated as above
+tool_parameters = {
+    "target_Db_Name": "msm_Node",
+    "target_attribute": "GroundLevel",
+    "raster_file": "path/to/your/dem.dfs2", # Replace with actual path
+    "item_number": 1
+}
+interpolation_tool.interpolate_from_DEM(**tool_parameters)
 ```
 
 ### TopoRepairTool
-Detects and repairs topology or network geometry issues.
-Location: `mikeplus.tools.TopoRepairTool`
+
+The `TopoRepairTool` helps clean up network topology. To delete unlinked nodes and dissolve overlapping nodes, you can use its `run` method:
 
 ```python
-from mikeplus.tools import TopoRepairTool
-
-# with mp.open(db_path) as db:
-#     tool = TopoRepairTool(db)
-#     # Example: Run with some common repair options enabled
-#     tool.run(
-#         delete_unLink_node_Link=True,
-#         dissolve_overlap_node=True,
-#         correct_link_connection=True,
-#         snap_distance=0.1
-#     )
+from mikepluspy.tools import TopoRepairTool
+# repair_tool = TopoRepairTool(db) # Instantiate with your db object
+repair_tool.run(
+    delete_unLink_node_Link=True, 
+    dissolve_overlap_node=True
+)
 ```
 
-Please refer to the specific tool's docstrings or the MIKE+ manual for detailed descriptions of their `run()` method parameters. Tools often print progress information to the console during execution.
+### {{< fa book >}} Further Information
+
+For detailed information on all available parameters and methods for each tool, please consult the MIKE+ software documentation or the specific API reference for `mikepluspy`.
