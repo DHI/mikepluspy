@@ -1,90 +1,138 @@
+# Database
 
+The [Database](`mikeplus.Database`) object is the primary interface for interacting with a MIKE+ model. It allows you to open existing model databases or create new ones.
 
-The `Database` object is the central point for interacting with a MIKE+ model database.
-
-## Opening a Database
-
-To open an existing MIKE+ database (`.sqlite` or `.mupp` file):
+To use it, first import `mikeplus`:
 
 ```python
-import mikepluspy as mp
+import mikeplus as mp
+```
 
-db = mp.open("path/to/model.sqlite")
-# or
-# db = mp.Database("path/to/model.mupp")
+## Opening an Existing Database
 
-# Database is opened automatically by default.
-# To prevent auto-open:
-# db_no_auto_open = mp.open("path/to/model.sqlite", auto_open=False)
-# db_no_auto_open.open()
+Open an existing MIKE+ model database using `mp.open()`. Provide the path to the `.sqlite` file. MIKE+Py will also recognize `.mupp` files and automatically locate the corresponding `.sqlite` database.
+
+```python
+db = mp.open("model.sqlite")
+print(db)
+db.close()
+```
+
+The `Database` object is automatically opened when created. If you prefer to open it manually, use `auto_open=False`:
+
+```python
+db_manual = mp.open("model.sqlite", auto_open=False)
+# db_manual is not yet open
+print(f"Is open: {db_manual.is_open}")
+db_manual.open()
+print(f"Is open: {db_manual.is_open}")
+db_manual.close()
+```
+
+It is recommended to use a `with` statement, which ensures the database connection is automatically opened and closed:
+
+```python
+with mp.open("model.sqlite") as db:
+    # db is open and ready to use
+    print(f"Database path: {db.db_path}")
+    # db is automatically closed when exiting this block
 ```
 
 ## Creating a New Database
 
-To create a new, empty MIKE+ database:
+Create a new, empty MIKE+ model database using `mp.create()`:
 
 ```python
-import mikepluspy as mp
-
-new_db_path = "path/to/new_model.sqlite"
-db = mp.create(new_db_path)
-
-# Optionally specify projection and SRID
-# db_with_srid = mp.create("new_model_srid.sqlite", srid=4326) # WGS84
-# db_with_proj = mp.create("new_model_proj.sqlite", projection_string="PROJCS[...")
-
-# To overwrite if it exists:
-# db_overwrite = mp.create(new_db_path, overwrite=True)
+db_new = mp.create("new_model.sqlite")
+# A new_model.sqlite file is created
+print(db_new.db_path)
+db_new.close()
 ```
 
-## Closing a Database
-
-It's important to close the database connection when you're finished:
+You can specify a spatial reference system using either `projection_string` or `srid` (but not both).
 
 ```python
-db.close()
+# Example using SRID for WGS84
+db_srid = mp.create("projected_model.sqlite", srid=4326)
+print(f"SRID: {db_srid.srid}")
+db_srid.close()
 ```
 
-Using a context manager ensures the database is closed automatically:
+By default, `mp.create()` will raise a `FileExistsError` if the database file already exists. To overwrite an existing file, use `overwrite=True`.
+
+## Working with the Database
+
+Once a `Database` object is opened, you can access its properties and methods.
+
+### Database File Information
+
+The `db_path` property provides the path to the `.sqlite` database file. If a `.mupp` file is associated with the model, its path is available via `mupp_path`.
 
 ```python
-with mp.open("path/to/model.sqlite") as db:
-    # Work with the database
+with mp.open("model.sqlite") as db:
+    print(f"SQLite file: {db.db_path}")
+    if db.mupp_path:
+        print(f"MUPP file: {db.mupp_path}")
+```
+
+### General Database Properties
+
+Retrieve general information about the database:
+
+```python
+with mp.open("model.sqlite") as db:
     print(f"Database version: {db.version}")
-# Database is automatically closed here
+    print(f"Unit system: {db.unit_system}")
+    print(f"Projection: {db.projection_string}") # Or db.srid
 ```
 
-## Database Properties
+### Scenarios
 
-The `Database` object provides various properties to inspect its state and metadata:
-
-*   `db_path`: [`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path) to the `.sqlite` database file.
-*   `mupp_path`: [`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path) to the `.mupp` file, if one exists alongside the database.
-*   `is_open`: Boolean indicating if the database connection is open.
-*   `version`: Database version string (e.g., "23.0").
-*   `unit_system`: Unit system of the database (e.g., "MU_CS_SI").
-*   `projection_string`: Projection string.
-*   `srid`: Spatial Reference ID (integer).
-*   `active_model`: Name of the active model (e.g., "EPANET", "MIKE1D").
-*   `scenarios`: List of available scenario names.
-*   `active_scenario`: Name of the currently active scenario. Can be set to change the active scenario.
-    ```python
-    current_scenario = db.active_scenario
-    if "MyScenario" in db.scenarios:
-        db.active_scenario = "MyScenario"
-    ```
-*   `active_simulation`: MUID of the active simulation setup.
-*   `tables`: Accessor for database tables (see [Tables](tables.md)).
-
-## Legacy DataTableAccess
-
-Older versions of MIKE+Py used a class named `DataTableAccess`. This is now deprecated. Users should migrate to the `Database` class for all new development.
+List all available scenarios in the database with the `scenarios` property. Get or set the currently active scenario using `active_scenario`.
 
 ```python
-# Deprecated:
-# from mikeplus import DataTableAccess
-# dta = DataTableAccess("path/to/model.sqlite")
-# dta.open_database()
-# ...
-# dta.close_database()
+with mp.open("model.sqlite") as db:
+    print(f"Available scenarios: {db.scenarios}")
+    current_scenario = db.active_scenario
+    print(f"Active scenario: {current_scenario}")
+
+    # To change the active scenario:
+    # if "MyOtherScenario" in db.scenarios:
+    # db.active_scenario = "MyOtherScenario"
 ```
+
+### Active Model and Simulation Setup
+
+The `active_model` property indicates the current model type (e.g., 'CS_MIKE1D', 'WD_EPANET'). The `active_simulation` property shows the ID of the currently active simulation setup.
+
+```python
+with mp.open("model.sqlite") as db:
+    print(f"Active model type: {db.active_model}")
+    print(f"Active simulation setup ID: {db.active_simulation}")
+```
+
+### Accessing Data Tables
+
+The `tables` property is your gateway to the data within the database. It returns a `TableCollection` object.
+
+```python
+with mp.open("model.sqlite") as db:
+    all_tables = db.tables
+    # Example: list some available table names
+    # print(list(all_tables.keys())[0:5])
+```
+
+See the [Tables](tables.qmd) page for details on working with tables and their data.
+
+### Running Simulations
+
+Execute model simulations using the `run()` method.
+
+```python
+with mp.open("model.sqlite") as db:
+    # This runs the currently active simulation setup
+    # result_files = db.run() 
+    pass # More details on the Simulations page
+```
+
+Refer to the [Simulations](simulations.qmd) page for more information on running simulations.
