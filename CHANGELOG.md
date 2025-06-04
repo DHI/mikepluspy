@@ -3,7 +3,11 @@
 ## [Unreleased]
 
 ### Changed
-- Modernized Engine1D to use EngineTool, aligning with other engine implementations and improving reliability.
+- Updated Engine1D to use EngineTool
+
+### Deprecated
+- Package 'mikeplus.engines' and all engine classes (since 2025.1.0, removal in 2026.0.0)
+- Use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' instead
 
 ## [2025.0.2] - 2025-02-18
 
