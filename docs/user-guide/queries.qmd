@@ -1,155 +1,94 @@
 # Queries
 
-MIKE+Py provides a fluent interface for querying database tables. Queries are constructed from `BaseTable` objects and then executed.
+MIKE+Py allows you to interact with data in your model's tables using a query-based approach. This involves building a query object by specifying the operation (select, insert, update, delete), optionally filtering or ordering, and then executing it.
 
-## Creating Queries
+## {{< fa code >}} Workflow
 
-You can create different types of queries from a table object:
+Most query operations follow a general pattern:
 
-*   **Select**: `table.select(columns=["MUID", "GroundLevel"])`
-*   **Insert**: `table.insert(values={"MUID": "NewNode1", "GroundLevel": 10.5})`
-*   **Update**: `table.update(values={"GroundLevel": 11.0})`
-*   **Delete**: `table.delete()`
+1.  Start with a table object (e.g., `nodes_table = db.tables.msm_Node`).
+2.  Call an operation method on the table (e.g., `nodes_table.select()`).
+3.  Optionally chain methods like `where()` or `order_by()`.
+4.  Finally, call `execute()` to perform the database action, or `to_pandas()` for select queries.
 
-## Chaining Conditions
+## {{< fa database >}} Selecting Data
 
-Queries can be refined using chainable methods:
+To read data, use the `select()` method. You can specify columns, filter rows with `where()`, and order results with `order_by()`. The `execute()` method typically returns a dictionary, but converting to a pandas DataFrame with `to_pandas()` is often more convenient for analysis.
 
-### `where(condition, params={})`
-Adds a WHERE clause to the query. `condition` is an SQL-like string, and `params` is an optional dictionary for named parameters.
-
+Select specific columns from the `msm_Node` table:
 ```python
-import mikepluspy as mp
-
-with mp.open("path/to/model.sqlite") as db:
-    nodes = db.tables.msm_Node
-
-    # Select nodes with GroundLevel > 10
-    query_gt10 = nodes.select(columns=["MUID", "GroundLevel"]) \
-                      .where("GroundLevel > 10")
-
-    # Select nodes with a specific MUID using parameters
-    query_muid = nodes.select() \
-                      .where("MUID = :target_muid", params={"target_muid": "Node_123"})
+nodes_table = db.tables.msm_Node
+query = nodes_table.select(columns=["MUID", "GroundLevel", "Diameter"])
 ```
 
-Multiple `where()` calls are combined with `AND`.
-
-### `order_by(column, descending=False)`
-Specific to `SelectQuery`, orders the results.
-
+Filter rows using `where()`. Conditions are SQL-like strings. For values, it's best to use named parameters:
 ```python
-    query_ordered = nodes.select(columns=["MUID", "GroundLevel"]) \
-                         .order_by("GroundLevel", descending=True)
+min_diam = 0.5
+# Get nodes with Diameter greater than min_diam
+df_large_nodes = query.where("Diameter > :d", params={"d": min_diam}).to_pandas()
 ```
 
-### `all()`
-Specific to `UpdateQuery` and `DeleteQuery`. Explicitly indicates that the query should affect all rows if no `where()` condition is provided. This is a safety measure.
-
+You can further sort the results:
 ```python
-    # To update all nodes (requires .all() if no .where()):
-    # update_all_query = nodes.update(values={"Description": "Updated"}).all()
-
-    # To delete all nodes (requires .all() if no .where()):
-    # delete_all_query = nodes.delete().all()
+df_sorted_nodes = query.where("Diameter > :d", params={"d": min_diam}) \
+                       .order_by("GroundLevel", descending=True) \
+                       .to_pandas()
 ```
-**Caution**: Using `update().all().execute()` or `delete().all().execute()` without careful consideration can lead to unintended data modification or loss.
+If `columns` is not specified in `select()`, all columns are returned.
 
-## Executing Queries
+## {{< fa plus >}} Inserting Data
 
-Call the `execute()` method on a query object to run it against the database.
+To add new rows to a table, use the `insert()` method. Provide a dictionary where keys are column names and values are the data to be inserted. The `insert()` method, when executed, returns the MUID (unique identifier) of the newly created row.
 
+Insert a new node into the `msm_Node` table:
 ```python
-    results_gt10 = query_gt10.execute()
-    if results_gt10:
-        for muid, data in results_gt10.items():
-            print(f"MUID: {muid}, GroundLevel: {data['GroundLevel']}")
+nodes_table = db.tables.msm_Node
+new_muid = nodes_table.insert({
+    "MUID": "Node_New1", 
+    "GroundLevel": 10.5, "Diameter": 0.3
+})
 ```
-
-The `insert()` method can also execute immediately:
+If the "MUID" is not provided, MIKE+Py will attempt to auto-generate one. For tables with geometry, like `msm_Node`, you can include a "geometry" key with a WKT (Well-Known Text) string:
 ```python
-    new_node_muid = nodes.insert(values={"MUID": "MyNewNode", "GroundLevel": 12.0}, execute=True)
-    print(f"Inserted node with MUID: {new_node_muid}")
-
-    # Or get the query object to execute later
-    # insert_query = nodes.insert(values={"MUID": "AnotherNode", "GroundLevel": 13.0}, execute=False)
-    # another_muid = insert_query.execute()
+new_node_geom_muid = nodes_table.insert({
+    "MUID": "Node_New_Geom", "Diameter": 0.4,
+    "geometry": "POINT (12345.0 67890.0)" 
+})
 ```
 
-### Return Values of `execute()`:
-*   `SelectQuery`: A dictionary where keys are MUIDs and values are dictionaries of column-value pairs, or `None` if no results.
-*   `InsertQuery`: The MUID (string) of the newly inserted row.
-*   `UpdateQuery`: A list of MUIDs (strings) of the updated rows.
-*   `DeleteQuery`: A list of MUIDs (strings) of the deleted rows.
+## {{< fa pencil >}} Updating Data
 
-A query can only be executed once. To re-execute, call `reset()` first:
+To modify existing data, use the `update()` method, providing a dictionary of columns and their new values. You must specify which rows to update using `where()` or update all rows using `all()`.
+
+Update the diameter of a specific node:
 ```python
-    # results1 = query_gt10.execute() # Executes
-    # results2 = query_gt10.reset().execute() # Resets and re-executes
-```
-
-## SelectQuery to Pandas
-
-`SelectQuery` results can be easily converted to a pandas DataFrame:
-
-```python
-try:
-    import pandas as pd
-    df_results = query_gt10.to_pandas()
-    print(df_results.head())
-except ImportError:
-    print("Pandas is not installed. Skipping to_pandas() example.")
-```
-
-## Examples
-
-### Select
-```python
-with mp.open("path/to/model.sqlite") as db:
-    pipes = db.tables.msm_Link
-    # Select MUID and Diameter for pipes longer than 100m
-    long_pipes_data = pipes.select(columns=["MUID", "Diameter"]) \
-                           .where("Length > 100") \
-                           .order_by("Diameter") \
+nodes_table = db.tables.msm_Node
+updated_muids = nodes_table.update({"Diameter": 0.35}) \
+                           .where("MUID == 'Node_New1'") \
                            .execute()
-    if long_pipes_data:
-        print(f"Found {len(long_pipes_data)} long pipes.")
 ```
-
-### Insert
+To prevent accidental modification of all rows, `mikepluspy` will raise a `ValueError` if `update()` is called without `where()` or `all()`. To update all rows in a table (use with caution):
 ```python
-with mp.open("path/to/model.sqlite") as db:
-    nodes = db.tables.msm_Node
-    new_muid = nodes.insert({
-        "MUID": "Node_Py_01",
-        "GeomX": 100.0,
-        "GeomY": 200.0,
-        "GroundLevel": 15.5
-    }).execute() # execute=True is default for insert if not specified.
-    print(f"Inserted new node: {new_muid}")
+# This would attempt to set Description for all nodes
+# all_updated = nodes_table.update({"Description": "Updated all"}) \
+#                          .all().execute()
 ```
 
-### Update
+## {{< fa trash >}} Deleting Data
+
+To remove rows, use the `delete()` method. Similar to `update()`, you must specify which rows to delete using `where()` or delete all rows using `all()`.
+
+Delete a specific node:
 ```python
-with mp.open("path/to/model.sqlite") as db:
-    pipes = db.tables.msm_Link
-    updated_muids = pipes.update({"Description": "Inspected Pipe"}) \
-                         .where("Diameter > :diam", params={"diam": 0.5}) \
-                         .execute()
-    print(f"Updated {len(updated_muids)} pipes.")
+nodes_table = db.tables.msm_Node
+deleted_muids = nodes_table.delete().where("MUID == 'Node_New1'").execute()
 ```
-
-### Delete
+Attempting to delete without `where()` or `all()` will result in a `ValueError`. To delete all rows (use with caution):
 ```python
-# Be very careful with delete operations!
-with mp.open("path/to/model.sqlite") as db:
-    nodes = db.tables.msm_Node
-    # Example: Delete a specific node by MUID
-    # deleted_muids = nodes.delete() \
-    #                      .where("MUID = :muid_to_delete", params={"muid_to_delete": "Node_Py_01"}) \
-    #                      .execute()
-    # if deleted_muids:
-    #    print(f"Deleted nodes: {deleted_muids}")
-    pass # Example commented out for safety
+# This would attempt to delete all nodes from the msm_Node table
+# all_deleted = nodes_table.delete().all().execute()
 ```
 
+## {{< fa play >}} Query Execution
+
+Queries are constructed by chaining methods and are only performed when `execute()` (for insert, update, delete) or `to_pandas()` (for select) is called. If you need to re-run a query with the exact same parameters (uncommon), you can call `reset()` on the query object before calling `execute()` again. Typically, you would just define and execute a new query.
