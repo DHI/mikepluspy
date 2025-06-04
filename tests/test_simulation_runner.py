@@ -30,6 +30,8 @@ def test_mike_engine_run_1d(sirius_db):
     
     db.close()
 
+# TODO: Fix license issue on CI
+@pytest.mark.skip_ci(reason="Passes locally, license issue on CI")
 def test_mike_engine_run_flood(flood_db):
     """Test running a Flood simulation."""
     db = Database(flood_db)
