@@ -1,0 +1,55 @@
+# Simulations
+
+MIKE+Py allows you to run simulations defined in your MIKE+ model.
+
+## Running a Simulation
+
+The primary way to run a simulation is using the `db.run()` method from an opened `Database` object.
+
+```python
+import mikepluspy as mp
+from pathlib import Path
+
+db_path = "path/to/your/model.sqlite"
+
+with mp.open(db_path) as db:
+    # Run the active simulation for the active model
+    try:
+        result_files = db.run()
+        print("Simulation finished. Result files:")
+        for rf in result_files:
+            print(rf)
+    except RuntimeError as e:
+        print(f"Simulation failed: {e}")
+```
+
+### Parameters for `db.run()`
+
+*   `simulation_muid` (optional, string):
+    The MUID of the simulation setup to run. If `None`, the `db.active_simulation` is used.
+*   `model_option` (optional, string):
+    The model type to run (e.g., "CS_MIKE1D", "CS_SWMM", "WD_EPANET"). If `None`, the `db.active_model` is used.
+
+```python
+with mp.open(db_path) as db:
+    # Example: Run a specific simulation for a specific model type
+    # sim_muid_to_run = "MySpecificSimulationSetupMUID"
+    # model_to_run = "CS_MIKE1D"
+    # result_files = db.run(simulation_muid=sim_muid_to_run, model_option=model_to_run)
+    pass
+```
+
+Valid model options typically include:
+*   `"CS_MIKE1D"` (Collection Systems / Rivers with MIKE 1D engine)
+*   `"CS_SWMM"` (Collection Systems with SWMM engine)
+*   `"WD_EPANET"` (Water Distribution with EPANET engine)
+
+The method returns a list of [`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path) objects, pointing to the generated result files.
+
+## Simulation Runner
+
+Internally, `db.run()` uses a `SimulationRunner` object. This object handles the specifics of launching different MIKE+ engines. Direct use of `SimulationRunner` is generally not required for typical workflows.
+
+## Deprecated Engine Classes
+
+Older versions of MIKE+Py included engine-specific classes in the `mikeplus.engines` module (e.g., `Engine1D`, `EPANET`). These are now deprecated. Users should use the `db.run()` method for running simulations.

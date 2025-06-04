@@ -1,0 +1,116 @@
+# Tools
+
+MIKE+Py provides access to several MIKE+ processing tools. These tools can be used to perform common data processing and model setup tasks programmatically.
+
+## General Usage
+
+1.  Import the specific tool class from `mikeplus.tools`.
+2.  Instantiate the tool, passing your opened `Database` object to its constructor.
+3.  Call the tool's `run()` method with the appropriate parameters.
+
+```python
+import mikepluspy as mp
+from mikeplus.tools import TopoRepairTool # Example: Topology Repair Tool
+
+db_path = "path/to/your/model.sqlite"
+
+with mp.open(db_path) as db:
+    # Example: Using the Topology Repair Tool
+    topo_repair = TopoRepairTool(db)
+    try:
+        # Run with default parameters (or specify as needed)
+        topo_repair.run()
+        print("Topology Repair Tool finished.")
+    except Exception as e:
+        print(f"Topology Repair Tool failed: {e}")
+```
+
+## Available Tools
+
+### CathSlopeLengthProcess
+Calculates slope and length for catchments.
+Location: `mikeplus.tools.CathSlopeLengthProcess`
+
+```python
+from mikeplus.tools import CathSlopeLengthProcess
+
+# with mp.open(db_path) as db:
+#     catch_ids_to_process = ["catchment_1", "catchment_2"]
+#     slope_shapefile = "path/to/Catch_Slope.shp"
+#     dem_file = "path/to/dem.dfs2"
+#
+#     tool = CathSlopeLengthProcess(db)
+#     tool.run(catch_ids_to_process, slope_shapefile, dem_file, direction=0) # direction 0 for Downstream
+```
+
+### ConnectionRepairTool
+Repairs network connections (e.g., snapping nodes to links).
+Location: `mikeplus.tools.ConnectionRepairTool`
+
+```python
+from mikeplus.tools import ConnectionRepairTool
+
+# with mp.open(db_path) as db:
+#     tool = ConnectionRepairTool(db)
+#     tool.run()
+```
+
+### ImportTool
+Imports data into the MIKE+ database using an XML configuration file (generated from MIKE+ GUI).
+Location: `mikeplus.tools.ImportTool`
+
+```python
+from mikeplus.tools import ImportTool
+
+# config_file_path = "path/to/import_config.xml"
+# # Can be run with an existing db or None to create a new one based on config
+# with mp.open(db_path) as db: # or tool = ImportTool(config_file_path, database=None)
+#    tool = ImportTool(config_file_path, db)
+#    tool.run()
+```
+
+### InterpolationTool
+Interpolates and assigns attribute values to network elements.
+Location: `mikeplus.tools.InterpolationTool`
+
+It offers several methods:
+*   `interpolate_from_nearest_feature(...)`
+*   `interpolate_from_DEM(...)`
+*   `interpolation_IDW(...)` (Inverse Distance Weighting)
+*   `direct_assign_value(...)`
+*   `interpolate_from_neighbour(...)`
+
+```python
+from mikeplus.tools import InterpolationTool
+
+# with mp.open(db_path) as db:
+#     tool = InterpolationTool(db)
+#     # Example: Interpolate node diameter from connected links
+#     tool.interpolate_from_nearest_feature(
+#         target_Db_Name="msm_Node",
+#         target_attribute="Diameter",
+#         source_layer_name="msm_Link",
+#         source_attribute="Diameter",
+#         only_null_values=True
+#     )
+```
+
+### TopoRepairTool
+Detects and repairs topology or network geometry issues.
+Location: `mikeplus.tools.TopoRepairTool`
+
+```python
+from mikeplus.tools import TopoRepairTool
+
+# with mp.open(db_path) as db:
+#     tool = TopoRepairTool(db)
+#     # Example: Run with some common repair options enabled
+#     tool.run(
+#         delete_unLink_node_Link=True,
+#         dissolve_overlap_node=True,
+#         correct_link_connection=True,
+#         snap_distance=0.1
+#     )
+```
+
+Please refer to the specific tool's docstrings or the MIKE+ manual for detailed descriptions of their `run()` method parameters. Tools often print progress information to the console during execution.

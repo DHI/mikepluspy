@@ -1,13 +1,20 @@
-# Getting started 
+# Getting Started
+
+## Requirements
+
+*   Windows operating system
+*   Python x64 3.10 - 3.13 (ensure your Python matches the MIKE+ installation, typically 64-bit)
+*   MIKE+ software installed (for .NET libraries and engine access)
+*   [VC++ redistributables](https://aka.ms/vs/17/release/vc_redist.x64.exe) (usually installed with MIKE+)
 
 ## Installation
+
+To install MIKE+Py, run this command in your terminal:
 
 ::: {.callout-tip}
 # Using uv
 [uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10-100x faster than pip, and also makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as uv venv.
 :::
-
-To install MIKE+Py, run this command in a terminal:
 
 ::: {.panel-tabset}
 ## pip
@@ -22,3 +29,55 @@ pip install mikeplus
 uv pip install mikeplus
 ```
 :::
+
+## Basic Usage
+
+Import the package and open a MIKE+ database:
+
+```python
+import mikepluspy as mp
+
+# Open an existing database
+db_path = "path/to/your/model.sqlite"  # or .mupp file
+db = mp.open(db_path)
+
+# Access a table (e.g., msm_Node)
+nodes_table = db.tables.msm_Node
+
+# Get all MUIDs from the table
+muids = nodes_table.get_muids()
+if muids:
+    print(f"First MUID in msm_Node: {muids[0]}")
+
+# Close the database when done
+db.close()
+```
+
+Or using a context manager, which ensures the database is closed automatically:
+
+```python
+import mikepluspy as mp
+
+db_path = "path/to/your/model.sqlite"
+with mp.open(db_path) as db:
+    nodes_table = db.tables.msm_Node
+    muids = nodes_table.get_muids()
+    if muids:
+        print(f"First MUID in msm_Node: {muids[0]}")
+```
+
+## Important: Library Conflicts
+
+MIKE+Py interacts with .NET libraries, which can lead to conflicts with other Python packages that also use .NET, such as `mikeio` or `mikeio1d`.
+
+*   **`mikeio1d`**: If you need to use `mikeio1d` in the same script, **`mikeio1d` must be imported *after* `mikepluspy`**.
+    ```python
+    import mikepluspy
+    import mikeio1d # Correct order
+    ```
+*   **`mikeio`**: Currently, `mikeio` **cannot be used in the same process** as `mikepluspy`.
+    Workarounds include:
+    *   Splitting your workflow into separate scripts.
+    *   Using Python's `multiprocessing` library to run `mikeio` and `mikepluspy` operations in separate processes.
+
+MIKE+Py will raise an `ImportError` if these conditions are not met, unless conflict checks are disabled via the `MIKEPLUSPY_DISABLE_CONFLICT_CHECKS` environment variable.
