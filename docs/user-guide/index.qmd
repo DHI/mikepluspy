@@ -1,3 +1,12 @@
-# MIKE+Py User Guide
+# User Guide
 
-MIKE+Py is a Python package for interacting with MIKE+ model databases. It allows users to read, write, and manipulate model data, run simulations, and utilize various MIKE+ tools programmatically.
+MIKE+Py is a Python package for interacting with MIKE+ model databases. It enables users to programmatically read, write, and manipulate model data, manage scenarios, execute simulations, and utilize various MIKE+ tools.
+
+The core workflow typically involves:
+
+*   Opening a MIKE+ [Database](database.qmd).
+*   Accessing [Tables](tables.qmd) to [Query](queries.qmd) or modify data.
+*   Running [Simulations](simulations.qmd).
+*   Leveraging built-in [Tools](tools.qmd).
+
+To get started, please see the [Getting Started](getting-started.qmd) page.
