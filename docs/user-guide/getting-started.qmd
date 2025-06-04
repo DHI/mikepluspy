@@ -1,83 +1,76 @@
-# Getting Started
+# Getting started
+
+This guide will help you get started with MIKE+Py, from installation to running your first operations.
 
 ## Requirements
 
-*   Windows operating system
-*   Python x64 3.10 - 3.13 (ensure your Python matches the MIKE+ installation, typically 64-bit)
-*   MIKE+ software installed (for .NET libraries and engine access)
-*   [VC++ redistributables](https://aka.ms/vs/17/release/vc_redist.x64.exe) (usually installed with MIKE+)
+*   A licensed installation of MIKE+ (MIKE+Py is compatible with MIKE+ 2023 and later).
+*   Python (x64) version 3.9 - 3.11.
+*   (Windows) [VC++ redistributables](https://aka.ms/vs/17/release/vc_redist.x64.exe) (often already installed if you have MIKE+).
+
+::: {.callout-important title="Import Conflicts with `mikeio` and `mikeio1d`" collapse="true"}
+Due to underlying library dependencies, `mikeplus` currently has known conflicts:
+
+*   `mikeio` **cannot** be imported in the same Python process as `mikeplus`.
+*   `mikeio1d` **must** be imported *after* `mikeplus`.
+
+Please plan your scripts accordingly. For instance, if you need functionality from both `mikeio` and `mikeplus`, consider using separate Python processes or scripts. The environment variable `MIKEPLUSPY_DISABLE_CONFLICT_CHECKS=true` can be set to bypass these checks at your own risk.
+:::
 
 ## Installation
 
-To install MIKE+Py, run this command in your terminal:
-
 ::: {.callout-tip}
 # Using uv
-[uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10-100x faster than pip, and also makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as uv venv.
+[uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10-100x faster than pip, and also makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as `uv venv`.
 :::
+
+To install MIKE+Py, run this command in your terminal:
 
 ::: {.panel-tabset}
 ## pip
-
 ```bash
 pip install mikeplus
 ```
 
 ## uv
-
 ```bash
 uv pip install mikeplus
 ```
 :::
 
-## Basic Usage
+::: {.callout-note}
+The Python package is named `mikeplus` (for `import mikeplus`) and is installed from PyPI using `pip install mikeplus`. The development repository is named `mikepluspy`.
+:::
 
-Import the package and open a MIKE+ database:
+## {{< fa fa-table >}} Accessing Model Data
 
-```python
-import mikepluspy as mp
+The core of MIKE+Py is the `Database` object, which provides an interface to your MIKE+ model. You can open a model, access its tables, and query data.
 
-# Open an existing database
-db_path = "path/to/your/model.sqlite"  # or .mupp file
-db = mp.open(db_path)
-
-# Access a table (e.g., msm_Node)
-nodes_table = db.tables.msm_Node
-
-# Get all MUIDs from the table
-muids = nodes_table.get_muids()
-if muids:
-    print(f"First MUID in msm_Node: {muids[0]}")
-
-# Close the database when done
-db.close()
-```
-
-Or using a context manager, which ensures the database is closed automatically:
+Here's how to open a database and read a table into a pandas DataFrame:
 
 ```python
-import mikepluspy as mp
+import mikeplus as mp
 
-db_path = "path/to/your/model.sqlite"
-with mp.open(db_path) as db:
-    nodes_table = db.tables.msm_Node
-    muids = nodes_table.get_muids()
-    if muids:
-        print(f"First MUID in msm_Node: {muids[0]}")
+with mp.open("your_model_project.sqlite") as db:
+    db.tables.msm_Node.select().to_pandas()
 ```
 
-## Important: Library Conflicts
+## {{< fa fa-play >}} Running a Simulation
 
-MIKE+Py interacts with .NET libraries, which can lead to conflicts with other Python packages that also use .NET, such as `mikeio` or `mikeio1d`.
+MIKE+Py allows you to execute simulations defined in your MIKE+ model directly from Python.
 
-*   **`mikeio1d`**: If you need to use `mikeio1d` in the same script, **`mikeio1d` must be imported *after* `mikepluspy`**.
-    ```python
-    import mikepluspy
-    import mikeio1d # Correct order
-    ```
-*   **`mikeio`**: Currently, `mikeio` **cannot be used in the same process** as `mikepluspy`.
-    Workarounds include:
-    *   Splitting your workflow into separate scripts.
-    *   Using Python's `multiprocessing` library to run `mikeio` and `mikepluspy` operations in separate processes.
+This example runs the currently active simulation in the model:
 
-MIKE+Py will raise an `ImportError` if these conditions are not met, unless conflict checks are disabled via the `MIKEPLUSPY_DISABLE_CONFLICT_CHECKS` environment variable.
+```python
+import mikeplus as mp
+
+with mp.open("your_model_project.sqlite") as db:
+    print(f"Running simulation: {db.active_simulation} for model type: {db.active_model}")
+    
+    # Run the active simulation
+    result_files = db.run()
+    
+    print("Simulation finished. Result files:")
+    for res_file in result_files:
+        print(res_file)
+```
