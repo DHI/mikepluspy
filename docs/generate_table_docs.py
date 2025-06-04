@@ -37,35 +37,12 @@ def generate_quartodoc_sections():
     modules = scan_modules()
     print(f"Found {len(modules)} table modules")
     
-    # Create sections
     sections = []
-    
-    # First add a section for TableCollection
-    sections.append({
-        "title": "Table Collection",
-        "desc": "Main collection of tables",
-        "package": BASE_PACKAGE,
-        "contents": ["TableCollection"]
-    })
-    
-    # Add a section for all tables and columns
-    all_entries = []
-    
-    # Add an entry for each table class and column class
-    for module in modules:
-        # Add the table class (ModuleNameTable)
-        table_class = f"{module}Table"
-        all_entries.append(table_class)
-        
-        # Add the column class (ModuleNameTableColumns)
-        #column_class = f"{module}TableColumns"
-        #all_entries.append(column_class)
     
     sections.append({
         "title": "Tables",
-        "desc": "Auto-generated table classes and columns",
         "package": BASE_PACKAGE,
-        "contents": all_entries
+        "contents": modules
     })
     
     # Write to YAML file
@@ -73,7 +50,7 @@ def generate_quartodoc_sections():
         yaml.dump({"sections": sections}, f, sort_keys=False)
     
     print(f"Generated quartodoc sections in {OUTPUT_FILE}")
-    print(f"Created {len(sections)} sections with {len(all_entries)} entries")
+    print(f"Created {len(sections)} sections with {len(modules)} entries")
     
     # Provide instructions
     print("\nTo use these sections, manually copy them into _quarto.yml")
