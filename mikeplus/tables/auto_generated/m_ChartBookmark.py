@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class m_ChartBookmarkTableColumns(BaseColumns):
     """Column names for m_ChartBookmark (m_ChartBookmark)."""
     MUID = "MUID"
+    """ID"""
     XIntervalFrom = "XIntervalFrom"
+    """XIntervalFrom"""
     XIntervalTo = "XIntervalTo"
+    """XIntervalTo"""
 
 class m_ChartBookmarkTable(BaseTable):
     """Table for m_ChartBookmark (m_ChartBookmark)."""

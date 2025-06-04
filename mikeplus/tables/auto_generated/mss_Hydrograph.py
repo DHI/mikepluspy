@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_HydrographTableColumns(BaseColumns):
     """Column names for mss_Hydrograph (RDII hydrographs)."""
     MUID = "MUID"
+    """Hydrograph ID"""
     RaingageID = "RaingageID"
+    """Rain gauge ID"""
     Description = "Description"
+    """Description"""
 
 class mss_HydrographTable(BaseTable):
     """Table for mss_Hydrograph (RDII hydrographs)."""

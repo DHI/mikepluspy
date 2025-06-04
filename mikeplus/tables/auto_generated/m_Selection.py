@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class m_SelectionTableColumns(BaseColumns):
     """Column names for m_Selection (m_Selection)."""
     MUID = "MUID"
+    """ID"""
     SelectionID = "SelectionID"
+    """Selection ID"""
     TableName = "TableName"
+    """Table name"""
     ItemMUID = "ItemMUID"
+    """Item ID"""
 
 class m_SelectionTable(BaseTable):
     """Table for m_Selection (m_Selection)."""

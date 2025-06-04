@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_FrictionTableColumns(BaseColumns):
     """Column names for mw_Friction (Roughness)."""
     MUID = "MUID"
+    """MUID"""
     DW = "DW"
+    """DW"""
     HW = "HW"
+    """HW"""
     M = "M"
+    """M"""
     MHW = "MHW"
+    """MHW"""
     Description = "Description"
+    """Description"""
 
 class mw_FrictionTable(BaseTable):
     """Table for mw_Friction (Roughness)."""

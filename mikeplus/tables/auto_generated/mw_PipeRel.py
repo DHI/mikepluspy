@@ -4,13 +4,21 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_PipeRelTableColumns(BaseColumns):
     """Column names for mw_PipeRel (Network vulnerability)."""
     MUID = "MUID"
+    """ID"""
     SimPeriodNo = "SimPeriodNo"
+    """Time level"""
     TimeHrs = "TimeHrs"
+    """Selected time level [h]"""
     MinPre = "MinPre"
+    """Minimum service pressure [m]"""
     UseGlobal = "UseGlobal"
+    """Use whole network"""
     ZoneIDList = "ZoneIDList"
+    """Zone list"""
     UserCriteriaNo = "UserCriteriaNo"
+    """Use user criteria"""
     UserCriteriaField = "UserCriteriaField"
+    """User criteria"""
 
 class mw_PipeRelTable(BaseTable):
     """Table for mw_PipeRel (Network vulnerability)."""

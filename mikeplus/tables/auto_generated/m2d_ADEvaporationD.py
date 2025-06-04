@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_ADEvaporationDTableColumns(BaseColumns):
     """Column names for m2d_ADEvaporationD (AD evaporations area in 2D domain)."""
     MUID = "MUID"
+    """MUID"""
     EvapoID = "EvapoID"
+    """EvapoID"""
     Sqn = "Sqn"
+    """Priority"""
     ApplyNo = "ApplyNo"
+    """Apply"""
     AreaID = "AreaID"
+    """Polygon ID"""
     LocalEvapo = "LocalEvapo"
+    """Evaporation"""
     Description = "Description"
+    """Description"""
 
 class m2d_ADEvaporationDTable(BaseTable):
     """Table for m2d_ADEvaporationD (AD evaporations area in 2D domain)."""

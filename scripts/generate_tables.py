@@ -209,9 +209,18 @@ class AutoTableClassGenerator:
         base_class_name, base_class_module = self.determine_base_class(table)
 
         # Build template context
-        field_constants = [
-            {"name": column.Field, "value": column.Field} for column in table.Columns
-        ]
+        field_constants = []
+        for column in table.Columns:
+            docstring = None
+            try:
+                docstring = column.HeaderWithUnit
+            except:
+                pass
+            if not docstring:
+                docstring = column.Header
+            if not docstring:
+                docstring = column.Field
+            field_constants.append({"name": column.Field, "value": column.Field, "docstring": docstring})
 
         context = {
             "table_name": table.TableName,

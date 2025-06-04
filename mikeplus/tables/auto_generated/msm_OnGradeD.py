@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_OnGradeDTableColumns(BaseColumns):
     """Column names for msm_OnGradeD (OnGrade capture data)."""
     MUID = "MUID"
+    """MUID"""
     CaptureID = "CaptureID"
+    """CaptureID"""
     Sqn = "Sqn"
+    """Sqn"""
     QQRelationID = "QQRelationID"
+    """QQ relation"""
     Slope = "Slope"
+    """Slope [%]"""
 
 class msm_OnGradeDTable(BaseTable):
     """Table for msm_OnGradeD (OnGrade capture data)."""

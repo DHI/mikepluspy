@@ -4,11 +4,17 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class mrm_BranchConnTableColumns(BaseColumns):
     """Column names for mrm_BranchConn (River connection)."""
     MUID = "MUID"
+    """ID"""
     BranchID = "BranchID"
+    """River ID"""
     TypeNo = "TypeNo"
+    """Type"""
     ToID = "ToID"
+    """To ID"""
     ToTypeNo = "ToTypeNo"
+    """To type"""
     ToChainage = "ToChainage"
+    """Chainage [m]"""
 
 class mrm_BranchConnTable(BaseGeometryTable):
     """Table for mrm_BranchConn (River connection)."""

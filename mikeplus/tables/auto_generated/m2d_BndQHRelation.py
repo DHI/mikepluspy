@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_BndQHRelationTableColumns(BaseColumns):
     """Column names for m2d_BndQHRelation (Q/h relation)."""
     MUID = "MUID"
+    """MUID"""
     BndID = "BndID"
+    """BndID"""
     Sqn = "Sqn"
+    """Sqn"""
     Q = "Q"
+    """Discharge [m^3/s]"""
     H = "H"
+    """Water level [m]"""
 
 class m2d_BndQHRelationTable(BaseTable):
     """Table for m2d_BndQHRelation (Q/h relation)."""

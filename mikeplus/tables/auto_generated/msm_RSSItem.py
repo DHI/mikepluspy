@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_RSSItemTableColumns(BaseColumns):
     """Column names for msm_RSSItem (RSSItem)."""
     MUID = "MUID"
+    """ID"""
     SelectionID = "SelectionID"
+    """SelectionID"""
     GroupNo = "GroupNo"
+    """GroupNo"""
     ItemNo = "ItemNo"
+    """ItemNo"""
     ItemText = "ItemText"
+    """ItemText"""
     ItemParam = "ItemParam"
+    """ItemParam"""
 
 class msm_RSSItemTable(BaseTable):
     """Table for msm_RSSItem (RSSItem)."""

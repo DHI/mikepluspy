@@ -4,11 +4,17 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_MeshLocalAreaTableColumns(BaseColumns):
     """Column names for m2d_MeshLocalArea (Mesh polygon marker)."""
     MUID = "MUID"
+    """Marker ID"""
     GeomX = "GeomX"
+    """X coordinate [m]"""
     GeomY = "GeomY"
+    """Y coordinate [m]"""
     UseLocalNo = "UseLocalNo"
+    """Use local setting"""
     LocalOptionNo = "LocalOptionNo"
+    """Polygon option"""
     LocalMaxArea = "LocalMaxArea"
+    """Local maximum area [m^2]"""
 
 class m2d_MeshLocalAreaTable(BaseGeometryTable):
     """Table for m2d_MeshLocalArea (Mesh polygon marker)."""

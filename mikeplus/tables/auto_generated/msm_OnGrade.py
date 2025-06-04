@@ -4,6 +4,7 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_OnGradeTableColumns(BaseColumns):
     """Column names for msm_OnGrade (OnGrade captures)."""
     MUID = "MUID"
+    """ID"""
 
 class msm_OnGradeTable(BaseTable):
     """Table for msm_OnGrade (OnGrade captures)."""

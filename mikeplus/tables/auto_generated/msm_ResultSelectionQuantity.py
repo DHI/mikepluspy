@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_ResultSelectionQuantityTableColumns(BaseColumns):
     """Column names for msm_ResultSelectionQuantity (msm_ResultSelectionQuantity)."""
     MUID = "MUID"
+    """ID"""
     ResultSelectionID = "ResultSelectionID"
+    """Result Selection ID"""
     QuantityID = "QuantityID"
+    """Quantity ID"""
 
 class msm_ResultSelectionQuantityTable(BaseTable):
     """Table for msm_ResultSelectionQuantity (msm_ResultSelectionQuantity)."""

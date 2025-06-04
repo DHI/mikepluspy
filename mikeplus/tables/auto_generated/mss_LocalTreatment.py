@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_LocalTreatmentTableColumns(BaseColumns):
     """Column names for mss_LocalTreatment (Local treatment)."""
     MUID = "MUID"
+    """ID"""
     Description = "Description"
+    """Description"""
     NodeID = "NodeID"
+    """Node ID"""
     PollutantID = "PollutantID"
+    """Pollutant ID"""
     Function = "Function"
+    """Function"""
 
 class mss_LocalTreatmentTable(BaseTable):
     """Table for mss_LocalTreatment (Local treatment)."""

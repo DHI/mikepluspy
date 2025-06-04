@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_TabDTableColumns(BaseColumns):
     """Column names for mss_TabD (Curve values)."""
     MUID = "MUID"
+    """MUID"""
     TabID = "TabID"
+    """TabID"""
     Sqn = "Sqn"
+    """Sqn"""
     Value1 = "Value1"
+    """Value1"""
     Value2 = "Value2"
+    """Value2"""
 
 class mss_TabDTable(BaseTable):
     """Table for mss_TabD (Curve values)."""

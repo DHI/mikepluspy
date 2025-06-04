@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class mrm_STNonScrLocalBedLevelTableColumns(BaseColumns):
     """Column names for mrm_STNonScrLocalBedLevel (Non-scouring bed level)."""
     MUID = "MUID"
+    """MUID"""
     LinkID = "LinkID"
+    """Link ID"""
     Chainage = "Chainage"
+    """Chainage [m]"""
     LocUnlimitedNo = "LocUnlimitedNo"
+    """Unlimited"""
     LocLevel = "LocLevel"
+    """Non-scouring bed level [m]"""
     LinkNo = "LinkNo"
+    """LinkNo"""
 
 class mrm_STNonScrLocalBedLevelTable(BaseTable):
     """Table for mrm_STNonScrLocalBedLevel (Non-scouring bed level)."""

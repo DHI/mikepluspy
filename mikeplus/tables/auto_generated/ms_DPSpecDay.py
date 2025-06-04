@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_DPSpecDayTableColumns(BaseColumns):
     """Column names for ms_DPSpecDay (Special days)."""
     MUID = "MUID"
+    """ID"""
     TypeNo = "TypeNo"
+    """Unique date"""
     DPWeekDayNo = "DPWeekDayNo"
+    """Use as"""
     DPDate = "DPDate"
+    """Date"""
 
 class ms_DPSpecDayTable(BaseTable):
     """Table for ms_DPSpecDay (Special days)."""

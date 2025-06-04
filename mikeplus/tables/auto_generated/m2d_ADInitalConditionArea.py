@@ -4,6 +4,7 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_ADInitalConditionAreaTableColumns(BaseColumns):
     """Column names for m2d_ADInitalConditionArea (2D AD initial conditions)."""
     MUID = "MUID"
+    """Polygon ID"""
 
 class m2d_ADInitalConditionAreaTable(BaseGeometryTable):
     """Table for m2d_ADInitalConditionArea (2D AD initial conditions)."""

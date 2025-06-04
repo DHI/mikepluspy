@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class m_StatusCodeTableColumns(BaseColumns):
     """Column names for m_StatusCode (Status code)."""
     MUID = "MUID"
+    """MUID"""
     StatusCodeTypeNo = "StatusCodeTypeNo"
+    """StatusCodeTypeNo"""
     StatusCodeNo = "StatusCodeNo"
+    """Code"""
     StatusCodeName = "StatusCodeName"
+    """Code name"""
 
 class m_StatusCodeTable(BaseTable):
     """Table for m_StatusCode (Status code)."""

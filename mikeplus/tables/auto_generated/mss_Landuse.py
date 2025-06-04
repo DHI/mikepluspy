@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_LanduseTableColumns(BaseColumns):
     """Column names for mss_Landuse (Land uses)."""
     MUID = "MUID"
+    """ID"""
     SweepInterval = "SweepInterval"
+    """Interval between sweeps [d]"""
     Availability = "Availability"
+    """Pollutant availability [()]"""
     LastSweep = "LastSweep"
+    """Last sweep [d]"""
     Description = "Description"
+    """Description"""
 
 class mss_LanduseTable(BaseTable):
     """Table for mss_Landuse (Land uses)."""

@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_STInitDepthFractDefaultTableColumns(BaseColumns):
     """Column names for msm_STInitDepthFractDefault (msm_STInitDepthFractDefault)."""
     MUID = "MUID"
+    """MUID"""
     TypeNo = "TypeNo"
+    """Type no"""
     FractionID = "FractionID"
+    """Fraction"""
     FracPercentActive = "FracPercentActive"
+    """Percentage active layer [%]"""
     FracPercentPassive = "FracPercentPassive"
+    """Percentage passive layer [%]"""
 
 class msm_STInitDepthFractDefaultTable(BaseTable):
     """Table for msm_STInitDepthFractDefault (msm_STInitDepthFractDefault)."""

@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_AlarmLevelDTableColumns(BaseColumns):
     """Column names for msm_AlarmLevelD (Levels in alarm set)."""
     MUID = "MUID"
+    """MUID"""
     AlarmLevelID = "AlarmLevelID"
+    """AlarmLevelID"""
     NodeID = "NodeID"
+    """Node ID"""
     AlarmLevel = "AlarmLevel"
+    """Alarm level [m]"""
     AllowUpdate = "AllowUpdate"
+    """Allow updating level"""
 
 class msm_AlarmLevelDTable(BaseTable):
     """Table for msm_AlarmLevelD (Levels in alarm set)."""

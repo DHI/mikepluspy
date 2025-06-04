@@ -5,6 +5,7 @@ class {{ class_name }}Columns(BaseColumns):
     """Column names for {{ table_name }} ({{ table_display_name }})."""
     {%- for field in field_constants %}
     {{ field.name }} = "{{ field.value }}"
+    """{{ field.docstring }}"""    
     {%- endfor %}
 
 class {{ class_name }}({{ base_table_name }}):

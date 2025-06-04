@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LIDRemovalTableColumns(BaseColumns):
     """Column names for msm_LIDRemoval (Pollutions removal in LIDS)."""
     MUID = "MUID"
+    """ID"""
     LIDID = "LIDID"
+    """LID ID"""
     ComponentID = "ComponentID"
+    """Pollutant ID"""
     OverflowRemovalFac = "OverflowRemovalFac"
+    """Removal factor for overflow"""
     DrainRemovalFac = "DrainRemovalFac"
+    """Removal factor for drain"""
 
 class msm_LIDRemovalTable(BaseTable):
     """Table for msm_LIDRemoval (Pollutions removal in LIDS)."""

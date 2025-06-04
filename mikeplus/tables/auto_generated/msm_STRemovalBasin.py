@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_STRemovalBasinTableColumns(BaseColumns):
     """Column names for msm_STRemovalBasin (Sediment removal in basins)."""
     MUID = "MUID"
+    """ID"""
     NodeID = "NodeID"
+    """Basin ID"""
     RemovalCoef = "RemovalCoef"
+    """Settling factor"""
 
 class msm_STRemovalBasinTable(BaseTable):
     """Table for msm_STRemovalBasin (Sediment removal in basins)."""

@@ -4,7 +4,9 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LTSInitoTableColumns(BaseColumns):
     """Column names for msm_LTSInito (msm_LTSInito)."""
     MUID = "MUID"
+    """ID"""
     InitCondNo = "InitCondNo"
+    """Type"""
 
 class msm_LTSInitoTable(BaseTable):
     """Table for msm_LTSInito (msm_LTSInito)."""

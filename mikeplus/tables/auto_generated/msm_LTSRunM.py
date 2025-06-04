@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LTSRunMTableColumns(BaseColumns):
     """Column names for msm_LTSRunM (Run time stop criteria matrix)."""
     MUID = "MUID"
+    """MUID"""
     Condition1 = "Condition1"
+    """Condition 1"""
     Condition2 = "Condition2"
+    """Condition 2"""
     Condition3 = "Condition3"
+    """Condition 3"""
     Condition4 = "Condition4"
+    """Condition 4"""
     Condition5 = "Condition5"
+    """Condition 5"""
 
 class msm_LTSRunMTable(BaseTable):
     """Table for msm_LTSRunM (Run time stop criteria matrix)."""

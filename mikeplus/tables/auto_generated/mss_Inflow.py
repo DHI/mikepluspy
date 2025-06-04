@@ -4,13 +4,21 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_InflowTableColumns(BaseColumns):
     """Column names for mss_Inflow (Inflows)."""
     MUID = "MUID"
+    """ID"""
     NodeID = "NodeID"
+    """Inflow to"""
     Description = "Description"
+    """Description"""
     FlowSeriesID = "FlowSeriesID"
+    """Time series ID"""
     ScaleFlowFactor = "ScaleFlowFactor"
+    """Scale factor"""
     BaseFlowValue = "BaseFlowValue"
+    """Base flow [m^3/s]"""
     BaselinePatternID = "BaselinePatternID"
+    """Pattern ID"""
     PollutNo = "PollutNo"
+    """Pollutants"""
 
 class mss_InflowTable(BaseTable):
     """Table for mss_Inflow (Inflows)."""

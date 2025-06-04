@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_EPAMSXTableColumns(BaseColumns):
     """Column names for mw_EPAMSX (Multi-species analysis)."""
     MUID = "MUID"
+    """MUID"""
     Description = "Description"
+    """Description"""
     Content = "Content"
+    """Content"""
 
 class mw_EPAMSXTable(BaseTable):
     """Table for mw_EPAMSX (Multi-species analysis)."""

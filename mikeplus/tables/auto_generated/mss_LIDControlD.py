@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_LIDControlDTableColumns(BaseColumns):
     """Column names for mss_LIDControlD (LIDControlD)."""
     MUID = "MUID"
+    """MUID"""
     LIDControlID = "LIDControlID"
+    """LIDControlID"""
     PollutantID = "PollutantID"
+    """Pollutant ID"""
     Removal = "Removal"
+    """Removal [%]"""
 
 class mss_LIDControlDTable(BaseTable):
     """Table for mss_LIDControlD (LIDControlD)."""

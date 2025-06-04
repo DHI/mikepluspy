@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_2DTabD_Bridge_FHWA_WSPRO_spur_dykeIIITableColumns(BaseColumns):
     """Column names for ms_2DTabD_Bridge_FHWA_WSPRO_spur_dykeIII ()."""
     MUID = "MUID"
+    """MUID"""
     MasterID = "MasterID"
+    """MasterID"""
     RowSqn = "RowSqn"
+    """RowSqn"""
     ColSqn = "ColSqn"
+    """ColSqn"""
     RowHeaderValue = "RowHeaderValue"
+    """RowHeaderValue"""
     ColHeaderValue = "ColHeaderValue"
+    """ColHeaderValue"""
     CellValue = "CellValue"
+    """CellValue"""
 
 class ms_2DTabD_Bridge_FHWA_WSPRO_spur_dykeIIITable(BaseTable):
     """Table for ms_2DTabD_Bridge_FHWA_WSPRO_spur_dykeIII ()."""

@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_CurveTableColumns(BaseColumns):
     """Column names for mw_Curve (Curves and relations)."""
     MUID = "MUID"
+    """ID"""
     TypeNo = "TypeNo"
+    """Type"""
     Description = "Description"
+    """Description"""
 
 class mw_CurveTable(BaseTable):
     """Table for mw_Curve (Curves and relations)."""

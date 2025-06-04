@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_TabTableColumns(BaseColumns):
     """Column names for ms_Tab (Curves and relations)."""
     MUID = "MUID"
+    """ID"""
     TypeNo = "TypeNo"
+    """Type"""
     Description = "Description"
+    """Description"""
 
 class ms_TabTable(BaseTable):
     """Table for ms_Tab (Curves and relations)."""

@@ -4,14 +4,23 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_AutocaliNodeDemandsTableColumns(BaseColumns):
     """Column names for mw_AutocaliNodeDemands (mw_AutocaliNodeDemands)."""
     MUID = "MUID"
+    """MUID"""
     AutoCaliID = "AutoCaliID"
+    """AutoCaliID"""
     PatternID = "PatternID"
+    """Pattern ID"""
     Enable = "Enable"
+    """Is active"""
     MinFactor = "MinFactor"
+    """Minimum factor"""
     MaxFactor = "MaxFactor"
+    """Maximum factor"""
     CalibratedFactor = "CalibratedFactor"
+    """Calibrated factor"""
     ApprovedFactor = "ApprovedFactor"
+    """Approved factor"""
     Description = "Description"
+    """Description"""
 
 class mw_AutocaliNodeDemandsTable(BaseTable):
     """Table for mw_AutocaliNodeDemands (mw_AutocaliNodeDemands)."""

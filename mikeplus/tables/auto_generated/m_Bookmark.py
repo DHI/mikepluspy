@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class m_BookmarkTableColumns(BaseColumns):
     """Column names for m_Bookmark (m_Bookmark)."""
     MUID = "MUID"
+    """ID"""
     BottomLeftXCoor = "BottomLeftXCoor"
+    """BottomLeftXCoor"""
     BottomLeftYCoor = "BottomLeftYCoor"
+    """BottomLeftYCoor"""
     TopRightXCoor = "TopRightXCoor"
+    """TopRightXCoor"""
     TopRightYCoor = "TopRightYCoor"
+    """TopRightYCoor"""
 
 class m_BookmarkTable(BaseTable):
     """Table for m_Bookmark (m_Bookmark)."""

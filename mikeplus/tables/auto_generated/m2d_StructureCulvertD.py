@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_StructureCulvertDTableColumns(BaseColumns):
     """Column names for m2d_StructureCulvertD (2D culvert geometry)."""
     MUID = "MUID"
+    """MUID"""
     CulvertID = "CulvertID"
+    """CulvertID"""
     Sqn = "Sqn"
+    """Sqn"""
     Level = "Level"
+    """Level [m]"""
     Width = "Width"
+    """Width [m]"""
 
 class m2d_StructureCulvertDTable(BaseTable):
     """Table for m2d_StructureCulvertD (2D culvert geometry)."""

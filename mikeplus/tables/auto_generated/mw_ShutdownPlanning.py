@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_ShutdownPlanningTableColumns(BaseColumns):
     """Column names for mw_ShutdownPlanning (Shutdown planning)."""
     MUID = "MUID"
+    """ID"""
     ValveFilePath = "ValveFilePath"
+    """Target layer"""
     ValveIDField = "ValveIDField"
+    """Valve node ID"""
     ServicePre = "ServicePre"
+    """Service pressure [m]"""
     Tolerance = "Tolerance"
+    """Tolerance [m]"""
     UnavailableValveList = "UnavailableValveList"
+    """Unavailable valves"""
 
 class mw_ShutdownPlanningTable(BaseTable):
     """Table for mw_ShutdownPlanning (Shutdown planning)."""

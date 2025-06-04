@@ -4,13 +4,21 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_HParAutoCaliRDIITableColumns(BaseColumns):
     """Column names for msm_HParAutoCaliRDII (RDI autocalibration)."""
     MUID = "MUID"
+    """MUID"""
     ParRdiiID = "ParRdiiID"
+    """ParRdiiID"""
     Parameter = "Parameter"
+    """Parameter"""
     FitNo = "FitNo"
+    """Fit"""
     InitialValue = "InitialValue"
+    """Initial Value"""
     LowerBound = "LowerBound"
+    """Lower Bound"""
     UpperBound = "UpperBound"
+    """Upper Bound"""
     UnitCtrlNo = "UnitCtrlNo"
+    """Fit"""
 
 class msm_HParAutoCaliRDIITable(BaseTable):
     """Table for msm_HParAutoCaliRDII (RDI autocalibration)."""

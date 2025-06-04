@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_CoverageTableColumns(BaseColumns):
     """Column names for mss_Coverage (Coverage)."""
     MUID = "MUID"
+    """ID"""
     SubCatchID = "SubCatchID"
+    """Catchment ID"""
     LandUseID = "LandUseID"
+    """Landuse ID"""
     Percentage = "Percentage"
+    """Percentage [%]"""
 
 class mss_CoverageTable(BaseTable):
     """Table for mss_Coverage (Coverage)."""

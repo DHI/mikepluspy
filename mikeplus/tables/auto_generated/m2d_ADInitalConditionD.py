@@ -4,13 +4,21 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_ADInitalConditionDTableColumns(BaseColumns):
     """Column names for m2d_ADInitalConditionD (AD initial conditions area in 2D domain)."""
     MUID = "MUID"
+    """MUID"""
     InitCondID = "InitCondID"
+    """InitCondID"""
     Sqn = "Sqn"
+    """Priority"""
     ApplyNo = "ApplyNo"
+    """Apply"""
     AreaID = "AreaID"
+    """Polygon ID"""
     LocalInitCond = "LocalInitCond"
+    """Initial condition"""
     Unit = "Unit"
+    """Unit"""
     Description = "Description"
+    """Description"""
 
 class m2d_ADInitalConditionDTable(BaseTable):
     """Table for m2d_ADInitalConditionD (AD initial conditions area in 2D domain)."""
