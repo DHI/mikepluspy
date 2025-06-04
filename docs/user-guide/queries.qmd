@@ -1,0 +1,155 @@
+# Queries
+
+MIKE+Py provides a fluent interface for querying database tables. Queries are constructed from `BaseTable` objects and then executed.
+
+## Creating Queries
+
+You can create different types of queries from a table object:
+
+*   **Select**: `table.select(columns=["MUID", "GroundLevel"])`
+*   **Insert**: `table.insert(values={"MUID": "NewNode1", "GroundLevel": 10.5})`
+*   **Update**: `table.update(values={"GroundLevel": 11.0})`
+*   **Delete**: `table.delete()`
+
+## Chaining Conditions
+
+Queries can be refined using chainable methods:
+
+### `where(condition, params={})`
+Adds a WHERE clause to the query. `condition` is an SQL-like string, and `params` is an optional dictionary for named parameters.
+
+```python
+import mikepluspy as mp
+
+with mp.open("path/to/model.sqlite") as db:
+    nodes = db.tables.msm_Node
+
+    # Select nodes with GroundLevel > 10
+    query_gt10 = nodes.select(columns=["MUID", "GroundLevel"]) \
+                      .where("GroundLevel > 10")
+
+    # Select nodes with a specific MUID using parameters
+    query_muid = nodes.select() \
+                      .where("MUID = :target_muid", params={"target_muid": "Node_123"})
+```
+
+Multiple `where()` calls are combined with `AND`.
+
+### `order_by(column, descending=False)`
+Specific to `SelectQuery`, orders the results.
+
+```python
+    query_ordered = nodes.select(columns=["MUID", "GroundLevel"]) \
+                         .order_by("GroundLevel", descending=True)
+```
+
+### `all()`
+Specific to `UpdateQuery` and `DeleteQuery`. Explicitly indicates that the query should affect all rows if no `where()` condition is provided. This is a safety measure.
+
+```python
+    # To update all nodes (requires .all() if no .where()):
+    # update_all_query = nodes.update(values={"Description": "Updated"}).all()
+
+    # To delete all nodes (requires .all() if no .where()):
+    # delete_all_query = nodes.delete().all()
+```
+**Caution**: Using `update().all().execute()` or `delete().all().execute()` without careful consideration can lead to unintended data modification or loss.
+
+## Executing Queries
+
+Call the `execute()` method on a query object to run it against the database.
+
+```python
+    results_gt10 = query_gt10.execute()
+    if results_gt10:
+        for muid, data in results_gt10.items():
+            print(f"MUID: {muid}, GroundLevel: {data['GroundLevel']}")
+```
+
+The `insert()` method can also execute immediately:
+```python
+    new_node_muid = nodes.insert(values={"MUID": "MyNewNode", "GroundLevel": 12.0}, execute=True)
+    print(f"Inserted node with MUID: {new_node_muid}")
+
+    # Or get the query object to execute later
+    # insert_query = nodes.insert(values={"MUID": "AnotherNode", "GroundLevel": 13.0}, execute=False)
+    # another_muid = insert_query.execute()
+```
+
+### Return Values of `execute()`:
+*   `SelectQuery`: A dictionary where keys are MUIDs and values are dictionaries of column-value pairs, or `None` if no results.
+*   `InsertQuery`: The MUID (string) of the newly inserted row.
+*   `UpdateQuery`: A list of MUIDs (strings) of the updated rows.
+*   `DeleteQuery`: A list of MUIDs (strings) of the deleted rows.
+
+A query can only be executed once. To re-execute, call `reset()` first:
+```python
+    # results1 = query_gt10.execute() # Executes
+    # results2 = query_gt10.reset().execute() # Resets and re-executes
+```
+
+## SelectQuery to Pandas
+
+`SelectQuery` results can be easily converted to a pandas DataFrame:
+
+```python
+try:
+    import pandas as pd
+    df_results = query_gt10.to_pandas()
+    print(df_results.head())
+except ImportError:
+    print("Pandas is not installed. Skipping to_pandas() example.")
+```
+
+## Examples
+
+### Select
+```python
+with mp.open("path/to/model.sqlite") as db:
+    pipes = db.tables.msm_Link
+    # Select MUID and Diameter for pipes longer than 100m
+    long_pipes_data = pipes.select(columns=["MUID", "Diameter"]) \
+                           .where("Length > 100") \
+                           .order_by("Diameter") \
+                           .execute()
+    if long_pipes_data:
+        print(f"Found {len(long_pipes_data)} long pipes.")
+```
+
+### Insert
+```python
+with mp.open("path/to/model.sqlite") as db:
+    nodes = db.tables.msm_Node
+    new_muid = nodes.insert({
+        "MUID": "Node_Py_01",
+        "GeomX": 100.0,
+        "GeomY": 200.0,
+        "GroundLevel": 15.5
+    }).execute() # execute=True is default for insert if not specified.
+    print(f"Inserted new node: {new_muid}")
+```
+
+### Update
+```python
+with mp.open("path/to/model.sqlite") as db:
+    pipes = db.tables.msm_Link
+    updated_muids = pipes.update({"Description": "Inspected Pipe"}) \
+                         .where("Diameter > :diam", params={"diam": 0.5}) \
+                         .execute()
+    print(f"Updated {len(updated_muids)} pipes.")
+```
+
+### Delete
+```python
+# Be very careful with delete operations!
+with mp.open("path/to/model.sqlite") as db:
+    nodes = db.tables.msm_Node
+    # Example: Delete a specific node by MUID
+    # deleted_muids = nodes.delete() \
+    #                      .where("MUID = :muid_to_delete", params={"muid_to_delete": "Node_Py_01"}) \
+    #                      .execute()
+    # if deleted_muids:
+    #    print(f"Deleted nodes: {deleted_muids}")
+    pass # Example commented out for safety
+```
+

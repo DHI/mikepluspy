@@ -1,0 +1,90 @@
+
+
+The `Database` object is the central point for interacting with a MIKE+ model database.
+
+## Opening a Database
+
+To open an existing MIKE+ database (`.sqlite` or `.mupp` file):
+
+```python
+import mikepluspy as mp
+
+db = mp.open("path/to/model.sqlite")
+# or
+# db = mp.Database("path/to/model.mupp")
+
+# Database is opened automatically by default.
+# To prevent auto-open:
+# db_no_auto_open = mp.open("path/to/model.sqlite", auto_open=False)
+# db_no_auto_open.open()
+```
+
+## Creating a New Database
+
+To create a new, empty MIKE+ database:
+
+```python
+import mikepluspy as mp
+
+new_db_path = "path/to/new_model.sqlite"
+db = mp.create(new_db_path)
+
+# Optionally specify projection and SRID
+# db_with_srid = mp.create("new_model_srid.sqlite", srid=4326) # WGS84
+# db_with_proj = mp.create("new_model_proj.sqlite", projection_string="PROJCS[...")
+
+# To overwrite if it exists:
+# db_overwrite = mp.create(new_db_path, overwrite=True)
+```
+
+## Closing a Database
+
+It's important to close the database connection when you're finished:
+
+```python
+db.close()
+```
+
+Using a context manager ensures the database is closed automatically:
+
+```python
+with mp.open("path/to/model.sqlite") as db:
+    # Work with the database
+    print(f"Database version: {db.version}")
+# Database is automatically closed here
+```
+
+## Database Properties
+
+The `Database` object provides various properties to inspect its state and metadata:
+
+*   `db_path`: [`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path) to the `.sqlite` database file.
+*   `mupp_path`: [`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path) to the `.mupp` file, if one exists alongside the database.
+*   `is_open`: Boolean indicating if the database connection is open.
+*   `version`: Database version string (e.g., "23.0").
+*   `unit_system`: Unit system of the database (e.g., "MU_CS_SI").
+*   `projection_string`: Projection string.
+*   `srid`: Spatial Reference ID (integer).
+*   `active_model`: Name of the active model (e.g., "EPANET", "MIKE1D").
+*   `scenarios`: List of available scenario names.
+*   `active_scenario`: Name of the currently active scenario. Can be set to change the active scenario.
+    ```python
+    current_scenario = db.active_scenario
+    if "MyScenario" in db.scenarios:
+        db.active_scenario = "MyScenario"
+    ```
+*   `active_simulation`: MUID of the active simulation setup.
+*   `tables`: Accessor for database tables (see [Tables](tables.md)).
+
+## Legacy DataTableAccess
+
+Older versions of MIKE+Py used a class named `DataTableAccess`. This is now deprecated. Users should migrate to the `Database` class for all new development.
+
+```python
+# Deprecated:
+# from mikeplus import DataTableAccess
+# dta = DataTableAccess("path/to/model.sqlite")
+# dta.open_database()
+# ...
+# dta.close_database()
+```

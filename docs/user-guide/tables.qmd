@@ -1,0 +1,85 @@
+# Tables
+
+MIKE+ model data is organized into tables. You can access these tables through the `tables` property of a `Database` object.
+
+## Accessing Tables
+
+The `db.tables` property returns a `TableCollection` object, which allows you to access individual tables by their name, either as attributes or like dictionary items:
+
+```python
+import mikepluspy as mp
+
+with mp.open("path/to/model.sqlite") as db:
+    # Accessing the 'msm_Node' table
+    nodes_table = db.tables.msm_Node
+    # Alternatively:
+    # nodes_table = db.tables["msm_Node"]
+
+    print(f"Table Display Name: {nodes_table.display_name}")
+```
+
+## TableCollection
+
+The `TableCollection` (returned by `db.tables`) provides:
+*   `db.tables.keys()`: Returns a list of all table names in the database.
+*   `db.tables.values()`: Returns a list of all table objects.
+*   `db.tables.items()`: Returns a list of (name, table object) tuples.
+*   Iteration: You can iterate over `db.tables` to get table names.
+
+## Table Properties
+
+Each table object (e.g., an instance of `msm_NodeTable`) is a subclass of `BaseTable` and has the following properties:
+
+*   `name`: The internal database name of the table (e.g., "msm_Node").
+*   `display_name`: The user-friendly name of the table as shown in MIKE+ (e.g., "Nodes").
+*   `description`: A short description of the table.
+*   `columns`: An object providing access to the table's column names.
+
+## Columns
+
+The `table.columns` property returns a `BaseColumns` (or subclass) object. You can iterate over it to get column names or access them as attributes:
+
+```python
+# Continuing from the previous example
+if nodes_table:
+    print("Columns in msm_Node:")
+    for col_name in nodes_table.columns:
+        print(f"- {col_name}")
+
+    # Access a specific column name (if it exists)
+    muid_column_name = nodes_table.columns.MUID # "MUID"
+    print(f"MUID column is named: {muid_column_name}")
+```
+Each specific table (e.g., `msm_NodeTable`) has a corresponding specific columns class (e.g., `msm_NodeTableColumns`) that provides attribute access to its known columns.
+
+## Getting MUIDs
+
+You can retrieve all MUIDs (unique identifiers) for rows in a table:
+
+```python
+muids = nodes_table.get_muids()
+# print(f"All MUIDs in msm_Node: {muids}")
+
+# Get MUIDs ordered by a specific column
+# muids_ordered = nodes_table.get_muids(order_by="GroundLevel", descending=True)
+```
+
+## Table Types
+
+*   **BaseTable**: The fundamental class for all tables.
+*   **BaseGeometryTable**: For tables that include a geometry column.
+*   **BaseNodeTable**: Specialized for node tables, providing methods like:
+    *   `node_table.get_number_of_links(node_muid)`
+    *   `node_table.get_upstream_links(node_muid)`
+    *   `node_table.get_downstream_links(node_muid)`
+
+Example:
+```python
+with mp.open("path/to/model.sqlite") as db:
+    nodes_table = db.tables.msm_Node # This is a BaseNodeTable
+    a_node_muid = nodes_table.get_muids()[0] # Get the first node MUID
+    num_links = nodes_table.get_number_of_links(a_node_muid)
+    print(f"Node {a_node_muid} has {num_links} connected links.")
+```
+
+Refer to the API documentation for a full list of tables and their specific columns.

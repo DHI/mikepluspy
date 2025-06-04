@@ -9,7 +9,7 @@ website:
   repo-actions: [edit]
   repo-subdir: docs
   page-navigation: true
-  bread-crumbs: false
+  #bread-crumbs: false
 
   navbar:
     tools:
@@ -20,14 +20,32 @@ website:
       - text: Report a Bug
         url:  https://github.com/DHI/mikepluspy/issues
     left:
-      - href: index.qmd
-        text: Home
-      - href: user-guide/getting-started.qmd
-        text: "User Guide"
-      - href: examples/index.qmd
-        text: Examples
-      - href: api/index.qmd
-        text: "API Reference"
+      - text: "Home"
+        href: index.qmd
+      - text: "User Guide"
+        href: user-guide/index.qmd
+      # - text: "Examples"
+      #   href: examples/index.qmd
+      - text: "API Reference"
+        href: api/index.qmd
+
+  sidebar:
+    - title: "User Guide"
+      style: "docked"
+      contents:
+        - user-guide/index.qmd
+        - user-guide/getting-started.qmd
+        - user-guide/database.qmd
+        - user-guide/tables.qmd
+        - user-guide/queries.qmd
+        - user-guide/simulations.qmd
+        - user-guide/tools.qmd
+
+  
+    # - title: "Examples"
+    #   style: "docked"
+    #   contents:
+    #     - examples/index.qmd
 
 filters:
   - interlinks
@@ -52,9 +70,14 @@ quartodoc:
   renderer:
     style: markdown
     display_name: relative
-  sidebar: api/_sidebar.yml
   css: api/_styles-quartodoc.css
   #dynamic: true
+
+  sidebar:
+    title: "API Reference"
+    style: docked
+    contents: 
+      - "{{ contents }}"
 
   sections:
     - title: Main

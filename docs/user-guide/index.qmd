@@ -1,0 +1,3 @@
+# MIKE+Py User Guide
+
+MIKE+Py is a Python package for interacting with MIKE+ model databases. It allows users to read, write, and manipulate model data, run simulations, and utilize various MIKE+ tools programmatically.
