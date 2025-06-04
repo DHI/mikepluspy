@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_RSTableColumns(BaseColumns):
     """Column names for msm_RS (Result files)."""
     MUID = "MUID"
+    """ID"""
     ModelTypeNo = "ModelTypeNo"
+    """Model type"""
     ContentTypeNo = "ContentTypeNo"
+    """Content type"""
     FormatNo = "FormatNo"
+    """Format"""
     DefaultNo = "DefaultNo"
+    """DefaultNo"""
 
 class msm_RSTable(BaseTable):
     """Table for msm_RS (Result files)."""

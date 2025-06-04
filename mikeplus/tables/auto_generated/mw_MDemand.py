@@ -4,14 +4,23 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_MDemandTableColumns(BaseColumns):
     """Column names for mw_MDemand (Multiple demands)."""
     MUID = "MUID"
+    """MUID"""
     JunctionID = "JunctionID"
+    """Junction ID"""
     Demand = "Demand"
+    """Demand [m^3/s]"""
     Category = "Category"
+    """Category"""
     PatternID = "PatternID"
+    """Pattern"""
     Enabled = "Enabled"
+    """Is active"""
     GenerateTypeNo = "GenerateTypeNo"
+    """Mark"""
     DemCoeff = "DemCoeff"
+    """Coefficient"""
     Description = "Description"
+    """Description"""
 
 class mw_MDemandTable(BaseTable):
     """Table for mw_MDemand (Multiple demands)."""

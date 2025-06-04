@@ -4,7 +4,9 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_GridInactiveAreaTableColumns(BaseColumns):
     """Column names for m2d_GridInactiveArea (Grid inactive area)."""
     MUID = "MUID"
+    """ID"""
     ApplyNo = "ApplyNo"
+    """Apply"""
 
 class m2d_GridInactiveAreaTable(BaseGeometryTable):
     """Table for m2d_GridInactiveArea (Grid inactive area)."""

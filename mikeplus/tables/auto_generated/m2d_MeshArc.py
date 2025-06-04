@@ -4,9 +4,13 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_MeshArcTableColumns(BaseColumns):
     """Column names for m2d_MeshArc (Mesh arc)."""
     MUID = "MUID"
+    """Arc ID"""
     IsClosedNo = "IsClosedNo"
+    """Is closed"""
     Attribute = "Attribute"
+    """Attribute"""
     FromInactiveAreaNo = "FromInactiveAreaNo"
+    """From inactive area"""
 
 class m2d_MeshArcTable(BaseGeometryTable):
     """Table for m2d_MeshArc (Mesh arc)."""

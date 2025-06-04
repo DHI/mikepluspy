@@ -4,6 +4,7 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_ADInfiltrationAreaTableColumns(BaseColumns):
     """Column names for m2d_ADInfiltrationArea (2D AD infiltration)."""
     MUID = "MUID"
+    """Polygon ID"""
 
 class m2d_ADInfiltrationAreaTable(BaseGeometryTable):
     """Table for m2d_ADInfiltrationArea (2D AD infiltration)."""

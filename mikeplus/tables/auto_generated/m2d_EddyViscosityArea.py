@@ -4,10 +4,15 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_EddyViscosityAreaTableColumns(BaseColumns):
     """Column names for m2d_EddyViscosityArea (2D eddy viscosity)."""
     Sqn = "Sqn"
+    """Priority"""
     ApplyNo = "ApplyNo"
+    """Apply"""
     MUID = "MUID"
+    """Polygon ID"""
     EddyViscosity = "EddyViscosity"
+    """Eddy viscosity [m^2/s]"""
     Description = "Description"
+    """Description"""
 
 class m2d_EddyViscosityAreaTable(BaseGeometryTable):
     """Table for m2d_EddyViscosityArea (2D eddy viscosity)."""

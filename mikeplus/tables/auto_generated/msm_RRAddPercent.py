@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_RRAddPercentTableColumns(BaseColumns):
     """Column names for msm_RRAddPercent (Intervals)."""
     MUID = "MUID"
+    """MUID"""
     Sqn = "Sqn"
+    """Sqn"""
     ResultSpecID = "ResultSpecID"
+    """ResultSpecID"""
     Percentage = "Percentage"
+    """Percentage"""
 
 class msm_RRAddPercentTable(BaseTable):
     """Table for msm_RRAddPercent (Intervals)."""

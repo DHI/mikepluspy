@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_PPatternDTableColumns(BaseColumns):
     """Column names for mw_PPatternD (Pattern data)."""
     MUID = "MUID"
+    """MUID"""
     PatternID = "PatternID"
+    """PatternID"""
     Sqn = "Sqn"
+    """Sqn"""
     AbsDateTime = "AbsDateTime"
+    """Date and Time"""
     RelativeTime = "RelativeTime"
+    """Hours from Start [h]"""
     Multiplier = "Multiplier"
+    """Multiplier"""
 
 class mw_PPatternDTable(BaseTable):
     """Table for mw_PPatternD (Pattern data)."""

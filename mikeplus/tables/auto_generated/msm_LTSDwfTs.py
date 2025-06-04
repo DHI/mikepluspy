@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LTSDwfTsTableColumns(BaseColumns):
     """Column names for msm_LTSDwfTs (LTS Continuous TS output)."""
     MUID = "MUID"
+    """ID"""
     ApplyNo = "ApplyNo"
+    """Apply"""
     LinkID = "LinkID"
+    """Location"""
     SelectionID = "SelectionID"
+    """Selection"""
 
 class msm_LTSDwfTsTable(BaseTable):
     """Table for msm_LTSDwfTs (LTS Continuous TS output)."""

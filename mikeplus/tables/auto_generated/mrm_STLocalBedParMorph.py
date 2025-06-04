@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mrm_STLocalBedParMorphTableColumns(BaseColumns):
     """Column names for mrm_STLocalBedParMorph (Local update method)."""
     MUID = "MUID"
+    """MUID"""
     LinkID = "LinkID"
+    """River ID"""
     Chainage = "Chainage"
+    """Chainage [m]"""
     MethodNo = "MethodNo"
+    """Method"""
     LinkNo = "LinkNo"
+    """LinkNo"""
 
 class mrm_STLocalBedParMorphTable(BaseTable):
     """Table for mrm_STLocalBedParMorph (Local update method)."""

@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_SimpMappingTableColumns(BaseColumns):
     """Column names for ms_SimpMapping (ms_SimpMapping)."""
     MUID = "MUID"
+    """ID"""
     SettingID = "SettingID"
+    """SettingID"""
     TargetSimpID = "TargetSimpID"
+    """TargetSimpID"""
     SourceInfo = "SourceInfo"
+    """SourceInfo"""
 
 class ms_SimpMappingTable(BaseTable):
     """Table for ms_SimpMapping (ms_SimpMapping)."""

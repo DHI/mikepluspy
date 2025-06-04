@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class m_CustomUnitTableColumns(BaseColumns):
     """Column names for m_CustomUnit (m_CustomUnit)."""
     MUID = "MUID"
+    """ID"""
     UnitSystemNo = "UnitSystemNo"
+    """Section"""
     EumTypeNo = "EumTypeNo"
+    """Comment"""
     TableName = "TableName"
+    """Value int"""
     FieldName = "FieldName"
+    """Value double"""
     CustomUnitNo = "CustomUnitNo"
+    """Value text"""
 
 class m_CustomUnitTable(BaseTable):
     """Table for m_CustomUnit (m_CustomUnit)."""

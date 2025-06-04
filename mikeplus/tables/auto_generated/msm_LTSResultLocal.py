@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LTSResultLocalTableColumns(BaseColumns):
     """Column names for msm_LTSResultLocal (Statistics specifications)."""
     MUID = "MUID"
+    """MUID"""
     ElementTypeNo = "ElementTypeNo"
+    """Element type"""
     ResultNo = "ResultNo"
+    """Result type"""
     StatLocationNo = "StatLocationNo"
+    """Location type"""
     StatLocation = "StatLocation"
+    """Location"""
     SaveNo = "SaveNo"
+    """Save type"""
     EventLimit = "EventLimit"
+    """Limit"""
 
 class msm_LTSResultLocalTable(BaseTable):
     """Table for msm_LTSResultLocal (Statistics specifications)."""

@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_WH_BoundaryTableColumns(BaseColumns):
     """Column names for mw_WH_Boundary (Boundary conditions)."""
     MUID = "MUID"
+    """MUID"""
     NodeTypeNo = "NodeTypeNo"
+    """Node type"""
     NodeID = "NodeID"
+    """Node ID"""
     TypeNo = "TypeNo"
+    """Boundary type"""
     CurveID = "CurveID"
+    """Boundary curve"""
     Description = "Description"
+    """Description"""
 
 class mw_WH_BoundaryTable(BaseTable):
     """Table for mw_WH_Boundary (Boundary conditions)."""

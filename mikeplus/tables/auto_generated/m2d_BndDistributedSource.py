@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_BndDistributedSourceTableColumns(BaseColumns):
     """Column names for m2d_BndDistributedSource (m2d_BndDistributedSource)."""
     MUID = "MUID"
+    """MUID"""
     BndID = "BndID"
+    """BndID"""
     Sqn = "Sqn"
+    """Sqn"""
     TypeNo = "TypeNo"
+    """TypeNo"""
     X = "X"
+    """X coordinate [m]"""
     Y = "Y"
+    """Y coordinate [m]"""
 
 class m2d_BndDistributedSourceTable(BaseTable):
     """Table for m2d_BndDistributedSource (m2d_BndDistributedSource)."""

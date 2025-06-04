@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_DPPatternTableColumns(BaseColumns):
     """Column names for ms_DPPattern (Diurnal patterns)."""
     MUID = "MUID"
+    """ID"""
     DeltaT = "DeltaT"
+    """Delta [min]"""
     Description = "Description"
+    """Description"""
 
 class ms_DPPatternTable(BaseTable):
     """Table for ms_DPPattern (Diurnal patterns)."""

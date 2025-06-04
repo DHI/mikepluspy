@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class m_MediaTableColumns(BaseColumns):
     """Column names for m_Media (m_Media)."""
     MUID = "MUID"
+    """ID"""
     TableName = "TableName"
+    """Table name"""
     ItemMUID = "ItemMUID"
+    """Item MUID"""
     FilePath = "FilePath"
+    """File path"""
     Format = "Format"
+    """Format"""
 
 class m_MediaTable(BaseTable):
     """Table for m_Media (m_Media)."""

@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_TimeseriesDTableColumns(BaseColumns):
     """Column names for mss_TimeseriesD (Time Series data values)."""
     MUID = "MUID"
+    """MUID"""
     TimeseriesID = "TimeseriesID"
+    """TimeseriesID"""
     Sqn = "Sqn"
+    """Sqn"""
     TSDate = "TSDate"
+    """Date Time"""
     TSRelTime = "TSRelTime"
+    """Relative time"""
     TSValue = "TSValue"
+    """Value"""
 
 class mss_TimeseriesDTable(BaseTable):
     """Table for mss_TimeseriesD (Time Series data values)."""

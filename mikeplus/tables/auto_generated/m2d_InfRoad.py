@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_InfRoadTableColumns(BaseColumns):
     """Column names for m2d_InfRoad (Road)."""
     MUID = "MUID"
+    """ZoneID"""
     CodeValue = "CodeValue"
+    """Zone value"""
     UniformOffset = "UniformOffset"
+    """Uniform offset [m]"""
 
 class m2d_InfRoadTable(BaseTable):
     """Table for m2d_InfRoad (Road)."""

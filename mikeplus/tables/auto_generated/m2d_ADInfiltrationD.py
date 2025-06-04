@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_ADInfiltrationDTableColumns(BaseColumns):
     """Column names for m2d_ADInfiltrationD (AD infiltration area in 2D domain)."""
     MUID = "MUID"
+    """MUID"""
     InfilID = "InfilID"
+    """InfilID"""
     Sqn = "Sqn"
+    """Priority"""
     ApplyNo = "ApplyNo"
+    """Apply"""
     AreaID = "AreaID"
+    """Polygon ID"""
     LocalInfil = "LocalInfil"
+    """Infiltration"""
     Description = "Description"
+    """Description"""
 
 class m2d_ADInfiltrationDTable(BaseTable):
     """Table for m2d_ADInfiltrationD (AD infiltration area in 2D domain)."""

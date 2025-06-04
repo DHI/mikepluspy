@@ -4,6 +4,7 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_ADDispersionAreaTableColumns(BaseColumns):
     """Column names for m2d_ADDispersionArea (2D AD dispersion)."""
     MUID = "MUID"
+    """Polygon ID"""
 
 class m2d_ADDispersionAreaTable(BaseGeometryTable):
     """Table for m2d_ADDispersionArea (2D AD dispersion)."""

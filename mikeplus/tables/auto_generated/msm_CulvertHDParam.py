@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_CulvertHDParamTableColumns(BaseColumns):
     """Column names for msm_CulvertHDParam (Hydraulic parameters)."""
     MUID = "MUID"
+    """MUID"""
     CulvertID = "CulvertID"
+    """CulvertID"""
     Sqn = "Sqn"
+    """Sqn"""
     y = "y"
+    """y [m]"""
     Area = "Area"
+    """Area [m^2]"""
     Radius = "Radius"
+    """Radius [m]"""
     Conveyance = "Conveyance"
+    """Conveyance [m^3/s]"""
 
 class msm_CulvertHDParamTable(BaseTable):
     """Table for msm_CulvertHDParam (Hydraulic parameters)."""
