@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from pathlib import Path
 from mikeplus import Database
 from mikeplus.simulation_runner import SimulationRunner
