@@ -31,4 +31,4 @@ from .datatableaccess import DataTableDemoAccess  # noqa: E402
 from .database import Database  # noqa: E402
 from .shortcuts import open, create  # noqa: E402
 
-__all__ = ["Database", "DataTableAccess", "DataTableDemoAccess", "open", "create"]
+__all__ = ["Database", "open", "create"]

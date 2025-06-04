@@ -1,0 +1,24 @@
+# Getting started 
+
+## Installation
+
+::: {.callout-tip}
+# Using uv
+[uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10-100x faster than pip, and also makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as uv venv.
+:::
+
+To install MIKE+Py, run this command in a terminal:
+
+::: {.panel-tabset}
+## pip
+
+```bash
+pip install mikeplus
+```
+
+## uv
+
+```bash
+uv pip install mikeplus
+```
+:::

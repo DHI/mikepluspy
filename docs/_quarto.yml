@@ -2,20 +2,84 @@ project:
   type: website
 
 website:
-  title: "MIKE+Py Documentation"
+  title: "MIKE+Py"
+  page-footer: "© 2025 DHI Group"
+  favicon: dhi.ico
+  repo-url: https://github.com/DHI/mikepluspy
+  repo-actions: [edit]
+  repo-subdir: docs
+  page-navigation: true
+  bread-crumbs: false
+
   navbar:
+    tools:
+    - icon: github
+      menu:
+      - text: Source Code
+        url:  https://github.com/DHI/mikepluspy
+      - text: Report a Bug
+        url:  https://github.com/DHI/mikepluspy/issues
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: user-guide/getting-started.qmd
+        text: "User Guide"
+      - href: examples/index.qmd
+        text: Examples
+      - href: api/index.qmd
+        text: "API Reference"
+
+filters:
+  - interlinks
+interlinks:
+  sources:
+      numpy: 
+        url: https://numpy.org/doc/stable/
+      xarray: 
+        url: https://xarray.pydata.org/en/stable/
+      pandas: 
+        url: https://pandas.pydata.org/docs/
+      scipy: 
+        url: https://docs.scipy.org/doc/scipy/
+
+quartodoc:
+  package: mikeplus
+  style: pkgdown
+  title: API Reference
+  dir: api
+  options:
+    include_inherited: true
+  renderer:
+    style: markdown
+    display_name: relative
+  sidebar: api/_sidebar.yml
+  css: api/_styles-quartodoc.css
+  #dynamic: true
+
+  sections:
+    - title: Main
+      desc: ""
+      contents:
+        - open
+        - create
+    - title: Database
+      desc: ""
+      contents:
+        - Database
+        - name: TableCollection
+          package: mikeplus.tables.auto_generated
+        
+
+metadata-files:
+  - api/_sidebar.yml
 
 format:
   html:
-    theme:
-      - cosmo
-      - brand
-    css: styles.css
+    theme: cosmo
     toc: true
-
-
-
+    css:
+      - api/_styles-quartodoc.css
+      - style.css
+  #ipynb: 
+  #  theme: cosmo
+  #  toc: true
