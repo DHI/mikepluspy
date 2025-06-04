@@ -1,16 +1,11 @@
-"""MIKE+ Engine classes."""
+"""
+MIKE+ Engine classes.
 
-import clr
-
-clr.AddReference("System")
-clr.AddReference("System.Runtime")
-clr.AddReference("System.Threading")
-clr.AddReference("System.Runtime.InteropServices")
-clr.AddReference("DHI.Amelia.DataModule")
-clr.AddReference("DHI.Amelia.DataModule.Interface")
-clr.AddReference("DHI.Amelia.Infrastructure.Interface")
-clr.AddReference("DHI.Amelia.GlobalUtility")
-clr.AddReference("DHI.Amelia.Tools.EngineTool")
+.. deprecated:: 2025.1.0
+   The 'mikeplus.engines' package is deprecated to simplify the codebase and provide a more simulation-oriented API.
+   Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for simulations.
+   This package will be removed in version 2026.0.0.
+"""
 
 from .engine1d import Engine1D  # noqa: E402
 from .epanet import EPANET  # noqa: E402

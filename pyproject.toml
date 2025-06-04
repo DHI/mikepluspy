@@ -98,6 +98,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "license_required: marks tests that require a license (deselect with '-m \"not license_required\"')",
     "timeout: marks a test with a timeout value in seconds",
+    "skip_ci: marks a test to be skipped on CI",
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

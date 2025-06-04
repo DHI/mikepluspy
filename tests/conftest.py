@@ -62,7 +62,7 @@ def test_write_example(sirius_db):
 The utility functions in this module make it easy to extend with other scopes if needed.
 """
 
-TEST_DATA_DIR = Path("tests") / "testdata"
+TEST_DATA_DIR = Path(__file__).resolve().parent / "testdata"
 DB_DIR = TEST_DATA_DIR / "Db"
 
 SIRIUS_DB = DB_DIR / "Sirius" / "Sirius.sqlite"

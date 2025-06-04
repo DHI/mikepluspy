@@ -1,11 +1,23 @@
-"""EPANET class for running EPANET simulation."""
+"""
+EPANET class for running EPANET simulation.
+
+.. deprecated:: 2025.1.0
+   The 'mikeplus.engines.epanet' module is deprecated to simplify the codebase and provide a more simulation-oriented API.
+   Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for EPANET simulations.
+   This module will be removed in version 2026.0.0.
+"""
+
+from __future__ import annotations
 
 import os.path
+import warnings
+
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
 from DHI.Amelia.DataModule.Interface.Services import IMwProjectTable
 from System.Threading import CancellationTokenSource
 from System.Collections.Generic import List
+
 from ..database import Database
 
 
@@ -13,6 +25,13 @@ class EPANET:
     """EPANET class for running EPANET simulation."""
 
     def __init__(self, database):
+        warnings.warn(
+            "The 'EPANET' class is deprecated since version 2025.1.0 and will be removed in version 2026.0.0. "
+            "It was deprecated to simplify the codebase and provide a more simulation-oriented API. "
+            "Please use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' for EPANET simulations.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """Initialize the EPANET class with the given Database.
 
         Parameters

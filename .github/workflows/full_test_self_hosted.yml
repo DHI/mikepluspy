@@ -62,4 +62,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          uv run pytest -v
+          uv run pytest -v -m "not skip_ci"
