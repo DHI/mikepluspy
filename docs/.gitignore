@@ -1,0 +1,6 @@
+/.quarto/
+_site/
+_extensions/
+api/*.qmd
+_sidebar.yml
+objects.json

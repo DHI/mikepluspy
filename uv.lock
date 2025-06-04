@@ -739,6 +739,9 @@ dev = [
     { name = "shapely", version = "2.0.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "shapely", version = "2.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
+docs = [
+    { name = "quartodoc" },
+]
 test = [
     { name = "jinja2" },
     { name = "mypy" },
@@ -748,11 +751,6 @@ test = [
     { name = "pytest-timeout" },
     { name = "shapely", version = "2.0.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "shapely", version = "2.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-]
-
-[package.dev-dependencies]
-docs = [
-    { name = "quartodoc" },
 ]
 
 [package.metadata]
@@ -770,14 +768,12 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'test'" },
     { name = "pytest-timeout", marker = "extra == 'test'" },
     { name = "pythonnet", specifier = ">=3.0" },
+    { name = "quartodoc", marker = "extra == 'docs'", specifier = "==0.10.0" },
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "shapely", marker = "extra == 'dev'" },
     { name = "shapely", marker = "extra == 'test'" },
 ]
-provides-extras = ["dev", "test"]
-
-[package.metadata.requires-dev]
-docs = [{ name = "quartodoc", specifier = ">=0.10.0" }]
+provides-extras = ["dev", "test", "docs"]
 
 [[package]]
 name = "mypy"
