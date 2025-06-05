@@ -5,6 +5,7 @@ website:
   title: "MIKE+Py"
   page-footer: "© 2025 DHI Group"
   favicon: dhi.ico
+  site-url: https://dhi.github.io/mikepluspy
   repo-url: https://github.com/DHI/mikepluspy
   repo-actions: [edit]
   repo-subdir: docs
