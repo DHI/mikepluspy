@@ -434,3 +434,7 @@ format:
   #ipynb: 
   #  theme: cosmo
   #  toc: true
+
+# runs code locally, not in CI
+execute:
+  freeze: auto
