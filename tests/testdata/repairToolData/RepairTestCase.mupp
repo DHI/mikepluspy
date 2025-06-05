@@ -1,0 +1,21 @@
+// Created     : 2023-10-8 11:25:11
+// DLL         : D:\Program Files (x86)\DHI\MIKE+\2024\bin\x64\pfs2004.dll
+// Version     : 22.0.3.17279
+
+[MIKE_URBAN]
+   MajorVersion = 2024
+   MinorVersion = -1.0
+   DataBaseType = 1
+   ServerName = 'localhost'
+   DBName = 'RepairTestCase'
+   UserName = 'postgres'
+   Password = 'postgres'
+   DBFilePath = |.\RepairTestCase.sqlite|
+   Port = 0
+   ModelType = 1
+   ubg = 10
+   [Layout]
+   EndSect  // Layout
+
+EndSect  // MIKE_URBAN
+

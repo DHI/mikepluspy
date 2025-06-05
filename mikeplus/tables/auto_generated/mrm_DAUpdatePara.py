@@ -1,0 +1,65 @@
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
+
+class mrm_DAUpdateParaTableColumns(BaseColumns):
+    """Column names for mrm_DAUpdatePara (Update parameters)."""
+    MUID = "MUID"
+    """ID"""
+    ApplyNo = "ApplyNo"
+    """Apply"""
+    RiverID = "RiverID"
+    """River ID"""
+    Chainage = "Chainage"
+    """Chainage [m]"""
+    UpdatedItemNo = "UpdatedItemNo"
+    """Updated item"""
+    WQcomponent = "WQcomponent"
+    """WQ component"""
+    FileName = "FileName"
+    """File name"""
+    FileItem = "FileItem"
+    """Item ID"""
+    DistribTypeNo = "DistribTypeNo"
+    """Distribution type"""
+    Amplitude = "Amplitude"
+    """Amplitude [()]"""
+    MinChainage = "MinChainage"
+    """Smallest chainage [m]"""
+    MaxChainage = "MaxChainage"
+    """Highest chainage [m]"""
+    IncludeConnectedNo = "IncludeConnectedNo"
+    """Include connected rivers"""
+    SoftStartNo = "SoftStartNo"
+    """Soft start"""
+    IncludeErrorFrcstNo = "IncludeErrorFrcstNo"
+    """Include error forcast"""
+    EquationID = "EquationID"
+    """Equation"""
+    StdDevTypeNo = "StdDevTypeNo"
+    """Type"""
+    StdDevValue = "StdDevValue"
+    """Value"""
+    StdDevFileName = "StdDevFileName"
+    """File name"""
+    StdDevFileItem = "StdDevFileItem"
+    """Item ID"""
+    StdDevApplyLowerBoxNo = "StdDevApplyLowerBoxNo"
+    """Apply lower limit"""
+    StdDevLowerValue = "StdDevLowerValue"
+    """Lower value [%]"""
+    StdDevApplyUpperBoxNo = "StdDevApplyUpperBoxNo"
+    """Apply upper limit"""
+    StdDevUpperValue = "StdDevUpperValue"
+    """Upper value [%]"""
+    Description = "Description"
+    """Description"""
+
+class mrm_DAUpdateParaTable(BaseGeometryTable):
+    """Table for mrm_DAUpdatePara (Update parameters)."""
+    
+    @property
+    def columns(self) -> mrm_DAUpdateParaTableColumns:
+        """Get the columns for the table."""
+        if self._columns is None:
+            self._columns = mrm_DAUpdateParaTableColumns(self)
+        return self._columns

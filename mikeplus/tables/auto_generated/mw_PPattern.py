@@ -1,0 +1,65 @@
+from mikeplus.tables.base_table import BaseTable
+from mikeplus.tables.base_table import BaseColumns
+
+class mw_PPatternTableColumns(BaseColumns):
+    """Column names for mw_PPattern (Patterns)."""
+    MUID = "MUID"
+    """Pattern ID"""
+    TypeNo = "TypeNo"
+    """Type"""
+    Category = "Category"
+    """Category"""
+    Description = "Description"
+    """Description"""
+    UseAbsDateTime = "UseAbsDateTime"
+    """UseAbsDateTime"""
+    Duration = "Duration"
+    """Duration time [h]"""
+    MonF = "MonF"
+    """MonF"""
+    TueF = "TueF"
+    """TueF"""
+    WedF = "WedF"
+    """WedF"""
+    ThuF = "ThuF"
+    """ThuF"""
+    FriF = "FriF"
+    """FriF"""
+    SatF = "SatF"
+    """SatF"""
+    SunF = "SunF"
+    """SunF"""
+    JanF = "JanF"
+    """JanF"""
+    FebF = "FebF"
+    """FebF"""
+    MarF = "MarF"
+    """MarF"""
+    AprF = "AprF"
+    """AprF"""
+    MayF = "MayF"
+    """MayF"""
+    JunF = "JunF"
+    """JunF"""
+    JulF = "JulF"
+    """JulF"""
+    AugF = "AugF"
+    """AugF"""
+    SepF = "SepF"
+    """SepF"""
+    OctF = "OctF"
+    """OctF"""
+    NovF = "NovF"
+    """NovF"""
+    DecF = "DecF"
+    """DecF"""
+
+class mw_PPatternTable(BaseTable):
+    """Table for mw_PPattern (Patterns)."""
+    
+    @property
+    def columns(self) -> mw_PPatternTableColumns:
+        """Get the columns for the table."""
+        if self._columns is None:
+            self._columns = mw_PPatternTableColumns(self)
+        return self._columns
