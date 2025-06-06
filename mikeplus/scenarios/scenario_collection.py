@@ -3,28 +3,33 @@ MIKE+ Python API - ScenarioCollection class.
 
 Collection-like access to scenarios in the MIKE+ model.
 """
-from typing import List, Iterator, Optional, Union, TYPE_CHECKING
+
+from __future__ import annotations
+
+from typing import Iterator, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .scenario import Scenario
+
 
 class ScenarioCollection:
     """Collection-like access to scenarios in the database.
 
     Provides a Pythonic interface for accessing scenarios in the MIKE+ model.
     """
-    
+
     def __init__(self, scenario_manager):
-        """
+        """ScenarioCollection constructor.
+
         Parameters
         ----------
-        scenario_manager : object
+        scenario_manager : IScenarioManager
             The underlying .NET scenario manager object
         """
         self._scenario_manager = scenario_manager
-    
+
     @property
-    def active(self) -> "Scenario":
+    def active(self) -> Scenario:
         """Get the currently active scenario.
 
         Returns
@@ -32,10 +37,10 @@ class ScenarioCollection:
         Scenario
             The currently active scenario
         """
-        return NotImplemented
-        
+        return Scenario(self._scenario_manager, self._scenario_manager.ActiveScenario)
+
     @property
-    def base(self) -> "Scenario":
+    def base(self) -> Scenario:
         """Get the base scenario.
 
         Returns
@@ -43,11 +48,10 @@ class ScenarioCollection:
         Scenario
             The base scenario
         """
-        return NotImplemented
-    
-    def __getitem__(self, id: str) -> "Scenario":
-        """
-        Access scenario by its ID.
+        return Scenario(self._scenario_manager, self._scenario_manager.BaseScenario)
+
+    def __getitem__(self, id: str) -> Scenario:
+        """Access scenario by its ID.
 
         Parameters
         ----------
@@ -64,9 +68,13 @@ class ScenarioCollection:
         KeyError
             If no scenario matches the given ID
         """
-        return NotImplemented
-    
-    def __iter__(self) -> Iterator["Scenario"]:
+        scenario = self._scenario_manager.FindScenario(id)
+        if scenario is None:
+            raise KeyError(f"No scenario with ID '{id}' found")
+
+        return Scenario(self._scenario_manager, scenario)
+
+    def __iter__(self) -> Iterator[Scenario]:
         """Iterate through all scenarios.
 
         Returns
@@ -74,9 +82,11 @@ class ScenarioCollection:
         iterator
             Iterator over all scenarios
         """
-        return NotImplemented
-    
-    def find_by_name(self, name: str) -> List["Scenario"]:
+        for scenario_id in self._scenario_manager.GetScenarios():
+            scenario = self._scenario_manager.FindScenario(scenario_id)
+            yield Scenario(self._scenario_manager, scenario)
+
+    def find_by_name(self, name: str) -> list[Scenario]:
         """
         Find scenarios by name (may return multiple if names aren't unique).
 
@@ -90,9 +100,30 @@ class ScenarioCollection:
         list of Scenario
             A list of matching scenarios
         """
-        return NotImplemented
-    
-    def find_by_id(self, id: str) -> Optional["Scenario"]:
+        scenario = self._scenario_manager.FindScenarioByName(name)
+        if scenario is None:
+            return []
+
+        return [Scenario(self._scenario_manager, scenario)]
+
+    def by_name(self, name: str) -> Scenario | None:
+        """
+        Find a scenario by name (returns the first match if multiple exist).
+
+        Parameters
+        ----------
+        name : str
+            The name to search for
+
+        Returns
+        -------
+        Scenario or None
+            The first matching scenario or None if not found
+        """
+        scenario = self.find_by_name(name)
+        return scenario[0] if scenario else None
+
+    def find_by_id(self, id: str) -> Scenario | None:
         """
         Find a scenario by its exact ID (returns single item or None).
 
@@ -106,27 +137,54 @@ class ScenarioCollection:
         Scenario or None
             The matching scenario or None if not found
         """
-        return NotImplemented
-    
-    def create(self, parent: "Scenario", name: str) -> "Scenario":
+        from .scenario import Scenario
+
+        scenario = self._scenario_manager.FindScenario(id)
+        if scenario is None:
+            return None
+
+        return Scenario(self._scenario_manager, scenario)
+
+    def create(self, name: str, parent: Scenario) -> Scenario:
         """
         Create a new child scenario.
 
         Parameters
         ----------
-        parent : Scenario
-            The parent scenario
         name : str
             Name for the new scenario
+        parent : Scenario
+            The parent scenario
 
         Returns
         -------
         Scenario
             The newly created Scenario
+
+        Raises
+        ------
+        ValueError
+            If the scenario could not be created
         """
-        return NotImplemented
-        
-    def delete(self, scenario: Union["Scenario", str]) -> None:
+        from .scenario import Scenario
+
+        try:
+            # Generate a unique ID automatically by using None as first param
+            new_scenario = self._scenario_manager.CreateChildScenario(
+                parent._net_scenario, None, name, True
+            )
+            if new_scenario is None:
+                raise ValueError(
+                    f"Failed to create scenario '{name}' - no scenario returned"
+                )
+
+            return Scenario(self._scenario_manager, new_scenario)
+        except Exception as e:
+            raise ValueError(
+                f"Failed to create scenario '{name}'. Error: {str(e)}"
+            ) from e
+
+    def delete(self, scenario: Scenario | str) -> None:
         """
         Delete a scenario from the database.
 
@@ -142,4 +200,20 @@ class ScenarioCollection:
         KeyError
             If the scenario ID is not found
         """
-        return NotImplemented
+        # Get the ID depending on input type
+        if isinstance(scenario, str):
+            scenario_id = scenario
+        else:
+            scenario_id = scenario.id
+
+        # Check if it's the base scenario
+        base_scenario = self._scenario_manager.BaseScenario
+        if scenario_id == base_scenario.Id:
+            raise ValueError("Cannot delete the base scenario")
+
+        # Find the scenario to ensure it exists
+        if self._scenario_manager.FindScenario(scenario_id) is None:
+            raise KeyError(f"No scenario with ID '{scenario_id}' found")
+
+        # Delete the scenario
+        self._scenario_manager.DeleteScenario(scenario_id)

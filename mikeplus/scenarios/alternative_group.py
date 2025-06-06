@@ -6,29 +6,32 @@ Represents a group of alternatives in the MIKE+ model.
 An alternative group contains alternatives for specific tables or model components.
 Each group has a base alternative and potentially an active alternative.
 """
-from typing import List, Iterator, Union, Optional, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from .alternative import Alternative
+from __future__ import annotations
+from typing import Iterator
+
+from .alternative import Alternative
+
 
 class AlternativeGroup:
     """Represents an alternative group with collection-like access to alternatives.
 
     Provides a Pythonic interface for accessing and managing alternatives within a group.
     """
-    
+
     def __init__(self, scenario_manager, net_alternative_group):
-        """
+        """AlternativeGroup constructor.
+
         Parameters
         ----------
-        scenario_manager : object
-            The underlying scenario manager
-        net_alternative_group : object
+        scenario_manager : IScenarioManager
+            The underlying .NET scenario manager object
+        net_alternative_group : IAlternativeGroup
             The .NET IAlternativeGroup object
         """
         self._scenario_manager = scenario_manager
         self._net_alternative_group = net_alternative_group
-    
+
     @property
     def id(self) -> str:
         """The group's unique identifier.
@@ -38,8 +41,8 @@ class AlternativeGroup:
         str
             The group ID
         """
-        return NotImplemented
-    
+        return str(self._net_alternative_group.Id)
+
     @property
     def name(self) -> str:
         """The group's name.
@@ -49,10 +52,10 @@ class AlternativeGroup:
         str
             The group name
         """
-        return NotImplemented
-    
+        return str(self._net_alternative_group.Name)
+
     @property
-    def tables(self) -> List[str]:
+    def tables(self) -> list[str]:
         """The database tables associated with this group.
 
         Returns
@@ -60,10 +63,13 @@ class AlternativeGroup:
         list of str
             The table names associated with this group
         """
-        return NotImplemented
-    
+        tables = []
+        for table in self._net_alternative_group.Tables:
+            tables.append(str(table))
+        return tables
+
     @property
-    def base(self) -> "Alternative":
+    def base(self) -> Alternative:
         """The base alternative for this group.
 
         Returns
@@ -71,10 +77,11 @@ class AlternativeGroup:
         Alternative
             The base alternative for this group
         """
-        return NotImplemented
-    
+        base_alt = self._scenario_manager.GetBaseAlternative(self.id)
+        return Alternative(self._scenario_manager, base_alt)
+
     @property
-    def active(self) -> "Alternative":
+    def active(self) -> Alternative:
         """The alternative assigned to the active scenario for this group.
 
         Returns
@@ -82,11 +89,11 @@ class AlternativeGroup:
         Alternative
             The currently active alternative for this group
         """
-        return NotImplemented
-    
-    def __getitem__(self, key: Union[str, int]) -> "Alternative":
-        """
-        Access alternative by ID (int) or name (str).
+        current_alt = self._scenario_manager.GetCurrentAlternative(self.id)
+        return Alternative(self._scenario_manager, current_alt)
+
+    def __getitem__(self, key: str | int) -> Alternative:
+        """Access alternative by ID (int) or name (str).
 
         Parameters
         ----------
@@ -103,9 +110,15 @@ class AlternativeGroup:
         KeyError
             If no alternative matches the given key
         """
-        return NotImplemented
-    
-    def __iter__(self) -> Iterator["Alternative"]:
+        for alt in self._net_alternative_group.Alternatives:
+            if isinstance(key, int) and alt.AltId == key:
+                return Alternative(self._scenario_manager, alt)
+            elif isinstance(key, str) and alt.Name == key:
+                return Alternative(self._scenario_manager, alt)
+
+        raise KeyError(f"No alternative with ID or name '{key}' in group '{self.name}'")
+
+    def __iter__(self) -> Iterator[Alternative]:
         """Iterate through all alternatives in this group.
 
         Returns
@@ -113,9 +126,10 @@ class AlternativeGroup:
         iterator
             Iterator over all alternatives in this group
         """
-        return NotImplemented
-    
-    def find_by_name(self, name: str) -> List["Alternative"]:
+        for alt in self._net_alternative_group.Alternatives:
+            yield Alternative(self._scenario_manager, alt)
+
+    def find_by_name(self, name: str) -> list[Alternative]:
         """
         Find alternatives by name (may return multiple if names aren't unique).
 
@@ -129,9 +143,15 @@ class AlternativeGroup:
         list of Alternative
             A list of matching alternatives
         """
-        return NotImplemented
-    
-    def create(self, name: str, parent: Optional["Alternative"] = None) -> "Alternative":
+        matches = []
+        for alt in self._net_alternative_group.Alternatives:
+            if alt.Name == name:
+                matches.append(Alternative(self._scenario_manager, alt))
+        return matches
+
+    def create(
+        self, name: str, parent: Alternative | None = None
+    ) -> Alternative:
         """
         Create a new alternative, optionally as a child of another.
 
@@ -146,5 +166,31 @@ class AlternativeGroup:
         -------
         Alternative
             The newly created Alternative
+
+        Raises
+        ------
+        ValueError
+            If the alternative could not be created
         """
-        return NotImplemented
+        try:
+            if parent is None:
+                parent_alt = self._scenario_manager.GetBaseAlternative(self.id)
+            else:
+                parent_alt = parent._net_alternative
+
+            new_alt = self._scenario_manager.CreateAlternative(parent_alt, name)
+            if new_alt is None:
+                raise ValueError(
+                    f"Failed to create alternative '{name}' - no alternative returned"
+                )
+
+            return Alternative(self._scenario_manager, new_alt)
+
+        except Exception as e:
+            existing_names = [
+                alt.Name for alt in self._net_alternative_group.Alternatives
+            ]
+            raise ValueError(
+                f"Failed to create alternative '{name}'. Error: {str(e)}. "
+                f"Group: {self.name}, Existing alternatives: {existing_names}"
+            ) from e
