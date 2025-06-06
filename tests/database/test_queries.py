@@ -220,6 +220,25 @@ class TestSelectQuery:
         assert "Link_2" in df.index
         assert df["Diameter"].sum() == 8.0
 
+    def test_to_dataframe(self, table):
+        """Test converting query result to pandas DataFrame using to_dataframe alias."""
+        df = SelectQuery(table, ["MUID", "Diameter"]).to_dataframe()
+
+        assert isinstance(df, pd.DataFrame)
+        assert list(df.columns) == ["MUID", "Diameter"]
+        assert len(df) == 8
+        assert "Link_2" in df.index
+        assert df["Diameter"].sum() == 8.0
+
+    def test_table_to_dataframe(self, table):
+        """Test table-level shortcut for converting to pandas DataFrame."""
+        df = table.to_dataframe()
+
+        assert isinstance(df, pd.DataFrame)
+        assert "MUID" in df.columns
+        assert len(df) == 8
+        assert "Link_2" in df.index
+
 
 class TestInsertQuery:
     """Tests for the InsertQuery class."""
