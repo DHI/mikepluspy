@@ -33,7 +33,7 @@ def test_api_access_scenarios_and_alternatives(sirius_db):
         "Catchments and hydrology data",
         "Transport data",
         "Control rules data",
-        "Long term statistics data",
+        "Long Term Statistics data",
         "Profiles and curves",
         "2D overland",
         "2D boundaries data"

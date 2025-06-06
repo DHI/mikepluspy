@@ -6,11 +6,9 @@ Collection-like access to scenarios in the MIKE+ model.
 
 from __future__ import annotations
 
-from typing import Iterator, TYPE_CHECKING
+from typing import Iterator
 
-if TYPE_CHECKING:
-    from .scenario import Scenario
-
+from .scenario import Scenario
 
 class ScenarioCollection:
     """Collection-like access to scenarios in the database.
