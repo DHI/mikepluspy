@@ -2,12 +2,28 @@
 
 ## [Unreleased]
 
+### Added
+- Fluent SQL API for chainable operations (select, insert, update, delete) on database tables
+- `to_dataframe()` alias for `to_pandas()` and table-level shortcut method for pandas integration
+- Convenience methods `open()` and `create()` for cleaner database access syntax
+- Methods for listing available tables and their fields for discovery
+
 ### Changed
-- Updated Engine1D to use EngineTool
+- Engine1D now uses EngineTool for more efficient simulation execution
+- Redesigned database access architecture with new Database, TableCollection, and Table classes
+- Automated table class generation with Jinja2 templates for maintainability
+- Improved type handling for Python/C# interoperability
+- Enhanced test isolation with database fixtures
 
 ### Deprecated
-- Package 'mikeplus.engines' and all engine classes (since 2025.1.0, removal in 2026.0.0)
-- Use 'mikeplus.simulation_runner.SimulationRunner' or 'Database.run()' instead
+- Package 'mikeplus.engines' and all engine classes (removal planned in 2026.0.0)
+- 'DataTableAccess' class, replaced with new 'Database', 'TableCollection', and 'Table' classes
+- Use 'SimulationRunner' or 'Database.run()' methods instead of deprecated engine classes
+
+### Developer
+- Static type checking with mypy for improved code reliability
+- Stricter linting rules for better code quality
+- Improved error handling for database operations
 
 ## [2025.0.2] - 2025-02-18
 
