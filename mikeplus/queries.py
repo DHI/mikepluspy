@@ -241,6 +241,17 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
         df_result.columns = self._columns
         return df_result
 
+    def to_dataframe(self):
+        """Convert the query results to a pandas DataFrame.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A pandas DataFrame containing the query results
+
+        """
+        return self.to_pandas()
+
 
 class InsertQuery(BaseQuery[str]):
     """Query class for INSERT operations."""

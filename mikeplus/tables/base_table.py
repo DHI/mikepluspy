@@ -140,3 +140,14 @@ class BaseTable:
 
         """
         return DeleteQuery(self)
+
+    def to_dataframe(self):
+        """Convert the table data to a pandas DataFrame.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A pandas DataFrame containing all table data
+
+        """
+        return self.select().to_dataframe()
