@@ -8,6 +8,7 @@
 - Convenience methods `open()` and `create()` for cleaner database access syntax
 - Methods for listing available tables and their fields for discovery
 - Scenario and alternative management
+- `by_muid()` method to `BaseQuery` (inherited by `SelectQuery`, `UpdateQuery`, `DeleteQuery`) for convenient filtering by MUID(s).
 
 ### Changed
 - Engine1D now uses EngineTool for more efficient simulation execution
