@@ -10,6 +10,7 @@ from typing import Iterator
 
 from .scenario import Scenario
 
+
 class ScenarioCollection:
     """Collection-like access to scenarios in the database.
 
@@ -147,7 +148,9 @@ class ScenarioCollection:
 
         return Scenario(self._scenario_manager, scenario)
 
-    def create(self, name: str, id: str | None = None, parent: Scenario | None = None) -> Scenario:
+    def create(
+        self, name: str, id: str | None = None, parent: Scenario | None = None
+    ) -> Scenario:
         """
         Create a new child scenario.
 

@@ -150,9 +150,7 @@ class AlternativeGroup:
                 matches.append(Alternative(self._scenario_manager, alt))
         return matches
 
-    def create(
-        self, name: str, parent: Alternative | None = None
-    ) -> Alternative:
+    def create(self, name: str, parent: Alternative | None = None) -> Alternative:
         """
         Create a new alternative, optionally as a child of another.
 
@@ -188,9 +186,7 @@ class AlternativeGroup:
             return Alternative(self._scenario_manager, new_alt)
 
         except Exception as e:
-            existing_names = [
-                alt.Name for alt in self._scenario_manager.Alternatives
-            ]
+            existing_names = [alt.Name for alt in self._scenario_manager.Alternatives]
             raise ValueError(
                 f"Failed to create alternative '{name}'. Error: {str(e)}. "
                 f"Group: {self.name}, Existing alternatives: {existing_names}"

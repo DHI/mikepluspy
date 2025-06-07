@@ -12,7 +12,9 @@ from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
 from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
-from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import ScenarioManager as NetScenarioManager
+from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
+    ScenarioManager as NetScenarioManager,
+)
 
 from plistlib import InvalidFileException
 from pathlib import Path
@@ -168,7 +170,9 @@ class Database:
             self._data_table_container.ImportExportPfsFile = ImportExportPfsFile()
             self._net_scenario_manager = self._data_source.ScenarioManager
             self._scenarios = ScenarioCollection(self._net_scenario_manager)
-            self._alternative_groups = AlternativeGroupCollection(self._net_scenario_manager)
+            self._alternative_groups = AlternativeGroupCollection(
+                self._net_scenario_manager
+            )
             self._is_open = True
         except Exception as e:
             raise Exception(
@@ -347,7 +351,7 @@ class Database:
             raise ValueError("Database is not open")
 
         return self._scenarios
-    
+
     @property
     def alternative_groups(self) -> AlternativeGroupCollection:
         """Access to MIKE+ alternative groups.
@@ -381,7 +385,7 @@ class Database:
 
     def list_scenarios(self) -> list[str]:
         """Get the list of available scenario names.
-        
+
         This is a convenience method that returns the names of all scenarios.
         For more advanced scenario operations, use the scenarios property.
 
@@ -397,10 +401,10 @@ class Database:
         """
         if not self._is_open:
             raise ValueError("Database is not open")
-        
+
         if not self._scenarios:
             return []
-        
+
         return [scenario.name for scenario in self._scenarios]
 
     @property
@@ -433,7 +437,7 @@ class Database:
             raise ValueError(
                 f"Scenario '{scenario.name}' does not exist. Valid scenarios: {valid_scenarios}"
             )
-        
+
         scenario.activate()
 
     @property
