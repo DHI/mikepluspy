@@ -77,7 +77,7 @@ class AlternativeGroup:
         Alternative
             The base alternative for this group
         """
-        base_alt = self._scenario_manager.GetBaseAlternative(self.id)
+        base_alt = self._net_alternative_group.BaseAlternative
         return Alternative(self._scenario_manager, base_alt)
 
     @property
@@ -89,7 +89,7 @@ class AlternativeGroup:
         Alternative
             The currently active alternative for this group
         """
-        current_alt = self._scenario_manager.GetCurrentAlternative(self.id)
+        current_alt = self._net_alternative_group.ActiveAlternative
         return Alternative(self._scenario_manager, current_alt)
 
     def __getitem__(self, key: str | int) -> Alternative:
@@ -126,8 +126,9 @@ class AlternativeGroup:
         iterator
             Iterator over all alternatives in this group
         """
-        for alt in self._net_alternative_group.Alternatives:
-            yield Alternative(self._scenario_manager, alt)
+        for alt in self._scenario_manager.Alternatives:
+            if alt.GroupId == self.id:
+                yield Alternative(self._scenario_manager, alt)
 
     def find_by_name(self, name: str) -> list[Alternative]:
         """
@@ -144,8 +145,8 @@ class AlternativeGroup:
             A list of matching alternatives
         """
         matches = []
-        for alt in self._net_alternative_group.Alternatives:
-            if alt.Name == name:
+        for alt in self._scenario_manager.Alternatives:
+            if alt.GroupId == self.id and alt.Name == name:
                 matches.append(Alternative(self._scenario_manager, alt))
         return matches
 
@@ -174,7 +175,7 @@ class AlternativeGroup:
         """
         try:
             if parent is None:
-                parent_alt = self._scenario_manager.GetBaseAlternative(self.id)
+                parent_alt = self._net_alternative_group.BaseAlternative
             else:
                 parent_alt = parent._net_alternative
 
@@ -188,7 +189,7 @@ class AlternativeGroup:
 
         except Exception as e:
             existing_names = [
-                alt.Name for alt in self._net_alternative_group.Alternatives
+                alt.Name for alt in self._scenario_manager.Alternatives
             ]
             raise ValueError(
                 f"Failed to create alternative '{name}'. Error: {str(e)}. "

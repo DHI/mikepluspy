@@ -120,15 +120,7 @@ class Alternative:
         bool
             True if this alternative is part of the active scenario, False otherwise
         """
-        active_scenario = self._scenario_manager.ActiveScenario
-        if active_scenario is None:
-            return False
-
-        group_id = self._net_alternative.Group.Id
-        active_alt = self._scenario_manager.GetCurrentAlternative(group_id)
-        return (
-            active_alt is not None and active_alt.AltId == self._net_alternative.AltId
-        )
+        return self._net_alternative.IsActive
 
     @property
     def is_base(self) -> bool:

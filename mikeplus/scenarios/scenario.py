@@ -174,11 +174,11 @@ class Scenario:
             If the scenario could not be activated
         """
         try:
-            self._scenario_manager.ActivateScenario(self.id, True)
+            self._scenario_manager.ActivateScenario(self.id)
         except Exception as e:
-            raise ValueError(f"Failed to activate scenario: {e}") from e
+            raise ValueError(f"Failed to activate scenario: {e}")
 
-    def set_alternative(self, alternative: "Alternative") -> None:
+    def set_alternative(self, alternative: Alternative) -> None:
         """
         Add/replace an alternative in this scenario.
 

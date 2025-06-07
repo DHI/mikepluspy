@@ -143,7 +143,7 @@ class ScenarioCollection:
 
         return Scenario(self._scenario_manager, scenario)
 
-    def create(self, name: str, parent: Scenario) -> Scenario:
+    def create(self, name: str, id: str | None = None, parent: Scenario | None = None) -> Scenario:
         """
         Create a new child scenario.
 
@@ -151,7 +151,9 @@ class ScenarioCollection:
         ----------
         name : str
             Name for the new scenario
-        parent : Scenario
+        id : str | None
+            ID for the new scenario
+        parent : Scenario | None
             The parent scenario
 
         Returns
@@ -167,9 +169,10 @@ class ScenarioCollection:
         from .scenario import Scenario
 
         try:
-            # Generate a unique ID automatically by using None as first param
+            if parent is None:
+                parent = self.base
             new_scenario = self._scenario_manager.CreateChildScenario(
-                parent._net_scenario, None, name, True
+                parent._net_scenario, id, name
             )
             if new_scenario is None:
                 raise ValueError(

@@ -5,8 +5,7 @@ import pytest
 from pathlib import Path
 
 import mikeplus as mp
-from mikeplus.scenarios import Scenario, Alternative
-
+from mikeplus.scenarios import Scenario, Alternative, AlternativeGroup
 
 def test_api_access_scenarios_and_alternatives(sirius_db):
     """
@@ -72,13 +71,17 @@ def test_api_create_and_activate_scenario(sirius_db):
     
     # Step 1: Get catchment alternative group and its base alternative
     catchment_group = db.alternative_groups["Catchments and hydrology data"]
+    assert isinstance(catchment_group, AlternativeGroup)
     base_alt = catchment_group.base
+    assert isinstance(base_alt, Alternative)
     
     # Step 2: Create a new alternative from the base alternative
-    new_alt = catchment_group.create(name=scenario_name, parent=base_alt)
+    new_alt = catchment_group.create(name=scenario_name)
+    assert isinstance(new_alt, Alternative)
     
     # Step 3: Create a new scenario 
-    new_scenario = db.scenarios.create(name=scenario_name, parent=db.scenarios.base)
+    new_scenario = db.scenarios.create(name=scenario_name)
+    assert isinstance(new_scenario, Scenario)
     
     # Step 4: Set the new alternative for the new scenario
     new_scenario.set_alternative(new_alt)
