@@ -14,11 +14,10 @@ if TYPE_CHECKING:
     from .tables import BaseTable
 
 
-# Replace imports from converters with imports from dotnet
 from .dotnet import DotNetConverter
+from .utils import to_sql
 
 
-# Define a TypeVar for the return type of execute
 QueryResultT = TypeVar("QueryResultT")
 
 
@@ -95,7 +94,8 @@ class BaseQuery(Generic[QueryResultT], ABC):
                     f"All items in muid_or_muids list/tuple must be strings. You provided: {types}."
                 )
 
-            condition = f"MUID IN ({', '.join(f"'{muid}'" for muid in muid_or_muids)})"
+            formatted_muids = [to_sql(muid) for muid in muid_or_muids]
+            condition = f"MUID IN ({', '.join(formatted_muids)})"
             self.where(condition)
         else:
             raise ValueError(
