@@ -33,9 +33,11 @@ class Scenario:
         self._net_scenario = net_scenario
 
     def __repr__(self):
+        """Get string representation of the Scenario object."""
         return f"Scenario <{self.name}>"
 
     def __eq__(self, other: object) -> bool:
+        """Check if two scenarios are equal."""
         if not isinstance(other, Scenario):
             return False
         return self.id == other.id

@@ -27,6 +27,7 @@ class ScenarioCollection:
         self._scenario_manager = scenario_manager
 
     def __repr__(self):
+        """Get string representation of the ScenarioCollection object."""
         return f"ScenarioCollection <{len(list(self))}>"
 
     @property
