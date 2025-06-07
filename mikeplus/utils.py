@@ -1,3 +1,5 @@
+"""General utilities for mikepluspy."""
+
 def to_sql(value) -> str:
     """Convert a Python value to its SQL string representation.
 
