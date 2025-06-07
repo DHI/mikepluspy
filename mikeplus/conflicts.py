@@ -2,8 +2,10 @@
 
 import sys
 import os
+import warnings
 
 MIKEIO1D_IMPORTED_BEFORE_MIKEPLUS = "mikeio1d" in sys.modules
+MIKEIO_IMPORTED_BEFORE_MIKEPLUS = "mikeio" in sys.modules
 DISABLE_CONFLICT_CHECKS = (
     os.getenv("MIKEPLUSPY_DISABLE_CONFLICT_CHECKS", "false").lower() == "true"
 )
@@ -32,10 +34,17 @@ def check_conflicts():
             "mikeio1d must be imported after mikeplus to avoid conflicts. See docs for more info."
         )
 
-    if "mikeio" in sys.modules:
+    MIKEIO_IMPORTED = "mikeio" in sys.modules
+
+    if MIKEIO_IMPORTED and MIKEIO_IMPORTED_BEFORE_MIKEPLUS:
+        if not hasattr(check_conflicts, "warned"):
+            check_conflicts.warned = True
+            warnings.warn(
+                "mikeio and mikeplus are both imported in the same process. There could be some conflicts. See docs for more info.",
+                category=UserWarning,
+                stacklevel=2,
+            )
+    elif MIKEIO_IMPORTED:
         raise ImportError(
-            """mikeio cannot currently be used in same process as mikeplus. 
-            Workarounds include splitting code into separate scripts or using 
-            Python's multiprocessing library to import mikeio and mikeplus in 
-            separate processes. See docs for more info."""
+            "Importing mikeio after mikeplus is not supported. Try importing mikeio before mikeplus. See docs for more info."
         )

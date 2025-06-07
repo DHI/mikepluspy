@@ -7,12 +7,18 @@ MIKE+ model files, including access to tables and scenarios.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .scenarios.scenario import Scenario
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
 from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
 from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
-from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import ScenarioManager
+from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
+    ScenarioManager as NetScenarioManager,
+)
 
 from plistlib import InvalidFileException
 from pathlib import Path
@@ -20,6 +26,8 @@ from pathlib import Path
 from .conflicts import check_conflicts
 from .tables.auto_generated import TableCollection
 from .simulation_runner import SimulationRunner
+from .scenarios.scenario_collection import ScenarioCollection
+from .scenarios.alternative_group_collection import AlternativeGroupCollection
 
 
 class Database:
@@ -66,7 +74,9 @@ class Database:
         self._data_table_container: DataTableContainer = DataTableContainer(True)
         self._data_table_container.DataSource = self._data_source
         self._tables: TableCollection = TableCollection(self._data_table_container)
-        self._scenario_manager: ScenarioManager | None = None
+        self._net_scenario_manager: NetScenarioManager | None = None
+        self._scenarios: ScenarioCollection | None = None
+        self._alternative_groups: AlternativeGroupCollection | None = None
         self._is_open = False
 
         if auto_open:
@@ -162,7 +172,11 @@ class Database:
             self._data_table_container.OnResetContainer(None, None)
             self._data_table_container.UndoRedoManager = AmlUndoRedoManager()
             self._data_table_container.ImportExportPfsFile = ImportExportPfsFile()
-            self._scenario_manager = self._data_source.ScenarioManager
+            self._net_scenario_manager = self._data_source.ScenarioManager
+            self._scenarios = ScenarioCollection(self._net_scenario_manager)
+            self._alternative_groups = AlternativeGroupCollection(
+                self._net_scenario_manager
+            )
             self._is_open = True
         except Exception as e:
             raise Exception(
@@ -310,57 +324,97 @@ class Database:
         return f"{major_version}.{minor_version}"
 
     @property
-    def scenarios(self) -> list[str]:
-        """Get the list of available scenarios.
+    def scenarios(self) -> ScenarioCollection:
+        """Access to MIKE+ scenario management.
 
         Returns
         -------
-        list of str
-            List of scenario names
+        ScenarioCollection
+            Collection of all scenarios in the database
 
+        Raises
+        ------
+        ValueError
+            If the database is not open
         """
-        if not self._scenario_manager:
-            raise ValueError(
-                "Open the database with `open()` before accessing scenarios."
-            )
+        if not self._is_open:
+            raise ValueError("Database is not open")
 
-        return list(self._scenario_manager.GetScenarios())
+        if not self._scenarios:
+            self._scenarios = ScenarioCollection(self._net_scenario_manager)
+
+        return self._scenarios
 
     @property
-    def active_scenario(self) -> str:
-        """Name of the active scenario.
+    def alternative_groups(self) -> AlternativeGroupCollection:
+        """Access to MIKE+ alternative groups.
 
         Returns
         -------
-        str
-            Name of the active scenario
+        AlternativeGroupCollection
+            Collection of all alternative groups in the database
+
+        Raises
+        ------
+        ValueError
+            If the database is not open
+        """
+        if not self._is_open:
+            raise ValueError("Database is not open")
+
+        if not self._alternative_groups:
+            self._alternative_groups = AlternativeGroupCollection(
+                self._net_scenario_manager
+            )
+
+        return self._alternative_groups
+
+    @property
+    def active_scenario(self) -> Scenario:
+        """Active scenario.
+
+        Returns
+        -------
+        Scenario
+            The active scenario
 
         Notes
         -----
         This can be set to a new scenario name to activate a different scenario.
+        For more advanced scenario management, use the `scenarios` property.
 
         """
-        if not self._scenario_manager:
-            raise ValueError(
-                "Open the database with `open()` before accessing scenarios."
-            )
+        if not self._is_open:
+            raise ValueError("Database is not open")
 
-        return self._scenario_manager.ActiveScenario.Name
+        if not self._scenarios:
+            raise ValueError("Scenarios are not initialized")
+
+        return self._scenarios.active
 
     @active_scenario.setter
-    def active_scenario(self, scenario_name: str):
-        if not self._scenario_manager:
+    def active_scenario(self, scenario: Scenario):
+        if not self._is_open:
+            raise ValueError("Database is not open")
+
+        if not self._scenarios:
+            raise ValueError("Scenarios are not initialized")
+
+        if scenario is None:
+            raise ValueError("Scenario cannot be None")
+
+        if "Scenario" not in repr(scenario):
             raise ValueError(
-                "Open the database with `open()` before accessing scenarios."
+                "Scenario must be an instance of Scenario. Use Database.scenarios.by_name() to get a scenario instance."
             )
 
-        if scenario_name not in self.scenarios:
+        if scenario not in self._scenarios:
+            valid_scenarios = [s.name for s in self._scenarios]
             raise ValueError(
-                f"Scenario '{scenario_name}' does not exist. Valid scenarios: {self.scenarios}"
+                f"Scenario '{scenario.name}' does not exist. Valid scenarios: {valid_scenarios}"
             )
 
-        scenario_id = self._scenario_manager.FindScenarioByName(scenario_name).Id
-        self._scenario_manager.ActivateScenario(scenario_id, True)
+        scenario.activate()
 
     @property
     def active_model(self) -> str:

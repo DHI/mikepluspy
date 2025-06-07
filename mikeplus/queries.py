@@ -237,6 +237,10 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
         import pandas as pd
 
         result = self.execute()
+
+        if not result:
+            return pd.DataFrame(index=pd.Index([], name="MUID"), columns=self._columns)
+
         df_result = pd.DataFrame(result).T
         df_result.columns = self._columns
         return df_result
