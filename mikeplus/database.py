@@ -7,6 +7,10 @@ MIKE+ model files, including access to tables and scenarios.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .scenarios.scenario import Scenario
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
@@ -350,6 +354,9 @@ class Database:
         if not self._is_open:
             raise ValueError("Database is not open")
 
+        if not self._scenarios:
+            self._scenarios = ScenarioCollection(self._net_scenario_manager)
+
         return self._scenarios
 
     @property
@@ -381,31 +388,12 @@ class Database:
         if not self._is_open:
             raise ValueError("Database is not open")
 
+        if not self._alternative_groups:
+            self._alternative_groups = AlternativeGroupCollection(
+                self._net_scenario_manager
+            )
+
         return self._alternative_groups
-
-    def list_scenarios(self) -> list[str]:
-        """Get the list of available scenario names.
-
-        This is a convenience method that returns the names of all scenarios.
-        For more advanced scenario operations, use the scenarios property.
-
-        Returns
-        -------
-        list of str
-            List of scenario names
-
-        Raises
-        ------
-        ValueError
-            If the database is not open
-        """
-        if not self._is_open:
-            raise ValueError("Database is not open")
-
-        if not self._scenarios:
-            return []
-
-        return [scenario.name for scenario in self._scenarios]
 
     @property
     def active_scenario(self) -> Scenario:
@@ -425,12 +413,18 @@ class Database:
         if not self._is_open:
             raise ValueError("Database is not open")
 
+        if not self._scenarios:
+            raise ValueError("Scenarios are not initialized")
+
         return self._scenarios.active
 
     @active_scenario.setter
     def active_scenario(self, scenario: Scenario):
         if not self._is_open:
             raise ValueError("Database is not open")
+
+        if not self._scenarios:
+            raise ValueError("Scenarios are not initialized")
 
         if scenario not in self._scenarios:
             valid_scenarios = [s.name for s in self._scenarios]
