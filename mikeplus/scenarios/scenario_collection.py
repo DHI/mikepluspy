@@ -13,8 +13,37 @@ from .scenario import Scenario
 
 class ScenarioCollection:
     """Collection-like access to scenarios in the database.
-
-    Provides a Pythonic interface for accessing scenarios in the MIKE+ model.
+    
+    Attributes
+    ----------
+    active : Scenario
+        Currently active scenario
+    base : Scenario
+        Base scenario
+    
+    Methods
+    -------
+    find_by_name(name) : list[Scenario]
+        Find scenarios by name (may return multiple)
+    by_name(name) : Scenario or None
+        Find first scenario that matches the given name
+    find_by_id(id) : Scenario or None
+        Find scenario by its exact ID
+    create(name, id=None, parent=None) : Scenario
+        Create a new child scenario
+    delete(scenario) : None
+        Delete a scenario from the database
+    
+    Examples
+    --------
+    >>> # Access by ID
+    >>> scenario = db.scenarios["scenario_id"]
+    >>> 
+    >>> # Get active scenario
+    >>> active = db.scenarios.active
+    >>> 
+    >>> # Create new scenario
+    >>> new_scenario = db.scenarios.create("Future Development")
     """
 
     def __init__(self, scenario_manager):
@@ -33,38 +62,16 @@ class ScenarioCollection:
 
     @property
     def active(self) -> Scenario:
-        """Get the currently active scenario.
-
-        Returns
-        -------
-        Scenario
-            The currently active scenario
-        """
+        """Currently active scenario."""
         return Scenario(self._scenario_manager, self._scenario_manager.ActiveScenario)
 
     @property
     def base(self) -> Scenario:
-        """Get the base scenario.
-
-        Returns
-        -------
-        Scenario
-            The base scenario
-        """
+        """Base scenario."""
         return Scenario(self._scenario_manager, self._scenario_manager.BaseScenario)
 
     def __getitem__(self, id: str) -> Scenario:
         """Access scenario by its ID.
-
-        Parameters
-        ----------
-        id : str
-            The scenario ID
-
-        Returns
-        -------
-        Scenario
-            The matching Scenario object
 
         Raises
         ------
@@ -78,30 +85,23 @@ class ScenarioCollection:
         return Scenario(self._scenario_manager, scenario)
 
     def __iter__(self) -> Iterator[Scenario]:
-        """Iterate through all scenarios.
-
-        Returns
-        -------
-        iterator
-            Iterator over all scenarios
-        """
+        """Iterate through all scenarios."""
         for scenario_id in self._scenario_manager.GetScenarios():
             scenario = self._scenario_manager.FindScenarioByName(scenario_id)
             yield Scenario(self._scenario_manager, scenario)
 
     def find_by_name(self, name: str) -> list[Scenario]:
-        """
-        Find scenarios by name (may return multiple if names aren't unique).
+        """Find scenarios by name (may return multiple if names aren't unique).
 
         Parameters
         ----------
         name : str
-            The name to search for
+            The name of the scenario to find
 
         Returns
         -------
-        list of Scenario
-            A list of matching scenarios
+        list[Scenario]
+            List of scenarios that match the given name
         """
         scenario = self._scenario_manager.FindScenarioByName(name)
         if scenario is None:
@@ -110,35 +110,33 @@ class ScenarioCollection:
         return [Scenario(self._scenario_manager, scenario)]
 
     def by_name(self, name: str) -> Scenario | None:
-        """
-        Find a scenario by name (returns the first match if multiple exist).
-
+        """Find a scenario by name (returns the first match if multiple exist).
+        
         Parameters
         ----------
         name : str
-            The name to search for
+            The name of the scenario to find
 
         Returns
         -------
         Scenario or None
-            The first matching scenario or None if not found
+            The first scenario that matches the given name, or None if no match is found
         """
         scenario = self.find_by_name(name)
         return scenario[0] if scenario else None
 
     def find_by_id(self, id: str) -> Scenario | None:
-        """
-        Find a scenario by its exact ID (returns single item or None).
-
+        """Find a scenario by its exact ID (returns single item or None).
+        
         Parameters
         ----------
         id : str
-            The ID to search for
+            The ID of the scenario to find
 
         Returns
         -------
         Scenario or None
-            The matching scenario or None if not found
+            The scenario with the given ID, or None if no scenario with that ID exists
         """
         from .scenario import Scenario
 
@@ -148,25 +146,15 @@ class ScenarioCollection:
 
         return Scenario(self._scenario_manager, scenario)
 
-    def create(
-        self, name: str, id: str | None = None, parent: Scenario | None = None
-    ) -> Scenario:
-        """
-        Create a new child scenario.
+    def create(self, name: str, parent: Scenario | None = None) -> Scenario:
+        """Create a new scenario, optionally as a child of another.
 
         Parameters
         ----------
         name : str
             Name for the new scenario
-        id : str | None
-            ID for the new scenario
-        parent : Scenario | None
-            The parent scenario
-
-        Returns
-        -------
-        Scenario
-            The newly created Scenario
+        parent : Scenario, optional
+            Parent scenario (defaults to base scenario if None)
 
         Raises
         ------
@@ -179,7 +167,7 @@ class ScenarioCollection:
             if parent is None:
                 parent = self.base
             new_scenario = self._scenario_manager.CreateChildScenario(
-                parent._net_scenario, id, name
+                parent._net_scenario, None, name
             )
             if new_scenario is None:
                 raise ValueError(
@@ -193,20 +181,19 @@ class ScenarioCollection:
             ) from e
 
     def delete(self, scenario: Scenario | str) -> None:
-        """
-        Delete a scenario from the database.
-
+        """Delete a scenario by object or id.
+        
         Parameters
         ----------
         scenario : Scenario or str
-            The scenario object or scenario ID to delete
+            The scenario to delete (can be a Scenario object or its ID)
 
         Raises
         ------
         ValueError
-            If attempting to delete the base scenario
+            If the scenario could not be deleted
         KeyError
-            If the scenario ID is not found
+            If the scenario does not exist
         """
         # Get the ID depending on input type
         if isinstance(scenario, str):

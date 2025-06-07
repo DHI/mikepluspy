@@ -327,8 +327,6 @@ class Database:
     def scenarios(self) -> ScenarioCollection:
         """Access to MIKE+ scenario management.
 
-        Provides a Pythonic interface for working with scenarios in the database.
-
         Returns
         -------
         ScenarioCollection
@@ -338,18 +336,6 @@ class Database:
         ------
         ValueError
             If the database is not open
-
-        Examples
-        --------
-        >>> # List all scenarios
-        >>> for scenario in db.scenarios:
-        ...     print(f"{scenario.name}: {scenario.id}")
-        >>>
-        >>> # Get active scenario
-        >>> active = db.scenarios.active
-        >>>
-        >>> # Activate a scenario
-        >>> db.scenarios["scenario_id"].activate()
         """
         if not self._is_open:
             raise ValueError("Database is not open")
@@ -363,8 +349,6 @@ class Database:
     def alternative_groups(self) -> AlternativeGroupCollection:
         """Access to MIKE+ alternative groups.
 
-        Provides a Pythonic interface for working with alternative groups in the database.
-
         Returns
         -------
         AlternativeGroupCollection
@@ -374,16 +358,6 @@ class Database:
         ------
         ValueError
             If the database is not open
-
-        Examples
-        --------
-        >>> # List all alternative groups
-        >>> for group in db.alternative_groups:
-        ...     print(f"{group.name}: {group.id}")
-        >>>
-        >>> # Find network group and get active alternative
-        >>> network_group = db.alternative_groups["Network"]
-        >>> active_network = network_group.active
         """
         if not self._is_open:
             raise ValueError("Database is not open")

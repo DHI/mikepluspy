@@ -17,6 +17,34 @@ class Alternative:
 
     An alternative represents a specific configuration of a model component.
     Alternatives form a hierarchical tree structure with parent-child relationships.
+    
+    Attributes
+    ----------
+    id : int
+        Unique identifier for the alternative
+    name : str
+        Name of the alternative
+    group : AlternativeGroup
+        The group this alternative belongs to
+    parent : Alternative or None
+        Parent alternative (None if base alternative)
+    children : list[Alternative]
+        Child alternatives derived from this one
+    is_active : bool
+        Whether this alternative is part of the active scenario
+    is_base : bool
+        Whether this is the base alternative for its group
+    comment : str
+        User comment attached to this alternative
+    scenarios : list[Scenario]
+        Scenarios that use this alternative
+        
+    Examples
+    --------
+    >>> alt = db.scenarios.alternative_groups["CS Network data"].active
+    >>> print(f"Active network: {alt.name}")
+    >>> print(f"Parent: {alt.parent.name if alt.parent else 'None'}")
+    >>> print(f"Child count: {len(alt.children)}")
     """
 
     def __init__(self, scenario_manager, net_alternative):
@@ -44,65 +72,40 @@ class Alternative:
 
     @property
     def id(self) -> int:
-        """The alternative's unique identifier.
-
-        Returns
-        -------
-        int
-            The alternative ID
-        """
+        """Alternative's unique identifier."""
         return int(self._net_alternative.AltId)
 
     @property
     def name(self) -> str:
-        """The alternative's name.
+        """Alternative's name.
 
         Returns
         -------
         str
-            The alternative name
-        """
-        return str(self._net_alternative.Name)
-
-    @name.setter
-    def name(self, value: str) -> None:
-        """Set the alternative name.
-
-        Parameters
-        ----------
-        value : str
-            The new name for the alternative
+            The name of the alternative
 
         Raises
         ------
         ValueError
             If the alternative name could not be changed
         """
+        return str(self._net_alternative.Name)
+
+    @name.setter
+    def name(self, value: str) -> None:
         if not self._scenario_manager.RenameAlternative(self._net_alternative, value):
             raise ValueError(f"Failed to rename alternative to '{value}'.")
 
     @property
     def group(self) -> AlternativeGroup:
-        """The alternative group this alternative belongs to.
-
-        Returns
-        -------
-        AlternativeGroup
-            The alternative group
-        """
+        """Alternative group this alternative belongs to."""
         from .alternative_group import AlternativeGroup
 
         return AlternativeGroup(self._scenario_manager, self._net_alternative.Group)
 
     @property
     def parent(self) -> Alternative | None:
-        """The parent alternative.
-
-        Returns
-        -------
-        Alternative or None
-            The parent alternative or None if this is the base alternative
-        """
+        """Parent alternative (None if this is the base alternative)."""
         parent = self._net_alternative.Parent
         if parent is None:
             return None
@@ -110,13 +113,7 @@ class Alternative:
 
     @property
     def children(self) -> list[Alternative]:
-        """The child alternatives.
-
-        Returns
-        -------
-        list of Alternative
-            The child alternatives of this alternative
-        """
+        """Child alternatives derived from this alternative."""
         children = []
         for child in self._net_alternative.Children:
             children.append(Alternative(self._scenario_manager, child))
@@ -124,59 +121,29 @@ class Alternative:
 
     @property
     def is_active(self) -> bool:
-        """Whether this alternative is part of the active scenario.
-
-        Returns
-        -------
-        bool
-            True if this alternative is part of the active scenario, False otherwise
-        """
+        """Whether this alternative is part of the active scenario."""
         return self._net_alternative.IsActive
 
     @property
     def is_base(self) -> bool:
-        """Whether this alternative is the base alternative for its group.
-
-        Returns
-        -------
-        bool
-            True if this is the base alternative, False otherwise
-        """
+        """Whether this alternative is the base alternative for its group."""
         return self._net_alternative.IsBase
 
     @property
     def comment(self) -> str:
-        """The alternative's comment.
-
-        Returns
-        -------
-        str
-            The alternative comment
-        """
+        """Alternative's comment."""
         return (
             str(self._net_alternative.Comment) if self._net_alternative.Comment else ""
         )
 
     @comment.setter
     def comment(self, value: str) -> None:
-        """Set the alternative comment.
-
-        Parameters
-        ----------
-        value : str
-            The new comment for the alternative
-        """
+        """Set the alternative comment."""
         self._scenario_manager.SetComment(self._net_alternative, value)
 
     @property
     def scenarios(self) -> list[Scenario]:
-        """The scenarios that use this alternative.
-
-        Returns
-        -------
-        list of Scenario
-            The scenarios that use this alternative
-        """
+        """Scenarios that use this alternative."""
         from .scenario import Scenario
 
         scenarios = []

@@ -17,6 +17,44 @@ class Scenario:
 
     A scenario is a collection of alternatives from different alternative groups.
     Scenarios form a hierarchical tree structure with parent-child relationships.
+    
+    Attributes
+    ----------
+    id : str
+        Unique identifier for the scenario
+    name : str
+        Name of the scenario
+    parent : Scenario or None
+        Parent scenario (None if base scenario)
+    children : list[Scenario]
+        Child scenarios derived from this one
+    alternatives : list[Alternative]
+        Alternatives assigned to this scenario
+    is_active : bool
+        Whether this is the currently active scenario
+    is_base : bool
+        Whether this is the base scenario
+    comment : str
+        User comment attached to this scenario
+        
+    Methods
+    -------
+    activate()
+        Make this the active scenario
+    set_alternative(alternative)
+        Add or replace an alternative in this scenario
+    contains_alternative(alternative) : bool
+        Check if this scenario uses a specific alternative
+        
+    Examples
+    --------
+    >>> # Activate a scenario
+    >>> scenario = db.scenarios.by_name("Future Development")
+    >>> scenario.activate()
+    >>> 
+    >>> # See which alternatives are used
+    >>> for alt in scenario.alternatives:
+    ...     print(f"{alt.group.name}: {alt.name}")
     """
 
     def __init__(self, scenario_manager, net_scenario):
@@ -44,35 +82,18 @@ class Scenario:
 
     @property
     def id(self) -> str:
-        """The scenario's unique identifier.
-
-        Returns
-        -------
-        str
-            The scenario ID
-        """
+        """Scenario's unique identifier."""
         return str(self._net_scenario.Id)
 
     @property
     def name(self) -> str:
-        """The scenario's name.
-
-        Returns
-        -------
-        str
-            The scenario name
-        """
+        """Scenario's name."""
         return str(self._net_scenario.Name)
 
     @name.setter
     def name(self, value: str) -> None:
         """Set the scenario name.
-
-        Parameters
-        ----------
-        value : str
-            The new name for the scenario
-
+        
         Raises
         ------
         ValueError
@@ -83,13 +104,7 @@ class Scenario:
 
     @property
     def parent(self) -> Scenario | None:
-        """The parent scenario.
-
-        Returns
-        -------
-        Scenario or None
-            The parent scenario or None if this is the base scenario
-        """
+        """Parent scenario (None if this is the base scenario)."""
         parent_scenario = self._net_scenario.Parent
         if parent_scenario is None:
             return None
@@ -97,13 +112,7 @@ class Scenario:
 
     @property
     def children(self) -> list[Scenario]:
-        """The child scenarios.
-
-        Returns
-        -------
-        list of Scenario
-            The child scenarios of this scenario
-        """
+        """Child scenarios derived from this scenario."""
         children = []
         for child in self._net_scenario.Children:
             children.append(Scenario(self._scenario_manager, child))
@@ -111,13 +120,7 @@ class Scenario:
 
     @property
     def alternatives(self) -> list[Alternative]:
-        """The alternatives assigned to this scenario.
-
-        Returns
-        -------
-        list of Alternative
-            The alternatives assigned to this scenario
-        """
+        """Alternatives assigned to this scenario."""
         from .alternative import Alternative
 
         alternatives = []
@@ -127,13 +130,7 @@ class Scenario:
 
     @property
     def is_active(self) -> bool:
-        """Whether this scenario is the currently active scenario.
-
-        Returns
-        -------
-        bool
-            True if this is the active scenario, False otherwise
-        """
+        """Whether this scenario is the currently active scenario."""
         active_scenario = self._scenario_manager.ActiveScenario
         if active_scenario is None:
             return False
@@ -141,48 +138,21 @@ class Scenario:
 
     @property
     def is_base(self) -> bool:
-        """Whether this is the base scenario.
-
-        Returns
-        -------
-        bool
-            True if this is the base scenario, False otherwise
-        """
+        """Whether this is the base scenario."""
         return self._net_scenario.IsBase
 
     @property
     def comment(self) -> str:
-        """The scenario's comment.
-
-        Returns
-        -------
-        str
-            The scenario comment
-        """
+        """Scenario's comment."""
         return str(self._net_scenario.Comment) if self._net_scenario.Comment else ""
 
     @comment.setter
     def comment(self, value: str) -> None:
-        """Set the scenario comment.
-
-        Parameters
-        ----------
-        value : str
-            The new comment for the scenario
-        """
+        """Set the scenario comment."""
         self._scenario_manager.SetComment(self._net_scenario, value)
 
     def activate(self) -> None:
-        """Activate this scenario.
-
-        Makes this scenario the currently active scenario in the model.
-        This will affect which alternatives are used when accessing model data.
-
-        Raises
-        ------
-        ValueError
-            If the scenario could not be activated
-        """
+        """Makes this the currently active scenario in the model."""
         try:
             self._scenario_manager.ActivateScenario(self.id)
         except Exception as e:
@@ -201,7 +171,7 @@ class Scenario:
         Raises
         ------
         ValueError
-            If the alternative could not be set for this scenario
+            If the alternative could not be assigned to the scenario
         """
         try:
             self._scenario_manager.AddAlternative(self.id, alternative.id)
