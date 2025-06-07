@@ -84,7 +84,7 @@ class ScenarioCollection:
             Iterator over all scenarios
         """
         for scenario_id in self._scenario_manager.GetScenarios():
-            scenario = self._scenario_manager.FindScenario(scenario_id)
+            scenario = self._scenario_manager.FindScenarioByName(scenario_id)
             yield Scenario(self._scenario_manager, scenario)
 
     def find_by_name(self, name: str) -> list[Scenario]:
