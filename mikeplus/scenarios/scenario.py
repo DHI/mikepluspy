@@ -152,7 +152,7 @@ class Scenario:
         self._scenario_manager.SetComment(self._net_scenario, value)
 
     def activate(self) -> None:
-        """Makes this the currently active scenario in the model."""
+        """Make this the currently active scenario in the model."""
         try:
             self._scenario_manager.ActivateScenario(self.id)
         except Exception as e:
