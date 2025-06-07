@@ -44,7 +44,7 @@ def check_conflicts():
                 category=UserWarning,
                 stacklevel=2,
             )
-    else:
+    elif MIKEIO_IMPORTED:
         raise ImportError(
             "Importing mikeio after mikeplus is not supported. Try importing mikeio before mikeplus. See docs for more info."
         )
