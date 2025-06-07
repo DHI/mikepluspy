@@ -36,7 +36,6 @@ class BaseQuery(Generic[QueryResultT], ABC):
         """
         self._table = table
         self._conditions: list[str] = []
-        self._params: dict[str, str] = {}
         self._executed = False
 
     def __repr__(self) -> str:
@@ -45,15 +44,13 @@ class BaseQuery(Generic[QueryResultT], ABC):
             f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
         )
 
-    def where(self, condition: str, params: dict[str, str] = {}):
+    def where(self, condition: str):
         """Add a WHERE condition to the query.
 
         Parameters
         ----------
         condition : str
             SQL-like condition string
-        params : dict of str to str, optional
-            Named parameters for the condition
 
         Returns
         -------
@@ -62,7 +59,6 @@ class BaseQuery(Generic[QueryResultT], ABC):
 
         """
         self._conditions.append(condition)
-        self._params.update(params)
         return self
 
     def by_muid(self, muid_or_muids: str | list[str] | tuple[str]):
@@ -121,13 +117,6 @@ class BaseQuery(Generic[QueryResultT], ABC):
 
         wrapped_conditions = [f"({condition})" for condition in self._conditions]
         where_clause = " AND ".join(wrapped_conditions)
-
-        for key, value in self._params.items():
-            if isinstance(value, (int, float)):
-                where_clause = where_clause.replace(f":{key}", str(value))
-            else:
-                where_clause = where_clause.replace(f":{key}", f"'{str(value)}'")
-
         return where_clause
 
     def reset(self):
