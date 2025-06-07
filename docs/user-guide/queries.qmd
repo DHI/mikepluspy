@@ -15,30 +15,54 @@ Most query operations follow a general pattern:
 
 To read data, use the `select()` method. You can specify columns, filter rows with `where()`, and order results with `order_by()`. The `execute()` method typically returns a dictionary, but converting to a pandas DataFrame with `to_pandas()` is often more convenient for analysis.
 
+::: {.callout-note collapse="true"}
+## Assuming Imports
+The following examples assume you have already imported `mikeplus`, and have an active database connection:
+
+```python
+import mikeplus as mp
+
+with mp.open("your_model.sqlite") as db:
+    ...
+```
+::: 
+
 Select specific columns from the `msm_Node` table:
 ```python
 nodes_table = db.tables.msm_Node
 query = nodes_table.select(columns=["MUID", "GroundLevel", "Diameter"])
 ```
 
-Filter rows using `where()`. Conditions are SQL-like strings. For values, it's best to use named parameters:
+Filter rows using `where()`. Conditions are SQL-like strings. Values in the condition string should be formatted to valid SQL using `mp.to_sql()` to ensure correct quoting and type handling (e.g., strings are quoted, numbers are not).
+
 ```python
-min_diam = 0.5
-# Get nodes with Diameter greater than min_diam
-df_large_nodes = query.where("Diameter > :d", params={"d": min_diam}).to_pandas()
+min_diam = mp.to_sql(0.5)
+df_large_nodes = query.where(f"Diameter > {min_diam}").to_pandas()
+```
+
+::: {.callout-note}
+`mp.to_sql()` is not needed for column names, only for values in the condition string.
+:::
+
+Select rows for a specific MUID, or list of MUIDs is common. You can use `by_muid()` in a similar way as `where()`.
+
+```python
+df_specific_node = query.by_muid("Node_123").to_pandas()
+df_specific_nodes = query.by_muid(["Node_123", "Node_456"]).to_pandas()
 ```
 
 You can further sort the results:
 ```python
-df_sorted_nodes = query.where("Diameter > :d", params={"d": min_diam}) \
+df_sorted_nodes = query.where(f"Diameter > {min_diam}") \
                        .order_by("GroundLevel", descending=True) \
                        .to_pandas()
 ```
+
 If `columns` is not specified in `select()`, all columns are returned.
 
 ## {{< fa plus >}} Inserting Data
 
-To add new rows to a table, use the `insert()` method. Provide a dictionary where keys are column names and values are the data to be inserted. The `insert()` method, when executed, returns the MUID (unique identifier) of the newly created row.
+To add new rows to a table, use the `insert()` method. Provide a dictionary where keys are column names and values are the data to be inserted. The `execute()` method (called by `insert()`) returns the MUID (a string) of the newly created row.
 
 Insert a new node into the `msm_Node` table:
 ```python
@@ -46,47 +70,66 @@ nodes_table = db.tables.msm_Node
 new_muid = nodes_table.insert({
     "MUID": "Node_New1", 
     "GroundLevel": 10.5, "Diameter": 0.3
-})
+}).execute() # .execute() can be called explicitly
+print(f"Inserted new node with MUID: {new_muid}")
 ```
 If the "MUID" is not provided, MIKE+Py will attempt to auto-generate one. For tables with geometry, like `msm_Node`, you can include a "geometry" key with a WKT (Well-Known Text) string:
 ```python
 new_node_geom_muid = nodes_table.insert({
     "MUID": "Node_New_Geom", "Diameter": 0.4,
     "geometry": "POINT (12345.0 67890.0)" 
-})
+}).execute()
+print(f"Inserted new node with geometry, MUID: {new_node_geom_muid}")
 ```
 
 ## {{< fa pencil >}} Updating Data
 
-To modify existing data, use the `update()` method, providing a dictionary of columns and their new values. You must specify which rows to update using `where()` or update all rows using `all()`.
+To modify existing data, use the `update()` method, providing a dictionary of columns and their new values. You must specify which rows to update using `where()` or update all rows using `all()`. The `execute()` method returns a list of MUIDs of the updated rows.
 
 Update the diameter of a specific node:
 ```python
 nodes_table = db.tables.msm_Node
+muid_to_update = "Node_New1"
 updated_muids = nodes_table.update({"Diameter": 0.35}) \
-                           .where("MUID == 'Node_New1'") \
+                           .by_muid(muid_to_update) \
                            .execute()
+print(f"MUIDs of updated nodes: {updated_muids}")
 ```
+
+::: {.callout-danger title="Caution: Modifying All Rows"}
+Operations like `update().all().execute()` or `delete().all().execute()` will affect **every row** in the table. This can lead to irreversible data loss or unintended widespread changes. 
+
+*   Always double-check your table selection and conditions.
+*   Consider backing up your database before performing such operations.
+*   Use these commands with extreme care.
+:::
+
 To prevent accidental modification of all rows, `mikepluspy` will raise a `ValueError` if `update()` is called without `where()` or `all()`. To update all rows in a table (use with caution):
 ```python
 # This would attempt to set Description for all nodes
-# all_updated = nodes_table.update({"Description": "Updated all"}) \
+# Ensure this is intended and the table is correct!
+# all_updated_muids = nodes_table.update({"Description": "Updated for all nodes"}) \
 #                          .all().execute()
+# print(f"Updated {len(all_updated_muids)} nodes.")
 ```
 
 ## {{< fa trash >}} Deleting Data
 
-To remove rows, use the `delete()` method. Similar to `update()`, you must specify which rows to delete using `where()` or delete all rows using `all()`.
+To remove rows, use the `delete()` method. Similar to `update()`, you must specify which rows to delete using `where()` or delete all rows using `all()`. The `execute()` method returns a list of MUIDs of the deleted rows.
 
 Delete a specific node:
 ```python
 nodes_table = db.tables.msm_Node
-deleted_muids = nodes_table.delete().where("MUID == 'Node_New1'").execute()
+muid_to_delete = "Node_New1"
+deleted_muids = nodes_table.delete().by_muid(muid_to_delete).execute()
+print(f"MUIDs of deleted nodes: {deleted_muids}")
 ```
-Attempting to delete without `where()` or `all()` will result in a `ValueError`. To delete all rows (use with caution):
+Attempting to delete without `where()` or `all()` will result in a `ValueError`. To delete all rows (use with caution, see warning above):
 ```python
-# This would attempt to delete all nodes from the msm_Node table
-# all_deleted = nodes_table.delete().all().execute()
+# This would attempt to delete all nodes from the msm_Node table.
+# Ensure this is intended and the table is correct!
+# all_deleted_muids = nodes_table.delete().all().execute()
+# print(f"Deleted {len(all_deleted_muids)} nodes.")
 ```
 
 ## {{< fa play >}} Query Execution
