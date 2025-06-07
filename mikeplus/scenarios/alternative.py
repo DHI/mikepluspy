@@ -31,6 +31,9 @@ class Alternative:
         self._scenario_manager = scenario_manager
         self._net_alternative = net_alternative
 
+    def __repr__(self):
+        return f"Alternative <{self.name}>"
+
     @property
     def id(self) -> int:
         """The alternative's unique identifier.
