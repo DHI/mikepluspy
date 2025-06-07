@@ -9,6 +9,7 @@
 - Methods for listing available tables and their fields for discovery
 - Scenario and alternative management
 - `by_muid()` method to `BaseQuery` (inherited by `SelectQuery`, `UpdateQuery`, `DeleteQuery`) for convenient filtering by MUID(s).
+- `to_sql()` utility function in `mikeplus.utils` (and exposed as `mikeplus.to_sql()`) for converting Python values to their SQL string representations.
 
 ### Changed
 - Engine1D now uses EngineTool for more efficient simulation execution
