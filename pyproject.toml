@@ -61,7 +61,7 @@ doc =  ["sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-mate
 # mypy global options:
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.13"
 warn_return_any = false
 allow_redefinition = true
 warn_unreachable = true

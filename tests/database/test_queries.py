@@ -6,6 +6,7 @@ from __future__ import annotations
 import pytest
 import pandas as pd
 
+import mikeplus as ms
 from mikeplus.database import Database
 from mikeplus.queries import BaseQuery
 from mikeplus.queries import SelectQuery
@@ -35,27 +36,46 @@ class TestBaseQuery:
         """Test adding where clauses."""
         query = base_query.where("Diameter > 10")
         assert "Diameter > 10" in query._conditions
-        assert query._params == {}
 
     def test_and_where_clause(self, base_query: BaseQueryTest):
         """Test adding AND where clauses."""
         query = base_query.where("Diameter > 5").where("Diameter < 20")
         assert len(query._conditions) == 2
-        assert query._params == {}
 
     def test_parameters(self, base_query: BaseQueryTest):
         """Test query parameters."""
-        diameter_value = 15
-        query = base_query.where("Diameter > :diameter", {"diameter": diameter_value})
+        diameter = ms.to_sql(15)
+        query = base_query.where(f"Diameter > {diameter}")
 
         # Check parameters are stored
-        assert query._params == {"diameter": diameter_value}
+        assert query._conditions == ["Diameter > 15"]
 
     def test_execute(self, base_query: BaseQueryTest):
         """Test query execution."""
         assert base_query.execute()
 
-
+    @pytest.mark.parametrize(
+        "muid, expected_conditions",
+        [
+            ("test_muid_1", ["MUID = 'test_muid_1'"]),
+            (["muid_A", "muid_B"], ["MUID IN ('muid_A', 'muid_B')"]),
+            (["muid_X", "muid_Y"], ["MUID IN ('muid_X', 'muid_Y')"]),
+            ([], ValueError),
+            ((), ValueError),
+            (123, ValueError),
+            (["muid1", 123], ValueError),
+            ((True, "muid2"), ValueError),
+        ],
+    )
+    def test_by_muid(self, base_query: BaseQueryTest, muid, expected_conditions):
+        """Test by_muid methods."""
+        if isinstance(expected_conditions, list):
+            query = base_query.by_muid(muid)
+            assert query._conditions == expected_conditions
+            assert query is base_query
+        else:
+            with pytest.raises(expected_conditions):
+                base_query.by_muid(muid)
 class TestSelectQuery:
     """Tests for the SelectQuery class."""
 
@@ -165,7 +185,8 @@ class TestSelectQuery:
 
         # Test where clause with parameters
         query = SelectQuery(table, ["MUID", "Diameter"])
-        query = query.where("Diameter > :min_diameter", {"min_diameter": 0.5})
+        min_diameter = ms.to_sql(0.5)
+        query = query.where(f"Diameter > {min_diameter}")
         result = query.execute()
 
         # Verify we only get links with Diameter > 0.5
@@ -209,6 +230,23 @@ class TestSelectQuery:
         # Verify we get no rows
         assert isinstance(result, dict)
         assert len(result) == 0
+
+    def test_execute_with_by_muid(self, table):
+        """Test execution with by_muid."""
+        query = SelectQuery(table, ["MUID", "Diameter"]).by_muid("Link_2")
+        result = query.execute()
+
+        assert isinstance(result, dict)
+        assert len(result) == 1
+        assert result["Link_2"] == ["Link_2", 1.0]
+
+        query = SelectQuery(table, ["MUID", "Diameter"]).by_muid(["Link_2", "Link_29"])
+        result = query.execute()
+
+        assert isinstance(result, dict)
+        assert len(result) == 2
+        assert result["Link_2"] == ["Link_2", 1.0]
+        assert result["Link_29"] == ["Link_29", 1.0]
 
     def test_to_pandas(self, table):
         """Test converting query result to pandas DataFrame."""
@@ -352,7 +390,7 @@ class TestUpdateQuery:
 
         # Create the update query with a where clause
         query = UpdateQuery(table, values)
-        muids_updated = query.where("MUID = :muid", {"muid": target_muid}).execute()
+        muids_updated = query.by_muid(target_muid).execute()
 
         # Verify only one row was updated
         assert len(muids_updated) == 1, "Only one row should be updated"
@@ -361,7 +399,7 @@ class TestUpdateQuery:
         # Verify the values were updated for the target MUID
         updated_data = (
             table.select(list(values.keys()))
-            .where("MUID = :muid", {"muid": target_muid})
+            .by_muid(target_muid)
             .execute()
         )
         updated_row = dict(zip(list(values.keys()), updated_data[target_muid]))
@@ -373,7 +411,7 @@ class TestUpdateQuery:
         other_muid = all_muids[1]  # Get another MUID
         other_data = (
             table.select(list(values.keys()))
-            .where("MUID = :muid", {"muid": other_muid})
+            .by_muid(other_muid)
             .execute()
         )
         other_row = dict(zip(list(values.keys()), other_data[other_muid]))
@@ -427,7 +465,7 @@ class TestDeleteQuery:
 
         # Delete only the first record using a where clause
         query = DeleteQuery(table)
-        deleted_muids = query.where("MUID = :muid", {"muid": muid1}).execute()
+        deleted_muids = query.by_muid(muid1).execute()
 
         # Verify only the first record was deleted
         assert len(deleted_muids) == 1, "Only one row should be deleted"
@@ -440,9 +478,8 @@ class TestDeleteQuery:
 
         # Delete the second row by diameter filter
         query = DeleteQuery(table)
-        deleted_muids = query.where(
-            "Diameter = :diameter", {"diameter": 200.0}
-        ).execute()
+        diameter = ms.to_sql(200.0)
+        deleted_muids = query.where(f"Diameter = {diameter}").execute()
 
         # Verify only the second record was deleted
         assert len(deleted_muids) == 1, "Only one row should be deleted"
