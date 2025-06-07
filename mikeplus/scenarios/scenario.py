@@ -35,6 +35,11 @@ class Scenario:
     def __repr__(self):
         return f"Scenario <{self.name}>"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Scenario):
+            return False
+        return self.id == other.id
+
     @property
     def id(self) -> str:
         """The scenario's unique identifier.

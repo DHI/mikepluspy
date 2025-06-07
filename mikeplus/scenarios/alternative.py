@@ -34,6 +34,11 @@ class Alternative:
     def __repr__(self):
         return f"Alternative <{self.name}>"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Alternative):
+            return False
+        return self.id == other.id
+
     @property
     def id(self) -> int:
         """The alternative's unique identifier.
