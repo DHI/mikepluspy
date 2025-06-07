@@ -32,6 +32,9 @@ class Scenario:
         self._scenario_manager = scenario_manager
         self._net_scenario = net_scenario
 
+    def __repr__(self):
+        return f"Scenario <{self.name}>"
+
     @property
     def id(self) -> str:
         """The scenario's unique identifier.

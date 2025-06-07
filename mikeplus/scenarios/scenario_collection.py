@@ -26,6 +26,9 @@ class ScenarioCollection:
         """
         self._scenario_manager = scenario_manager
 
+    def __repr__(self):
+        return f"ScenarioCollection <{len(list(self))}>"
+
     @property
     def active(self) -> Scenario:
         """Get the currently active scenario.
