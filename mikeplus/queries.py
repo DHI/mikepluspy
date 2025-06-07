@@ -98,7 +98,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
                 raise ValueError(
                     f"All items in muid_or_muids list/tuple must be strings. You provided: {types}."
                 )
-            
+
             condition = f"MUID IN ({', '.join(f"'{muid}'" for muid in muid_or_muids)})"
             self.where(condition)
         else:
