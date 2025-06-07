@@ -102,20 +102,20 @@ class TestDatabase:
 
     def test_active_scenario(self, db):
         """Test active_scenario property."""
-        assert db.active_scenario == "Base"
+        assert db.active_scenario.name == "Base"
 
     def test_scenarios(self, db):
-        assert db.scenarios == ["Base", "sub_scenario"]
+        assert [s.name for s in db.scenarios] == ["Base", "sub_scenario"]
 
-    def test_set_active_scenario(self, db):
+    def test_set_active_scenario(self, db: Database):
         """Test set_active_scenario method."""
-        db.active_scenario = "sub_scenario"
-        assert db.active_scenario == "sub_scenario"
-        db.active_scenario = "Base"
-        assert db.active_scenario == "Base"
+        db.active_scenario = db.scenarios.by_name("sub_scenario")
+        assert db.active_scenario.name == "sub_scenario"
+        db.active_scenario = db.scenarios.by_name("Base")
+        assert db.active_scenario.name == "Base"
         with pytest.raises(ValueError):
-            db.active_scenario = "this_does_not_exist"
-        assert db.active_scenario == "Base"
+            db.active_scenario = db.scenarios.by_name("this_does_not_exist")
+        assert db.active_scenario.name == "Base"
 
     def test_active_model(self, db):
         """Test active_model property."""
