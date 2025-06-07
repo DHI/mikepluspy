@@ -82,7 +82,7 @@ class Scenario:
             raise ValueError(f"Failed to rename scenario to '{value}'.")
 
     @property
-    def parent(self) -> "Scenario" | None:
+    def parent(self) -> Scenario | None:
         """The parent scenario.
 
         Returns
@@ -96,7 +96,7 @@ class Scenario:
         return Scenario(self._scenario_manager, parent_scenario)
 
     @property
-    def children(self) -> list["Scenario"]:
+    def children(self) -> list[Scenario]:
         """The child scenarios.
 
         Returns
@@ -110,7 +110,7 @@ class Scenario:
         return children
 
     @property
-    def alternatives(self) -> list["Alternative"]:
+    def alternatives(self) -> list[Alternative]:
         """The alternatives assigned to this scenario.
 
         Returns
@@ -213,7 +213,7 @@ class Scenario:
             except Exception as inner_e:
                 raise ValueError(f"Failed to set alternative: {inner_e}") from e
 
-    def contains_alternative(self, alternative: "Alternative") -> bool:
+    def contains_alternative(self, alternative: Alternative) -> bool:
         """Check if this scenario uses a specific alternative.
 
         Parameters

@@ -109,7 +109,7 @@ class Alternative:
         return Alternative(self._scenario_manager, parent)
 
     @property
-    def children(self) -> list["Alternative"]:
+    def children(self) -> list[Alternative]:
         """The child alternatives.
 
         Returns
@@ -169,7 +169,7 @@ class Alternative:
         self._scenario_manager.SetComment(self._net_alternative, value)
 
     @property
-    def scenarios(self) -> list["Scenario"]:
+    def scenarios(self) -> list[Scenario]:
         """The scenarios that use this alternative.
 
         Returns
