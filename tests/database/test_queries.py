@@ -55,7 +55,29 @@ class TestBaseQuery:
         """Test query execution."""
         assert base_query.execute()
 
-
+    @pytest.mark.parametrize(
+        "muid, expected_conditions",
+        [
+            ("test_muid_1", ["MUID = 'test_muid_1'"]),
+            (["muid_A", "muid_B"], ["MUID IN ('muid_A', 'muid_B')"]),
+            (["muid_X", "muid_Y"], ["MUID IN ('muid_X', 'muid_Y')"]),
+            ([], ValueError),
+            ((), ValueError),
+            (123, ValueError),
+            (["muid1", 123], ValueError),
+            ((True, "muid2"), ValueError),
+        ],
+    )
+    def test_by_muid(self, base_query: BaseQueryTest, muid, expected_conditions):
+        """Test by_muid methods."""
+        if isinstance(expected_conditions, list):
+            query = base_query.by_muid(muid)
+            assert query._conditions == expected_conditions
+            assert query._params == {}
+            assert query is base_query
+        else:
+            with pytest.raises(expected_conditions):
+                base_query.by_muid(muid)
 class TestSelectQuery:
     """Tests for the SelectQuery class."""
 
@@ -209,6 +231,23 @@ class TestSelectQuery:
         # Verify we get no rows
         assert isinstance(result, dict)
         assert len(result) == 0
+
+    def test_execute_with_by_muid(self, table):
+        """Test execution with by_muid."""
+        query = SelectQuery(table, ["MUID", "Diameter"]).by_muid("Link_2")
+        result = query.execute()
+
+        assert isinstance(result, dict)
+        assert len(result) == 1
+        assert result["Link_2"] == ["Link_2", 1.0]
+
+        query = SelectQuery(table, ["MUID", "Diameter"]).by_muid(["Link_2", "Link_29"])
+        result = query.execute()
+
+        assert isinstance(result, dict)
+        assert len(result) == 2
+        assert result["Link_2"] == ["Link_2", 1.0]
+        assert result["Link_29"] == ["Link_29", 1.0]
 
     def test_to_pandas(self, table):
         """Test converting query result to pandas DataFrame."""
