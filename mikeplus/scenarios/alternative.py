@@ -17,7 +17,7 @@ class Alternative:
 
     An alternative represents a specific configuration of a model component.
     Alternatives form a hierarchical tree structure with parent-child relationships.
-    
+
     Attributes
     ----------
     id : int
@@ -38,7 +38,7 @@ class Alternative:
         User comment attached to this alternative
     scenarios : list[Scenario]
         Scenarios that use this alternative
-        
+
     Examples
     --------
     >>> alt = db.scenarios.alternative_groups["CS Network data"].active

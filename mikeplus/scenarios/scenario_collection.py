@@ -13,14 +13,14 @@ from .scenario import Scenario
 
 class ScenarioCollection:
     """Collection-like access to scenarios in the database.
-    
+
     Attributes
     ----------
     active : Scenario
         Currently active scenario
     base : Scenario
         Base scenario
-    
+
     Methods
     -------
     find_by_name(name) : list[Scenario]
@@ -33,15 +33,15 @@ class ScenarioCollection:
         Create a new child scenario
     delete(scenario) : None
         Delete a scenario from the database
-    
+
     Examples
     --------
     >>> # Access by ID
     >>> scenario = db.scenarios["scenario_id"]
-    >>> 
+    >>>
     >>> # Get active scenario
     >>> active = db.scenarios.active
-    >>> 
+    >>>
     >>> # Create new scenario
     >>> new_scenario = db.scenarios.create("Future Development")
     """
@@ -111,7 +111,7 @@ class ScenarioCollection:
 
     def by_name(self, name: str) -> Scenario | None:
         """Find a scenario by name (returns the first match if multiple exist).
-        
+
         Parameters
         ----------
         name : str
@@ -127,7 +127,7 @@ class ScenarioCollection:
 
     def find_by_id(self, id: str) -> Scenario | None:
         """Find a scenario by its exact ID (returns single item or None).
-        
+
         Parameters
         ----------
         id : str
@@ -182,7 +182,7 @@ class ScenarioCollection:
 
     def delete(self, scenario: Scenario | str) -> None:
         """Delete a scenario by object or id.
-        
+
         Parameters
         ----------
         scenario : Scenario or str

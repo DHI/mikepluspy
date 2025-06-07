@@ -17,7 +17,7 @@ class Scenario:
 
     A scenario is a collection of alternatives from different alternative groups.
     Scenarios form a hierarchical tree structure with parent-child relationships.
-    
+
     Attributes
     ----------
     id : str
@@ -36,7 +36,7 @@ class Scenario:
         Whether this is the base scenario
     comment : str
         User comment attached to this scenario
-        
+
     Methods
     -------
     activate()
@@ -45,13 +45,13 @@ class Scenario:
         Add or replace an alternative in this scenario
     contains_alternative(alternative) : bool
         Check if this scenario uses a specific alternative
-        
+
     Examples
     --------
     >>> # Activate a scenario
     >>> scenario = db.scenarios.by_name("Future Development")
     >>> scenario.activate()
-    >>> 
+    >>>
     >>> # See which alternatives are used
     >>> for alt in scenario.alternatives:
     ...     print(f"{alt.group.name}: {alt.name}")
@@ -93,7 +93,7 @@ class Scenario:
     @name.setter
     def name(self, value: str) -> None:
         """Set the scenario name.
-        
+
         Raises
         ------
         ValueError

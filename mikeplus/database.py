@@ -404,7 +404,9 @@ class Database:
             raise ValueError("Scenario cannot be None")
 
         if "Scenario" not in repr(scenario):
-            raise ValueError("Scenario must be an instance of Scenario. Use Database.scenarios.by_name() to get a scenario instance.")
+            raise ValueError(
+                "Scenario must be an instance of Scenario. Use Database.scenarios.by_name() to get a scenario instance."
+            )
 
         if scenario not in self._scenarios:
             valid_scenarios = [s.name for s in self._scenarios]

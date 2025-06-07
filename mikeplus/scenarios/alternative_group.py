@@ -18,7 +18,7 @@ class AlternativeGroup:
 
     An alternative group contains alternatives for specific tables or model components.
     Each group has a base alternative and potentially an active alternative.
-    
+
     Attributes
     ----------
     id : str
@@ -31,14 +31,14 @@ class AlternativeGroup:
         Base alternative for this group
     active : Alternative
         Currently active alternative for this group
-        
+
     Examples
     --------
     >>> network_group = db.scenarios.alternative_groups["CS Network data"]
     >>> print(f"Tables: {network_group.tables}")
     >>> print(f"Active: {network_group.active.name}")
     >>> print(f"Base: {network_group.base.name}")
-    >>> 
+    >>>
     >>> # Create a new alternative
     >>> new_alt = network_group.create("My Network", parent=network_group.base)
     """
@@ -88,7 +88,7 @@ class AlternativeGroup:
 
     def __getitem__(self, key: str | int) -> Alternative:
         """Access alternative by ID (int) or name (str).
-        
+
         Raises
         ------
         KeyError

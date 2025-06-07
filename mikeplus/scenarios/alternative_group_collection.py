@@ -15,23 +15,23 @@ class AlternativeGroupCollection:
 
     Provides access to alternative groups in the MIKE+ model with dictionary-like
     syntax and helper methods for finding groups by related criteria.
-    
+
     Methods
     -------
     group_names() : list[str]
         Get a list of all group names
     by_table(table_name) : AlternativeGroup
         Find the group associated with a specific table
-    
+
     Examples
     --------
     >>> # Access by name/ID
     >>> loads_group = db.scenarios.alternative_groups["Loads and boundaries data"]
-    >>> 
+    >>>
     >>> # Get all group names
     >>> group_names = db.scenarios.alternative_groups.group_names()
     >>> "Loads and boundaries data" in group_names
-    >>> 
+    >>>
     >>> # Find group by associated table
     >>> msm_group = db.scenarios.alternative_groups.by_table("msm_Link")
     """
@@ -48,7 +48,7 @@ class AlternativeGroupCollection:
 
     def __getitem__(self, key: str) -> AlternativeGroup:
         """Get alternative group by ID or name.
-        
+
         Raises
         ------
         KeyError
