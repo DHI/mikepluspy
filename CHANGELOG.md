@@ -7,6 +7,7 @@
 - `to_dataframe()` alias for `to_pandas()` and table-level shortcut method for pandas integration
 - Convenience methods `open()` and `create()` for cleaner database access syntax
 - Methods for listing available tables and their fields for discovery
+- Scenario and alternative management
 
 ### Changed
 - Engine1D now uses EngineTool for more efficient simulation execution
