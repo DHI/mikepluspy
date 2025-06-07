@@ -65,6 +65,48 @@ class BaseQuery(Generic[QueryResultT], ABC):
         self._params.update(params)
         return self
 
+    def by_muid(self, muid_or_muids: str | list[str] | tuple[str]):
+        """Filter the query by one or more MUIDs.
+
+        Parameters
+        ----------
+        muid_or_muids : str or list/tuple of str
+            A single MUID string, or a list/tuple of MUID strings.
+
+        Returns
+        -------
+        self
+            The query instance for method chaining.
+
+        Raises
+        ------
+        ValueError
+            If `muid_or_muids` is not a string, or a list/tuple of strings,
+            or if items in list/tuple are not strings.
+        ValueError
+            If `muid_or_muids` is an empty list/tuple.
+        """
+        if isinstance(muid_or_muids, str):
+            self.where(f"MUID = '{muid_or_muids}'")
+        elif isinstance(muid_or_muids, (list, tuple)):
+            if not muid_or_muids:
+                raise ValueError(
+                    f"The muid_or_muids list/tuple cannot be empty. You provided: {muid_or_muids}."
+                )
+            if not all(isinstance(muid, str) for muid in muid_or_muids):
+                types = [type(muid) for muid in muid_or_muids]
+                raise ValueError(
+                    f"All items in muid_or_muids list/tuple must be strings. You provided: {types}."
+                )
+            
+            condition = f"MUID IN ({', '.join(f"'{muid}'" for muid in muid_or_muids)})"
+            self.where(condition)
+        else:
+            raise ValueError(
+                "by_muid() accepts a single MUID string or a list/tuple of MUID strings."
+            )
+        return self
+
     def _build_where_clause(self):
         """Build the WHERE clause from conditions.
 
