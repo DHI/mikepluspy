@@ -1,0 +1,265 @@
+# Scenarios and Alternatives
+
+MIKE+Py provides comprehensive tools to manage and interact with scenarios and alternatives defined within your MIKE+ model. This allows you to programmatically explore different model configurations and their components.
+
+First, ensure you have an open database connection:
+
+```python
+import mikeplus as mp
+
+# Assuming 'your_model.sqlite' exists
+db = mp.open("your_model.sqlite") 
+# Use 'with mp.open("your_model.sqlite") as db:' for automatic closing
+```
+
+## {{< fa sitemap >}} Accessing Scenarios
+
+The `db.scenarios` attribute provides access to a `ScenarioCollection` object, which is your entry point for working with scenarios.
+
+### Listing Scenarios
+
+You can iterate over `db.scenarios` to get all scenarios in the model:
+
+```python
+for scenario in db.scenarios:
+    print(f"Scenario: {scenario.name} (ID: {scenario.id})")
+```
+
+### Active and Base Scenarios
+
+Retrieve the currently active scenario or the base scenario:
+
+```python
+active_scenario = db.scenarios.active
+base_scenario = db.scenarios.base
+print(f"Active: {active_scenario.name}, Base: {base_scenario.name}")
+```
+
+### Finding Specific Scenarios
+
+Find scenarios by their name or ID:
+
+```python
+# By name (returns the first match or None)
+scenario_by_name = db.scenarios.by_name("My Scenario Name")
+if scenario_by_name:
+    print(f"Found by name: {scenario_by_name.name}")
+
+# By ID (returns the scenario or raises KeyError if not found)
+try:
+    scenario_by_id = db.scenarios["SCENARIO_GUID_123"]
+    print(f"Found by ID: {scenario_by_id.name}")
+except KeyError:
+    print("Scenario with ID 'SCENARIO_GUID_123' not found.")
+```
+
+## {{< fa cogs >}} Working with Individual Scenarios
+
+Once you have a `Scenario` object, you can inspect its properties and manage it.
+
+### Scenario Properties
+
+Access common properties like name, ID, comment, parent, and children:
+
+```python
+# Assuming 'scenario' is a valid Scenario object
+print(f"Name: {scenario.name}")
+print(f"ID: {scenario.id}")
+print(f"Comment: {scenario.comment}")
+if scenario.parent:
+    print(f"Parent: {scenario.parent.name}")
+print(f"Children count: {len(scenario.children)}")
+```
+
+### Activating a Scenario
+
+Change the model's active scenario:
+
+```python
+# Assuming 'another_scenario' is a Scenario object
+# another_scenario.activate()
+# print(f"New active scenario: {db.scenarios.active.name}")
+```
+
+### Alternatives in a Scenario
+
+List the alternatives that make up a specific scenario:
+
+```python
+# Assuming 'scenario' is a valid Scenario object
+print(f"Alternatives for scenario '{scenario.name}':")
+for alt in scenario.alternatives:
+    print(f"- {alt.name} (from group: {alt.group.name})")
+```
+
+## {{< fa tasks >}} Managing Scenarios
+
+MIKE+Py allows you to create, delete, and rename scenarios.
+
+### Creating Scenarios
+
+Create a new scenario, optionally specifying a parent. If no parent is given, it defaults to being a child of the base scenario.
+
+```python
+# Create a child of the base scenario
+# new_scenario = db.scenarios.create("New Scenario From Base")
+
+# Create a child of an existing scenario
+# existing_scenario = db.scenarios.by_name("Parent Scenario Name")
+# if existing_scenario:
+#    child_scenario = db.scenarios.create("New Child Scenario", parent=existing_scenario)
+```
+
+### Deleting Scenarios
+
+Delete a scenario by its object or ID. You cannot delete the base scenario.
+
+```python
+# scenario_to_delete = db.scenarios.by_name("Scenario To Delete")
+# if scenario_to_delete and not scenario_to_delete.is_base:
+#    db.scenarios.delete(scenario_to_delete)
+#    print(f"Scenario '{scenario_to_delete.name}' deleted.")
+```
+
+### Renaming Scenarios
+
+Change the name of a scenario:
+
+```python
+# scenario_to_rename = db.scenarios.by_name("Old Name")
+# if scenario_to_rename:
+#    scenario_to_rename.name = "New Updated Name"
+#    print(f"Scenario renamed to: {scenario_to_rename.name}")
+```
+
+## {{< fa puzzle-piece >}} Alternatives and Alternative Groups
+
+Alternatives represent specific configurations of model components (e.g., network data, operational controls). They are organized into `AlternativeGroup` objects.
+
+Access the collection of alternative groups via `db.scenarios.alternative_groups`:
+
+```python
+alt_groups = db.scenarios.alternative_groups
+
+# List all alternative group names
+for group_name in alt_groups.keys():
+    print(f"Alternative Group: {group_name}")
+```
+
+Access a specific `AlternativeGroup` by its name or ID:
+
+```python
+# By name
+network_data_group = alt_groups["CS Network data"] # Example group name
+print(f"Group ID: {network_data_group.id}")
+```
+
+## {{< fa layer-group >}} Working with Alternative Groups
+
+An `AlternativeGroup` object allows you to manage the alternatives within that group.
+
+### Listing Alternatives in a Group
+
+Iterate over an alternative group to get its `Alternative` objects:
+
+```python
+# Assuming 'network_data_group' is an AlternativeGroup object
+print(f"Alternatives in group '{network_data_group.name}':")
+for alt in network_data_group:
+    print(f"- {alt.name} (ID: {alt.id})")
+```
+
+### Active and Base Alternatives
+
+Each group has a base alternative and an active alternative (the one used by the currently active scenario):
+
+```python
+# Assuming 'network_data_group' is an AlternativeGroup object
+base_alt = network_data_group.base
+active_alt = network_data_group.active
+print(f"Base alternative: {base_alt.name}")
+print(f"Active alternative: {active_alt.name}")
+```
+
+### Alternative Group Properties
+
+Access properties like name, ID, and associated database tables:
+
+```python
+# Assuming 'group' is an AlternativeGroup object
+print(f"Group Name: {group.name}")
+print(f"Tables: {group.tables}")
+```
+
+## {{< fa wrench >}} Working with Individual Alternatives
+
+An `Alternative` object has properties detailing its configuration.
+
+### Alternative Properties
+
+Access properties like name, ID, comment, parent, children, and its group:
+
+```python
+# Assuming 'alt' is a valid Alternative object
+print(f"Alternative Name: {alt.name}")
+print(f"ID: {alt.id}")
+print(f"Comment: {alt.comment}")
+print(f"Group: {alt.group.name}")
+if alt.parent:
+    print(f"Parent Alternative: {alt.parent.name}")
+```
+
+### Scenarios Using an Alternative
+
+Find out which scenarios use a particular alternative:
+
+```python
+# Assuming 'alt' is a valid Alternative object
+print(f"Scenarios using alternative '{alt.name}':")
+for scn in alt.scenarios:
+    print(f"- {scn.name}")
+```
+
+## {{< fa edit >}} Managing Alternatives
+
+Create and rename alternatives within their respective groups.
+
+### Creating Alternatives
+
+Create a new alternative, usually as a child of an existing one (often the base alternative of the group):
+
+```python
+# Assuming 'network_data_group' is an AlternativeGroup object
+# parent_alt = network_data_group.base
+# new_network_alt = network_data_group.create("New Network Variation", parent=parent_alt)
+# print(f"Created alternative: {new_network_alt.name}")
+```
+
+### Renaming Alternatives
+
+Change the name of an alternative:
+
+```python
+# Assuming 'alt_to_rename' is an Alternative object
+# alt_to_rename.name = "Updated Alternative Name"
+# print(f"Alternative renamed to: {alt_to_rename.name}")
+```
+
+### Setting an Alternative for a Scenario
+
+Assign a specific alternative to a scenario. This will replace any existing alternative from the same group in that scenario.
+
+```python
+# Assuming 'my_scenario' is a Scenario object
+# Assuming 'new_control_alternative' is an Alternative object from a controls group
+# my_scenario.set_alternative(new_control_alternative)
+# print(f"Alternative '{new_control_alternative.name}' set for scenario '{my_scenario.name}'.")
+```
+
+After making changes, you might want to close the database connection if not using a `with` statement:
+
+```python
+db.close()
+```
+
+This guide covers the main functionalities for working with scenarios and alternatives. Refer to the API documentation for `mikeplus.scenarios` for more detailed information on each class and method.

@@ -39,6 +39,7 @@ website:
         - user-guide/database.qmd
         - user-guide/tables.qmd
         - user-guide/queries.qmd
+        - user-guide/scenarios.qmd
         - user-guide/simulations.qmd
         - user-guide/tools.qmd
 
