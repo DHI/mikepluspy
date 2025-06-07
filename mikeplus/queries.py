@@ -14,11 +14,10 @@ if TYPE_CHECKING:
     from .tables import BaseTable
 
 
-# Replace imports from converters with imports from dotnet
 from .dotnet import DotNetConverter
+from .utils import to_sql
 
 
-# Define a TypeVar for the return type of execute
 QueryResultT = TypeVar("QueryResultT")
 
 
@@ -36,7 +35,6 @@ class BaseQuery(Generic[QueryResultT], ABC):
         """
         self._table = table
         self._conditions: list[str] = []
-        self._params: dict[str, str] = {}
         self._executed = False
 
     def __repr__(self) -> str:
@@ -45,15 +43,13 @@ class BaseQuery(Generic[QueryResultT], ABC):
             f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
         )
 
-    def where(self, condition: str, params: dict[str, str] = {}):
+    def where(self, condition: str):
         """Add a WHERE condition to the query.
 
         Parameters
         ----------
         condition : str
             SQL-like condition string
-        params : dict of str to str, optional
-            Named parameters for the condition
 
         Returns
         -------
@@ -62,7 +58,49 @@ class BaseQuery(Generic[QueryResultT], ABC):
 
         """
         self._conditions.append(condition)
-        self._params.update(params)
+        return self
+
+    def by_muid(self, muid_or_muids: str | list[str] | tuple[str]):
+        """Filter the query by one or more MUIDs.
+
+        Parameters
+        ----------
+        muid_or_muids : str or list/tuple of str
+            A single MUID string, or a list/tuple of MUID strings.
+
+        Returns
+        -------
+        self
+            The query instance for method chaining.
+
+        Raises
+        ------
+        ValueError
+            If `muid_or_muids` is not a string, or a list/tuple of strings,
+            or if items in list/tuple are not strings.
+        ValueError
+            If `muid_or_muids` is an empty list/tuple.
+        """
+        if isinstance(muid_or_muids, str):
+            self.where(f"MUID = '{muid_or_muids}'")
+        elif isinstance(muid_or_muids, (list, tuple)):
+            if not muid_or_muids:
+                raise ValueError(
+                    f"The muid_or_muids list/tuple cannot be empty. You provided: {muid_or_muids}."
+                )
+            if not all(isinstance(muid, str) for muid in muid_or_muids):
+                types = [type(muid) for muid in muid_or_muids]
+                raise ValueError(
+                    f"All items in muid_or_muids list/tuple must be strings. You provided: {types}."
+                )
+
+            formatted_muids = [to_sql(muid) for muid in muid_or_muids]
+            condition = f"MUID IN ({', '.join(formatted_muids)})"
+            self.where(condition)
+        else:
+            raise ValueError(
+                "by_muid() accepts a single MUID string or a list/tuple of MUID strings."
+            )
         return self
 
     def _build_where_clause(self):
@@ -79,13 +117,6 @@ class BaseQuery(Generic[QueryResultT], ABC):
 
         wrapped_conditions = [f"({condition})" for condition in self._conditions]
         where_clause = " AND ".join(wrapped_conditions)
-
-        for key, value in self._params.items():
-            if isinstance(value, (int, float)):
-                where_clause = where_clause.replace(f":{key}", str(value))
-            else:
-                where_clause = where_clause.replace(f":{key}", f"'{str(value)}'")
-
         return where_clause
 
     def reset(self):
