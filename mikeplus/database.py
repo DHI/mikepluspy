@@ -404,13 +404,13 @@ class Database:
         return [scenario.name for scenario in self._scenarios]
 
     @property
-    def active_scenario(self) -> str:
-        """Name of the active scenario.
+    def active_scenario(self) -> Scenario:
+        """Active scenario.
 
         Returns
         -------
-        str
-            Name of the active scenario
+        Scenario
+            The active scenario
 
         Notes
         -----
@@ -421,18 +421,17 @@ class Database:
         if not self._is_open:
             raise ValueError("Database is not open")
 
-        return self._scenarios.active.name
+        return self._scenarios.active
 
     @active_scenario.setter
-    def active_scenario(self, scenario_name: str):
+    def active_scenario(self, scenario: Scenario):
         if not self._is_open:
             raise ValueError("Database is not open")
 
-        scenario = self._scenarios.by_name(scenario_name)
-        if scenario is None:
+        if scenario not in self._scenarios:
             valid_scenarios = [s.name for s in self._scenarios]
             raise ValueError(
-                f"Scenario '{scenario_name}' does not exist. Valid scenarios: {valid_scenarios}"
+                f"Scenario '{scenario.name}' does not exist. Valid scenarios: {valid_scenarios}"
             )
         
         scenario.activate()
