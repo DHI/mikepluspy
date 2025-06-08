@@ -8,10 +8,11 @@ Each group has a base alternative and potentially an active alternative.
 """
 
 from __future__ import annotations
-from typing import Iterator
+from typing import Iterator, Any
 
 from .alternative import Alternative
-from mikeplus.scenarios import alternative
+
+IAlternative = Any
 
 
 class AlternativeGroup:
@@ -97,7 +98,9 @@ class AlternativeGroup:
         for child in self.base.children:
             yield child
 
-    def _find_by_name(self, name: str, parent: IAlternative, found: list[IAlternative]) -> None:
+    def _find_by_name(
+        self, name: str, parent: IAlternative, found: list[IAlternative]
+    ) -> None:
         if name == parent.Name:
             found.append(parent)
         if parent.Children.Count == 0:
@@ -107,7 +110,7 @@ class AlternativeGroup:
 
     def find_by_name(self, name: str) -> list[Alternative]:
         """Find alternatives by name."""
-        found = []
+        found: list[IAlternative] = []
         base = self._net_alternative_group.BaseAlternative
         self._find_by_name(name, base, found)
         return [Alternative(self._scenario_manager, alt) for alt in found]
@@ -115,7 +118,7 @@ class AlternativeGroup:
     def by_name(self, name: str) -> Alternative | None:
         """Find an alternative by name."""
         found = self.find_by_name(name)
-        return found[0] if found else None     
+        return found[0] if found else None
 
     def create(self, name: str, parent: Alternative | None = None) -> Alternative:
         """Create a new alternative, optionally as a child of another.
