@@ -62,7 +62,7 @@ class Alternative:
 
     def __repr__(self):
         """Return a string representation of the alternative."""
-        return f"Alternative <{self.name}>"
+        return f"Alternative({self.group.name}) <{self.name}>"
 
     def __eq__(self, other: object) -> bool:
         """Check if two alternatives are equal."""
