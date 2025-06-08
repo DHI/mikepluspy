@@ -99,3 +99,19 @@ def test_api_create_and_activate_scenario(sirius_db):
     found_scenario = db.scenarios.by_name(scenario_name)
     assert found_scenario is not None
     assert found_scenario.id == new_scenario.id
+
+
+def test_alternative_group_finding(sirius_db):
+    """
+    Tests that AlternativeGroup.find_by_name returns the correct alternative.
+    """
+    db = mp.open(sirius_db)
+    network_group = db.alternative_groups["CS Network data"]
+    found = network_group.find_by_name("Base Alternative")
+    assert len(found) == 1
+    assert found[0].name == "Base Alternative"
+
+    assert len(list(network_group)) == 2
+
+    assert network_group.by_name("Base Alternative").name == "Base Alternative"
+

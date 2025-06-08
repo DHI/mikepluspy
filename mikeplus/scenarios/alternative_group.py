@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Iterator
 
 from .alternative import Alternative
+from mikeplus.scenarios import alternative
 
 
 class AlternativeGroup:
@@ -90,35 +91,31 @@ class AlternativeGroup:
         """Return a string representation of the AlternativeGroup."""
         return f"<AlternativeGroup {self.name}>"
 
-    def __getitem__(self, key: str | int) -> Alternative:
-        """Access alternative by ID (int) or name (str).
-
-        Raises
-        ------
-        KeyError
-            If no alternative matches the given key
-        """
-        for alt in self._net_alternative_group.Alternatives:
-            if isinstance(key, int) and alt.AltId == key:
-                return Alternative(self._scenario_manager, alt)
-            elif isinstance(key, str) and alt.Name == key:
-                return Alternative(self._scenario_manager, alt)
-
-        raise KeyError(f"No alternative with ID or name '{key}' in group '{self.name}'")
-
     def __iter__(self) -> Iterator[Alternative]:
         """Iterate through all alternatives in this group."""
-        for alt in self._scenario_manager.Alternatives:
-            if alt.GroupId == self.id:
-                yield Alternative(self._scenario_manager, alt)
+        yield self.base
+        for child in self.base.children:
+            yield child
+
+    def _find_by_name(self, name: str, parent: IAlternative, found: list[IAlternative]) -> None:
+        if name == parent.Name:
+            found.append(parent)
+        if parent.Children.Count == 0:
+            return
+        for child in parent.Children:
+            self._find_by_name(name, child, found)
 
     def find_by_name(self, name: str) -> list[Alternative]:
-        """Find alternatives by name (may return multiple if names aren't unique)."""
-        matches = []
-        for alt in self._scenario_manager.Alternatives:
-            if alt.GroupId == self.id and alt.Name == name:
-                matches.append(Alternative(self._scenario_manager, alt))
-        return matches
+        """Find alternatives by name."""
+        found = []
+        base = self._net_alternative_group.BaseAlternative
+        self._find_by_name(name, base, found)
+        return [Alternative(self._scenario_manager, alt) for alt in found]
+
+    def by_name(self, name: str) -> Alternative | None:
+        """Find an alternative by name."""
+        found = self.find_by_name(name)
+        return found[0] if found else None     
 
     def create(self, name: str, parent: Alternative | None = None) -> Alternative:
         """Create a new alternative, optionally as a child of another.
