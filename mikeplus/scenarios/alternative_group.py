@@ -86,6 +86,10 @@ class AlternativeGroup:
         current_alt = self._net_alternative_group.ActiveAlternative
         return Alternative(self._scenario_manager, current_alt)
 
+    def __repr__(self) -> str:
+        """Return a string representation of the AlternativeGroup."""
+        return f"<AlternativeGroup {self.name}>"
+
     def __getitem__(self, key: str | int) -> Alternative:
         """Access alternative by ID (int) or name (str).
 

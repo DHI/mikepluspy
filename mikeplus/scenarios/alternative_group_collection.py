@@ -79,6 +79,10 @@ class AlternativeGroupCollection:
         for group in self._scenario_manager.AlternativeGroups:
             yield AlternativeGroup(self._scenario_manager, group)
 
+    def __repr__(self) -> str:
+        """Return a string representation of the AlternativeGroupCollection."""
+        return "<AlternativeGroupCollection>"
+
     def group_names(self) -> List[str]:
         """Get a list of available group names."""
         return [group.Name for group in self._scenario_manager.AlternativeGroups]
