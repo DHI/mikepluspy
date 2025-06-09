@@ -10,7 +10,62 @@ on:
     types: [created]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Ruff
+      uses: chartboost/ruff-action@v1
+      with:
+        src: "."  # Adjust the source directory as needed
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[test]
+      - name: Run mypy
+        run: |
+          mypy mikeplus/
+
+  test:
+    runs-on: self-hosted
+    needs: [lint, typecheck]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up UV and Python ${{ matrix.python-version }}
+        id: setup-uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements*.txt
+            **/setup.py
+            **/pyproject.toml
+
+      - name: Install project dependencies and test requirements
+        run: |
+          uv pip install -e .[test]
+
+      - name: Test with pytest
+        run: |
+          uv run pytest -v -m "not skip_ci"
   deploy:
+    needs: [lint, typecheck, test]
     runs-on: windows-latest
 
     permissions:
@@ -18,71 +73,43 @@ jobs:
       id-token: write
 
     steps:
-        - uses: actions/checkout@v4
-        - uses: chartboost/ruff-action@v1 # Fail fast if there are any linting errors
-        - name: Checkout branch with MIKE+ dependency
-          uses: actions/checkout@v3
-          with:
-            lfs: true
-            ref: cicd_dependencies
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel twine
+    - name: Install mikepluspy
+      run: |
+        python -m pip install .
+    - name: Build package
+      run: python -m build --wheel
 
-        - name: Unzip MIKE+ dependency
-          run: |
-            7z x "2025_0.7z" -p${{ secrets.MIKE_2024_0_7Z }}
+    - name: Archive distributions
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-dists
+        path: dist/
 
-        - name: Install MIKE+ dependency
-          run: |
-              ./install.ps1 2025
+    # Doesn't run on Windows ☹️
+    # using a trusted publisher is recommended:
+    # https://docs.pypi.org/trusted-publishers/
+    # uncomment if you want to upload to PyPI
+    # - name: Publish package distributions to PyPI
+    #   uses: pypa/gh-action-pypi-publish@release/v1
 
-        - name: Checkout code
-          uses: actions/checkout@v3
-
-        - name: Set up Python ${{ matrix.python-version }}
-          uses: actions/setup-python@v3
-          with:
-            python-version: ${{ matrix.python-version }}
-            lfs: true
-
-        - name: Set up .NET
-          uses: actions/setup-dotnet@v3
-          with:
-            dotnet-version: '6.0.x'
-
-        - name: Install dependencies
-          run: |
-            python -m pip install --upgrade pip
-            python -m pip install pytest
-            pip install build wheel twine
-
-        - name: Install mikepluspy
-          run: |
-            python -m pip install -e .[test]
-
-        - name: Test with pytest
-          run: |
-            pytest -v -m "not license_required and not slow"
-
-        - name: Build package
-          run: python -m build --wheel
-
-        - name: Archive distributions
-          uses: actions/upload-artifact@v4
-          with:
-            name: release-dists
-            path: dist/
-
-        # Doesn't run on Windows ☹️
-        # using a trusted publisher is recommended:
-        # https://docs.pypi.org/trusted-publishers/
-        # uncomment if you want to upload to PyPI
-        # - name: Publish package distributions to PyPI
-        #   uses: pypa/gh-action-pypi-publish@release/v1
-    
-        - name: Publish
-          env:
-            TWINE_USERNAME: '__token__'
-            TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-          run: |
-            twine upload --verbose dist/*.whl
+    - name: Publish
+      env:
+        TWINE_USERNAME: '__token__'
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        twine upload --verbose dist/*.whl
 
       
