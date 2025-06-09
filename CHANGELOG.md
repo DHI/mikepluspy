@@ -3,6 +3,18 @@
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+## [2025.1.0] - 2025-06-09
+
+### Added
 - Fluent SQL API for chainable operations (select, insert, update, delete) on database tables
 - `to_dataframe()` alias for `to_pandas()` and table-level shortcut method for pandas integration
 - Convenience methods `open()` and `create()` for cleaner database access syntax
