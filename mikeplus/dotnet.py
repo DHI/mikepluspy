@@ -11,6 +11,8 @@ import clr  # noqa: F401
 import datetime
 from typing import Any, Dict, Optional
 
+import pandas as pd
+
 import System
 from System import String, Object, Nullable
 from System.Collections.Generic import List, IList, IDictionary, Dictionary
@@ -76,6 +78,9 @@ class DotNetConverter:
         elif isinstance(value, datetime.datetime):
             return DotNetConverter.to_dotnet_datetime(value)
         elif isinstance(value, str):
+            value = pd.to_datetime(value, errors="ignore")
+            if isinstance(value, datetime.datetime):
+                return DotNetConverter.to_dotnet_datetime(value)
             return value  # Strings automatically convert
         elif isinstance(value, list):
             return DotNetConverter.as_dotnet_list(value)
@@ -295,7 +300,7 @@ class DotNetConverter:
             return []
 
         # Pythonnet handles IList conversion automatically
-        return list(net_list)
+        return [DotNetConverter.from_dotnet_value(x) for x in net_list]
 
 
 # For backward compatibility, keep the module-level functions
