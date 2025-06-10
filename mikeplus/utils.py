@@ -1,5 +1,27 @@
 """General utilities for mikepluspy."""
 
+import os
+from pathlib import Path
+
+import clr
+import System
+from DHI.Mike.Install import MikeImport
+from DHI.Mike.Install import MikeProducts
+
+clr.AddReference(
+    "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"
+)
+
+def setup_bin_path():
+    """Setup the bin path for mikepluspy."""
+    MikeImport.Setup(23, MikeProducts.MikePlus)
+    mikeplus_install_root = Path(MikeImport.ActiveProduct().InstallRoot)
+
+    # MikeImport adds install bin to end of PATH, this brings it to the front
+    env_path = System.Environment.GetEnvironmentVariable("PATH")
+    all_paths = [Path(p) for p in env_path.split(";")]
+    mikeplus_env_paths = [str(p) for p in all_paths if p.is_relative_to(mikeplus_install_root)]
+    os.environ["PATH"] = ";".join(mikeplus_env_paths) + ";" + os.environ["PATH"]
 
 def to_sql(value) -> str:
     """Convert a Python value to its SQL string representation.

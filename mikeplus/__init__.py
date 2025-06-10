@@ -2,18 +2,12 @@
 
 __version__ = "2025.1.0"
 
+import clr
 from .conflicts import check_conflicts
+from .utils import setup_bin_path
 
 check_conflicts()
-
-import clr  # noqa: E402
-
-clr.AddReference(
-    "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"
-)
-from DHI.Mike.Install import MikeImport, MikeProducts  # noqa: E402
-
-MikeImport.Setup(23, MikeProducts.MikePlus)
+setup_bin_path()
 
 clr.AddReference("System")
 clr.AddReference("System.Runtime")
