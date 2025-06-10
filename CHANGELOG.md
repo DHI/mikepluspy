@@ -12,6 +12,13 @@
 
 ### Fixed
 
+### Security
+
+## [2025.1.1] - 2025-06-10
+
+### Fixed
+- More robust bin path setup, reduces the risk of conflicts with other software
+
 ## [2025.1.0] - 2025-06-09
 
 ### Added
