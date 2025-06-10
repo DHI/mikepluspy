@@ -13,7 +13,7 @@ clr.AddReference(
 )
 
 def setup_bin_path():
-    """Setup the bin path for mikepluspy."""
+    """Set up the bin path for mikepluspy."""
     MikeImport.Setup(23, MikeProducts.MikePlus)
     mikeplus_install_root = Path(MikeImport.ActiveProduct().InstallRoot)
 
