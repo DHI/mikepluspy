@@ -10,8 +10,8 @@ check_conflicts()
 setup_bin_path()
 
 #  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
-from DHI.Mike.Install import MikeImport         # noqa: E402
-from DHI.Mike.Install import MikeProducts       # noqa: E402
+from DHI.Mike.Install import MikeImport         # noqa: E402, F401
+from DHI.Mike.Install import MikeProducts       # noqa: E402, F401
 
 clr.AddReference("System")
 clr.AddReference("System.Runtime")
