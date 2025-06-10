@@ -14,6 +14,11 @@
 
 ### Security
 
+## [2025.1.2] - 2025-06-10
+
+### Fixed
+- Allow importing mikeio after mikeplus
+
 ## [2025.1.1] - 2025-06-10
 
 ### Fixed
