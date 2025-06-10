@@ -4,13 +4,14 @@ import os
 from pathlib import Path
 
 import clr
-import System
-from DHI.Mike.Install import MikeImport
-from DHI.Mike.Install import MikeProducts
 
 clr.AddReference(
     "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"
 )
+
+import System
+from DHI.Mike.Install import MikeImport
+from DHI.Mike.Install import MikeProducts
 
 def setup_bin_path():
     """Set up the bin path for mikepluspy."""
