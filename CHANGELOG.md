@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Support for updating datetime values using strings.
 
 ### Changed
 
