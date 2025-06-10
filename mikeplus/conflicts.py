@@ -5,7 +5,7 @@ import os
 import warnings
 
 MIKEIO1D_IMPORTED_BEFORE_MIKEPLUS = "mikeio1d" in sys.modules
-MIKEIO_IMPORTED_BEFORE_MIKEPLUS = "mikeio" in sys.modules
+
 DISABLE_CONFLICT_CHECKS = (
     os.getenv("MIKEPLUSPY_DISABLE_CONFLICT_CHECKS", "false").lower() == "true"
 )
@@ -36,7 +36,7 @@ def check_conflicts():
 
     MIKEIO_IMPORTED = "mikeio" in sys.modules
 
-    if MIKEIO_IMPORTED and MIKEIO_IMPORTED_BEFORE_MIKEPLUS:
+    if MIKEIO_IMPORTED:
         if not hasattr(check_conflicts, "warned"):
             check_conflicts.warned = True
             warnings.warn(
@@ -44,7 +44,3 @@ def check_conflicts():
                 category=UserWarning,
                 stacklevel=2,
             )
-    elif MIKEIO_IMPORTED:
-        raise ImportError(
-            "Importing mikeio after mikeplus is not supported. Try importing mikeio before mikeplus. See docs for more info."
-        )
