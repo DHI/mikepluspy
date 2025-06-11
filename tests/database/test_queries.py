@@ -33,6 +33,14 @@ class TestBaseQuery:
         table = db.tables.msm_Link
         return self.BaseQueryTest(table)
 
+    def test_base_query_error_if_not_open(self, session_sirius_db):
+        """Test that BaseQuery errors if the database is not open."""
+        with mp.open(session_sirius_db) as db:
+            db.tables.msm_Link.to_dataframe()
+        
+        with pytest.raises(ValueError):
+            db.tables.msm_Link.to_dataframe()
+
     def test_where_clause(self, base_query: BaseQueryTest):
         """Test adding where clauses."""
         query = base_query.where("Diameter > 10")

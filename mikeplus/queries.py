@@ -14,8 +14,11 @@ if TYPE_CHECKING:
     from .tables import BaseTable
 
 
+import clr
 from .dotnet import DotNetConverter
 from .utils import to_sql
+
+from System.Data import ConnectionState
 
 
 QueryResultT = TypeVar("QueryResultT")
@@ -151,6 +154,15 @@ class BaseQuery(Generic[QueryResultT], ABC):
         if self._executed:
             raise RuntimeError(
                 "Query has already been executed. Use reset() to execute again."
+            )
+
+        db_connection = self._table._net_table.DataTables.DataSource.DbConnection
+        if not db_connection or db_connection.State != ConnectionState.Open:
+            raise ValueError(
+                "Database is not open. "
+                "Open database with `.open()` before executing query. "
+                "If using a `with` context manager, ensure your queries are being "
+                "executed within the context block."
             )
 
         self._executed = True
