@@ -14,6 +14,11 @@
 
 ### Security
 
+## [2025.3.1] - 2025-06-11
+
+### Fixed
+- Fix AddReference for DHI.Mike.Install causing warning
+
 ## [2025.3.0] - 2025-06-11
 
 ### Added
