@@ -154,7 +154,7 @@ class Scenario:
     def activate(self) -> None:
         """Make this the currently active scenario in the model."""
         try:
-            self._scenario_manager.ActivateScenario(self.id)
+            self._scenario_manager.ActivateScenario(self.id, silent=True)
         except Exception as e:
             raise ValueError(f"Failed to activate scenario: {e}")
 
