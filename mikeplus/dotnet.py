@@ -78,7 +78,10 @@ class DotNetConverter:
         elif isinstance(value, datetime.datetime):
             return DotNetConverter.to_dotnet_datetime(value)
         elif isinstance(value, str):
-            value = pd.to_datetime(value, errors="ignore")
+            try:
+                value = pd.to_datetime(value)
+            except ValueError:
+                pass
             if isinstance(value, datetime.datetime):
                 return DotNetConverter.to_dotnet_datetime(value)
             return value  # Strings automatically convert
