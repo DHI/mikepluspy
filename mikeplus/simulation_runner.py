@@ -111,7 +111,9 @@ class SimulationRunner:
         elif sim_option == MUSimulationOption.CS_MIKE_1D_JobList:
             return self.run_lts_joblist(muid)
         else:
-            raise ValueError(f"No simulation runner for simulation option: {sim_option}")
+            raise ValueError(
+                f"No simulation runner for simulation option: {sim_option}"
+            )
 
     def run_cs(self, sim_muid: str | None = None) -> list[Path]:
         """Run a Collection System (CS) simulation.
@@ -256,27 +258,30 @@ class SimulationRunner:
         while launcher.IsEngineRunning:
             time.sleep(0.1)
 
-    def _get_result_files(self, project_table_name: str, sim_muid: str, is_lts_joblist: bool = False) -> List[Path]:
+    def _get_result_files(
+        self, project_table_name: str, sim_muid: str, is_lts_joblist: bool = False
+    ) -> List[Path]:
         """Get result file paths for the completed simulation."""
         if is_lts_joblist:
             return self._get_result_file_lts_job_list(sim_muid)
 
         project_table = getattr(self._database.tables, project_table_name)
-        result_files = list(project_table._net_table.GetResultFilePath(muid=sim_muid).Values)
+        result_files = list(
+            project_table._net_table.GetResultFilePath(muid=sim_muid).Values
+        )
         return [Path(f) for f in result_files]
 
     def _get_result_file_lts_job_list(self, sim_muid: str) -> list[Path]:
         project_table = self._database.tables.msm_Project
         scenario = (
-            project_table
-                .select([project_table.columns.ScenarioName])
-                .by_muid(sim_muid)
-                .execute()
+            project_table.select([project_table.columns.ScenarioName])
+            .by_muid(sim_muid)
+            .execute()
         )
         try:
             scenario = scenario[sim_muid][0]
         except Exception as e:
             raise ValueError(f"Scenario not found for simulation MUID: {sim_muid}. {e}")
-        
+
         result_file_name = f"{sim_muid}{scenario}.MJL"
         return [Path(self._database.db_path.parent / result_file_name)]

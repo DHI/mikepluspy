@@ -8,7 +8,13 @@ import clr
 
 _setup_called = False
 
-def setup_bin_path(major_assembly_version: int, fallback_mikeplus_install_root: Path, env_var_name_install_root: str, bin_path: Path):
+
+def setup_bin_path(
+    major_assembly_version: int,
+    fallback_mikeplus_install_root: Path,
+    env_var_name_install_root: str,
+    bin_path: Path,
+):
     """Set up the bin path for mikepluspy."""
     global _setup_called
     if _setup_called:
@@ -21,7 +27,9 @@ def setup_bin_path(major_assembly_version: int, fallback_mikeplus_install_root: 
         mikeplus_install_root = Path(mikeplus_install_root)
         mikeplus_install_bin = mikeplus_install_root / bin_path
         if not mikeplus_install_bin.exists():
-            raise FileNotFoundError(f"{env_var_name_install_root} {bin_path} does not exist: {mikeplus_install_bin}")
+            raise FileNotFoundError(
+                f"{env_var_name_install_root} {bin_path} does not exist: {mikeplus_install_bin}"
+            )
         os.environ["PATH"] = str(mikeplus_install_bin) + ";" + os.environ["PATH"]
 
     else:
@@ -33,6 +41,7 @@ def setup_bin_path(major_assembly_version: int, fallback_mikeplus_install_root: 
             import System  # noqa: E402
             from DHI.Mike.Install import MikeImport  # noqa: E402
             from DHI.Mike.Install import MikeProducts  # noqa: E402
+
             MikeImport.Setup(major_assembly_version, MikeProducts.MikePlus)
             mikeplus_install_root = Path(MikeImport.ActiveProduct().InstallRoot)
 
@@ -54,9 +63,13 @@ def setup_bin_path(major_assembly_version: int, fallback_mikeplus_install_root: 
                 stacklevel=2,
             )
             if not mikeplus_install_root.exists():
-                raise FileNotFoundError(f"Default MIKE+ installation does not exist: {mikeplus_install_root}")
+                raise FileNotFoundError(
+                    f"Default MIKE+ installation does not exist: {mikeplus_install_root}"
+                )
             if not mikeplus_install_bin.exists():
-                raise FileNotFoundError(f"Default MIKE+ installation bin {bin_path} does not exist: {mikeplus_install_bin}")
+                raise FileNotFoundError(
+                    f"Default MIKE+ installation bin {bin_path} does not exist: {mikeplus_install_bin}"
+                )
             os.environ["PATH"] = str(mikeplus_install_bin) + ";" + os.environ["PATH"]
 
 
