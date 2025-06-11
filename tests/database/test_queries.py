@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import pytest
 import pandas as pd
+import datetime
 
-import mikeplus as ms
+import mikeplus as mp
 from mikeplus.database import Database
 from mikeplus.queries import BaseQuery
 from mikeplus.queries import SelectQuery
@@ -32,6 +33,14 @@ class TestBaseQuery:
         table = db.tables.msm_Link
         return self.BaseQueryTest(table)
 
+    def test_base_query_error_if_not_open(self, session_sirius_db):
+        """Test that BaseQuery errors if the database is not open."""
+        with mp.open(session_sirius_db) as db:
+            db.tables.msm_Link.to_dataframe()
+        
+        with pytest.raises(ValueError):
+            db.tables.msm_Link.to_dataframe()
+
     def test_where_clause(self, base_query: BaseQueryTest):
         """Test adding where clauses."""
         query = base_query.where("Diameter > 10")
@@ -44,7 +53,7 @@ class TestBaseQuery:
 
     def test_parameters(self, base_query: BaseQueryTest):
         """Test query parameters."""
-        diameter = ms.to_sql(15)
+        diameter = mp.to_sql(15)
         query = base_query.where(f"Diameter > {diameter}")
 
         # Check parameters are stored
@@ -185,7 +194,7 @@ class TestSelectQuery:
 
         # Test where clause with parameters
         query = SelectQuery(table, ["MUID", "Diameter"])
-        min_diameter = ms.to_sql(0.5)
+        min_diameter = mp.to_sql(0.5)
         query = query.where(f"Diameter > {min_diameter}")
         result = query.execute()
 
@@ -417,6 +426,36 @@ class TestUpdateQuery:
         other_row = dict(zip(list(values.keys()), other_data[other_muid]))
         assert other_row != values, "Other rows should not be updated"
 
+    @pytest.fixture(scope="class")
+    def project_table_fixture(self, class_sirius_db):
+        """Fixture providing the msm_Project table."""
+        db = Database(class_sirius_db)
+        yield db.tables.msm_Project
+        db.close()
+
+    def test_update_computation_begin_with_string(self, project_table_fixture):
+        """Tests updating ComputationBegin in msm_Project using a string."""
+        table = project_table_fixture
+        table.insert({})
+        datetime_string = "2025-01-01 14:30:00"
+        expected_datetime = pd.to_datetime(datetime_string)
+
+        values = {table.columns.ComputationBegin: datetime_string}
+        query = UpdateQuery(table, values)
+        muids_updated = query.all().execute()
+
+        assert muids_updated, "Update operation should have affected rows."
+
+        result_data = table.select([table.columns.ComputationBegin]).execute()
+        assert result_data, "No data returned from msm_Project after update."
+
+        retrieved_value = list(result_data.values())[0][0]
+
+        assert isinstance(retrieved_value, datetime.datetime), \
+            f"Expected ComputationBegin to be datetime.datetime, but got {type(retrieved_value)}."
+        assert retrieved_value == expected_datetime, \
+            f"Expected ComputationBegin datetime {expected_datetime}, but got {retrieved_value}."
+
 
 class TestDeleteQuery:
     """Tests for the DeleteQuery class."""
@@ -478,7 +517,7 @@ class TestDeleteQuery:
 
         # Delete the second row by diameter filter
         query = DeleteQuery(table)
-        diameter = ms.to_sql(200.0)
+        diameter = mp.to_sql(200.0)
         deleted_muids = query.where(f"Diameter = {diameter}").execute()
 
         # Verify only the second record was deleted

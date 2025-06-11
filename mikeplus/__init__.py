@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2025.1.2"
+__version__ = "2025.2.0"
 
 import clr
 from .conflicts import check_conflicts
@@ -10,8 +10,8 @@ check_conflicts()
 setup_bin_path()
 
 #  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
-from DHI.Mike.Install import MikeImport         # noqa: E402, F401
-from DHI.Mike.Install import MikeProducts       # noqa: E402, F401
+from DHI.Mike.Install import MikeImport  # noqa: E402, F401
+from DHI.Mike.Install import MikeProducts  # noqa: E402, F401
 
 clr.AddReference("System")
 clr.AddReference("System.Runtime")

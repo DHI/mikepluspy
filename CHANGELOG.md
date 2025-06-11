@@ -14,6 +14,13 @@
 
 ### Security
 
+## [2025.2.0] - 2025-06-11
+
+### Added
+- Support for updating datetime values using strings.
+- Run LTS job list generation simulation.
+- Better error message when executing queries on unopened database.
+
 ## [2025.1.2] - 2025-06-10
 
 ### Fixed

@@ -8,6 +8,7 @@ MIKE+ model files, including access to tables and scenarios.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from typing import Literal
 
 if TYPE_CHECKING:
     from .scenarios.scenario import Scenario
@@ -429,7 +430,13 @@ class Database:
         return str(self._data_source.ActiveModel)
 
     def run(
-        self, simulation_muid: str | None = None, model_option: str | None = None
+        self, simulation_muid: str | None = None, *, sim_option: Literal[
+            "CS_MIKE_1D",
+            "CS_SWMM",
+            "WD_EPANET",
+            "CS_MIKE_1D_JobList",
+        ]
+        | None = None
     ) -> list[Path]:
         """Run a simulation.
 
@@ -437,8 +444,13 @@ class Database:
         ----------
         simulation_muid : str, optional
             Simulation MUID. Defaults to the active simulation.
-        model_option : str | MUModelOption, optional
-            Model option. Defaults to active model if None.
+        sim_option : Literal[str], optional
+            Simulation option. Defaults to None. Possible values are:
+
+            - "CS_MIKE_1D": Rivers, collection systems, and overland flows.
+            - "CS_SWMM": SWMM-based collection systems and overland flows.
+            - "WD_EPANET": Water distribution systems.
+            - "CS_MIKE_1D_JobList": Generate job list for LTS simulation (.MJL file).
 
         Examples
         --------
@@ -457,7 +469,7 @@ class Database:
         list[Path]
             Paths to the result files.
         """
-        return self._runner.run(simulation_muid, model_option)
+        return self._runner.run(simulation_muid, sim_option=sim_option)
 
 
 __all__ = [
