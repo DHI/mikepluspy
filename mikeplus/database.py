@@ -430,13 +430,16 @@ class Database:
         return str(self._data_source.ActiveModel)
 
     def run(
-        self, simulation_muid: str | None = None, *, sim_option: Literal[
+        self,
+        simulation_muid: str | None = None,
+        *,
+        sim_option: Literal[
             "CS_MIKE_1D",
             "CS_SWMM",
             "WD_EPANET",
             "CS_MIKE_1D_JobList",
         ]
-        | None = None
+        | None = None,
     ) -> list[Path]:
         """Run a simulation.
 
