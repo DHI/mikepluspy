@@ -15,7 +15,6 @@ from System.Collections.Generic import List
 from System.Threading import CancellationTokenSource
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
-from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
 
 
@@ -50,8 +49,12 @@ class SimulationRunner:
         ----------
         muid : str, optional
             Simulation MUID. Defaults to the active simulation.
-        model_option : str | MUModelOption, optional
-            Model option. Defaults to None.
+        model_option : str, optional
+            Model option. Defaults to None. Possible values are:
+
+            - "CS_MIKE_1D"
+            - "CS_SWMM"
+            - "WD_EPANET"
 
         Returns
         -------
@@ -62,18 +65,18 @@ class SimulationRunner:
             model_option = self._database.active_model
 
         try:
-            model_option = Enum.Parse(MUModelOption, model_option)
+            model_option = Enum.Parse(MUSimulationOption, model_option)
         except ValueError:
-            possible_options = ", ".join(Enum.GetNames(MUModelOption))
+            possible_options = ", ".join(Enum.GetNames(MUSimulationOption))
             raise ValueError(
                 f"Invalid model option: {model_option}. Valid options: {possible_options}"
             )
 
-        if model_option == MUModelOption.CS_MIKE1D:
+        if model_option == MUSimulationOption.CS_MIKE1D:
             return self.run_cs(muid)
-        elif model_option == MUModelOption.CS_SWMM:
+        elif model_option == MUSimulationOption.CS_SWMM:
             return self.run_swmm(muid)
-        elif model_option == MUModelOption.WD_EPANET:
+        elif model_option == MUSimulationOption.WD_EPANET:
             return self.run_epanet(muid)
         else:
             raise ValueError(f"No simulation runner for model option: {model_option}")
