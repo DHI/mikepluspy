@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import Literal
 
 if TYPE_CHECKING:
     from .database import Database
@@ -15,6 +16,7 @@ from System.Collections.Generic import List
 from System.Threading import CancellationTokenSource
 from DHI.Amelia.Tools.EngineTool import EngineTool
 from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
+from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
 
 
@@ -41,7 +43,16 @@ class SimulationRunner:
         self._engine_tool.DataTables = self._database._data_table_container
 
     def run(
-        self, muid: str | None = None, model_option: str | None = None
+        self,
+        muid: str | None = None,
+        *,
+        sim_option: Literal[
+            "CS_MIKE_1D",
+            "CS_SWMM",
+            "WD_EPANET",
+            "CS_MIKE_1D_JobList",
+        ]
+        | None = None,
     ) -> list[Path]:
         """Run a simulation.
 
@@ -49,37 +60,52 @@ class SimulationRunner:
         ----------
         muid : str, optional
             Simulation MUID. Defaults to the active simulation.
-        model_option : str, optional
-            Model option. Defaults to None. Possible values are:
+        sim_option : Literal[str], optional
+            Simulation option. Defaults to None. Possible values are:
 
-            - "CS_MIKE_1D"
-            - "CS_SWMM"
-            - "WD_EPANET"
+            - "CS_MIKE_1D": Rivers, collection systems, and overland flows.
+            - "CS_SWMM": SWMM-based collection systems and overland flows.
+            - "WD_EPANET": Water distribution systems.
+            - "CS_MIKE_1D_JobList": Generate job list for LTS simulation (.MJL file).
 
         Returns
         -------
         list[Path]
             Paths to the result files.
         """
-        if model_option is None:
+        if sim_option is None:
             model_option = self._database.active_model
+            model_option = Enum.Parse(MUModelOption, model_option)
+            if model_option == MUModelOption.CS_MIKE1D:
+                sim_option = MUSimulationOption.CS_MIKE1D
+            elif model_option == MUModelOption.CS_SWMM:
+                sim_option = MUSimulationOption.CS_SWMM
+            elif model_option == MUModelOption.WD_EPANET:
+                sim_option = MUSimulationOption.WD_EPANET
+            else:
+                raise ValueError(
+                    f"Could not use 'active_model' of {model_option} to determine "
+                    f"simulation option. Manually specify the simulation option."
+                )
 
         try:
-            model_option = Enum.Parse(MUSimulationOption, model_option)
+            sim_option = Enum.Parse(MUSimulationOption, sim_option)
         except ValueError:
             possible_options = ", ".join(Enum.GetNames(MUSimulationOption))
             raise ValueError(
-                f"Invalid model option: {model_option}. Valid options: {possible_options}"
+                f"Invalid simulation option: {sim_option}. Valid options: {possible_options}"
             )
 
-        if model_option == MUSimulationOption.CS_MIKE1D:
+        if sim_option == MUSimulationOption.CS_MIKE_1D:
             return self.run_cs(muid)
-        elif model_option == MUSimulationOption.CS_SWMM:
+        elif sim_option == MUSimulationOption.CS_SWMM:
             return self.run_swmm(muid)
-        elif model_option == MUSimulationOption.WD_EPANET:
+        elif sim_option == MUSimulationOption.WD_EPANET:
             return self.run_epanet(muid)
+        elif sim_option == MUSimulationOption.CS_MIKE_1D_JobList:
+            return self.run_lts_joblist(muid)
         else:
-            raise ValueError(f"No simulation runner for model option: {model_option}")
+            raise ValueError(f"No simulation runner for simulation option: {sim_option}")
 
     def run_cs(self, sim_muid: str | None = None) -> list[Path]:
         """Run a Collection System (CS) simulation.
@@ -109,6 +135,32 @@ class SimulationRunner:
         self._wait_for_engine_completion(launcher)
 
         return self._get_result_files("msm_Project", sim_muid)
+
+    def run_lts_joblist(self, sim_muid: str | None = None) -> list[Path]:
+        """Run a Long Term Simulation (LTS) job list generation.
+
+        Parameters
+        ----------
+        sim_muid : str, optional
+            Simulation MUID. Defaults to the active simulation.
+
+        Returns
+        -------
+        list[Path]
+            Paths to the result files.
+        """
+        sim_muid = self._get_sim_muid(sim_muid)
+
+        launcher = DhiEngineSimpleLauncher()
+        messages = List[String]()
+        success, launcher, messages = self._engine_tool.RunEngine_LTS_JobList(
+            launcher, messages, sim_muid
+        )
+
+        self._handle_engine_launch(success, launcher, messages)
+        self._wait_for_engine_completion(launcher)
+
+        return self._get_result_files("msm_Project", sim_muid, is_lts_joblist=True)
 
     def run_epanet(self, sim_muid: str | None = None) -> list[Path]:
         """Run an EPANET water distribution simulation.
@@ -198,8 +250,27 @@ class SimulationRunner:
         while launcher.IsEngineRunning:
             time.sleep(0.1)
 
-    def _get_result_files(self, project_table_name: str, sim_muid: str) -> List[Path]:
+    def _get_result_files(self, project_table_name: str, sim_muid: str, is_lts_joblist: bool = False) -> List[Path]:
         """Get result file paths for the completed simulation."""
-        project_table = getattr(self._database.tables, project_table_name)._net_table
+        if is_lts_joblist:
+            return self._get_result_file_lts_job_list(sim_muid)
+
+        project_table = getattr(self._database.tables, project_table_name)
         result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
         return [Path(f) for f in result_files]
+
+    def _get_result_file_lts_job_list(self, sim_muid: str) -> list[Path]:
+        project_table = self._database.tables.msm_Project
+        scenario = (
+            project_table
+                .select([project_table.columns.ScenarioName])
+                .by_muid(sim_muid)
+                .execute()
+        )
+        try:
+            scenario = scenario[sim_muid][0]
+        except Exception as e:
+            raise ValueError(f"Scenario not found for simulation MUID: {sim_muid}. {e}")
+        
+        result_file_name = f"{sim_muid}{scenario}.MJL"
+        return [Path(self._database.db_path.parent / result_file_name)]
