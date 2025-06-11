@@ -37,7 +37,7 @@ def get_implementation(net_object: Any, raw: bool = False) -> Any:
 
     """
     if not hasattr(net_object, "__implementation__"):
-        raise ValueError("Expected Python.NET interface object, got: f{net_object}")
+        raise ValueError(f"Expected Python.NET interface object, got: {net_object}")
 
     if not raw:
         return net_object.__implementation__
