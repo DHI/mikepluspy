@@ -4,6 +4,7 @@
 
 ### Added
 - Support for updating datetime values using strings.
+- Run LTS job list generation simulation.
 
 ### Changed
 
