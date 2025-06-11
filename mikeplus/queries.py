@@ -13,11 +13,13 @@ from typing import TYPE_CHECKING, TypeVar, Generic, Any, Union
 if TYPE_CHECKING:
     from .tables import BaseTable
 
+import time
 
 from .dotnet import DotNetConverter
 from .utils import to_sql
 
 from System.Data import ConnectionState
+from DHI.Amelia.GlobalUtility.DataType import CommandStatus
 
 
 QueryResultT = TypeVar("QueryResultT")
@@ -412,7 +414,15 @@ class UpdateQuery(BaseQuery[list[str]]):
 
         updated_muids = []
         for muid in muids:
-            net_table.SetValuesByCommand(muid, net_values)
+            cmd_result_info = net_table.SetValuesByCommand(muid, net_values)
+            while cmd_result_info.Status == CommandStatus.Undone:
+                time.sleep(0.1)
+            if cmd_result_info.Status != CommandStatus.Success:
+                raise ValueError(
+                    f"Failed to update row with MUID {muid}. "
+                    f"Status: {cmd_result_info.Status}"
+                    f"Message: {cmd_result_info.Message}"
+                )
             updated_muids.append(muid)
 
         return updated_muids
