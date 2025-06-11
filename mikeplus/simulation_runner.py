@@ -262,7 +262,7 @@ class SimulationRunner:
             return self._get_result_file_lts_job_list(sim_muid)
 
         project_table = getattr(self._database.tables, project_table_name)
-        result_files = list(project_table.GetResultFilePath(muid=sim_muid).Values)
+        result_files = list(project_table._net_table.GetResultFilePath(muid=sim_muid).Values)
         return [Path(f) for f in result_files]
 
     def _get_result_file_lts_job_list(self, sim_muid: str) -> list[Path]:
