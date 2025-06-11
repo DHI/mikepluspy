@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2025.1.2"
+__version__ = "2025.2.0"
 
 import clr
 from .conflicts import check_conflicts
