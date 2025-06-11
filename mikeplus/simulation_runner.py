@@ -74,13 +74,12 @@ class SimulationRunner:
             Paths to the result files.
         """
         VALID_OPTIONS = (
-            None,
             "CS_MIKE_1D",
             "CS_SWMM",
             "WD_EPANET",
             "CS_MIKE_1D_JobList",
         )
-        if sim_option not in VALID_OPTIONS:
+        if sim_option is not None and sim_option not in VALID_OPTIONS:
             raise ValueError(
                 f"Invalid simulation option: {sim_option}. Valid options: {', '.join(VALID_OPTIONS)}"
             )
