@@ -11,9 +11,9 @@ _setup_called = False
 
 def setup_bin_path(
     major_assembly_version: int,
-    fallback_mikeplus_install_root: Path,
+    fallback_mikeplus_install_root: str | Path,
     env_var_name_install_root: str,
-    bin_path: Path,
+    bin_path: str | Path,
 ):
     """Set up the bin path for mikepluspy."""
     global _setup_called
@@ -21,17 +21,21 @@ def setup_bin_path(
         return
     _setup_called = True
 
-    mikeplus_install_root = os.getenv(env_var_name_install_root, None)
+    fallback_mikeplus_install_root = Path(fallback_mikeplus_install_root)
+    bin_path = Path(bin_path)
 
-    if mikeplus_install_root is not None:
-        mikeplus_install_root = Path(mikeplus_install_root)
+    mikeplus_install_root: Path | None = None
+    mikeplus_env_paths: list[str] = []
+
+    env_var_install_root: str | None = os.getenv(env_var_name_install_root)
+    if env_var_install_root is not None:
+        mikeplus_install_root = Path(env_var_install_root)
         mikeplus_install_bin = mikeplus_install_root / bin_path
         if not mikeplus_install_bin.exists():
             raise FileNotFoundError(
                 f"{env_var_name_install_root} {bin_path} does not exist: {mikeplus_install_bin}"
             )
-        os.environ["PATH"] = str(mikeplus_install_bin) + ";" + os.environ["PATH"]
-
+        mikeplus_env_paths.append(str(mikeplus_install_bin))
     else:
         # this can fail if DHI.Mike.Install can't be found
         try:
@@ -54,7 +58,7 @@ def setup_bin_path(
             os.environ["PATH"] = ";".join(mikeplus_env_paths) + ";" + os.environ["PATH"]
         except Exception as e:
             mikeplus_install_root = fallback_mikeplus_install_root
-            mikeplus_install_bin = mikeplus_install_root / bin_path
+            mikeplus_install_bin = fallback_mikeplus_install_root / bin_path
             warnings.warn(
                 f"Failed to find MIKE+ installation. Using default path: {mikeplus_install_root}. "
                 f"If you want to use a different path, set the {env_var_name_install_root} environment variable. "
@@ -70,7 +74,9 @@ def setup_bin_path(
                 raise FileNotFoundError(
                     f"Default MIKE+ installation bin {bin_path} does not exist: {mikeplus_install_bin}"
                 )
-            os.environ["PATH"] = str(mikeplus_install_bin) + ";" + os.environ["PATH"]
+            mikeplus_env_paths.append(str(mikeplus_install_bin))
+
+    os.environ["PATH"] = ";".join(mikeplus_env_paths) + ";" + os.environ["PATH"]
 
 
 def to_sql(value) -> str:
