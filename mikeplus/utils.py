@@ -69,7 +69,9 @@ def _update_clr_assembly_resolve(mikeplus_install_bin: str):
 
 def _try_mike_install_bin_setup(major_assembly_version: int):
     try:
-        clr.AddReference("DHI.Mike.Install")
+        clr.AddReference(
+            "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"
+        )
         import System  # noqa: E402
         from DHI.Mike.Install import MikeImport  # noqa: E402
         from DHI.Mike.Install import MikeProducts  # noqa: E402
@@ -86,22 +88,22 @@ def _try_mike_install_bin_setup(major_assembly_version: int):
         _update_python_env_path(mikeplus_env_paths)
         return mikeplus_install_root
     except Exception:
-        return None
+        raise ValueError("Something went wrong...")
 
 def _try_setup_default_bin_path(fallback_mikeplus_install_root: Path, bin_path: Path, env_var_name_install_root: str) -> Path:
     warnings.warn(
-            f"Failed to find MIKE+ installation. Using default path: {fallback_mikeplus_install_root}. "
+            f"Failed to find MIKE+ installation. Using default path: '{fallback_mikeplus_install_root}'. "
             f"If you want to use a different path, set the {env_var_name_install_root} environment variable. ",
             category=UserWarning,
             stacklevel=2,
         )
     if not fallback_mikeplus_install_root.exists():
         raise FileNotFoundError(
-            f"Default MIKE+ installation does not exist: {fallback_mikeplus_install_root}"
+            f"Default MIKE+ installation does not exist: '{fallback_mikeplus_install_root}'"
         )
     if not (fallback_mikeplus_install_root / bin_path).exists():
         raise FileNotFoundError(
-            f"Default MIKE+ installation bin {bin_path} does not exist: {fallback_mikeplus_install_root / bin_path}"
+            f"Default MIKE+ installation bin {bin_path} does not exist: '{fallback_mikeplus_install_root / bin_path}'"
         )
     _update_python_env_path([str(fallback_mikeplus_install_root / bin_path)])
     _update_clr_assembly_resolve(str(fallback_mikeplus_install_root / bin_path))
