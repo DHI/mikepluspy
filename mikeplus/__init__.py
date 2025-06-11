@@ -7,7 +7,12 @@ from .conflicts import check_conflicts
 from .utils import setup_bin_path
 
 check_conflicts()
-setup_bin_path()
+setup_bin_path(
+    major_assembly_version=23,
+    fallback_mikeplus_install_root="C:/Program Files (x86)/DHI/MIKE+/2025",
+    env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT", # set this environment variable to use custom install path
+    bin_path="bin/x64",
+)
 
 #  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
 from DHI.Mike.Install import MikeImport  # noqa: E402, F401
