@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from .tables import BaseTable
 
 
-import clr
 from .dotnet import DotNetConverter
 from .utils import to_sql
 
