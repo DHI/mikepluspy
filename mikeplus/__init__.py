@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2025.2.0"
+__version__ = "2025.3.0"
 
 from pathlib import Path
 import clr

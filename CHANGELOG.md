@@ -14,6 +14,12 @@
 
 ### Security
 
+## [2025.3.0] - 2025-06-11
+
+### Added
+
+- MIKEPLUSPY_INSTALL_ROOT to provide custom path to MIKE+ installation (also with default)
+
 ## [2025.2.0] - 2025-06-11
 
 ### Added
