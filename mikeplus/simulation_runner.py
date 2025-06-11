@@ -73,11 +73,23 @@ class SimulationRunner:
         list[Path]
             Paths to the result files.
         """
+        VALID_OPTIONS = (
+            None,
+            "CS_MIKE_1D",
+            "CS_SWMM",
+            "WD_EPANET",
+            "CS_MIKE_1D_JobList",
+        )
+        if sim_option not in VALID_OPTIONS:
+            raise ValueError(
+                f"Invalid simulation option: {sim_option}. Valid options: {', '.join(VALID_OPTIONS)}"
+            )
+
         if sim_option is None:
             model_option = self._database.active_model
             model_option = Enum.Parse(MUModelOption, model_option)
             if model_option == MUModelOption.CS_MIKE1D:
-                sim_option = MUSimulationOption.CS_MIKE1D
+                sim_option = MUSimulationOption.CS_MIKE_1D
             elif model_option == MUModelOption.CS_SWMM:
                 sim_option = MUSimulationOption.CS_SWMM
             elif model_option == MUModelOption.WD_EPANET:
@@ -88,13 +100,8 @@ class SimulationRunner:
                     f"simulation option. Manually specify the simulation option."
                 )
 
-        try:
+        if isinstance(sim_option, str):
             sim_option = Enum.Parse(MUSimulationOption, sim_option)
-        except ValueError:
-            possible_options = ", ".join(Enum.GetNames(MUSimulationOption))
-            raise ValueError(
-                f"Invalid simulation option: {sim_option}. Valid options: {possible_options}"
-            )
 
         if sim_option == MUSimulationOption.CS_MIKE_1D:
             return self.run_cs(muid)
