@@ -8,7 +8,7 @@ from .conflicts import check_conflicts as _check_conflicts
 from .utils import setup_bin_path as _setup_bin_path
 
 _check_conflicts()
-_install_root = _setup_bin_path(
+_install_root, _dll_dir_handle = _setup_bin_path(
     major_assembly_version=23,
     fallback_mikeplus_install_root=Path("C:/Program Files (x86)/DHI/MIKE+/2025"),
     env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT",  # set this environment variable to use custom install path
