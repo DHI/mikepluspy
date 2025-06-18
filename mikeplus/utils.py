@@ -53,7 +53,7 @@ def _try_setup_custom_bin_path(env_var_name_install_root: str, bin_path: Path) -
 
     _update_python_env_path([str(mikeplus_install_bin)])
     _update_clr_assembly_resolve(str(mikeplus_install_bin))
-    dll_dir_handle = os.add_dll_directory(str(mikeplus_install_bin))
+    dll_dir_handle = os.add_dll_directory(str(mikeplus_install_bin))  # type: ignore
     return mikeplus_install_root, dll_dir_handle
 
 def _update_python_env_path(mikeplus_env_paths: list[str]):
@@ -88,7 +88,7 @@ def _try_mike_install_bin_setup(major_assembly_version: int):
             str(p) for p in all_paths if p.is_relative_to(mikeplus_install_root)
         ]
         _update_python_env_path(mikeplus_env_paths)
-        dll_dir_handle = os.add_dll_directory(str(mikeplus_env_paths[0]))
+        dll_dir_handle = os.add_dll_directory(str(mikeplus_env_paths[0]))  # type: ignore
         return mikeplus_install_root, dll_dir_handle
     except Exception:
         return None, None
@@ -110,7 +110,7 @@ def _try_setup_default_bin_path(fallback_mikeplus_install_root: Path, bin_path: 
         )
     _update_python_env_path([str(fallback_mikeplus_install_root / bin_path)])
     _update_clr_assembly_resolve(str(fallback_mikeplus_install_root / bin_path))
-    return fallback_mikeplus_install_root, os.add_dll_directory(str(fallback_mikeplus_install_root / bin_path))
+    return fallback_mikeplus_install_root, os.add_dll_directory(str(fallback_mikeplus_install_root / bin_path))  # type: ignore
 
 def to_sql(value) -> str:
     """Convert a Python value to its SQL string representation.
