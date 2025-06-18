@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
 from mikeplus.dotnet import get_implementation as impl
@@ -26,6 +27,9 @@ class BaseTable:
             The underlying .NET IMuTable object
 
         """
+        if net_table is None:
+            warnings.warn(f"Could not intialize table: {self.__class__}. This is likely due to a mismatch between the model database and mikepluspy version.")
+            return
         self._net_table = impl(net_table, raw=True)
         self._columns = None
 
