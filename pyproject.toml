@@ -7,7 +7,7 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "2025.3.1"
+version = "2025.4.0"
 dependencies = [
     "numpy",
     'pythonnet>=3.0',
@@ -40,7 +40,7 @@ dev = [
     "ruff",
     "shapely",
     "jinja2>=3.0.0",
-    "mypy>=1.15.0",
+    "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
     "ipykernel>=6.29.5",
 ]
@@ -49,7 +49,7 @@ test = [
     "pytest-timeout",
     "shapely",
     "jinja2>=3.0.0",
-    "mypy>=1.15.0",
+    "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
 ]
 doc =  ["sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]

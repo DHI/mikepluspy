@@ -14,6 +14,11 @@
 
 ### Security
 
+## [2025.4.0] - 2025-06-18
+
+### Changes
+- Update Windows DLL Search Directory with MIKE+ bin path (in addition to PATH)
+
 ## [2025.3.1] - 2025-06-11
 
 ### Fixed
