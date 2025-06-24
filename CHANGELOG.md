@@ -14,6 +14,14 @@
 
 ### Security
 
+## [2025.5.0] - 2025-06-24
+
+### Added
+- Support for MIKE+ 2025 Update 1
+
+### Changed
+- Pythonnet now targets .NET 8.0
+
 ## [2025.4.0] - 2025-06-18
 
 ### Changes
