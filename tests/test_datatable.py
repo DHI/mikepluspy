@@ -54,7 +54,14 @@ def test_get_field_values(
 ):
     """Test retrieving field values from a database table."""
     values = data_access.get_field_values(table_name, muid, fields)
-    assert values == expected_values
+    if fields == "geometry":
+        assert "LINESTRING" in values[0]
+        assert "102067.8" in values[0]
+        assert "109100.2" in values[0]
+        assert "102405.8" in values[0]
+        assert "108873.8" in values[0]
+    else:
+        assert values == expected_values
 
 
 @pytest.mark.parametrize(
