@@ -1,9 +1,12 @@
+import faulthandler
+import pythonnet
 import pytest
 import shutil
 import tempfile
 import uuid
 from pathlib import Path
 
+faulthandler.enable()
 
 """
 Test Database Fixture System
@@ -379,3 +382,15 @@ def catch_slope_len_db(tmp_path) -> Path:
 def import_db(tmp_path) -> Path:
     """Create a test-specific copy of the import database folder."""
     return create_test_specific_db_copy(IMPORT_DB, tmp_path, "test_import")
+
+def pytest_sessionstart(session):
+    import mikeplus
+
+def pytest_unconfigure(config):
+    """
+    Hook to cleanly shut down the .NET CLR after all tests have run.
+    This prevents segfaults on exit, especially in CI/VS Code test runners.
+    """
+    print("\nShutting down .NET CLR...")
+    pythonnet.unload()
+    print("CLR shutdown complete.")
