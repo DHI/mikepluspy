@@ -1,4 +1,5 @@
 """General utilities for mikepluspy."""
+
 from __future__ import annotations
 
 import os
@@ -11,6 +12,8 @@ from System import AppDomain
 from System import Reflection
 
 _setup_called = False
+
+
 def setup_bin_path(
     major_assembly_version: int,
     fallback_mikeplus_install_root: Path,
@@ -27,7 +30,9 @@ def setup_bin_path(
     bin_path = Path(bin_path)
 
     # order is important
-    install_root, dll_dir_handle = _try_setup_custom_bin_path(env_var_name_install_root, bin_path)
+    install_root, dll_dir_handle = _try_setup_custom_bin_path(
+        env_var_name_install_root, bin_path
+    )
     if install_root is not None:
         return install_root, dll_dir_handle
 
@@ -35,11 +40,15 @@ def setup_bin_path(
     if install_root is not None:
         return install_root, dll_dir_handle
 
-    install_root, dll_dir_handle = _try_setup_default_bin_path(fallback_mikeplus_install_root, bin_path, env_var_name_install_root)
+    install_root, dll_dir_handle = _try_setup_default_bin_path(
+        fallback_mikeplus_install_root, bin_path, env_var_name_install_root
+    )
     return install_root, dll_dir_handle
 
 
-def _try_setup_custom_bin_path(env_var_name_install_root: str, bin_path: Path) -> tuple[Path | None, Any]:
+def _try_setup_custom_bin_path(
+    env_var_name_install_root: str, bin_path: Path
+) -> tuple[Path | None, Any]:
     env_var_install_root: str | None = os.getenv(env_var_name_install_root)
     if env_var_install_root is None:
         return None, None
@@ -49,15 +58,17 @@ def _try_setup_custom_bin_path(env_var_name_install_root: str, bin_path: Path) -
     if not mikeplus_install_bin.exists():
         raise FileNotFoundError(
             f"{env_var_name_install_root} {bin_path} does not exist: {mikeplus_install_bin}"
-            )
+        )
 
     _update_python_env_path([str(mikeplus_install_bin)])
     _update_clr_assembly_resolve(str(mikeplus_install_bin))
     dll_dir_handle = os.add_dll_directory(str(mikeplus_install_bin))  # type: ignore
     return mikeplus_install_root, dll_dir_handle
 
+
 def _update_python_env_path(mikeplus_env_paths: list[str]):
     os.environ["PATH"] = ";".join(mikeplus_env_paths) + ";" + os.environ["PATH"]
+
 
 def _update_clr_assembly_resolve(mikeplus_install_bin: str):
     def assembly_resolver(sender, args):
@@ -68,6 +79,7 @@ def _update_clr_assembly_resolve(mikeplus_install_bin: str):
         return None
 
     AppDomain.CurrentDomain.AssemblyResolve += assembly_resolver
+
 
 def _try_mike_install_bin_setup(major_assembly_version: int):
     try:
@@ -93,13 +105,16 @@ def _try_mike_install_bin_setup(major_assembly_version: int):
     except Exception:
         return None, None
 
-def _try_setup_default_bin_path(fallback_mikeplus_install_root: Path, bin_path: Path, env_var_name_install_root: str) -> tuple[Path | None, Any]:
+
+def _try_setup_default_bin_path(
+    fallback_mikeplus_install_root: Path, bin_path: Path, env_var_name_install_root: str
+) -> tuple[Path | None, Any]:
     warnings.warn(
-            f"Failed to find MIKE+ installation. Using default path: '{fallback_mikeplus_install_root}'. "
-            f"If you want to use a different path, set the {env_var_name_install_root} environment variable. ",
-            category=UserWarning,
-            stacklevel=2,
-        )
+        f"Failed to find MIKE+ installation. Using default path: '{fallback_mikeplus_install_root}'. "
+        f"If you want to use a different path, set the {env_var_name_install_root} environment variable. ",
+        category=UserWarning,
+        stacklevel=2,
+    )
     if not fallback_mikeplus_install_root.exists():
         raise FileNotFoundError(
             f"Default MIKE+ installation does not exist: '{fallback_mikeplus_install_root}'"
@@ -110,7 +125,10 @@ def _try_setup_default_bin_path(fallback_mikeplus_install_root: Path, bin_path: 
         )
     _update_python_env_path([str(fallback_mikeplus_install_root / bin_path)])
     _update_clr_assembly_resolve(str(fallback_mikeplus_install_root / bin_path))
-    return fallback_mikeplus_install_root, os.add_dll_directory(str(fallback_mikeplus_install_root / bin_path))  # type: ignore
+    return fallback_mikeplus_install_root, os.add_dll_directory(    # type: ignore
+        str(fallback_mikeplus_install_root / bin_path)
+    )
+
 
 def to_sql(value) -> str:
     """Convert a Python value to its SQL string representation.
