@@ -70,7 +70,8 @@ warn_unreachable = true
 module = [
     "DHI.*",
     "System.*",
-    "clr"
+    "clr",
+    "pythonnet",
 ]
 ignore_missing_imports = true
 
