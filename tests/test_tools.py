@@ -74,9 +74,7 @@ def test_connect_repair_tool(connection_repair_db):
     assert len(muids) == 2
     db.close()
 
-# TODO: Fix this - something not so great going on
-@pytest.mark.license_required
-@pytest.mark.xfail(reason="Passes locally on re-run, but not on full run or CI")
+
 def test_catch_slope_len_tool(catch_slope_len_db):
     db = Database(catch_slope_len_db)
 
@@ -84,9 +82,9 @@ def test_catch_slope_len_tool(catch_slope_len_db):
     fields = ["ModelBSlope", "ModelBLength"]
     muid = "imp3"
 
-    db.tables.msm_Catchment.update(field_values).where("muid=:muid", {'muid':muid}).execute()
+    db.tables.msm_Catchment.update(field_values).by_muid(muid).execute()
 
-    field_val_get = db.tables.msm_Catchment.select(fields).where("muid=:muid", {'muid':muid}).execute()
+    field_val_get = db.tables.msm_Catchment.select(fields).by_muid(muid).execute()
 
     assert field_val_get[muid][0] == 0.0
     assert field_val_get[muid][1] == 0.0
@@ -96,7 +94,9 @@ def test_catch_slope_len_tool(catch_slope_len_db):
     shp_file = os.path.join(db_dir, "Catch_Slope.shp")
     dem_file = os.path.join(db_dir, "dem.dfs2")
 
-    assert os.path.exists(catch_slope_len_db), f"Database file does not exist: {catch_slope_len_db}"
+    assert os.path.exists(catch_slope_len_db), (
+        f"Database file does not exist: {catch_slope_len_db}"
+    )
     assert os.path.exists(shp_file), "Catch_Slope.shp does not exist"
     assert os.path.exists(dem_file), "dem.dfs2 does not exist"
 
@@ -108,17 +108,14 @@ def test_catch_slope_len_tool(catch_slope_len_db):
         0,
     )
 
-    field_val_get = db.tables.msm_Catchment.select(fields).where("muid=:muid", {'muid':muid}).execute()
-
+    field_val_get = db.tables.msm_Catchment.select(fields).by_muid(muid).execute()
 
     assert field_val_get[muid][0] == pytest.approx(0.102342, abs=1e-6)
     assert field_val_get[muid][1] == pytest.approx(172.571601, abs=1e-6)
-    
+
     db.close()
 
-# TODO: Fix this - something not so great going on
-@pytest.mark.license_required
-@pytest.mark.xfail(reason="Passes locally on re-run, but not on full run or CI")
+
 def test_import_tool(import_db):
     db = Database(import_db)
 
