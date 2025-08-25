@@ -93,7 +93,8 @@ addopts = [
     "--strict-markers",
     "--durations=50",
     "--durations-min=0.5",
-    "--disable-warnings"
+    "--disable-warnings",
+    "-s",
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
