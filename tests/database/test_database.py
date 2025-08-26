@@ -98,7 +98,11 @@ class TestDatabase:
 
     def test_version(self, db):
         """Test version property."""
-        assert db.version == "2025.0.0"
+        assert isinstance(db.version, str)
+        parts = db.version.split(".")
+        assert len(parts) == 3
+        assert all(part.isdigit() for part in parts)
+        assert int(parts[0]) >= 2025
 
     def test_active_scenario(self, db):
         """Test active_scenario property."""

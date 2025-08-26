@@ -1,13 +1,25 @@
 """MIKE+Py package."""
 
-__version__ = "2025.4.0"
+__version__ = "2025.5.0"
 
 from pathlib import Path
-import clr
+
 from .conflicts import check_conflicts as _check_conflicts
-from .utils import setup_bin_path as _setup_bin_path
 
 _check_conflicts()
+
+from pythonnet import load  # noqa: E402
+
+load(
+    "coreclr",
+    runtime_config=(
+        (Path(__file__).parent / "bin" / "runtimeconfig.json").absolute().as_posix()
+    ),
+)
+import clr  # noqa: E402
+
+from .utils import setup_bin_path as _setup_bin_path  # noqa: E402
+
 _install_root, _dll_dir_handle = _setup_bin_path(
     major_assembly_version=23,
     fallback_mikeplus_install_root=Path("C:/Program Files (x86)/DHI/MIKE+/2025"),
@@ -23,10 +35,11 @@ except ImportError:
     # mock this case:
     # mikeplus.MikeImport.ActiveProduct().InstallRoot
     # used by mikeio1d
-    class _MockMikeImport:   # noqa: E402, F401
+    class _MockMikeImport:  # noqa: E402, F401
         @staticmethod
         def ActiveProduct():
             return _MockMikeProduct()
+
     class _MockMikeProduct:  # noqa: E402, F401
         InstallRoot = _install_root
 
