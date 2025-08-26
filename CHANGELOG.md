@@ -14,7 +14,7 @@
 
 ### Security
 
-## [2025.5.0] - 2025-06-24
+## [2025.5.0] - 2025-08-26
 
 ### Added
 - Support for MIKE+ 2025 Update 1
