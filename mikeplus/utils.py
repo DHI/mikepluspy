@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 import warnings
 from typing import Any
@@ -28,6 +29,9 @@ def setup_bin_path(
 
     fallback_mikeplus_install_root = Path(fallback_mikeplus_install_root)
     bin_path = Path(bin_path)
+
+    # bin path for DHI.Mike.Install (required for versions before MIKE+ 2025 Update 1)
+    sys.path.append(str(Path(__file__).parent / "bin"))
 
     # order is important
     install_root, dll_dir_handle = _try_setup_custom_bin_path(
@@ -83,9 +87,7 @@ def _update_clr_assembly_resolve(mikeplus_install_bin: str):
 
 def _try_mike_install_bin_setup(major_assembly_version: int):
     try:
-        clr.AddReference(
-            "DHI.Mike.Install, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c513450b5d0bf0bf"
-        )
+        clr.AddReference("DHI.Mike.Install")
         import System  # noqa: E402
         from DHI.Mike.Install import MikeImport  # noqa: E402
         from DHI.Mike.Install import MikeProducts  # noqa: E402
@@ -125,7 +127,7 @@ def _try_setup_default_bin_path(
         )
     _update_python_env_path([str(fallback_mikeplus_install_root / bin_path)])
     _update_clr_assembly_resolve(str(fallback_mikeplus_install_root / bin_path))
-    return fallback_mikeplus_install_root, os.add_dll_directory(    # type: ignore
+    return fallback_mikeplus_install_root, os.add_dll_directory(  # type: ignore
         str(fallback_mikeplus_install_root / bin_path)
     )
 
