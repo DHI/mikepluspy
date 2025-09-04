@@ -90,6 +90,22 @@ class TestDatabaseCreate:
         db.close()
         assert not db.is_open
 
+    def test_import_swmm(self, tmp_path: Path):
+        """Test importing from a SWMM .inp file."""
+        db_path = tmp_path / "model.sqlite"
+        inp_path = Path("tests/testdata/Db/SWMM/Simple_Network.inp")
+
+        # Create model database and import from SWMM
+        db = Database.create(db_path)
+        db.import_from_swmm(inp_path)
+
+        # Check that some expected tables exist
+        df = db.tables.mss_Node.to_dataframe()
+        assert not df.empty
+
+        db.close()
+        assert not db.is_open
+
 
 class TestDatabase:
     """Tests for the Database class."""

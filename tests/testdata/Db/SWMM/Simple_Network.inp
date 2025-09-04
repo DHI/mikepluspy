@@ -1,0 +1,266 @@
+;*****************************************************
+;*             Generated from MIKE URBAN+            *
+;*****************************************************
+
+[TITLE]
+Rain_12HRS_TestDemo
+
+;;Option             Value
+
+[OPTIONS]
+FLOW_UNITS   LPS
+INFILTRATION   MODIFIED_GREEN_AMPT
+FLOW_ROUTING   KINWAVE
+LINK_OFFSETS   ELEVATION
+MIN_SLOPE   0.0000000
+ALLOW_PONDING   NO
+SKIP_STEADY_STATE   NO
+IGNORE_RAINFALL   NO
+IGNORE_ROUTING   NO
+IGNORE_QUALITY   YES
+IGNORE_GROUNDWATER   YES
+IGNORE_SNOWMELT   YES
+IGNORE_RDII   NO
+START_DATE   05/17/2021
+START_TIME   00:00:00
+REPORT_START_DATE   05/17/2021
+REPORT_START_TIME   00:00:00
+END_DATE   05/17/2021
+END_TIME   12:00:00
+SWEEP_START   01/01
+SWEEP_END   12/31
+DRY_DAYS   0
+REPORT_STEP   0:5:0
+WET_STEP   0:5:0
+DRY_STEP   1:0:0
+ROUTING_STEP   00:01:00
+RULE_STEP   00:00:00
+SYS_FLOW_TOL   5
+LAT_FLOW_TOL   5
+THREADS   10
+COMPATIBILITY   5
+TEMPDIR   "C:\Users\rywm\Repos\mikepluspy\tests\testdata\Db\SWMM"
+
+[FILES]
+;;------------------------
+
+[EVAPORATION]
+;;Data           Element    Values
+;;-------------------------------
+CONSTANT   5.0000000 
+DRY_ONLY   NO        
+
+[RAINGAGES]
+;;Name           Format     Interval   SCF        Source    
+;;-----------------------------------------------------------
+GAGE1            INTENSITY  01:00      1.0000000  TIMESERIES TS1             
+
+[ADJUSTMENTS]
+;;Parameter      Subcatchment     Monthly  Adjustments
+;;--------------------------------------------------
+TEMPERATURE 0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000 
+EVAPORATION 0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000 
+RAINFALL   1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000 
+CONDUCTIVITY 1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000  1.0000000 
+
+[SUBCATCHMENTS]
+;;------------------------------------------------------------------------------------------------------------
+;;Name           Rain Gage        Outlet           Area       %Imperv    Width      %Slope     CurbLen    SnowPack  
+;;------------------------------------------------------------------------------------------------------------
+
+[SYMBOLS]
+;;Gage            X-Coord             Y-Coord
+;;--------------------------------------------
+GAGE1  1751577.0000000  5948600.0000000
+
+[SUBAREAS]
+;;Subcatchment   N-Imperv   N-Perv     S-Imperv   S-Perv     PctZero    RouteTo    PctRouted
+;;-------------------------------------------------------------------------------------------
+
+[INFILTRATION]
+;;Subcatch Suction  Conduct  InitDef
+;;-----------------------------------
+
+[JUNCTIONS]
+;;Name           Elevation  MaxDepth   InitDepth  SurDepth   Aponded   
+;;-----------------------------------------------------------------
+S_01             4.2500     1.0000     0.0000     0.0000     0.0000    
+S_02             2.9700     1.0000     0.0000     0.0000     0.0000    
+S_03             2.3000     1.5500     0.0000     0.0000     0.0000    
+S_06             2.0500     2.2000     0.0000     0.0000     0.0000    
+S_10             3.4689     1.7500     0.0000     0.0000     0.0000    
+S_15             5.0000     0.5000     0.0000     0.0000     0.0000    
+S_13             5.8500     1.7500     0.0000     0.0000     0.0000    
+S_11             3.4900     1.0000     0.0000     0.0000     0.0000    
+S_14             3.2700     2.1000     0.0000     0.0000     0.0000    
+S_12             3.5000     1.7000     0.0000     0.0000     0.0000    
+
+[STORAGE]
+;;Name            Elev.      MaxDepth    InitDepth   Shape      Curve Name/Params  N/A        Fevap      Psi        Ksat       IMD     
+;;--------------------------------------------------------------------------------------------------------------------------------------
+
+[OUTFALLS]
+;;Name           Elevation  Type       Stage Data  Gated      Route To  
+;;--------------------------------------------------------------------------
+
+[DIVIDERS]
+;;Name           Elevation  Diverted Link    Type       Parameters
+;;-----------------------------------------------------------------
+
+[CONDUITS]
+;;Name           From Node        To Node          Length      Roughness   InOffset   OutOffset  InitFlow   MaxFlow   
+;;---------------------------------------------------------------------------------------------------------------------
+sConduit_1       S_13             S_15             78.2958862766445 0.013      5.8500000  5.0000000  0.0000000  0.0000000 
+sConduit_2       S_15             S_01             107.557048144287 0.013      5.0000000  4.2500000  0.0000000  0.0000000 
+sConduit_3       S_01             S_02             186.381061290408 0.013      4.2500000  2.9700000  0.0000000  0.0000000 
+sConduit_6       S_10             S_03             75.7795914748362 0.013      3.4689002  2.3000000  0.0000000  0.0000000 
+sConduit_7       S_03             S_06             251.143768500073 0.013      2.3000000  2.0500000  0.0000000  0.0000000 
+sConduit_8       S_02             S_03             159.754497979002 0.013      2.9700000  2.3000000  0.0000000  0.0000000 
+sConduit_9       S_12             S_14             141.37919417386 0.013      3.5000000  3.2700000  0.0000000  0.0000000 
+sConduit_10      S_11             S_14             76.9481264973662 0.013      3.4900000  3.2700000  0.0000000  0.0000000 
+
+[WEIRS]
+;;Name           From Node        To Node          Type       CrestHt    Qcoeff     Gated      EndCon     EndCoeff   Surcharge  RoadWidth  RoadSurf   Coeff. Curve
+;;-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[PUMPS]
+;;Name           From Node        To Node          Pump Curve       Status     Sartup     Shutoff
+;;------------------------------------------------------------------------------------------------
+
+[OUTLETS]
+;;Name           From Node        To Node          Offset     Type            QTable/Qcoeff    Qexpon     Gated   
+;;-----------------------------------------------------------------------------------------------------------------
+
+[ORIFICES]
+;Name           From Node       To Node         Type      Offset    Qcoeff    Gated     CloseTime 
+;;-------------------------------------------------------------------------------------------------
+
+[XSECTIONS]
+;;Link            Type    G1          G2          G3           G4          (Barrels Culvert) 
+;;-------------------------------------------------------------------------------------------
+sConduit_1       CIRCULAR         0.5000000    0.0000000    0            0             1                         
+sConduit_2       CIRCULAR         0.5000000    0.0000000    0            0             1                         
+sConduit_3       CIRCULAR         0.6000000    0.0000000    0            0             1                         
+sConduit_6       CIRCULAR         0.5000000    0.0000000    0            0             1                         
+sConduit_7       CIRCULAR         0.6000000    0.0000000    0            0             1                         
+sConduit_8       CIRCULAR         0.5000000    0.0000000    0            0             1                         
+sConduit_9       CIRCULAR         0.3000000    0.0000000    0            0             1                         
+sConduit_10      CIRCULAR         0.3000000    0.0000000    0            0             1                         
+
+[INFLOWS]
+;;Node           Constituent      Time Series      Type       Mfactor    Sfactor    Baseline   Pattern
+;;-----------------------------------------------------------------------------------------------------
+
+[CURVES]
+;;Name           Type       X-Value    Y-Value
+;;--------------------------------------------
+
+[TIMESERIES]
+;;Name           Date       Time      Value 
+;;-----------------------------------------
+TS1                            0:0          0.0000    
+TS1                            1:0          15.0000   
+TS1                            2:0          30.0000   
+TS1                            3:0          22.5000   
+TS1                            4:0          15.0000   
+TS1                            5:0          7.5000    
+TS1                            6:0          0.0000    
+;
+
+[PATTERNS]
+;;Name           Type       Multipliers
+;;-----------------------------------------
+
+[TRANSECTS]
+;;Transect Data in HEC-2 format
+;;-----------------------------------------------------------
+
+[LOSSES]
+;;Transect Data in HEC-2 format
+;;-----------------------------------------------------------
+sConduit_1       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_2       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_3       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_6       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_7       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_8       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_9       0.0000000  0.0000000  0.0000000  NO         0.0000000 
+sConduit_10      0.0000000  0.0000000  0.0000000  NO         0.0000000 
+
+[DWF]
+;;Node           Constituent      Baseline   Patterns  
+;;------------------------------------------------------
+
+[RDII]
+;;Node           Unit Hydrograph  Sewer Area
+;;-------------------------------------------
+
+[LID_USAGE]
+;;Subcatchment   LID Process    Number     Area       Width      InitSat    FromImp    ToPerv     RptFile          DrainTo    FromPerv
+;;---------------------------------------------------------------------------------------------------------------------------------------
+
+[LID_CONTROLS]
+;;Name           Type/Layer  Parameters
+;;------------------------------------
+
+[AQUIFERS]
+;;Name           Por        WP         FC         Ksat       Kslope     Tslope     ETu        ETs        Seep       Ebot       Egw        Umc        ETupat
+;;----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[GROUNDWATER]
+;;Subcatchment   Aquifer          Node             Esurf      A1         B1         A2         B2         A3         Dsw        Egwt       Ebot       Wgr        Umc 
+;;--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[GWF]
+;;Subcatchment    Flow       Equation
+;;----------------------------------
+
+[SNOWPACKS]
+;;Name           Surface    Parameters
+;;-----------------------------------
+
+[CONTROLS]
+;;------------------------------------
+
+[HYDROGRAPHS]
+
+[REPORT]
+;;-----------------------------------------------------------
+INPUT NO  
+CONTROL NO  
+AVERAGES NO  
+CONTINUITY YES  
+FLOWSTATS YES  
+CONTROLS YES  
+SUBCATCHMENTS ALL  
+NODES ALL  
+LINKS ALL  
+
+[TAGS]
+
+[COORDINATES]
+;;Node           X-coord      Y-coord
+;;------------------------------------
+S_01               1751632.600000 5948888.871000
+S_02               1751808.079000 5948951.681000
+S_03               1751952.573000 5948993.901000
+S_06               1752011.663000 5948749.807000
+S_10               1752022.610000 5949022.837000
+S_15               1751528.266000 5948862.737000
+S_13               1751457.904000 5948897.080000
+S_11               1751642.599000 5948657.615000
+S_14               1751712.548000 5948662.880000
+S_12               1751662.907000 5948795.257000
+
+[VERTICES]
+;Link ID          X-coord      Y-coord
+;;-------------------------------------
+sConduit_8       1751948.758000 5949003.111000
+sConduit_10      1751662.222000 5948655.754000
+sConduit_10      1751696.011000 5948670.621000
+sConduit_10      1751703.353000 5948671.887000
+
+[Polygons]
+;;Subcatchment     X-coord      Y-coord
+;;------------------------------------
+

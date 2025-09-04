@@ -57,6 +57,7 @@ clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
 clr.AddReference("DHI.Amelia.Tools.EngineTool")
 clr.AddReference("DHI.Amelia.EPANETBridge")
+clr.AddReference("DHI.Amelia.SWMMBridge")
 
 from .datatableaccess import DataTableAccess  # noqa: E402
 from .datatableaccess import DataTableDemoAccess  # noqa: E402

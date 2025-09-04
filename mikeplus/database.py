@@ -23,6 +23,7 @@ from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
     ScenarioManager as NetScenarioManager,
 )
 from DHI.Amelia.EPANETBridge import INPBridge
+from DHI.Amelia.SWMMBridge import SWMMStorageBridge
 
 from plistlib import InvalidFileException
 from pathlib import Path
@@ -510,6 +511,41 @@ class Database:
             raise Exception(
                 f"Error importing from EPANET file.\n{str(e)}\n{messages}"
             ) from None
+
+    def import_from_swmm(self, file_path: str | Path):
+        """Import a model from a SWMM .inp file.
+
+        Parameters
+        ----------
+        file_path : str or Path
+            Path to the SWMM .inp file.
+
+        Examples
+        --------
+        >>> with mp.create("path/to/model.sqlite") as db:
+        ...     db.import_from_swmm("path/to/model.inp")
+
+        """
+        file_path = Path(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"SWMM file '{file_path}' does not exist.")
+
+        if file_path.suffix.lower() != ".inp":
+            raise ValueError("Provided file is not a SWMM .inp file.")
+
+        inp_bridge = SWMMStorageBridge(self._data_table_container, None)
+
+        try:
+            cancellation_token = CancellationTokenSource()
+            result = inp_bridge.Import(file_path.as_posix(), cancellation_token.Token)
+            if not result:
+                raise Exception()
+        except Exception as e:
+            messages = "\n".join(inp_bridge.ErrorMsgs)
+            raise Exception(
+                f"Error importing from SWMM file.\n{str(e)}\n{messages}"
+            ) from None
+
 
 __all__ = [
     "Database",
