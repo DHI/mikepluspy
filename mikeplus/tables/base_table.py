@@ -14,6 +14,10 @@ from mikeplus.queries import InsertQuery
 
 from .base_table_columns import BaseColumns
 
+from System import DateTime
+from System.Data import DbType
+from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
+
 
 class BaseTable:
     """Base class representing a database table."""
@@ -157,3 +161,55 @@ class BaseTable:
 
         """
         return self.select().to_dataframe()
+
+    def add_user_defined_column(
+        self,
+        column_name: str,
+        column_data_type: str,
+        column_header: str | None = None,
+    ):
+        """Add a user defined column to table.
+
+        Parameters
+        ----------
+        column_name : str
+            Name of the column in the database.
+        column_data_type : str
+            Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
+        column_header : str | None
+            Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
+
+        """
+        table = self._net_table
+
+        column_data_type = column_data_type.lower()
+        if column_data_type == "integer":
+            column_data_type = DbType.Int32
+        elif column_data_type == "double":
+            column_data_type = DbType.Double
+        elif column_data_type == "string":
+            column_data_type = DbType.String
+        elif column_data_type == "datetime":
+            column_data_type = DbType.DateTime
+        else:
+            raise ValueError(
+                f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
+            )
+
+        if column_header is None:
+            column_header = column_name
+
+        ret = table.AddUserDefinedColumn(
+            UserDefinedColumnType.NewDbField,  # Only NewDbField supported for now
+            column_header,
+            column_name,
+            column_data_type,
+            "",  # Expression columns not supported yet
+            "",  # Result columns not supported yet
+            "",  # Result columns not supported yet
+            0,  # Result columns not supported yet
+            DateTime.MinValue,  # Result columns not supported yet
+            False,  # Reset from database
+        )
+
+        return ret
