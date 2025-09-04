@@ -1,0 +1,212 @@
+;*****************************************************
+;*             Generated from MIKE+            *
+;*****************************************************
+
+[TITLE]
+
+[JUNCTIONS]
+;------------------------------------------------------
+;ID                 Elevation    Demand       Pattern
+;------------------------------------------------------
+Junction_1         1.000000     
+Junction_2         1.000000     
+Junction_3         1.000000     
+Junction_4         1.000000     
+Junction_5         1.000000     
+Junction_6         1.000000     
+Junction_7         1.000000     
+
+[RESERVOIRS]
+;------------------------------------------------------
+;ID                Head        Pattern 
+;------------------------------------------------------
+Tank_1             50.000000                       
+
+[TANKS]
+;---------------------------------------------------------------------------------------------------------
+;ID                Elev.        Init.        Min.         Max.         Diam.        MinVol       VolCurve       Overflow
+;                               Level        Level        Level
+;---------------------------------------------------------------------------------------------------------
+
+[PIPES]
+;-----------------------------------------------------------------
+;ID                Head               Tail               Length       Diam         Rough.       Minor        CV
+;                  Node               Node
+;-----------------------------------------------------------------
+Pipe_1             Tank_1             Junction_1         951.256479   200.000000   1.000000     0.000000               
+Pipe_2             Junction_1         Junction_2         1161.914130  200.000000   1.000000     0.000000               
+Pipe_3             Junction_2         Junction_3         1551.314854  200.000000   1.000000     0.000000               
+Pipe_4             Junction_3         Junction_4         760.116950   200.000000   1.000000     0.000000               
+Pipe_5             Junction_4         Junction_5         888.144132   200.000000   1.000000     0.000000               
+Pipe_6             Junction_3         Junction_6         991.071250   200.000000   1.000000     0.000000               
+Pipe_7             Junction_3         Junction_7         282.842712   200.000000   1.000000     0.000000               
+
+[VALVES]
+;------------------------------------------------------
+; ID          Head      Tail       Diam    Type   Setting  (Losscoef)
+;             Node      Node
+;------------------------------------------------------
+
+[PUMPS]
+;------------------------------------------------------------------
+;ID                Head               Tail               Properties
+;                  Node               Node
+;------------------------------------------------------------------
+
+[VSD_PUMPS]
+;-------------------------------------------------------------------------------------
+;Pump              Node/Link          Setpoint     Setpoint     SetpointType                Speed        Speed        ControlType
+;ID                ID                 Value        Curve        0/1/2(pressure/HGL/Flow)    min          max          0/1/2(downstream node/remote/link)
+;-------------------------------------------------------------------------------------
+
+[EMITTERS]
+;------------------------------------------------------
+; Node           Flow Coeff.
+; ID
+;------------------------------------------------------
+
+[DEMANDS]
+;------------------------------------------------------------------
+; NodeID            Demand   Pattern 
+;------------------------------------------------------------------
+Junction_1         6.978712     PPattern_1         
+Junction_2         6.178918     PPattern_1         
+Junction_3         8.165016     PPattern_1         
+Junction_4         3.753635     PPattern_1         
+Junction_5         2.022597     PPattern_1         
+Junction_6         2.256996     PPattern_1         
+Junction_7         0.644126     PPattern_1         
+
+[PATTERNS]
+;ID              	Multipliers
+PPattern_1         0.944882    
+PPattern_1         0.850394    
+PPattern_1         0.755906    
+PPattern_1         0.850394    
+PPattern_1         0.944882    
+PPattern_1         0.944882    
+PPattern_1         0.944882    
+PPattern_1         0.955998    
+PPattern_1         0.967114    
+PPattern_1         0.978231    
+PPattern_1         0.989347    
+PPattern_1         1.000463    
+PPattern_1         1.011579    
+PPattern_1         1.022696    
+PPattern_1         1.033812    
+PPattern_1         1.044928    
+PPattern_1         1.056044    
+PPattern_1         1.067161    
+PPattern_1         1.078277    
+PPattern_1         1.089393    
+PPattern_1         1.100509    
+PPattern_1         1.111626    
+PPattern_1         1.122742    
+PPattern_1         1.133858    
+
+[STATUS]
+;ID                Status/Setting
+
+[CURVES]
+;ID                X-Value      Y-Value
+
+[RULES]
+
+[MIXING]
+;Tank              Model
+Tank_1             MIXED   
+
+[QUALITY]
+;------------------------------------------------------------------
+;Nodes             Initial
+;ID                quality
+;------------------------------------------------------------------
+
+[SOURCES]
+;-----------------------------------------------
+;NODEID            SRCTYPE  STRENGTH    PATTERN
+;-----------------------------------------------
+
+[REACTIONS]
+GLOBAL BULK      0.000000    
+GLOBAL WALL      0.000000    
+GLOBAL    NewBulk   0.000000       0.000000    
+
+[ENERGY]
+GLOBAL PRICE      1           
+GLOBAL EFFIC      75          
+CARBON FACTOR      0.997       
+
+[TIMES]
+Duration   24:0:0
+Hydraulic Timestep   1:0:0
+Quality Timestep  0:5:0
+Pattern Timestep  1:0:0
+Pattern Start  0:00:00
+Report Timestep  1:0:0
+Report Start  0:0:0
+;Start Date  2024:11:12
+Start ClockTime  0:00:00
+STATISTIC  NONE
+
+[REPORT]
+;------------------------------------------------------
+STATUS FULL
+SUMMARY YES
+MESSAGES YES
+ENERGY YES
+NODES NONE
+LINKS NONE
+
+[OPTIONS]
+UNITS   LPS
+DIFFUSIVITY 1.000000    
+HEADLOSS   D-W
+SPECIFIC GRAVITY 1.000000    
+VISCOSITY   1.000000    
+TRIALS   40          
+TOLERANCE   0.010000    
+ACCURACY   0.001000    
+Quality   NONE
+EMITTER EXPONENT  0.500000    
+CHECKFREQ   2
+MAXCHECK   10.000000   
+DAMPLIMIT   0.000000    
+UNBALANCED CONTINUE
+DEMAND MODEL PDA
+MINIMUM PRESSURE   0.000000    
+REQUIRED PRESSURE   0.100000    
+PRESSURE EXPONENT   0.500000    
+
+[TURBINES]
+;------------------------------------------------------
+; ID                                                   
+;------------------------------------------------------
+[PDD]
+0 ; Minimum pressure
+0.1 ; Required pressure
+1 2 ; Wagner equation, exponent
+1 ; Global nodes (1:Yes=PDD, 0:No=Standard)
+%LOCALDATA
+
+[COORDINATES]
+;------------------------------------------------------
+;Node              X-coord      Y-coord
+;ID
+;------------------------------------------------------
+Junction_1         -4420.000000 1626.666667 
+Junction_2         -3260.000000 1693.333333 
+Junction_3         -1713.333333 1573.333333 
+Junction_4         -1700.000000 813.333333  
+Junction_5         -820.000000  693.333333  
+Junction_6         -766.666667  1866.666667 
+Junction_7         -1753.333333 1853.333333 
+Tank_1             -5366.666667 1720.000000 
+
+[VERTICES]
+;------------------------------------------------------
+;Link              X-coord      Y-coord
+;ID
+;------------------------------------------------------
+
+[END]

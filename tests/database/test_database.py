@@ -1,6 +1,7 @@
 """
 Tests for the database module functionality.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -72,6 +73,22 @@ class TestDatabaseCreate:
         """Test that creating an existing model raises FileExistsError."""
         with pytest.raises(FileExistsError):
             Database.create(sirius_db)
+
+    def test_import_epanet(self, tmp_path: Path):
+        """Test importing from an EPANET .inp file."""
+        db_path = tmp_path / "model.sqlite"
+        inp_path = Path("tests/testdata/Db/Epanet_Demo/Epanet_Demo.inp")
+
+        # Create model database and import from EPANET
+        db = Database.create(db_path)
+        db.import_from_epanet(inp_path)
+
+        # Check that some expected tables exist
+        df = db.tables.mw_Pipe.to_dataframe()
+        assert not df.empty
+
+        db.close()
+        assert not db.is_open
 
 
 class TestDatabase:
@@ -158,7 +175,7 @@ class TestDatabase:
         """Test close method."""
         db.close()
         assert not db.is_open
-        
+
     def test_top_level_imports(self, tmp_path: Path):
         """Test that top-level imports work correctly."""
         from mikeplus import Database
@@ -170,14 +187,11 @@ class TestDatabase:
         assert db.is_open
         assert new_db_path.exists()
         db.close()
-        
+
         db = Database(new_db_path)
         assert db.is_open
         db.close()
-        
+
         db = open(new_db_path)
         assert db.is_open
         db.close()
-        
-        
-        
