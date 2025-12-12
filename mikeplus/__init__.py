@@ -63,7 +63,7 @@ clr.AddReference("DHI.Amelia.EPANETBridge")
 clr.AddReference("DHI.Amelia.SWMMBridge")
 
 from .database import Database  # noqa: E402
-from .datatableaccess import (
+from .datatableaccess import (  # noqa: E402
     DataTableAccess,  # noqa: E402
     DataTableDemoAccess,  # noqa: E402
 )
