@@ -10,7 +10,10 @@
 
 ### Removed
 
+
 ### Fixed
+- Handle user-defined columns: track added columns and apply values outside command for inserts and updates to comply with .NET restrictions.
+
 
 ### Security
 

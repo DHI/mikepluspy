@@ -5,18 +5,14 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
-from mikeplus.dotnet import get_implementation as impl
-
-from mikeplus.queries import SelectQuery
-from mikeplus.queries import UpdateQuery
-from mikeplus.queries import DeleteQuery
-from mikeplus.queries import InsertQuery
-
-from .base_table_columns import BaseColumns
-
+from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
 from System import DateTime
 from System.Data import DbType
-from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
+
+from mikeplus.dotnet import get_implementation as impl
+from mikeplus.queries import DeleteQuery, InsertQuery, SelectQuery, UpdateQuery
+
+from .base_table_columns import BaseColumns
 
 
 class BaseTable:
@@ -38,6 +34,7 @@ class BaseTable:
             return
         self._net_table = impl(net_table, raw=True)
         self._columns = None
+        self._user_defined_columns = set()
 
     def __repr__(self) -> str:
         """Get string representation."""
@@ -102,26 +99,28 @@ class BaseTable:
         return SelectQuery(self, columns)
 
     def insert(self, values: dict[str, Any], execute=True):
-        """Insert a row with the given values.
+        """Insert a row with given values.
 
         Parameters
         ----------
-        values : dict of str to Any
-            Column-value pairs to insert
+        values : dict[str, Any]
+            Column-value pairs to insert.
         execute : bool, optional
-            Whether to execute the query immediately (default: True)
+            If True, executes immediately (default). If False, returns an InsertQuery.
 
         Returns
         -------
         str or InsertQuery
-            If execute is True, returns the ID of the newly inserted row (MUID)
-            If execute is False, returns an InsertQuery instance
+            When execute=True, returns the MUID of the inserted row.
+            When execute=False, returns an InsertQuery instance.
 
+        Notes
+        -----
+        User-defined columns cannot be set via command-based insert in the .NET application.
+        Handling of user-defined columns is performed in InsertQuery when the query is executed.
         """
         query = InsertQuery(self, values=values)
-        if execute:
-            return query.execute()
-        return query
+        return query.execute() if execute else query
 
     def update(self, values: dict[str, Any]):
         """Create an UPDATE query for this table.
@@ -211,5 +210,10 @@ class BaseTable:
             DateTime.MinValue,  # Result columns not supported yet
             False,  # Reset from database
         )
+
+        # Keep track so we can set values not-by-command for these columns
+
+        self._user_defined_columns.add(column_name)
+        return ret
 
         return ret
