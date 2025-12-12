@@ -1,6 +1,7 @@
 """MIKE+Py package."""
 
-__version__ = "2025.5.0"
+__version__ = "2025.6.0"
+
 
 from pathlib import Path
 
@@ -29,8 +30,10 @@ _install_root, _dll_dir_handle = _setup_bin_path(
 
 #  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
 try:
-    from DHI.Mike.Install import MikeImport  # noqa: E402, F401
-    from DHI.Mike.Install import MikeProducts  # noqa: E402, F401
+    from DHI.Mike.Install import (
+        MikeImport,  # noqa: E402, F401
+        MikeProducts,  # noqa: E402, F401
+    )
 except ImportError:
     # mock this case:
     # mikeplus.MikeImport.ActiveProduct().InstallRoot
@@ -59,10 +62,12 @@ clr.AddReference("DHI.Amelia.Tools.EngineTool")
 clr.AddReference("DHI.Amelia.EPANETBridge")
 clr.AddReference("DHI.Amelia.SWMMBridge")
 
-from .datatableaccess import DataTableAccess  # noqa: E402
-from .datatableaccess import DataTableDemoAccess  # noqa: E402
 from .database import Database  # noqa: E402
-from .shortcuts import open, create  # noqa: E402
+from .datatableaccess import (
+    DataTableAccess,  # noqa: E402
+    DataTableDemoAccess,  # noqa: E402
+)
+from .shortcuts import create, open  # noqa: E402
 from .utils import to_sql  # noqa: E402
 
 __all__ = [
