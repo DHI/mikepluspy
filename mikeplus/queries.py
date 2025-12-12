@@ -318,12 +318,8 @@ class InsertQuery(BaseQuery[str]):
     def _execute_impl(self) -> str:
         """Implement the INSERT query execution.
 
-
-
         Returns
-
         -------
-
         str
 
             The MUID of the newly inserted row
@@ -331,7 +327,6 @@ class InsertQuery(BaseQuery[str]):
 
 
         """
-
         net_table = self._table._net_table
 
         values = self._values.copy()
@@ -405,12 +400,8 @@ class UpdateQuery(BaseQuery[list[str]]):
     def _execute_impl(self) -> list[str]:
         """Implement the UPDATE query execution.
 
-
-
         Returns
-
         -------
-
         list of str
 
             List of MUIDs updated
@@ -418,7 +409,6 @@ class UpdateQuery(BaseQuery[list[str]]):
 
 
         """
-
         # Safety check: if no conditions and all() not called, prevent accidental updates
 
         if not self._conditions and not self._all_rows:
