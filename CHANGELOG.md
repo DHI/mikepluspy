@@ -10,12 +10,20 @@
 
 ### Removed
 
-
 ### Fixed
-- Handle user-defined columns: track added columns and apply values outside command for inserts and updates to comply with .NET restrictions.
-
 
 ### Security
+
+## [2025.6.0] - 2025-12-12
+
+### Added
+
+- Import EPANET models
+- Import SWMM models
+
+### Fixed
+
+- Handle user-defined columns: track added columns and apply values outside command for inserts and updates to comply with .NET restrictions.
 
 ## [2025.5.0] - 2025-08-26
 
