@@ -214,6 +214,5 @@ class BaseTable:
         # Keep track so we can set values not-by-command for these columns
 
         self._user_defined_columns.add(column_name)
-        return ret
 
         return ret
