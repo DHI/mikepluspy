@@ -10,7 +10,7 @@ name = "mikeplus"
 version = "2025.5.0"
 dependencies = [
     "numpy",
-    'pythonnet>=3.0',
+    "pythonnet>=3.0",
     "pandas",
 ]
 authors = [
@@ -52,19 +52,18 @@ test = [
     "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
 ]
-doc =  ["sphinx", "myst-parser","sphinx-book-theme","mkdocs==1.5.3","mkdocs-material==9.4.14","mkdocstrings==0.24.0","mkdocstrings-python==1.7.5"]
+doc = ["sphinx", "myst-parser", "sphinx-book-theme", "mkdocs==1.5.3", "mkdocs-material==9.4.14", "mkdocstrings==0.24.0", "mkdocstrings-python==1.7.5"]
 
 [project.urls]
 "Homepage" = "https://github.com/DHI/mikepluspy"
 "Bug Tracker" = "https://github.com/DHI/mikepluspy/issues"
-
-# mypy global options:
 
 [tool.mypy]
 python_version = "3.13"
 warn_return_any = false
 allow_redefinition = true
 warn_unreachable = true
+exclude = ["mikeplus/tables/auto_generated/"]
 
 [[tool.mypy.overrides]]
 module = [
@@ -75,18 +74,17 @@ module = [
 ]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["mikeplus.tables.auto_generated.*"]
+ignore_errors = true
+
 [tool.ruff]
 include = ["pyproject.toml", "mikeplus/**/*.py"]
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
-
 lint.extend-select = ["D", "PD", "NPY", "FA"]
 lint.pydocstyle.convention = "numpy"
-
-# ignore long lines
 lint.ignore = ["E501"]
-
-
 
 [tool.pytest.ini_options]
 addopts = [
