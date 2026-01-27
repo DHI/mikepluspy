@@ -4,7 +4,6 @@ from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import
     InterpolationToolParameters,
 )
 from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
-from ..database import Database
 
 
 class InterpolationTool:

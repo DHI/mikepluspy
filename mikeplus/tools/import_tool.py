@@ -3,7 +3,6 @@
 import os.path
 from DHI.Amelia.Tools.ImportTool.ImportEngine import FunctionHelper
 from DHI.Amelia.Tools.ImportTool.ImportEngine import ImportToolBase
-from ..database import Database
 
 
 class ImportTool:

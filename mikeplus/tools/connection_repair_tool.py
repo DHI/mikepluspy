@@ -1,7 +1,6 @@
 """The Connection Repair Tool from MIKE+."""
 
 from DHI.Amelia.Tools.ConnectionRepairEngine import ConnectionRepairEngine
-from ..database import Database
 
 
 class ConnectionRepairTool:
