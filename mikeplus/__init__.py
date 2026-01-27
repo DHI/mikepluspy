@@ -63,11 +63,12 @@ clr.AddReference("DHI.Amelia.EPANETBridge")
 clr.AddReference("DHI.Amelia.SWMMBridge")
 
 from .database import Database  # noqa: E402
-from .datatableaccess import (  # noqa: E402
-    DataTableAccess,  # noqa: E402
-    DataTableDemoAccess,  # noqa: E402
-)
 from .shortcuts import create, open  # noqa: E402
 from .utils import to_sql  # noqa: E402
 
-__all__ = ["Database", "open", "create", "to_sql"]
+__all__ = [
+    "Database",
+    "open",
+    "create",
+    "to_sql",
+]
