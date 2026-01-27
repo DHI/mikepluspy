@@ -19,10 +19,10 @@ uv pip install mikeplus
 > **Note**  
 > Use of MIKE+Py requires a valid MIKE+ license.
 
-To install a version compatible with a specific MIKE+ release year (e.g., MIKE+ 2024):
+To install a version compatible with a specific MIKE+ release year (e.g., MIKE+ 2025):
 
 ```bash
-uv pip install mikeplus==2024.*
+uv pip install mikeplus==2025.*
 ```
 
 ## Quick Start
