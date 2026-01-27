@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2025.6.0"
+__version__ = "2026.0.0"
 
 
 from pathlib import Path
