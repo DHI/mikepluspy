@@ -4,6 +4,9 @@
 
 ### Added
 
+- Support for MIKE+ 2026.
+- Improved developer documentation for releases.
+
 ### Changed
 
 ### Deprecated
