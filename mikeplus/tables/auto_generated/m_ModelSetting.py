@@ -8,7 +8,12 @@ class m_ModelSettingTableColumns(BaseColumns):
     ModelNo = "ModelNo"
     """Model no"""
     UBGNo = "UBGNo"
+<<<<<<< HEAD
     """Ubg"""
+=======
+    Title = "Title"
+    Description = "Description"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     Enable_Catchment = "Enable_Catchment"
     """Catchments"""
     Enable_CS = "Enable_CS"
@@ -56,9 +61,12 @@ class m_ModelSettingTableColumns(BaseColumns):
     Enable_1D_PESE = "Enable_1D_PESE"
     """Pump emergency storage estimation"""
     Enable_EPA_OnlAna = "Enable_EPA_OnlAna"
+<<<<<<< HEAD
     """Online analysis"""
     EPAVersionNo = "EPAVersionNo"
     """EPANET version"""
+=======
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     Enable_EPA_Optim = "Enable_EPA_Optim"
     """Optimization"""
     Enable_EPA_MultSpecAna = "Enable_EPA_MultSpecAna"
@@ -66,7 +74,11 @@ class m_ModelSettingTableColumns(BaseColumns):
     Enable_EPA_AutoCali = "Enable_EPA_AutoCali"
     """Autocalibration"""
     HeadlossNo = "HeadlossNo"
+<<<<<<< HEAD
     """Head loss No"""
+=======
+    WHEngineVersion = "WHEngineVersion"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
 
 class m_ModelSettingTable(BaseTable):
     """Table for m_ModelSetting (Model type)."""

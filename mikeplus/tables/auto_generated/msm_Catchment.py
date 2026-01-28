@@ -20,7 +20,11 @@ class msm_CatchmentTableColumns(BaseColumns):
     HydrologicalModelNo = "HydrologicalModelNo"
     """Hydrological model"""
     LossDefinition = "LossDefinition"
+<<<<<<< HEAD
     """Use land use distribution"""
+=======
+    NewUKLandUseID = "NewUKLandUseID"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     ModelAImpArea = "ModelAImpArea"
     """ModelA impervious area [%]"""
     ModelALocalNo = "ModelALocalNo"
@@ -150,7 +154,12 @@ class msm_CatchmentTableColumns(BaseColumns):
     ParRdiiID = "ParRdiiID"
     """RDI parameter set"""
     IncludeAutoCalNo = "IncludeAutoCalNo"
+<<<<<<< HEAD
     """Include autocalibration"""
+=======
+    NewUKInitAPI = "NewUKInitAPI"
+    NewUKSoilDecayFactor = "NewUKSoilDecayFactor"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     SWMM_LoadToNo = "SWMM_LoadToNo"
     """Load to"""
     SWMM_OutletNodeID = "SWMM_OutletNodeID"
@@ -188,7 +197,11 @@ class msm_CatchmentTableColumns(BaseColumns):
     SWMM_CurbLength = "SWMM_CurbLength"
     """Curb length [m]"""
     SWMM_InfilPatternID = "SWMM_InfilPatternID"
+<<<<<<< HEAD
     """Infil pattern"""
+=======
+    SWMM_InfilModelNo = "SWMM_InfilModelNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     SWMM_MaxRate = "SWMM_MaxRate"
     """Max infiltration rate [mm/h]"""
     SWMM_MinRate = "SWMM_MinRate"

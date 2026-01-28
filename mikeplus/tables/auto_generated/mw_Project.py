@@ -60,7 +60,11 @@ class mw_ProjectTableColumns(BaseColumns):
     MaxFlowChange = "MaxFlowChange"
     """Max. Flow Change [m/s]"""
     ContinueTimeStepNo = "ContinueTimeStepNo"
+<<<<<<< HEAD
     """Continue time step"""
+=======
+    PatternID = "PatternID"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     UseOrderWNo = "UseOrderWNo"
     """Pipe wall reaction order"""
     UseOrderBNo = "UseOrderBNo"
@@ -114,7 +118,11 @@ class mw_ProjectTableColumns(BaseColumns):
     Hvap = "Hvap"
     """Vapour cavity pressure [m]"""
     Temperature = "Temperature"
+<<<<<<< HEAD
     """Temperature [deg C]"""
+=======
+    UnsteadyFlowFrictionNo = "UnsteadyFlowFrictionNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     Description = "Description"
     """Description"""
 

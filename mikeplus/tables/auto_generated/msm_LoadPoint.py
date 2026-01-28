@@ -38,7 +38,11 @@ class msm_LoadPointTableColumns(BaseColumns):
     LoadLocation = "LoadLocation"
     """Load location"""
     Date = "Date"
+<<<<<<< HEAD
     """Date"""
+=======
+    EventID = "EventID"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
 
 class msm_LoadPointTable(BaseGeometryTable):
     """Table for msm_LoadPoint (Load points)."""

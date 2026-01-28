@@ -50,7 +50,12 @@ class mw_ValveTableColumns(BaseColumns):
     ValveCurveID = "ValveCurveID"
     """Valve characteristics"""
     FullStrokeTime = "FullStrokeTime"
+<<<<<<< HEAD
     """Full stroke time [sec]"""
+=======
+    PressureOverride = "PressureOverride"
+    PressureOverrideLimit = "PressureOverrideLimit"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     LevelControlEnabled = "LevelControlEnabled"
     """Level control"""
     TankID = "TankID"

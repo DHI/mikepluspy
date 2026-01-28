@@ -26,11 +26,16 @@ class m2d_BoundaryTableColumns(BaseColumns):
     VarTimeInterval = "VarTimeInterval"
     """Time, varying [sec]"""
     WaterFilePath = "WaterFilePath"
+<<<<<<< HEAD
     """File name"""
     WaterItemNo = "WaterItemNo"
     """WaterItemNo"""
     WaterItemName = "WaterItemName"
     """Item"""
+=======
+    WaterItemName = "WaterItemName"
+    WaterItemNo = "WaterItemNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     ConstInitVelApplyNo = "ConstInitVelApplyNo"
     """Const apply initial velocity"""
     Discharge = "Discharge"
@@ -44,11 +49,19 @@ class m2d_BoundaryTableColumns(BaseColumns):
     SourceFilePath = "SourceFilePath"
     """File name"""
     SrcDisItemName = "SrcDisItemName"
+<<<<<<< HEAD
     """Discharge item"""
     SrcUVelItemName = "SrcUVelItemName"
     """u-velocity item"""
     SrcVVelItemName = "SrcVVelItemName"
     """v-velocity item"""
+=======
+    SrcDisItemNo = "SrcDisItemNo"
+    SrcUVelItemName = "SrcUVelItemName"
+    SrcUVelItemNo = "SrcUVelItemNo"
+    SrcVVelItemName = "SrcVVelItemName"
+    SrcVVelItemNo = "SrcVVelItemNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     QhDisFilePath = "QhDisFilePath"
     """Q/h file"""
     QhDisItemNo = "QhDisItemNo"
@@ -56,6 +69,7 @@ class m2d_BoundaryTableColumns(BaseColumns):
     QhDisItemName = "QhDisItemName"
     """Discharge item"""
     QhVelocityFilePath = "QhVelocityFilePath"
+<<<<<<< HEAD
     """Velocity file"""
     QhUVelItemNo = "QhUVelItemNo"
     """QhUVelItemNo"""
@@ -65,6 +79,12 @@ class m2d_BoundaryTableColumns(BaseColumns):
     """QhVVelItemNo"""
     QhVVelItemName = "QhVVelItemName"
     """v-velocity item"""
+=======
+    QhUVelItemName = "QhUVelItemName"
+    QhUVelItemNo = "QhUVelItemNo"
+    QhVVelItemName = "QhVVelItemName"
+    QhVVelItemNo = "QhVVelItemNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     QHStartupNo = "QHStartupNo"
     """Gradual start up"""
     QHStartValue = "QHStartValue"
@@ -88,6 +108,7 @@ class m2d_BoundaryTableColumns(BaseColumns):
     Source2Y = "Source2Y"
     """Y [m]"""
     Description = "Description"
+<<<<<<< HEAD
     """Description"""
     BndGeomLine = "BndGeomLine"
     """BndGeomLine"""
@@ -97,6 +118,10 @@ class m2d_BoundaryTableColumns(BaseColumns):
     """SrcUVelItemNo"""
     SrcVVelItemNo = "SrcVVelItemNo"
     """SrcVVelItemNo"""
+=======
+    EventID = "EventID"
+    BndGeomLine = "BndGeomLine"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
 
 class m2d_BoundaryTable(BaseGeometryTable):
     """Table for m2d_Boundary (2D boundary conditions)."""

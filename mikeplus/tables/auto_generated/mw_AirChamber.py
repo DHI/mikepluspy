@@ -16,7 +16,12 @@ class mw_AirChamberTableColumns(BaseColumns):
     Enabled = "Enabled"
     """Is active"""
     av_kapa = "av_kapa"
+<<<<<<< HEAD
     """Polytropical expansion"""
+=======
+    InletFlowCoeff = "InletFlowCoeff"
+    OutletFlowCoeff = "OutletFlowCoeff"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     TypeNo = "TypeNo"
     """Tank Geometry"""
     VolCurveID = "VolCurveID"

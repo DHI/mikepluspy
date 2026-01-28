@@ -234,6 +234,8 @@ from .mw_AutocaliNodeDemands import mw_AutocaliNodeDemandsTable
 from .mw_AutocaliClosedLinks import mw_AutocaliClosedLinksTable
 from .mw_AutocaliLeaks import mw_AutocaliLeaksTable
 from .mw_AutocaliTargets import mw_AutocaliTargetsTable
+from .mw_WDOAggSensors import mw_WDOAggSensorsTable
+from .mw_WDOAggSensorsD import mw_WDOAggSensorsDTable
 from .mwRes_ValveCriticality import mwRes_ValveCriticalityTable
 from .mwRes_Sustainability_Node import mwRes_Sustainability_NodeTable
 from .mwRes_Sustainability_Link import mwRes_Sustainability_LinkTable
@@ -260,6 +262,7 @@ from .m2d_MeshArc import m2d_MeshArcTable
 from .m2d_MeshLocalArea import m2d_MeshLocalAreaTable
 from .m2d_GridDefinition import m2d_GridDefinitionTable
 from .m2d_GridInactiveArea import m2d_GridInactiveAreaTable
+from .m2d_GridInactiveAreaLayer import m2d_GridInactiveAreaLayerTable
 from .m2d_Boundary import m2d_BoundaryTable
 from .m2d_BndQHRelation import m2d_BndQHRelationTable
 from .m2d_BndDistributedSource import m2d_BndDistributedSourceTable
@@ -288,10 +291,13 @@ from .mss_CatchCon import mss_CatchConTable
 from .mss_Orifice import mss_OrificeTable
 from .mss_Pump import mss_PumpTable
 from .mss_Outlet import mss_OutletTable
+from .mss_Street import mss_StreetTable
+from .mss_Inlet import mss_InletTable
 from .mss_Weir import mss_WeirTable
 from .mss_Tab import mss_TabTable
 from .mss_TabD import mss_TabDTable
 from .mss_Project import mss_ProjectTable
+from .mss_ProjectEvents import mss_ProjectEventsTable
 from .mss_Timeseries import mss_TimeseriesTable
 from .mss_TimeseriesD import mss_TimeseriesDTable
 from .mss_Inflow import mss_InflowTable
@@ -563,6 +569,8 @@ class TableCollection(BaseTableCollection):
         tables['mw_AutocaliClosedLinks'] = mw_AutocaliClosedLinksTable(self._data_table_container.GetTable('mw_AutocaliClosedLinks'))
         tables['mw_AutocaliLeaks'] = mw_AutocaliLeaksTable(self._data_table_container.GetTable('mw_AutocaliLeaks'))
         tables['mw_AutocaliTargets'] = mw_AutocaliTargetsTable(self._data_table_container.GetTable('mw_AutocaliTargets'))
+        tables['mw_WDOAggSensors'] = mw_WDOAggSensorsTable(self._data_table_container.GetTable('mw_WDOAggSensors'))
+        tables['mw_WDOAggSensorsD'] = mw_WDOAggSensorsDTable(self._data_table_container.GetTable('mw_WDOAggSensorsD'))
         tables['mwRes_ValveCriticality'] = mwRes_ValveCriticalityTable(self._data_table_container.GetTable('mwRes_ValveCriticality'))
         tables['mwRes_Sustainability_Node'] = mwRes_Sustainability_NodeTable(self._data_table_container.GetTable('mwRes_Sustainability_Node'))
         tables['mwRes_Sustainability_Link'] = mwRes_Sustainability_LinkTable(self._data_table_container.GetTable('mwRes_Sustainability_Link'))
@@ -589,6 +597,7 @@ class TableCollection(BaseTableCollection):
         tables['m2d_MeshLocalArea'] = m2d_MeshLocalAreaTable(self._data_table_container.GetTable('m2d_MeshLocalArea'))
         tables['m2d_GridDefinition'] = m2d_GridDefinitionTable(self._data_table_container.GetTable('m2d_GridDefinition'))
         tables['m2d_GridInactiveArea'] = m2d_GridInactiveAreaTable(self._data_table_container.GetTable('m2d_GridInactiveArea'))
+        tables['m2d_GridInactiveAreaLayer'] = m2d_GridInactiveAreaLayerTable(self._data_table_container.GetTable('m2d_GridInactiveAreaLayer'))
         tables['m2d_Boundary'] = m2d_BoundaryTable(self._data_table_container.GetTable('m2d_Boundary'))
         tables['m2d_BndQHRelation'] = m2d_BndQHRelationTable(self._data_table_container.GetTable('m2d_BndQHRelation'))
         tables['m2d_BndDistributedSource'] = m2d_BndDistributedSourceTable(self._data_table_container.GetTable('m2d_BndDistributedSource'))
@@ -617,10 +626,13 @@ class TableCollection(BaseTableCollection):
         tables['mss_Orifice'] = mss_OrificeTable(self._data_table_container.GetTable('mss_Orifice'))
         tables['mss_Pump'] = mss_PumpTable(self._data_table_container.GetTable('mss_Pump'))
         tables['mss_Outlet'] = mss_OutletTable(self._data_table_container.GetTable('mss_Outlet'))
+        tables['mss_Street'] = mss_StreetTable(self._data_table_container.GetTable('mss_Street'))
+        tables['mss_Inlet'] = mss_InletTable(self._data_table_container.GetTable('mss_Inlet'))
         tables['mss_Weir'] = mss_WeirTable(self._data_table_container.GetTable('mss_Weir'))
         tables['mss_Tab'] = mss_TabTable(self._data_table_container.GetTable('mss_Tab'))
         tables['mss_TabD'] = mss_TabDTable(self._data_table_container.GetTable('mss_TabD'))
         tables['mss_Project'] = mss_ProjectTable(self._data_table_container.GetTable('mss_Project'))
+        tables['mss_ProjectEvents'] = mss_ProjectEventsTable(self._data_table_container.GetTable('mss_ProjectEvents'))
         tables['mss_Timeseries'] = mss_TimeseriesTable(self._data_table_container.GetTable('mss_Timeseries'))
         tables['mss_TimeseriesD'] = mss_TimeseriesDTable(self._data_table_container.GetTable('mss_TimeseriesD'))
         tables['mss_Inflow'] = mss_InflowTable(self._data_table_container.GetTable('mss_Inflow'))
@@ -1826,6 +1838,16 @@ class TableCollection(BaseTableCollection):
         return self._tables['mw_AutocaliTargets']
     
     @property
+    def mw_WDOAggSensors(self) -> mw_WDOAggSensorsTable:
+        """Table 'mw_WDOAggSensors' (Aggregation sensors)"""
+        return self._tables['mw_WDOAggSensors']
+    
+    @property
+    def mw_WDOAggSensorsD(self) -> mw_WDOAggSensorsDTable:
+        """Table 'mw_WDOAggSensorsD' (Aggregation sensors)"""
+        return self._tables['mw_WDOAggSensorsD']
+    
+    @property
     def mwRes_ValveCriticality(self) -> mwRes_ValveCriticalityTable:
         """Table 'mwRes_ValveCriticality' (Valve criticality)"""
         return self._tables['mwRes_ValveCriticality']
@@ -1954,6 +1976,11 @@ class TableCollection(BaseTableCollection):
     def m2d_GridInactiveArea(self) -> m2d_GridInactiveAreaTable:
         """Table 'm2d_GridInactiveArea' (Grid inactive area)"""
         return self._tables['m2d_GridInactiveArea']
+    
+    @property
+    def m2d_GridInactiveAreaLayer(self) -> m2d_GridInactiveAreaLayerTable:
+        """Table 'm2d_GridInactiveAreaLayer' (Grid inactive area layer)"""
+        return self._tables['m2d_GridInactiveAreaLayer']
     
     @property
     def m2d_Boundary(self) -> m2d_BoundaryTable:
@@ -2096,6 +2123,16 @@ class TableCollection(BaseTableCollection):
         return self._tables['mss_Outlet']
     
     @property
+    def mss_Street(self) -> mss_StreetTable:
+        """Table 'mss_Street' (Streets)"""
+        return self._tables['mss_Street']
+    
+    @property
+    def mss_Inlet(self) -> mss_InletTable:
+        """Table 'mss_Inlet' (Inlets)"""
+        return self._tables['mss_Inlet']
+    
+    @property
     def mss_Weir(self) -> mss_WeirTable:
         """Table 'mss_Weir' (Weirs)"""
         return self._tables['mss_Weir']
@@ -2114,6 +2151,11 @@ class TableCollection(BaseTableCollection):
     def mss_Project(self) -> mss_ProjectTable:
         """Table 'mss_Project' (Simulation setup)"""
         return self._tables['mss_Project']
+    
+    @property
+    def mss_ProjectEvents(self) -> mss_ProjectEventsTable:
+        """Table 'mss_ProjectEvents' (Events)"""
+        return self._tables['mss_ProjectEvents']
     
     @property
     def mss_Timeseries(self) -> mss_TimeseriesTable:

@@ -4,7 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LandUseTableColumns(BaseColumns):
     """Column names for msm_LandUse (Land uses)."""
     MUID = "MUID"
+<<<<<<< HEAD
     """ID"""
+=======
+    HydroModelTypeNo = "HydroModelTypeNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     WetLossTypeNo = "WetLossTypeNo"
     """Include wetting loss"""
     WetLoss = "WetLoss"
@@ -32,9 +36,23 @@ class msm_LandUseTableColumns(BaseColumns):
     GAMaxMoisture = "GAMaxMoisture"
     """Max soil moisture deficit [%]"""
     GASuction = "GASuction"
+<<<<<<< HEAD
     """Average capillary suction [mm]"""
     Description = "Description"
     """Description"""
+=======
+    UKRunoffVolumeTypeNo = "UKRunoffVolumeTypeNo"
+    UKInitialLossPorosity = "UKInitialLossPorosity"
+    UKInitialLossTypeNo = "UKInitialLossTypeNo"
+    UKInitialLossValue = "UKInitialLossValue"
+    UKFixedRunoffCoeff = "UKFixedRunoffCoeff"
+    UKNewUKDepth = "UKNewUKDepth"
+    UKRunoffRoutingTypeNo = "UKRunoffRoutingTypeNo"
+    UKRunoffRoutingValue = "UKRunoffRoutingValue"
+    UKGroundSlope = "UKGroundSlope"
+    Description = "Description"
+    UKSurfaceTypeNo = "UKSurfaceTypeNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
 
 class msm_LandUseTable(BaseTable):
     """Table for msm_LandUse (Land uses)."""

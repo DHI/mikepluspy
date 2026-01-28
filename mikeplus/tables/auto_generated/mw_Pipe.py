@@ -46,7 +46,11 @@ class mw_PipeTableColumns(BaseColumns):
     Bulk_Coeff = "Bulk_Coeff"
     """Bulk coefficient [/d]"""
     Wall_Coeff = "Wall_Coeff"
+<<<<<<< HEAD
     """Wall coefficient [/d]"""
+=======
+    LimitingPotential = "LimitingPotential"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     WaveSpeed = "WaveSpeed"
     """Wave speed [m/s]"""
     CVTimeOpen = "CVTimeOpen"

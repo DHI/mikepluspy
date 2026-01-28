@@ -54,7 +54,11 @@ class mss_LinkTableColumns(BaseColumns):
     TransectID = "TransectID"
     """Transect ID"""
     ShapeID = "ShapeID"
+<<<<<<< HEAD
     """Shape ID"""
+=======
+    StreetID = "StreetID"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     FricNo = "FricNo"
     """Friction type"""
     MaterialID = "MaterialID"
@@ -80,6 +84,7 @@ class mss_LinkTableColumns(BaseColumns):
     CulvertCode = "CulvertCode"
     """Culvert code"""
     SeepageRate = "SeepageRate"
+<<<<<<< HEAD
     """Seepage rate [mm/h]"""
     AssetName = "AssetName"
     """Asset ID"""
@@ -89,12 +94,31 @@ class mss_LinkTableColumns(BaseColumns):
     """Network type"""
     Description = "Description"
     """Description"""
+=======
+    ConnectInletNo = "ConnectInletNo"
+    InletID = "InletID"
+    ReceivingNode = "ReceivingNode"
+    NumberInlet = "NumberInlet"
+    InletPlacementNo = "InletPlacementNo"
+    PercentClogged = "PercentClogged"
+    InletMaxFlow = "InletMaxFlow"
+    DepressionHeight = "DepressionHeight"
+    DepressionWidth = "DepressionWidth"
+    Description = "Description"
+    DataSource = "DataSource"
+    AssetName = "AssetName"
+    Element_S = "Element_S"
+    NetTypeNo = "NetTypeNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     Tag = "Tag"
     """Tag"""
     Enabled = "Enabled"
+<<<<<<< HEAD
     """Is active"""
     Element_S = "Element_S"
     """Element_S"""
+=======
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
 
 class mss_LinkTable(BaseGeometryTable):
     """Table for mss_Link (Conduits)."""

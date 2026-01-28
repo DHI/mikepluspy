@@ -46,7 +46,11 @@ class mss_LIDControlTableColumns(BaseColumns):
     PRegFraction = "PRegFraction"
     """Regeneration fraction [()]"""
     Height = "Height"
+<<<<<<< HEAD
     """Height [mm]"""
+=======
+    LidCoveredNo = "LidCoveredNo"
+>>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
     SVratio = "SVratio"
     """Void ratio"""
     Filt = "Filt"
