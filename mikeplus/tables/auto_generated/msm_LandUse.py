@@ -4,11 +4,9 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_LandUseTableColumns(BaseColumns):
     """Column names for msm_LandUse (Land uses)."""
     MUID = "MUID"
-<<<<<<< HEAD
     """ID"""
-=======
     HydroModelTypeNo = "HydroModelTypeNo"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Hydrological model type"""
     WetLossTypeNo = "WetLossTypeNo"
     """Include wetting loss"""
     WetLoss = "WetLoss"
@@ -36,23 +34,29 @@ class msm_LandUseTableColumns(BaseColumns):
     GAMaxMoisture = "GAMaxMoisture"
     """Max soil moisture deficit [%]"""
     GASuction = "GASuction"
-<<<<<<< HEAD
     """Average capillary suction [mm]"""
+    UKRunoffVolumeTypeNo = "UKRunoffVolumeTypeNo"
+    """Runoff volume type"""
+    UKInitialLossPorosity = "UKInitialLossPorosity"
+    """Initial loss porosity [()]"""
+    UKInitialLossTypeNo = "UKInitialLossTypeNo"
+    """Initial loss type"""
+    UKInitialLossValue = "UKInitialLossValue"
+    """Initial loss value [mm]"""
+    UKFixedRunoffCoeff = "UKFixedRunoffCoeff"
+    """Fixed runoff coefficient [()]"""
+    UKNewUKDepth = "UKNewUKDepth"
+    """New UK depth [mm]"""
+    UKRunoffRoutingTypeNo = "UKRunoffRoutingTypeNo"
+    """Runoff routing type"""
+    UKRunoffRoutingValue = "UKRunoffRoutingValue"
+    """Runoff routing value [()]"""
+    UKGroundSlope = "UKGroundSlope"
+    """Ground slope [%]"""
     Description = "Description"
     """Description"""
-=======
-    UKRunoffVolumeTypeNo = "UKRunoffVolumeTypeNo"
-    UKInitialLossPorosity = "UKInitialLossPorosity"
-    UKInitialLossTypeNo = "UKInitialLossTypeNo"
-    UKInitialLossValue = "UKInitialLossValue"
-    UKFixedRunoffCoeff = "UKFixedRunoffCoeff"
-    UKNewUKDepth = "UKNewUKDepth"
-    UKRunoffRoutingTypeNo = "UKRunoffRoutingTypeNo"
-    UKRunoffRoutingValue = "UKRunoffRoutingValue"
-    UKGroundSlope = "UKGroundSlope"
-    Description = "Description"
     UKSurfaceTypeNo = "UKSurfaceTypeNo"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Surface type"""
 
 class msm_LandUseTable(BaseTable):
     """Table for msm_LandUse (Land uses)."""

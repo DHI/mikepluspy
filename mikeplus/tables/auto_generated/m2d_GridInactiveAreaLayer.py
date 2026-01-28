@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class m2d_GridInactiveAreaLayerTableColumns(BaseColumns):
     """Column names for m2d_GridInactiveAreaLayer (Grid inactive area layer)."""
     MUID = "MUID"
+    """ID"""
     FilePath = "FilePath"
+    """Layer"""
     ApplyNo = "ApplyNo"
+    """Apply"""
 
 class m2d_GridInactiveAreaLayerTable(BaseTable):
     """Table for m2d_GridInactiveAreaLayer (Grid inactive area layer)."""

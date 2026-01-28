@@ -10,11 +10,9 @@ class msm_ProjectTableColumns(BaseColumns):
     IncludeToBatchNo = "IncludeToBatchNo"
     """Include to batch"""
     ScenarioName = "ScenarioName"
-<<<<<<< HEAD
     """Scenario"""
-=======
     EventID = "EventID"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Event ID"""
     ActiveProject = "ActiveProject"
     """Active simulation"""
     Enable_Catchment = "Enable_Catchment"
@@ -56,11 +54,9 @@ class msm_ProjectTableColumns(BaseColumns):
     KWDt = "KWDt"
     """Kin. wave [sec]"""
     UHMDt = "UHMDt"
-<<<<<<< HEAD
     """UHM [sec]"""
-=======
     NewUKDt = "NewUKDt"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """New UK / Wallingford [sec]"""
     DtWetPeriod = "DtWetPeriod"
     """Wet weather [sec]"""
     DtDryPeriod = "DtDryPeriod"

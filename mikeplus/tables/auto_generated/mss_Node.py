@@ -32,14 +32,15 @@ class mss_NodeTableColumns(BaseColumns):
     GeomConst = "GeomConst"
     """Constant [m^2]"""
     GeomExponent = "GeomExponent"
-<<<<<<< HEAD
     """Exponent"""
-=======
     MajorLength = "MajorLength"
+    """Major length [m]"""
     MinorLength = "MinorLength"
+    """Minor length [m]"""
     Slope = "Slope"
+    """Side slope [()]"""
     Height = "Height"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Axis height [m]"""
     GeomID = "GeomID"
     """Storage geometry"""
     Fevap = "Fevap"

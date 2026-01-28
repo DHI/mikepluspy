@@ -34,7 +34,7 @@ class mw_PipeTableColumns(BaseColumns):
     Material = "Material"
     """Material"""
     CDate = "CDate"
-    """Construction year"""
+    """Construction date"""
     Coeff1 = "Coeff1"
     """Demand Coeff. 1"""
     Coeff2 = "Coeff2"
@@ -46,11 +46,9 @@ class mw_PipeTableColumns(BaseColumns):
     Bulk_Coeff = "Bulk_Coeff"
     """Bulk coefficient [/d]"""
     Wall_Coeff = "Wall_Coeff"
-<<<<<<< HEAD
     """Wall coefficient [/d]"""
-=======
     LimitingPotential = "LimitingPotential"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Limiting potential [()]"""
     WaveSpeed = "WaveSpeed"
     """Wave speed [m/s]"""
     CVTimeOpen = "CVTimeOpen"

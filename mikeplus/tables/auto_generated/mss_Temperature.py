@@ -94,11 +94,9 @@ class mss_TemperatureTableColumns(BaseColumns):
     AdcImPerv8 = "AdcImPerv8"
     """AdcImPerv8"""
     AdcImPerv9 = "AdcImPerv9"
-<<<<<<< HEAD
     """AdcImPerv9"""
-=======
     TempUnit = "TempUnit"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Temperature Unit"""
 
 class mss_TemperatureTable(BaseTable):
     """Table for mss_Temperature (Climatology)."""

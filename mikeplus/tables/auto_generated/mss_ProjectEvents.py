@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_ProjectEventsTableColumns(BaseColumns):
     """Column names for mss_ProjectEvents (Events)."""
     MUID = "MUID"
+    """MUID"""
     SimulationID = "SimulationID"
+    """Scenario"""
     StartTime = "StartTime"
+    """Start time"""
     EndTime = "EndTime"
+    """End time"""
     IncludeEvent = "IncludeEvent"
+    """Include"""
 
 class mss_ProjectEventsTable(BaseTable):
     """Table for mss_ProjectEvents (Events)."""

@@ -20,11 +20,9 @@ class msm_CatchmentTableColumns(BaseColumns):
     HydrologicalModelNo = "HydrologicalModelNo"
     """Hydrological model"""
     LossDefinition = "LossDefinition"
-<<<<<<< HEAD
     """Use land use distribution"""
-=======
     NewUKLandUseID = "NewUKLandUseID"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """New UK land use"""
     ModelAImpArea = "ModelAImpArea"
     """ModelA impervious area [%]"""
     ModelALocalNo = "ModelALocalNo"
@@ -46,7 +44,7 @@ class msm_CatchmentTableColumns(BaseColumns):
     ModelBLength = "ModelBLength"
     """ModelB length [m]"""
     ModelBSlope = "ModelBSlope"
-    """ModelB slope [o/oo]"""
+    """ModelB slope [%]"""
     ModelBParBID = "ModelBParBID"
     """ModelB parameter ID"""
     ModelBAISteep = "ModelBAISteep"
@@ -86,7 +84,7 @@ class msm_CatchmentTableColumns(BaseColumns):
     ModelCLength = "ModelCLength"
     """ModelC length [m]"""
     ModelCSlope = "ModelCSlope"
-    """ModelC slope [o/oo]"""
+    """ModelC slope [%]"""
     ModelC2ImperviousArea = "ModelC2ImperviousArea"
     """ModelC2 impervious area [%]"""
     ModelC2LocalNo = "ModelC2LocalNo"
@@ -154,12 +152,11 @@ class msm_CatchmentTableColumns(BaseColumns):
     ParRdiiID = "ParRdiiID"
     """RDI parameter set"""
     IncludeAutoCalNo = "IncludeAutoCalNo"
-<<<<<<< HEAD
     """Include autocalibration"""
-=======
     NewUKInitAPI = "NewUKInitAPI"
+    """Initial Antecedent Precipitation Index for New UK land use [mm]"""
     NewUKSoilDecayFactor = "NewUKSoilDecayFactor"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Soil decay factor"""
     SWMM_LoadToNo = "SWMM_LoadToNo"
     """Load to"""
     SWMM_OutletNodeID = "SWMM_OutletNodeID"
@@ -197,11 +194,9 @@ class msm_CatchmentTableColumns(BaseColumns):
     SWMM_CurbLength = "SWMM_CurbLength"
     """Curb length [m]"""
     SWMM_InfilPatternID = "SWMM_InfilPatternID"
-<<<<<<< HEAD
     """Infil pattern"""
-=======
     SWMM_InfilModelNo = "SWMM_InfilModelNo"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Infiltration model"""
     SWMM_MaxRate = "SWMM_MaxRate"
     """Max infiltration rate [mm/h]"""
     SWMM_MinRate = "SWMM_MinRate"
@@ -211,7 +206,7 @@ class msm_CatchmentTableColumns(BaseColumns):
     SWMM_DecayRate = "SWMM_DecayRate"
     """Decay rate [/s]"""
     SWMM_HRegen = "SWMM_HRegen"
-    """DWF regeneration(Horton) [h]"""
+    """Drying time [h]"""
     SWMM_Suction = "SWMM_Suction"
     """Soil capillary suction [m]"""
     SWMM_InitDef = "SWMM_InitDef"
@@ -221,7 +216,7 @@ class msm_CatchmentTableColumns(BaseColumns):
     SWMM_RunoffCN = "SWMM_RunoffCN"
     """Curve number [()]"""
     SWMM_CRegen = "SWMM_CRegen"
-    """DWF regeneration(Curve No.) [h]"""
+    """Drying time [h]"""
     SWMM_Tag = "SWMM_Tag"
     """Tag"""
     DataSource = "DataSource"

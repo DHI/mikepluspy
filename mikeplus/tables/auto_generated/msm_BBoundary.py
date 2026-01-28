@@ -56,11 +56,9 @@ class msm_BBoundaryTableColumns(BaseColumns):
     CatchLoadNo = "CatchLoadNo"
     """CatchLoadNo"""
     VariationNo = "VariationNo"
-<<<<<<< HEAD
     """Variation No"""
-=======
     SpatialExtentTypeNo = "SpatialExtentTypeNo"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Spatial extent type"""
     ConstantValue = "ConstantValue"
     """Constant value"""
     StartupNo = "StartupNo"
@@ -102,11 +100,9 @@ class msm_BBoundaryTableColumns(BaseColumns):
     RiverQHRelation = "RiverQHRelation"
     """Q/h relation"""
     Description = "Description"
-<<<<<<< HEAD
     """Description"""
-=======
     EventID = "EventID"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Event ID"""
 
 class msm_BBoundaryTable(BaseTable):
     """Table for msm_BBoundary (Boundary conditions)."""

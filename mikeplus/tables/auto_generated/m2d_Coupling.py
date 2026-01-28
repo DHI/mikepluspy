@@ -8,13 +8,9 @@ class m2d_CouplingTableColumns(BaseColumns):
     TypeNo = "TypeNo"
     """Type"""
     CoupleModelNo = "CoupleModelNo"
-<<<<<<< HEAD
     """Couple to"""
-    ApplyNo = "ApplyNo"
-    """Apply"""
-=======
     Enabled = "Enabled"
->>>>>>> bc29183 (Update auto generated tables for MIKE+ 2026)
+    """Apply"""
     ItemID = "ItemID"
     """Coupled ID"""
     RecalculationCoordinateNo = "RecalculationCoordinateNo"
