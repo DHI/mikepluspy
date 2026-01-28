@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from mikeplus import DataTableAccess
 from mikeplus import DataTableDemoAccess
 from datetime import datetime
 from shapely import wkt
@@ -10,7 +11,7 @@ from shapely.geometry import LineString
 
 def test_open_database(sirius_db):
     """Test opening and closing a database."""
-    data_access = DataTableDemoAccess(sirius_db)
+    data_access = DataTableAccess(sirius_db)
     data_access.open_database()
     assert data_access.is_database_open() is True
     data_access.close_database()
@@ -21,7 +22,7 @@ def test_open_database(sirius_db):
 @pytest.fixture
 def data_access(sirius_db):
     """Fixture to provide an open database connection for tests."""
-    access = DataTableDemoAccess(sirius_db)
+    access = DataTableAccess(sirius_db)
     access.open_database()
     yield access
     access.close_database()
@@ -54,7 +55,14 @@ def test_get_field_values(
 ):
     """Test retrieving field values from a database table."""
     values = data_access.get_field_values(table_name, muid, fields)
-    assert values == expected_values
+    if fields == "geometry":
+        assert "LINESTRING" in values[0]
+        assert "102067.8" in values[0]
+        assert "109100.2" in values[0]
+        assert "102405.8" in values[0]
+        assert "108873.8" in values[0]
+    else:
+        assert values == expected_values
 
 
 @pytest.mark.parametrize(

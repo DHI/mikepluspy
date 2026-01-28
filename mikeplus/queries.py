@@ -8,15 +8,16 @@ UPDATE, DELETE) with chainable methods and consistent error handling.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, TypeVar, Generic, Any, Union
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union
 
 if TYPE_CHECKING:
     from .tables import BaseTable
 
 
+from System.Data import ConnectionState
+
 from .dotnet import DotNetConverter
 from .utils import to_sql
-
 
 QueryResultT = TypeVar("QueryResultT")
 
@@ -151,6 +152,15 @@ class BaseQuery(Generic[QueryResultT], ABC):
         if self._executed:
             raise RuntimeError(
                 "Query has already been executed. Use reset() to execute again."
+            )
+
+        db_connection = self._table._net_table.DataTables.DataSource.DbConnection
+        if not db_connection or db_connection.State != ConnectionState.Open:
+            raise ValueError(
+                "Database is not open. "
+                "Open database with `.open()` before executing query. "
+                "If using a `with` context manager, ensure your queries are being "
+                "executed within the context block."
             )
 
         self._executed = True
@@ -311,12 +321,16 @@ class InsertQuery(BaseQuery[str]):
         Returns
         -------
         str
+
             The MUID of the newly inserted row
+
+
 
         """
         net_table = self._table._net_table
 
         values = self._values.copy()
+
         muid = values.pop("MUID", net_table.CreateUniqueMuid())
 
         if net_table.IsMuidExistInActive(muid, None):
@@ -329,13 +343,26 @@ class InsertQuery(BaseQuery[str]):
         if geometry:
             geometry = DotNetConverter.to_dotnet_geometry(geometry)
 
-        net_values = DotNetConverter.to_dotnet_dictionary(values) if values else None
+        # Split values into user-defined and non-user-defined
+        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
+        non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
+        ud_values = {k: v for k, v in values.items() if k in ud_columns}
+
+        net_values = (
+            DotNetConverter.to_dotnet_dictionary(non_ud_values)
+            if non_ud_values
+            else None
+        )
 
         _, inserted_muid = net_table.InsertByCommand(
             muid,
             geometry,
             net_values,
         )
+
+        # Set user-defined values after insert (not by command)
+        for col, val in ud_values.items():
+            net_table.SetValue(inserted_muid, col, DotNetConverter.to_dotnet_value(val))
 
         return inserted_muid
 
@@ -376,20 +403,34 @@ class UpdateQuery(BaseQuery[list[str]]):
         Returns
         -------
         list of str
+
             List of MUIDs updated
+
+
 
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
+
         if not self._conditions and not self._all_rows:
             raise ValueError(
                 "Attempted to update all rows without explicit all() call. "
                 "Use where() to specify conditions or all() to update all rows."
             )
+
         net_table = self._table._net_table
 
         values = self._values.copy()
 
-        net_values = DotNetConverter.to_dotnet_dictionary(values) if values else None
+        # Split values into user-defined and non-user-defined
+        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
+        non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
+        ud_values = {k: v for k, v in values.items() if k in ud_columns}
+
+        net_values_non_ud = (
+            DotNetConverter.to_dotnet_dictionary(non_ud_values)
+            if non_ud_values
+            else None
+        )
 
         where_clause = self._build_where_clause()
 
@@ -397,11 +438,17 @@ class UpdateQuery(BaseQuery[list[str]]):
 
         if where_clause:
             filtered_result = net_table.GetMuidsWhere(where_clause)
+
             muids = list(filtered_result)
 
         updated_muids = []
+
         for muid in muids:
-            net_table.SetValuesByCommand(muid, net_values)
+            if net_values_non_ud is not None:
+                net_table.SetValuesByCommand(muid, net_values_non_ud)
+
+            for col, val in ud_values.items():
+                net_table.SetValue(muid, col, DotNetConverter.to_dotnet_value(val))
             updated_muids.append(muid)
 
         return updated_muids

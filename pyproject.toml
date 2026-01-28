@@ -7,10 +7,10 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "2025.1.0"
+version = "2025.6.0"
 dependencies = [
     "numpy",
-    'pythonnet>=3.0',
+    "pythonnet>=3.0",
     "pandas",
 ]
 authors = [
@@ -40,7 +40,7 @@ dev = [
     "ruff",
     "shapely",
     "jinja2>=3.0.0",
-    "mypy>=1.15.0",
+    "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
     "ipykernel>=6.29.5",
 ]
@@ -49,7 +49,7 @@ test = [
     "pytest-timeout",
     "shapely",
     "jinja2>=3.0.0",
-    "mypy>=1.15.0",
+    "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
 ]
 docs = [
@@ -61,41 +61,41 @@ docs = [
 "Homepage" = "https://github.com/DHI/mikepluspy"
 "Bug Tracker" = "https://github.com/DHI/mikepluspy/issues"
 
-# mypy global options:
-
 [tool.mypy]
 python_version = "3.13"
 warn_return_any = false
 allow_redefinition = true
 warn_unreachable = true
+exclude = ["mikeplus/tables/auto_generated/"]
 
 [[tool.mypy.overrides]]
 module = [
     "DHI.*",
     "System.*",
-    "clr"
+    "clr",
+    "pythonnet",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["mikeplus.tables.auto_generated.*"]
+ignore_errors = true
 
 [tool.ruff]
 include = ["pyproject.toml", "mikeplus/**/*.py"]
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
-
 lint.extend-select = ["D", "PD", "NPY", "FA"]
 lint.pydocstyle.convention = "numpy"
-
-# ignore long lines
 lint.ignore = ["E501"]
-
-
 
 [tool.pytest.ini_options]
 addopts = [
     "--strict-markers",
     "--durations=50",
     "--durations-min=0.5",
-    "--disable-warnings"
+    "--disable-warnings",
+    "-s",
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",

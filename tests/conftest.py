@@ -1,9 +1,12 @@
+import faulthandler
+import pythonnet
 import pytest
 import shutil
 import tempfile
 import uuid
 from pathlib import Path
 
+faulthandler.enable()
 
 """
 Test Database Fixture System

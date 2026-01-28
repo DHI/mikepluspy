@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
-from mikeplus.dotnet import get_implementation as impl
+from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
+from System import DateTime
+from System.Data import DbType
 
-from mikeplus.queries import SelectQuery
-from mikeplus.queries import UpdateQuery
-from mikeplus.queries import DeleteQuery
-from mikeplus.queries import InsertQuery
+from mikeplus.dotnet import get_implementation as impl
+from mikeplus.queries import DeleteQuery, InsertQuery, SelectQuery, UpdateQuery
 
 from .base_table_columns import BaseColumns
 
@@ -26,8 +27,14 @@ class BaseTable:
             The underlying .NET IMuTable object
 
         """
+        if net_table is None:
+            warnings.warn(
+                f"Could not intialize table: {self.__class__}. This is likely due to a mismatch between the model database and mikepluspy version."
+            )
+            return
         self._net_table = impl(net_table, raw=True)
         self._columns = None
+        self._user_defined_columns = set()
 
     def __repr__(self) -> str:
         """Get string representation."""
@@ -92,26 +99,28 @@ class BaseTable:
         return SelectQuery(self, columns)
 
     def insert(self, values: dict[str, Any], execute=True):
-        """Insert a row with the given values.
+        """Insert a row with given values.
 
         Parameters
         ----------
-        values : dict of str to Any
-            Column-value pairs to insert
+        values : dict[str, Any]
+            Column-value pairs to insert.
         execute : bool, optional
-            Whether to execute the query immediately (default: True)
+            If True, executes immediately (default). If False, returns an InsertQuery.
 
         Returns
         -------
         str or InsertQuery
-            If execute is True, returns the ID of the newly inserted row (MUID)
-            If execute is False, returns an InsertQuery instance
+            When execute=True, returns the MUID of the inserted row.
+            When execute=False, returns an InsertQuery instance.
 
+        Notes
+        -----
+        User-defined columns cannot be set via command-based insert in the .NET application.
+        Handling of user-defined columns is performed in InsertQuery when the query is executed.
         """
         query = InsertQuery(self, values=values)
-        if execute:
-            return query.execute()
-        return query
+        return query.execute() if execute else query
 
     def update(self, values: dict[str, Any]):
         """Create an UPDATE query for this table.
@@ -151,3 +160,59 @@ class BaseTable:
 
         """
         return self.select().to_dataframe()
+
+    def add_user_defined_column(
+        self,
+        column_name: str,
+        column_data_type: str,
+        column_header: str | None = None,
+    ):
+        """Add a user defined column to table.
+
+        Parameters
+        ----------
+        column_name : str
+            Name of the column in the database.
+        column_data_type : str
+            Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
+        column_header : str | None
+            Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
+
+        """
+        table = self._net_table
+
+        column_data_type = column_data_type.lower()
+        if column_data_type == "integer":
+            column_data_type = DbType.Int32
+        elif column_data_type == "double":
+            column_data_type = DbType.Double
+        elif column_data_type == "string":
+            column_data_type = DbType.String
+        elif column_data_type == "datetime":
+            column_data_type = DbType.DateTime
+        else:
+            raise ValueError(
+                f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
+            )
+
+        if column_header is None:
+            column_header = column_name
+
+        ret = table.AddUserDefinedColumn(
+            UserDefinedColumnType.NewDbField,  # Only NewDbField supported for now
+            column_header,
+            column_name,
+            column_data_type,
+            "",  # Expression columns not supported yet
+            "",  # Result columns not supported yet
+            "",  # Result columns not supported yet
+            0,  # Result columns not supported yet
+            DateTime.MinValue,  # Result columns not supported yet
+            False,  # Reset from database
+        )
+
+        # Keep track so we can set values not-by-command for these columns
+
+        self._user_defined_columns.add(column_name)
+
+        return ret

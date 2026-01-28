@@ -8,9 +8,12 @@ MIKE+ model files, including access to tables and scenarios.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from typing import Literal
 
 if TYPE_CHECKING:
     from .scenarios.scenario import Scenario
+
+from System.Threading import CancellationTokenSource
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
@@ -19,6 +22,8 @@ from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFi
 from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
     ScenarioManager as NetScenarioManager,
 )
+from DHI.Amelia.EPANETBridge import INPBridge
+from DHI.Amelia.SWMMBridge import SWMMStorageBridge
 
 from plistlib import InvalidFileException
 from pathlib import Path
@@ -429,7 +434,16 @@ class Database:
         return str(self._data_source.ActiveModel)
 
     def run(
-        self, simulation_muid: str | None = None, model_option: str | None = None
+        self,
+        simulation_muid: str | None = None,
+        *,
+        sim_option: Literal[
+            "CS_MIKE_1D",
+            "CS_SWMM",
+            "WD_EPANET",
+            "CS_MIKE_1D_JobList",
+        ]
+        | None = None,
     ) -> list[Path]:
         """Run a simulation.
 
@@ -437,8 +451,13 @@ class Database:
         ----------
         simulation_muid : str, optional
             Simulation MUID. Defaults to the active simulation.
-        model_option : str | MUModelOption, optional
-            Model option. Defaults to active model if None.
+        sim_option : Literal[str], optional
+            Simulation option. Defaults to None. Possible values are:
+
+            - "CS_MIKE_1D": Rivers, collection systems, and overland flows.
+            - "CS_SWMM": SWMM-based collection systems and overland flows.
+            - "WD_EPANET": Water distribution systems.
+            - "CS_MIKE_1D_JobList": Generate job list for LTS simulation (.MJL file).
 
         Examples
         --------
@@ -457,7 +476,75 @@ class Database:
         list[Path]
             Paths to the result files.
         """
-        return self._runner.run(simulation_muid, model_option)
+        return self._runner.run(simulation_muid, sim_option=sim_option)
+
+    def import_from_epanet(self, file_path: str | Path):
+        """Import a model from an EPANET .inp file.
+
+        Parameters
+        ----------
+        file_path : str or Path
+            Path to the EPANET .inp file. If not provided, a file dialog will open.
+
+        Examples
+        --------
+        >>> with mp.create("path/to/model.sqlite") as db:
+        ...     db.import_from_epanet("path/to/model.inp")
+
+        """
+        file_path = Path(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"EPANET file '{file_path}' does not exist.")
+
+        if file_path.suffix.lower() != ".inp":
+            raise ValueError("Provided file is not an EPANET .inp file.")
+
+        inp_bridge = INPBridge(self._data_table_container, None)
+
+        try:
+            cancellation_token = CancellationTokenSource()
+            result = inp_bridge.Import(file_path.as_posix(), cancellation_token.Token)
+            if not result:
+                raise Exception()
+        except Exception as e:
+            messages = "\n".join(inp_bridge.ErrorMsgs)
+            raise Exception(
+                f"Error importing from EPANET file.\n{str(e)}\n{messages}"
+            ) from None
+
+    def import_from_swmm(self, file_path: str | Path):
+        """Import a model from a SWMM .inp file.
+
+        Parameters
+        ----------
+        file_path : str or Path
+            Path to the SWMM .inp file.
+
+        Examples
+        --------
+        >>> with mp.create("path/to/model.sqlite") as db:
+        ...     db.import_from_swmm("path/to/model.inp")
+
+        """
+        file_path = Path(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"SWMM file '{file_path}' does not exist.")
+
+        if file_path.suffix.lower() != ".inp":
+            raise ValueError("Provided file is not a SWMM .inp file.")
+
+        inp_bridge = SWMMStorageBridge(self._data_table_container, None)
+
+        try:
+            cancellation_token = CancellationTokenSource()
+            result = inp_bridge.Import(file_path.as_posix(), cancellation_token.Token)
+            if not result:
+                raise Exception()
+        except Exception as e:
+            messages = "\n".join(inp_bridge.ErrorMsgs)
+            raise Exception(
+                f"Error importing from SWMM file.\n{str(e)}\n{messages}"
+            ) from None
 
 
 __all__ = [

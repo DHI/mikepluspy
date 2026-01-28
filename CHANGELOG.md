@@ -12,6 +12,60 @@
 
 ### Fixed
 
+### Security
+
+## [2025.6.0] - 2025-12-12
+
+### Added
+
+- Import EPANET models
+- Import SWMM models
+
+### Fixed
+
+- Handle user-defined columns: track added columns and apply values outside command for inserts and updates to comply with .NET restrictions.
+
+## [2025.5.0] - 2025-08-26
+
+### Added
+- Support for MIKE+ 2025 Update 1
+
+### Changed
+- Pythonnet now targets .NET 8.0
+
+## [2025.4.0] - 2025-06-18
+
+### Changes
+- Update Windows DLL Search Directory with MIKE+ bin path (in addition to PATH)
+
+## [2025.3.1] - 2025-06-11
+
+### Fixed
+- Fix AddReference for DHI.Mike.Install causing warning
+
+## [2025.3.0] - 2025-06-11
+
+### Added
+
+- MIKEPLUSPY_INSTALL_ROOT to provide custom path to MIKE+ installation (also with default)
+
+## [2025.2.0] - 2025-06-11
+
+### Added
+- Support for updating datetime values using strings.
+- Run LTS job list generation simulation.
+- Better error message when executing queries on unopened database.
+
+## [2025.1.2] - 2025-06-10
+
+### Fixed
+- Allow importing mikeio after mikeplus
+
+## [2025.1.1] - 2025-06-10
+
+### Fixed
+- More robust bin path setup, reduces the risk of conflicts with other software
+
 ## [2025.1.0] - 2025-06-09
 
 ### Added

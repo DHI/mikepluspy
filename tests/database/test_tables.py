@@ -1,6 +1,7 @@
 """
 Tests for the table classes.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -142,3 +143,28 @@ class TestBaseTable:
 
         # Verify it's configured with the table
         assert query._table == base_table
+
+    def test_add_user_defined_column(self, base_table: BaseTable):
+        base_table.add_user_defined_column("test_column", "integer")
+
+        # Should be None at first
+        df = base_table.select(["test_column"]).to_dataframe()
+        "test_column" in df.columns
+        assert df["test_column"].isnull().all()
+
+        # Set the value
+        n_updated = (
+            base_table.update(({"test_column": 42})).by_muid("Link_29").execute()
+        )
+        assert len(n_updated) == 1
+        df = base_table.select(["test_column"]).by_muid("Link_29").to_dataframe()
+        assert df["test_column"].iloc[0] == 42
+
+        # Insert a new link
+        new_muid = base_table.insert({"test_column": 99})
+        df = base_table.select(["test_column"]).by_muid(new_muid).to_dataframe()
+        assert df["test_column"].iloc[0] == 99
+
+        # data_access.set_value("msm_Link", "Link_29", "test_column", 42)
+        # values = data_access.get_field_values("msm_Link", "Link_29", "test_column")
+        # assert values[0] == 42
