@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_CulvertQHFlowTableColumns(BaseColumns):
     """Column names for msm_CulvertQHFlow (Q/h relations)."""
     MUID = "MUID"
+    """MUID"""
     CulvertID = "CulvertID"
+    """CulvertID"""
     Sqn = "Sqn"
+    """Sqn"""
     y = "y"
+    """y [m]"""
     Qc = "Qc"
+    """Qc [m^3/s]"""
     TypeNo = "TypeNo"
+    """Type"""
     Direction = "Direction"
+    """Direction"""
 
 class msm_CulvertQHFlowTable(BaseTable):
     """Table for msm_CulvertQHFlow (Q/h relations)."""

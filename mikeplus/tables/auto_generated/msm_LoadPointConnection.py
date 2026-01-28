@@ -4,9 +4,13 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class msm_LoadPointConnectionTableColumns(BaseColumns):
     """Column names for msm_LoadPointConnection (Load point connections)."""
     MUID = "MUID"
+    """ID"""
     LoadPointID = "LoadPointID"
+    """Load point ID"""
     LocationID = "LocationID"
+    """Location ID"""
     LocationTypeNo = "LocationTypeNo"
+    """LocationTypeNo"""
 
 class msm_LoadPointConnectionTable(BaseGeometryTable):
     """Table for msm_LoadPointConnection (Load point connections)."""

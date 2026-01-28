@@ -1,0 +1,76 @@
+# Getting started
+
+This guide will help you get started with MIKE+Py, from installation to running your first operations.
+
+## Requirements
+
+*   A licensed installation of MIKE+ (MIKE+Py is compatible with MIKE+ 2023 and later).
+*   Python (x64) version 3.9 - 3.11.
+*   (Windows) [VC++ redistributables](https://aka.ms/vs/17/release/vc_redist.x64.exe) (often already installed if you have MIKE+).
+
+::: {.callout-important title="Import Conflicts with `mikeio` and `mikeio1d`" collapse="true"}
+Due to underlying library dependencies, `mikeplus` currently has known conflicts:
+
+*   `mikeio` **cannot** be imported in the same Python process as `mikeplus`.
+*   `mikeio1d` **must** be imported *after* `mikeplus`.
+
+Please plan your scripts accordingly. For instance, if you need functionality from both `mikeio` and `mikeplus`, consider using separate Python processes or scripts. The environment variable `MIKEPLUSPY_DISABLE_CONFLICT_CHECKS=true` can be set to bypass these checks at your own risk.
+:::
+
+## Installation
+
+::: {.callout-tip}
+# Using uv
+[uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10-100x faster than pip, and also makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as `uv venv`.
+:::
+
+To install MIKE+Py, run this command in your terminal:
+
+::: {.panel-tabset}
+## pip
+```bash
+pip install mikeplus
+```
+
+## uv
+```bash
+uv pip install mikeplus
+```
+:::
+
+::: {.callout-note}
+The Python package is named `mikeplus` (for `import mikeplus`) and is installed from PyPI using `pip install mikeplus`. The development repository is named `mikepluspy`.
+:::
+
+## {{< fa fa-table >}} Accessing Model Data
+
+The core of MIKE+Py is the `Database` object, which provides an interface to your MIKE+ model. You can open a model, access its tables, and query data.
+
+Here's how to open a database and read a table into a pandas DataFrame:
+
+```python
+import mikeplus as mp
+
+with mp.open("your_model_project.sqlite") as db:
+    db.tables.msm_Node.select().to_pandas()
+```
+
+## {{< fa fa-play >}} Running a Simulation
+
+MIKE+Py allows you to execute simulations defined in your MIKE+ model directly from Python.
+
+This example runs the currently active simulation in the model:
+
+```python
+import mikeplus as mp
+
+with mp.open("your_model_project.sqlite") as db:
+    print(f"Running simulation: {db.active_simulation} for model type: {db.active_model}")
+    
+    # Run the active simulation
+    result_files = db.run()
+    
+    print("Simulation finished. Result files:")
+    for res_file in result_files:
+        print(res_file)
+```

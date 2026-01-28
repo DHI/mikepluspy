@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_LossTableColumns(BaseColumns):
     """Column names for mw_Loss (Loss coefficient)."""
     MUID = "MUID"
+    """MUID"""
     Coeff = "Coeff"
+    """Loss coefficient"""
     Description = "Description"
+    """Description"""
 
 class mw_LossTable(BaseTable):
     """Table for mw_Loss (Loss coefficient)."""

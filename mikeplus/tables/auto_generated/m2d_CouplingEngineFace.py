@@ -4,8 +4,11 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_CouplingEngineFaceTableColumns(BaseColumns):
     """Column names for m2d_CouplingEngineFace (Coupling engine faces)."""
     MUID = "MUID"
+    """ID"""
     FaceNo = "FaceNo"
+    """Face No."""
     SurfaceGroundLevel = "SurfaceGroundLevel"
+    """Surface ground level [m]"""
 
 class m2d_CouplingEngineFaceTable(BaseGeometryTable):
     """Table for m2d_CouplingEngineFace (Coupling engine faces)."""

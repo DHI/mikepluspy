@@ -4,8 +4,11 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_2DTabTableColumns(BaseColumns):
     """Column names for ms_2DTab (Two-dimensional tables)."""
     MUID = "MUID"
+    """ID"""
     TypeNo = "TypeNo"
+    """Type"""
     Description = "Description"
+    """Description"""
 
 class ms_2DTabTable(BaseTable):
     """Table for ms_2DTab (Two-dimensional tables)."""

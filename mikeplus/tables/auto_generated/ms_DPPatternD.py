@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_DPPatternDTableColumns(BaseColumns):
     """Column names for ms_DPPatternD (Pattern data)."""
     MUID = "MUID"
+    """MUID"""
     PatternID = "PatternID"
+    """PatternID"""
     Sqn = "Sqn"
+    """Sqn"""
     Time = "Time"
+    """From"""
     ToTime = "ToTime"
+    """To"""
     DPValue = "DPValue"
+    """Multiplier"""
 
 class ms_DPPatternDTable(BaseTable):
     """Table for ms_DPPatternD (Pattern data)."""

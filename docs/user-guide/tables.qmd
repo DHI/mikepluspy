@@ -1,0 +1,77 @@
+
+# Tables
+
+Once you have a [Database](`mikeplus.Database`) object, you can access the model data stored within its various tables. MIKE+Py provides a structured way to interact with these tables.
+
+## The Table Collection
+
+All tables in the database are accessible through the `tables` attribute of your `Database` object. This attribute is a `TableCollection`, which acts like a dictionary of all tables in your model.
+
+To see a list of available table names:
+```python
+# Assuming db is an opened Database object
+all_table_names = db.tables.keys()
+print(f"First 5 table names: {list(all_table_names)[0:5]}")
+```
+
+## Accessing Individual Tables
+
+You can access a specific table from the `TableCollection` either by its name as an attribute or as a dictionary item. For example, to access the table containing node data (commonly named `msm_Node` in collection systems or `mw_Junction` in water distribution):
+
+```python
+# Using attribute access
+nodes_table = db.tables.msm_Node
+
+# Or, using dictionary item access
+# nodes_table = db.tables["msm_Node"]
+
+print(nodes_table) # Shows a representation of the table object
+```
+MIKE+ uses standard table naming conventions, often prefixed like `msm_` for collection systems/rivers, `mw_` for water distribution, and `mss_` for SWMM models.
+
+## Working with a Table Object
+
+Each table object, like `nodes_table` above, is an instance of a class inheriting from `BaseTable` (e.g., `msm_NodeTable`). It holds metadata about the table and provides methods to interact with it.
+
+You can retrieve basic information about the table:
+```python
+print(f"Table Name: {nodes_table.name}")
+print(f"Display Name: {nodes_table.display_name}")
+print(f"Description: {nodes_table.description}")
+```
+
+Column names for a table are available through its `columns` attribute. This returns a special column object from which you can list all column names or access specific known column names as attributes:
+```python
+node_columns_info = nodes_table.columns
+all_column_names = list(node_columns_info)
+print(f"First 5 columns: {all_column_names[0:5]}")
+
+# Accessing a known column name string
+print(f"The MUID column is named: {node_columns_info.MUID}")
+```
+
+To get a list of all MUIDs (unique identifiers for rows) in a table, use the `get_muids()` method:
+```python
+all_muids = nodes_table.get_muids()
+if all_muids:
+    print(f"First 5 MUIDs in {nodes_table.name}: {all_muids[0:5]}")
+```
+You can also sort the MUIDs by a specific column using `get_muids(order_by="ColumnName")`.
+
+## Querying and Modifying Data
+
+While the table object itself provides access to metadata, the actual reading, adding, updating, or deleting of data rows within the table is handled through queries.
+
+For detailed information on how to construct and execute these operations, please refer to the [Queries](queries.qmd) page.
+
+## Specialized Table Features
+
+Some tables, particularly those representing network elements with geometry or specific roles (like nodes or links), may have additional specialized methods. For instance, tables for node elements (inheriting from `BaseNodeTable`, such as `msm_Node` or `mw_Junction`) offer methods to query network connectivity:
+
+```python
+# For a node table, e.g., db.tables.msm_Node
+# if "some_node_muid" in all_muids:
+#     num_links = nodes_table.get_number_of_links("some_node_muid")
+#     print(f"Node 'some_node_muid' has {num_links} connected links.")
+```
+Consult the API reference for such specific functionalities on different table types.

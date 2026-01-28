@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_RSSDemTableColumns(BaseColumns):
     """Column names for msm_RSSDem (RSSDem)."""
     MUID = "MUID"
+    """ID"""
     Sqn = "Sqn"
+    """Sqn"""
     FileName = "FileName"
+    """File name"""
     ItemID = "ItemID"
+    """Item ID"""
     ItemNo = "ItemNo"
+    """ItemNo"""
 
 class msm_RSSDemTable(BaseTable):
     """Table for msm_RSSDem (RSSDem)."""

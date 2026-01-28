@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mrm_DAErrorForecastEquationsTableColumns(BaseColumns):
     """Column names for mrm_DAErrorForecastEquations (Error forecast equations)."""
     MUID = "MUID"
+    """ID"""
     Description = "Description"
+    """Description"""
     Equation = "Equation"
+    """Equation"""
     PeriodFrom = "PeriodFrom"
+    """From [h]"""
     PeriodTo = "PeriodTo"
+    """To [h]"""
 
 class mrm_DAErrorForecastEquationsTable(BaseTable):
     """Table for mrm_DAErrorForecastEquations (Error forecast equations)."""

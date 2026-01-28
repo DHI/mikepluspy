@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_DPProfileTableColumns(BaseColumns):
     """Column names for ms_DPProfile (Cyclic profiles)."""
     MUID = "MUID"
+    """ID"""
     DataRelationNo = "DataRelationNo"
+    """DataRelationNo"""
     InterpolationNo = "InterpolationNo"
+    """Pattern times type"""
     MultipliersScalingNo = "MultipliersScalingNo"
+    """Multipliers scaling"""
 
 class ms_DPProfileTable(BaseTable):
     """Table for ms_DPProfile (Cyclic profiles)."""

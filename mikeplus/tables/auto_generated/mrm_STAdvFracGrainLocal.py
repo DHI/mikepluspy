@@ -4,13 +4,21 @@ from mikeplus.tables.base_table import BaseColumns
 class mrm_STAdvFracGrainLocalTableColumns(BaseColumns):
     """Column names for mrm_STAdvFracGrainLocal (mrm_STAdvFracGrainLocal)."""
     MUID = "MUID"
+    """ID"""
     STFracID = "STFracID"
+    """STFracID"""
     GrainSize = "GrainSize"
+    """Local grain size [mm]"""
     TypeNo = "TypeNo"
+    """Location type"""
     LinkID = "LinkID"
+    """Link ID"""
     LinkNo = "LinkNo"
+    """LinkNo"""
     Chainage = "Chainage"
+    """Chainage [m]"""
     ListID = "ListID"
+    """List ID"""
 
 class mrm_STAdvFracGrainLocalTable(BaseTable):
     """Table for mrm_STAdvFracGrainLocal (mrm_STAdvFracGrainLocal)."""

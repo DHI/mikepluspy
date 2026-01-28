@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_ReliabilityLocalTableColumns(BaseColumns):
     """Column names for mw_ReliabilityLocal (Pressure dependent demands)."""
     MUID = "MUID"
+    """ID"""
     JunctionID = "JunctionID"
+    """Junction Id"""
     IsPressureDependent = "IsPressureDependent"
+    """Is pressure dependent"""
     HasLocalData = "HasLocalData"
+    """Has local data"""
     MinPre = "MinPre"
+    """Minimum pressure [m]"""
     RequiredPre = "RequiredPre"
+    """Required pressure [m]"""
     Description = "Description"
+    """Description"""
 
 class mw_ReliabilityLocalTable(BaseTable):
     """Table for mw_ReliabilityLocal (Pressure dependent demands)."""

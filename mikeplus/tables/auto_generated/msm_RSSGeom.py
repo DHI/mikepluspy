@@ -4,11 +4,17 @@ from mikeplus.tables.base_table import BaseColumns
 class msm_RSSGeomTableColumns(BaseColumns):
     """Column names for msm_RSSGeom (Result selection geometry)."""
     MUID = "MUID"
+    """ID"""
     SelectionID = "SelectionID"
+    """SelectionID"""
     Sqn = "Sqn"
+    """Sqn"""
     X = "X"
+    """X [m]"""
     Y = "Y"
+    """Y [m]"""
     ElemID = "ElemID"
+    """ID"""
 
 class msm_RSSGeomTable(BaseTable):
     """Table for msm_RSSGeom (Result selection geometry)."""

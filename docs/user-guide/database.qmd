@@ -1,0 +1,138 @@
+# Database
+
+The [Database](`mikeplus.Database`) object is the primary interface for interacting with a MIKE+ model. It allows you to open existing model databases or create new ones.
+
+To use it, first import `mikeplus`:
+
+```python
+import mikeplus as mp
+```
+
+## Opening an Existing Database
+
+Open an existing MIKE+ model database using `mp.open()`. Provide the path to the `.sqlite` file. MIKE+Py will also recognize `.mupp` files and automatically locate the corresponding `.sqlite` database.
+
+```python
+db = mp.open("model.sqlite")
+print(db)
+db.close()
+```
+
+The `Database` object is automatically opened when created. If you prefer to open it manually, use `auto_open=False`:
+
+```python
+db_manual = mp.open("model.sqlite", auto_open=False)
+# db_manual is not yet open
+print(f"Is open: {db_manual.is_open}")
+db_manual.open()
+print(f"Is open: {db_manual.is_open}")
+db_manual.close()
+```
+
+It is recommended to use a `with` statement, which ensures the database connection is automatically opened and closed:
+
+```python
+with mp.open("model.sqlite") as db:
+    # db is open and ready to use
+    print(f"Database path: {db.db_path}")
+    # db is automatically closed when exiting this block
+```
+
+## Creating a New Database
+
+Create a new, empty MIKE+ model database using `mp.create()`:
+
+```python
+db_new = mp.create("new_model.sqlite")
+# A new_model.sqlite file is created
+print(db_new.db_path)
+db_new.close()
+```
+
+You can specify a spatial reference system using either `projection_string` or `srid` (but not both).
+
+```python
+# Example using SRID for WGS84
+db_srid = mp.create("projected_model.sqlite", srid=4326)
+print(f"SRID: {db_srid.srid}")
+db_srid.close()
+```
+
+By default, `mp.create()` will raise a `FileExistsError` if the database file already exists. To overwrite an existing file, use `overwrite=True`.
+
+## Working with the Database
+
+Once a `Database` object is opened, you can access its properties and methods.
+
+### Database File Information
+
+The `db_path` property provides the path to the `.sqlite` database file. If a `.mupp` file is associated with the model, its path is available via `mupp_path`.
+
+```python
+with mp.open("model.sqlite") as db:
+    print(f"SQLite file: {db.db_path}")
+    if db.mupp_path:
+        print(f"MUPP file: {db.mupp_path}")
+```
+
+### General Database Properties
+
+Retrieve general information about the database:
+
+```python
+with mp.open("model.sqlite") as db:
+    print(f"Database version: {db.version}")
+    print(f"Unit system: {db.unit_system}")
+    print(f"Projection: {db.projection_string}") # Or db.srid
+```
+
+### Scenarios
+
+List all available scenarios in the database with the `scenarios` property. Get or set the currently active scenario using `active_scenario`.
+
+```python
+with mp.open("model.sqlite") as db:
+    print(f"Available scenarios: {db.scenarios}")
+    current_scenario = db.active_scenario
+    print(f"Active scenario: {current_scenario}")
+
+    # To change the active scenario:
+    # if "MyOtherScenario" in db.scenarios:
+    # db.active_scenario = "MyOtherScenario"
+```
+
+### Active Model and Simulation Setup
+
+The `active_model` property indicates the current model type (e.g., 'CS_MIKE1D', 'WD_EPANET'). The `active_simulation` property shows the ID of the currently active simulation setup.
+
+```python
+with mp.open("model.sqlite") as db:
+    print(f"Active model type: {db.active_model}")
+    print(f"Active simulation setup ID: {db.active_simulation}")
+```
+
+### Accessing Data Tables
+
+The `tables` property is your gateway to the data within the database. It returns a `TableCollection` object.
+
+```python
+with mp.open("model.sqlite") as db:
+    all_tables = db.tables
+    # Example: list some available table names
+    # print(list(all_tables.keys())[0:5])
+```
+
+See the [Tables](tables.qmd) page for details on working with tables and their data.
+
+### Running Simulations
+
+Execute model simulations using the `run()` method.
+
+```python
+with mp.open("model.sqlite") as db:
+    # This runs the currently active simulation setup
+    # result_files = db.run() 
+    pass # More details on the Simulations page
+```
+
+Refer to the [Simulations](simulations.qmd) page for more information on running simulations.

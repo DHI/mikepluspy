@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_ShutdownValveTableColumns(BaseColumns):
     """Column names for mw_ShutdownValve (Shutdown valve)."""
     MUID = "MUID"
+    """ID"""
     ShutdownID = "ShutdownID"
+    """Shutdown Id"""
     StartTime = "StartTime"
+    """Start time"""
     EndTime = "EndTime"
+    """End time"""
     ValveID = "ValveID"
+    """Valve ID"""
     PipeID = "PipeID"
+    """Pipe id"""
     Description = "Description"
+    """Description"""
 
 class mw_ShutdownValveTable(BaseTable):
     """Table for mw_ShutdownValve (Shutdown valve)."""

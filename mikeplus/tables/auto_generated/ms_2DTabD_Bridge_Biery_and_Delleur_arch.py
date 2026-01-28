@@ -4,12 +4,19 @@ from mikeplus.tables.base_table import BaseColumns
 class ms_2DTabD_Bridge_Biery_and_Delleur_archTableColumns(BaseColumns):
     """Column names for ms_2DTabD_Bridge_Biery_and_Delleur_arch ()."""
     MUID = "MUID"
+    """MUID"""
     MasterID = "MasterID"
+    """MasterID"""
     RowSqn = "RowSqn"
+    """RowSqn"""
     ColSqn = "ColSqn"
+    """ColSqn"""
     RowHeaderValue = "RowHeaderValue"
+    """RowHeaderValue"""
     ColHeaderValue = "ColHeaderValue"
+    """ColHeaderValue"""
     CellValue = "CellValue"
+    """CellValue"""
 
 class ms_2DTabD_Bridge_Biery_and_Delleur_archTable(BaseTable):
     """Table for ms_2DTabD_Bridge_Biery_and_Delleur_arch ()."""

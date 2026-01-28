@@ -4,10 +4,15 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_InitialConditionAreaTableColumns(BaseColumns):
     """Column names for m2d_InitialConditionArea (2D initial conditions)."""
     Sqn = "Sqn"
+    """Priority"""
     ApplyNo = "ApplyNo"
+    """Apply"""
     MUID = "MUID"
+    """Polygon ID"""
     WaterLevel = "WaterLevel"
+    """Water level [m]"""
     Description = "Description"
+    """Description"""
 
 class m2d_InitialConditionAreaTable(BaseGeometryTable):
     """Table for m2d_InitialConditionArea (2D initial conditions)."""

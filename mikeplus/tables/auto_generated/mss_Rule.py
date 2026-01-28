@@ -4,10 +4,15 @@ from mikeplus.tables.base_table import BaseColumns
 class mss_RuleTableColumns(BaseColumns):
     """Column names for mss_Rule (Controls)."""
     MUID = "MUID"
+    """ID"""
     Sqn = "Sqn"
+    """Sqn"""
     Enabled = "Enabled"
+    """Is active"""
     Description = "Description"
+    """Description"""
     Condition = "Condition"
+    """Condition"""
 
 class mss_RuleTable(BaseTable):
     """Table for mss_Rule (Controls)."""

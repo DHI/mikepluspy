@@ -4,9 +4,13 @@ from mikeplus.tables.base_table import BaseColumns
 class mw_OptimizationTargetWBTableColumns(BaseColumns):
     """Column names for mw_OptimizationTargetWB (mw_OptimizationTargetWB)."""
     MUID = "MUID"
+    """ID"""
     OptimTargetID = "OptimTargetID"
+    """OptimTargetID"""
     SourcePipe = "SourcePipe"
+    """Water source outlet"""
     TargetPct = "TargetPct"
+    """Water source percentage [%]"""
 
 class mw_OptimizationTargetWBTable(BaseTable):
     """Table for mw_OptimizationTargetWB (mw_OptimizationTargetWB)."""

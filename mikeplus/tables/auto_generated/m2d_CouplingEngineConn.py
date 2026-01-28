@@ -4,10 +4,15 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_CouplingEngineConnTableColumns(BaseColumns):
     """Column names for m2d_CouplingEngineConn (Coupling engine connections)."""
     MUID = "MUID"
+    """ID"""
     Chainage = "Chainage"
+    """Chainage [m]"""
     QWeight = "QWeight"
+    """Q Weight [%]"""
     FaceNo = "FaceNo"
+    """Face No."""
     CouplingCrestLevel = "CouplingCrestLevel"
+    """Coupling crest level [m]"""
 
 class m2d_CouplingEngineConnTable(BaseGeometryTable):
     """Table for m2d_CouplingEngineConn (Coupling engine connections)."""

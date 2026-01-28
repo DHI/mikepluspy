@@ -4,6 +4,7 @@ from mikeplus.tables.base_geometry_table import BaseColumns
 class m2d_ADEvaporationAreaTableColumns(BaseColumns):
     """Column names for m2d_ADEvaporationArea (2D AD evaporation)."""
     MUID = "MUID"
+    """Polygon ID"""
 
 class m2d_ADEvaporationAreaTable(BaseGeometryTable):
     """Table for m2d_ADEvaporationArea (2D AD evaporation)."""
