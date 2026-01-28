@@ -32,6 +32,7 @@ sections:
   - m2d_GlobalSetting
   - m2d_GridDefinition
   - m2d_GridInactiveArea
+  - m2d_GridInactiveAreaLayer
   - m2d_InfBuilding
   - m2d_InfRoad
   - m2d_Infiltration
@@ -238,6 +239,7 @@ sections:
   - mss_HydrographD
   - mss_Inflow
   - mss_InflowD
+  - mss_Inlet
   - mss_LIDControl
   - mss_LIDControlD
   - mss_LIDusage
@@ -251,11 +253,13 @@ sections:
   - mss_Pattern
   - mss_Pollutant
   - mss_Project
+  - mss_ProjectEvents
   - mss_Pump
   - mss_RDII
   - mss_Raingauge
   - mss_Rule
   - mss_SnowPack
+  - mss_Street
   - mss_Tab
   - mss_TabD
   - mss_Temperature
@@ -316,6 +320,8 @@ sections:
   - mw_TraceNode
   - mw_Turbine
   - mw_Valve
+  - mw_WDOAggSensors
+  - mw_WDOAggSensorsD
   - mw_WDOComparisons
   - mw_WDOControls
   - mw_WDODemandPredictions

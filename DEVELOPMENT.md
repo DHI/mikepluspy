@@ -21,6 +21,8 @@ When a new version of MIKE+ is released, the following needs to be done before r
 9. Bump package version to match year of MIKE+ (e.g. 2026.0.0 for the first 2026 release)
 10. Update CI runner to use the new MIKE+ version
 11. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
-
-Note that the above list is a guideline and may not be exaustive.
+12. Update auto generated table documentation.
+    - `uv run .\docs\generate_table_docs.py`
+    - Review the diff in `docs/_table_generated_sections.yml`. It may be the same, or include new or removed tables.
+Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.
 
