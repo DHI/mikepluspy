@@ -26,3 +26,14 @@ When a new version of MIKE+ is released, the following needs to be done before r
     - Review the diff in `docs/_table_generated_sections.yml`. It may be the same, or include new or removed tables.
 Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.
 
+## Documentation
+
+To build the documentation locally, follow these steps:
+
+1. Install quarto
+2. Run the following from `docs` as the root:
+    - `uv run quartodoc build` ... if this seems to hang, use the `--verbose` flag, it's just really slow due to auto generated tables.
+    - `uv run quarto render`
+... wip
+
+
