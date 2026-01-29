@@ -57,6 +57,8 @@ class msm_BBoundaryTableColumns(BaseColumns):
     """CatchLoadNo"""
     VariationNo = "VariationNo"
     """Variation No"""
+    SpatialExtentTypeNo = "SpatialExtentTypeNo"
+    """Spatial extent type"""
     ConstantValue = "ConstantValue"
     """Constant value"""
     StartupNo = "StartupNo"
@@ -99,6 +101,8 @@ class msm_BBoundaryTableColumns(BaseColumns):
     """Q/h relation"""
     Description = "Description"
     """Description"""
+    EventID = "EventID"
+    """Event ID"""
 
 class msm_BBoundaryTable(BaseTable):
     """Table for msm_BBoundary (Boundary conditions)."""

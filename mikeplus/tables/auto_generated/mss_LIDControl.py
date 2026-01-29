@@ -47,6 +47,8 @@ class mss_LIDControlTableColumns(BaseColumns):
     """Regeneration fraction [()]"""
     Height = "Height"
     """Height [mm]"""
+    LidCoveredNo = "LidCoveredNo"
+    """Covered"""
     SVratio = "SVratio"
     """Void ratio"""
     Filt = "Filt"

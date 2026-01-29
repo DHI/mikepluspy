@@ -9,7 +9,7 @@ class m2d_CouplingTableColumns(BaseColumns):
     """Type"""
     CoupleModelNo = "CoupleModelNo"
     """Couple to"""
-    ApplyNo = "ApplyNo"
+    Enabled = "Enabled"
     """Apply"""
     ItemID = "ItemID"
     """Coupled ID"""

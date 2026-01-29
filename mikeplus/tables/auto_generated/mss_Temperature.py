@@ -95,6 +95,8 @@ class mss_TemperatureTableColumns(BaseColumns):
     """AdcImPerv8"""
     AdcImPerv9 = "AdcImPerv9"
     """AdcImPerv9"""
+    TempUnit = "TempUnit"
+    """Temperature Unit"""
 
 class mss_TemperatureTable(BaseTable):
     """Table for mss_Temperature (Climatology)."""

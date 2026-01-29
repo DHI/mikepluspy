@@ -4,11 +4,17 @@
 
 ### Added
 
+- Support for MIKE+ 2026.
+- Improved developer documentation for releases.
+
 ### Changed
 
 ### Deprecated
 
 ### Removed
+
+- DataTableAccess: this was previously marked for deprecation and is now replaced by Database.
+- Engine classes (FloodEngine, EPANET, MIKE1D): these were previously marked for deprecation and are now replaced by SimulationRunner.
 
 ### Fixed
 

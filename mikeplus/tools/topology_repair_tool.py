@@ -6,7 +6,6 @@ from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool impor
 from DHI.Amelia.GlobalUtility.DataType import MUModelOption
 from DHI.Amelia.Tools.TopologyRepairTool import CSTopologyRepairTool
 from DHI.Amelia.Tools.TopologyRepairTool import WDTopologyRepairTool
-from ..database import Database
 from System.Threading import CancellationTokenSource
 
 
@@ -34,21 +33,12 @@ class TopoRepairTool:
         Parameters
         ----------
         database : Database or DataTables
-            A Database object for the MIKE+ model, or for backward compatibility,
-            a DataTables object from DataTableAccess.
+            A Database object for the MIKE+ model.
 
         """
-        self._dataTables = self._get_data_tables(database)
-
-    def _get_data_tables(self, database):
-        """Get proper DataTableContainer, working with deprecated DataTableAccess workflow."""
-        if isinstance(database, Database):
-            if not database.is_open:
-                database.open()
-            return database._data_table_container
-
-        # if not Database object, assume user passed DataTableAccess.datatables per previous workflow
-        return database
+        if not database.is_open:
+            database.open()
+        self._dataTables = database._data_table_container
 
     def run(
         self,

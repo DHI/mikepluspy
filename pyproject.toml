@@ -7,7 +7,7 @@ exclude = ["notebooks", "tests"]
 
 [project]
 name = "mikeplus"
-version = "2025.6.0"
+version = "2026.0.0"
 dependencies = [
     "numpy",
     "pythonnet>=3.0",
@@ -19,14 +19,13 @@ authors = [
 ]
 description = "A python script package to manipulate MIKE+ database, run simulation by using MIKE+ data, run tools based on MIKE+ data"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

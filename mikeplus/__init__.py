@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2025.6.0"
+__version__ = "2026.0.0"
 
 
 from pathlib import Path
@@ -22,8 +22,8 @@ import clr  # noqa: E402
 from .utils import setup_bin_path as _setup_bin_path  # noqa: E402
 
 _install_root, _dll_dir_handle = _setup_bin_path(
-    major_assembly_version=23,
-    fallback_mikeplus_install_root=Path("C:/Program Files (x86)/DHI/MIKE+/2025"),
+    major_assembly_version=24,
+    fallback_mikeplus_install_root=Path("C:/Program Files (x86)/DHI/MIKE+/2026"),
     env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT",  # set this environment variable to use custom install path
     bin_path=Path("bin/x64"),
 )
@@ -63,11 +63,12 @@ clr.AddReference("DHI.Amelia.EPANETBridge")
 clr.AddReference("DHI.Amelia.SWMMBridge")
 
 from .database import Database  # noqa: E402
-from .datatableaccess import (  # noqa: E402
-    DataTableAccess,  # noqa: E402
-    DataTableDemoAccess,  # noqa: E402
-)
 from .shortcuts import create, open  # noqa: E402
 from .utils import to_sql  # noqa: E402
 
-__all__ = ["Database", "open", "create", "to_sql"]
+__all__ = [
+    "Database",
+    "open",
+    "create",
+    "to_sql",
+]

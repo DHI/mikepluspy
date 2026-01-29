@@ -5,7 +5,7 @@ This guide will help you get started with MIKE+Py, from installation to running 
 ## Requirements
 
 *   A licensed installation of MIKE+ (MIKE+Py is compatible with MIKE+ 2023 and later).
-*   Python (x64) version 3.9 - 3.11.
+*   Python (x64) version 3.10 - 3.13.
 *   (Windows) [VC++ redistributables](https://aka.ms/vs/17/release/vc_redist.x64.exe) (often already installed if you have MIKE+).
 
 ::: {.callout-important title="Import Conflicts with `mikeio` and `mikeio1d`" collapse="true"}

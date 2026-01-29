@@ -9,6 +9,10 @@ class m_ModelSettingTableColumns(BaseColumns):
     """Model no"""
     UBGNo = "UBGNo"
     """Ubg"""
+    Title = "Title"
+    """Title"""
+    Description = "Description"
+    """Description"""
     Enable_Catchment = "Enable_Catchment"
     """Catchments"""
     Enable_CS = "Enable_CS"
@@ -57,8 +61,6 @@ class m_ModelSettingTableColumns(BaseColumns):
     """Pump emergency storage estimation"""
     Enable_EPA_OnlAna = "Enable_EPA_OnlAna"
     """Online analysis"""
-    EPAVersionNo = "EPAVersionNo"
-    """EPANET version"""
     Enable_EPA_Optim = "Enable_EPA_Optim"
     """Optimization"""
     Enable_EPA_MultSpecAna = "Enable_EPA_MultSpecAna"
@@ -67,6 +69,8 @@ class m_ModelSettingTableColumns(BaseColumns):
     """Autocalibration"""
     HeadlossNo = "HeadlossNo"
     """Head loss No"""
+    WHEngineVersion = "WHEngineVersion"
+    """Water hammer analysis"""
 
 class m_ModelSettingTable(BaseTable):
     """Table for m_ModelSetting (Model type)."""

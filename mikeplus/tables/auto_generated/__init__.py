@@ -236,6 +236,8 @@ from .mw_AutocaliNodeDemands import mw_AutocaliNodeDemandsTable
 from .mw_AutocaliClosedLinks import mw_AutocaliClosedLinksTable
 from .mw_AutocaliLeaks import mw_AutocaliLeaksTable
 from .mw_AutocaliTargets import mw_AutocaliTargetsTable
+from .mw_WDOAggSensors import mw_WDOAggSensorsTable
+from .mw_WDOAggSensorsD import mw_WDOAggSensorsDTable
 from .mwRes_ValveCriticality import mwRes_ValveCriticalityTable
 from .mwRes_Sustainability_Node import mwRes_Sustainability_NodeTable
 from .mwRes_Sustainability_Link import mwRes_Sustainability_LinkTable
@@ -262,6 +264,7 @@ from .m2d_MeshArc import m2d_MeshArcTable
 from .m2d_MeshLocalArea import m2d_MeshLocalAreaTable
 from .m2d_GridDefinition import m2d_GridDefinitionTable
 from .m2d_GridInactiveArea import m2d_GridInactiveAreaTable
+from .m2d_GridInactiveAreaLayer import m2d_GridInactiveAreaLayerTable
 from .m2d_Boundary import m2d_BoundaryTable
 from .m2d_BndQHRelation import m2d_BndQHRelationTable
 from .m2d_BndDistributedSource import m2d_BndDistributedSourceTable
@@ -290,10 +293,13 @@ from .mss_CatchCon import mss_CatchConTable
 from .mss_Orifice import mss_OrificeTable
 from .mss_Pump import mss_PumpTable
 from .mss_Outlet import mss_OutletTable
+from .mss_Street import mss_StreetTable
+from .mss_Inlet import mss_InletTable
 from .mss_Weir import mss_WeirTable
 from .mss_Tab import mss_TabTable
 from .mss_TabD import mss_TabDTable
 from .mss_Project import mss_ProjectTable
+from .mss_ProjectEvents import mss_ProjectEventsTable
 from .mss_Timeseries import mss_TimeseriesTable
 from .mss_TimeseriesD import mss_TimeseriesDTable
 from .mss_Inflow import mss_InflowTable
@@ -564,6 +570,8 @@ __all__ = [
     "mw_AutocaliClosedLinksTable",
     "mw_AutocaliLeaksTable",
     "mw_AutocaliTargetsTable",
+    "mw_WDOAggSensorsTable",
+    "mw_WDOAggSensorsDTable",
     "mwRes_ValveCriticalityTable",
     "mwRes_Sustainability_NodeTable",
     "mwRes_Sustainability_LinkTable",
@@ -590,6 +598,7 @@ __all__ = [
     "m2d_MeshLocalAreaTable",
     "m2d_GridDefinitionTable",
     "m2d_GridInactiveAreaTable",
+    "m2d_GridInactiveAreaLayerTable",
     "m2d_BoundaryTable",
     "m2d_BndQHRelationTable",
     "m2d_BndDistributedSourceTable",
@@ -618,10 +627,13 @@ __all__ = [
     "mss_OrificeTable",
     "mss_PumpTable",
     "mss_OutletTable",
+    "mss_StreetTable",
+    "mss_InletTable",
     "mss_WeirTable",
     "mss_TabTable",
     "mss_TabDTable",
     "mss_ProjectTable",
+    "mss_ProjectEventsTable",
     "mss_TimeseriesTable",
     "mss_TimeseriesDTable",
     "mss_InflowTable",
