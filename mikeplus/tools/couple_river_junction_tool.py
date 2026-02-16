@@ -1,3 +1,5 @@
+"""Tools for coupling river junctions to river chainage locations."""
+
 import clr
 
 clr.AddReference("ThinkGeo.Core")
@@ -6,10 +8,27 @@ from ThinkGeo.Core import BaseShape
 from ThinkGeo.Core import PointShape
 from ThinkGeo.Core import GeographyUnit
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
-from DHI.Amelia.GlobalUtility.LinkChainage import ChainageMngr
 
 
 class CoupleRiverJunctionTool:
+    """Tool for coupling river junction nodes to nearest river chainage locations.
+    Only those river junction which is missing river chainage location will be mapulated by this tool.
+
+    Parameters
+    ----------
+    database: Database object or DataTableContainer
+
+    Examples
+    --------
+    >>>from mikeplus import Database
+    >>>from mikeplus.tools.couple_river_junction_tool import CoupleRiverJunctionTool
+    >>>db = Database("path/to/model.sqlite")
+    >>>river_junction_couple_tool = CoupleRiverJunctionTool(db)
+    >>>river_junction_couple_tool.run()
+    >>>db.close()
+
+    """
+
     def __init__(self, database):
         """Initialize the CoupleRiverJunctionTool with the given Database. Only river junctions which has no river branch configured are the targets.
 
@@ -24,6 +43,7 @@ class CoupleRiverJunctionTool:
         self.db = database
 
     def run(self):
+        """Run the river junction couple tool."""
         df = (
             self.db._tables.msm_Node.select(["GeomX", "GeomY"])
             .where("TypeNo=6 AND BranchID is NULL")
