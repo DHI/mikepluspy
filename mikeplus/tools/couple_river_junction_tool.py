@@ -45,13 +45,9 @@ class CoupleRiverJunctionTool:
                     "mrm_Branch", river
                 )
                 chainage = chainageMngr.GetChainageAt(locationPnt, 100.0)
-                updated_muid = (
-                    self.db._tables.msm_Node.update(
-                        {"BranchID": river, "BranchChainage": chainage}
-                    )
-                    .by_muid(key)
-                    .execute()
-                )
+                self.db._tables.msm_Node.update(
+                    {"BranchID": river, "BranchChainage": chainage}
+                ).by_muid(key).execute()
                 print(
                     f"River junction of '{key}' has been coupled to '{river}' at {chainage}"
                 )
