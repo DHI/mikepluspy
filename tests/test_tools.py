@@ -9,6 +9,7 @@ from mikeplus.tools.interpolation_tool import InterpolationTool
 from mikeplus.tools.connection_repair_tool import ConnectionRepairTool
 from mikeplus.tools.catch_slope_length_process_tool import CathSlopeLengthProcess
 from mikeplus.tools.import_tool import ImportTool
+from mikeplus.tools.couple_river_junction_tool import CoupleRiverJunctionTool
 
 
 def test_topology_repair_tool(repair_tool_db):
@@ -94,9 +95,9 @@ def test_catch_slope_len_tool(catch_slope_len_db):
     shp_file = os.path.join(db_dir, "Catch_Slope.shp")
     dem_file = os.path.join(db_dir, "dem.dfs2")
 
-    assert os.path.exists(catch_slope_len_db), (
-        f"Database file does not exist: {catch_slope_len_db}"
-    )
+    assert os.path.exists(
+        catch_slope_len_db
+    ), f"Database file does not exist: {catch_slope_len_db}"
     assert os.path.exists(shp_file), "Catch_Slope.shp does not exist"
     assert os.path.exists(dem_file), "dem.dfs2 does not exist"
 
@@ -134,4 +135,22 @@ def test_import_tool(import_db):
     import_tool.run()
     muids = db.tables.msm_Link.get_muids()
     assert len(muids) == 575
+    db.close()
+
+
+def test_river_junction_couple_tool(river_junction_couple_db):
+    db = Database(river_junction_couple_db)
+    river_junction_couple_tool = CoupleRiverJunctionTool(db)
+    river_junction_couple_tool.run()
+
+    fields = ["BranchID", "BranchChainage"]
+    muid = "Node_33"
+    field_val_get = db.tables.msm_Node.select(fields).by_muid(muid).execute()
+    assert field_val_get[muid][0] == "River"
+    assert field_val_get[muid][1] == pytest.approx(755.035988, abs=1e-6)
+
+    muid = "Pump_3_Outlet"
+    field_val_get = db.tables.msm_Node.select(fields).by_muid(muid).execute()
+    assert field_val_get[muid][0] == "River"
+    assert field_val_get[muid][1] == pytest.approx(735.704617, abs=1e-6)
     db.close()
