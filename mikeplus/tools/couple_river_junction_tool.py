@@ -4,14 +4,15 @@ import clr
 
 clr.AddReference("ThinkGeo.Core")
 
-from ThinkGeo.Core import BaseShape
-from ThinkGeo.Core import PointShape
-from ThinkGeo.Core import GeographyUnit
-from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from ThinkGeo.Core import BaseShape  # noqa: E402
+from ThinkGeo.Core import PointShape  # noqa: E402
+from ThinkGeo.Core import GeographyUnit  # noqa: E402
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper  # noqa: E402
 
 
 class CoupleRiverJunctionTool:
     """Tool for coupling river junction nodes to nearest river chainage locations.
+
     Only those river junction which is missing river chainage location will be mapulated by this tool.
 
     Parameters
