@@ -23,7 +23,7 @@ from .topology_repair_tool import TopoRepairTool  # noqa: E402
 from .interpolation_tool import InterpolationTool  # noqa: E402
 from .connection_repair_tool import ConnectionRepairTool  # noqa: E402
 from .catch_slope_length_process_tool import CathSlopeLengthProcess  # noqa: E402
-from .couple_river_junction_tool import CoupleRiverJunctionTool
+from .couple_river_junction_tool import CoupleRiverJunctionTool  # noqa: E402
 
 __all__ = [
     "ImportTool",
