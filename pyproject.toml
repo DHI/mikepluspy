@@ -70,6 +70,7 @@ exclude = ["mikeplus/tables/auto_generated/"]
 [[tool.mypy.overrides]]
 module = [
     "DHI.*",
+    "ThinkGeo.*",
     "System.*",
     "clr",
     "pythonnet",
