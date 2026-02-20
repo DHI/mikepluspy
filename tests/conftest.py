@@ -77,6 +77,7 @@ INTERPOLATE_DB = TEST_DATA_DIR / "interpolate" / "inter.sqlite"
 CONNECTION_REPAIR_DB = TEST_DATA_DIR / "connectionRepair" / "repair.sqlite"
 CATCH_SLOPE_LEN_DB = TEST_DATA_DIR / "catchSlopeLen" / "catch.sqlite"
 IMPORT_DB = TEST_DATA_DIR / "import" / "import.sqlite"
+RIVER_JUNCTION_COUPLE_DB = TEST_DATA_DIR / "RiverCS" / "River_CS.sqlite"
 
 
 def copy_database_folder(source_db_path, target_dir) -> Path:
@@ -186,6 +187,13 @@ def session_import_db(session_temp_dir) -> Path:
     return copy_database_folder(IMPORT_DB, target_dir)
 
 
+@pytest.fixture(scope="session")
+def session_river_junction_couple_db(session_temp_dir) -> Path:
+    """Copy the river junction couple folder once per test session."""
+    target_dir = session_temp_dir / "session" / "riverJunctionCouple"
+    return copy_database_folder(RIVER_JUNCTION_COUPLE_DB, target_dir)
+
+
 @pytest.fixture(scope="module")
 def module_temp_dir():
     """Create a temporary directory for test files that persists for the entire test module."""
@@ -254,6 +262,13 @@ def module_import_db(module_temp_dir) -> Path:
     """Copy the import database folder once per test module."""
     target_dir = module_temp_dir / "module" / "import"
     return copy_database_folder(IMPORT_DB, target_dir)
+
+
+@pytest.fixture(scope="module")
+def module_river_junction_couple_db(module_temp_dir) -> Path:
+    """Copy the river junction couple database folder once per test module."""
+    target_dir = module_temp_dir / "module" / "riverJunctionCouple"
+    return copy_database_folder(RIVER_JUNCTION_COUPLE_DB, target_dir)
 
 
 @pytest.fixture(scope="class")
@@ -326,6 +341,13 @@ def class_import_db(class_temp_dir) -> Path:
     return copy_database_folder(IMPORT_DB, target_dir)
 
 
+@pytest.fixture(scope="class")
+def class_river_junction_couple_db(class_temp_dir) -> Path:
+    """Copy the river junction couple database folder once per test class."""
+    target_dir = class_temp_dir / "class" / "riverJunctionCouple"
+    return copy_database_folder(RIVER_JUNCTION_COUPLE_DB, target_dir)
+
+
 @pytest.fixture(scope="function")
 def sirius_db(tmp_path) -> Path:
     """Create a test-specific copy of the Sirius database folder."""
@@ -382,3 +404,11 @@ def catch_slope_len_db(tmp_path) -> Path:
 def import_db(tmp_path) -> Path:
     """Create a test-specific copy of the import database folder."""
     return create_test_specific_db_copy(IMPORT_DB, tmp_path, "test_import")
+
+
+@pytest.fixture(scope="function")
+def river_junction_couple_db(tmp_path) -> Path:
+    """Create a test-specific copy of the river junction couple database folder."""
+    return create_test_specific_db_copy(
+        RIVER_JUNCTION_COUPLE_DB, tmp_path, "test_river_junction_couple"
+    )
