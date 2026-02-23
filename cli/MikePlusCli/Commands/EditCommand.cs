@@ -101,7 +101,8 @@ public static class EditCommand
         }
 
         var rows = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(json)
-            ?? throw new InvalidOperationException("Input JSON must be an array of objects.");
+            ?? throw new InvalidOperationException(
+                "Failed to parse input JSON. Expected a JSON array of objects, e.g. [{\"MUID\":\"N1\",\"Diameter\":1.5}, ...].");
 
         return rows.Select(row =>
         {

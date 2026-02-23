@@ -176,17 +176,8 @@ public sealed class AmeliaContext : IDisposable
     public string InsertRow(string tableName, Dictionary<string, object> values)
     {
         var table = GetTable(tableName);
-
-        // Generate or use provided MUID
-        string muid;
-        if (values.TryGetValue("MUID", out var muidObj) && muidObj is string provided && !string.IsNullOrEmpty(provided))
-            muid = provided;
-        else
-            muid = table.CreateUniqueMuid();
-
-        // Separate geometry from regular values
-        values.Remove("MUID");
-        table.InsertByCommand(muid, null, values);
+        var muid = ExtractMuid(values, out var cleanValues) ?? table.CreateUniqueMuid();
+        table.InsertByCommand(muid, null, cleanValues);
         return muid;
     }
 
@@ -202,15 +193,7 @@ public sealed class AmeliaContext : IDisposable
 
         foreach (var row in rows)
         {
-            string muid;
-            if (row.TryGetValue("MUID", out var muidObj) && muidObj is string provided && !string.IsNullOrEmpty(provided))
-                muid = provided;
-            else
-                muid = table.CreateUniqueMuid();
-
-            var values = new Dictionary<string, object>(row, StringComparer.OrdinalIgnoreCase);
-            values.Remove("MUID");
-
+            var muid = ExtractMuid(row, out var values) ?? table.CreateUniqueMuid();
             table.InsertByCommand(muid, null, values);
             muids.Add(muid);
         }
@@ -251,19 +234,32 @@ public sealed class AmeliaContext : IDisposable
         var table = GetTable(tableName);
         var updated = new List<string>(rows.Count);
 
-        foreach (var row in rows)
+        for (int i = 0; i < rows.Count; i++)
         {
-            if (!row.TryGetValue("MUID", out var muidObj) || muidObj is not string muid || string.IsNullOrEmpty(muid))
-                throw new ArgumentException("Each row in bulk update must have a 'MUID' key.");
-
-            var values = new Dictionary<string, object>(row, StringComparer.OrdinalIgnoreCase);
-            values.Remove("MUID");
+            var muid = ExtractMuid(rows[i], out var values)
+                ?? throw new ArgumentException($"Row at index {i} is missing a valid 'MUID' key.");
 
             table.SetValuesByCommand(muid, values);
             updated.Add(muid);
         }
 
         return updated;
+    }
+
+    /// <summary>
+    /// Extract the MUID from a row dictionary and return remaining values.
+    /// Returns null if no valid MUID is present.
+    /// </summary>
+    private static string? ExtractMuid(Dictionary<string, object> row, out Dictionary<string, object> values)
+    {
+        values = new Dictionary<string, object>(row, StringComparer.OrdinalIgnoreCase);
+        string? muid = null;
+
+        if (values.TryGetValue("MUID", out var muidObj) && muidObj is string provided && !string.IsNullOrEmpty(provided))
+            muid = provided;
+
+        values.Remove("MUID");
+        return muid;
     }
 
     /// <summary>Delete matching rows. Returns MUIDs of deleted rows.</summary>
