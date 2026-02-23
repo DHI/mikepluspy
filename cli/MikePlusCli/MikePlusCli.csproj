@@ -10,8 +10,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.2" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+  <!--
+    DHI Amelia assemblies — resolved at runtime from the MIKE+ installation directory.
+    The MIKE_PLUS_INSTALL environment variable (or default install path) provides the
+    assembly root.  At build time we reference them so the compiler can type-check;
+    at publish time they are NOT copied (Private=false) because the target machine
+    already has them installed.
+  -->
+  <ItemGroup Label="DHI Amelia references">
+    <Reference Include="DHI.Amelia.DataModule"             Private="false" />
+    <Reference Include="DHI.Amelia.DataModule.Interface"   Private="false" />
+    <Reference Include="DHI.Amelia.Infrastructure.Interface" Private="false" />
+    <Reference Include="DHI.Amelia.GlobalUtility"          Private="false" />
+    <Reference Include="DHI.Amelia.Tools.EngineTool"       Private="false" />
+    <Reference Include="DHI.Amelia.DomainServices.Interface" Private="false" />
+    <Reference Include="DHI.Amelia.EPANETBridge"           Private="false" />
+    <Reference Include="DHI.Amelia.SWMMBridge"             Private="false" />
+    <Reference Include="DHI.Amelia.Tools.ImportTool.ImportEngine" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.TopologyRepairTool" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.InterpolationEngine" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.ConnectionRepairEngine" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.CatchmentProcessing" Private="false" />
+    <Reference Include="DHI.Mike.Install"                  Private="false" />
   </ItemGroup>
 
 </Project>

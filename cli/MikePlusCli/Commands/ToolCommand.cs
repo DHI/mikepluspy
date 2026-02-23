@@ -1,31 +1,28 @@
 using System.CommandLine;
+using DHI.Amelia.GlobalUtility.DataType;
 
 namespace MikePlusCli.Commands;
 
 /// <summary>
-/// The "tool" command group — MIKE+ processing tools.
+/// The "tool" command group — MIKE+ analysis and repair tools backed by
+/// Amelia's tool engines.  Each sub-command wraps the same engine class
+/// used by the corresponding MIKE+ GUI tool.
 ///
-///   mikeplus tool topo-repair     -d model.sqlite --snap-distance 0.1
-///   mikeplus tool import          -d model.sqlite --config import.xml
+///   mikeplus tool topo-repair       -d model.sqlite --snap-distance 0.1
 ///   mikeplus tool connection-repair -d model.sqlite
-///   mikeplus tool interpolate nearest -d model.sqlite --target-table msm_Node --target-attr InvertLevel ...
-///   mikeplus tool interpolate dem     -d model.sqlite --target-table msm_Node --target-attr InvertLevel ...
-///   mikeplus tool interpolate idw     -d model.sqlite --target-table msm_Node --target-attr InvertLevel ...
-///   mikeplus tool interpolate assign  -d model.sqlite --target-table msm_Node --target-attr InvertLevel --value 10.5
-///   mikeplus tool catchment-process   -d model.sqlite --catch-ids c1,c2 --line-layer slope.shp --dem-layer dem.dfs2
+///   mikeplus tool interpolate nearest -d model.sqlite --target-table msm_Node …
+///   mikeplus tool interpolate dem     -d model.sqlite --target-table msm_Node …
+///   mikeplus tool interpolate idw     -d model.sqlite …
+///   mikeplus tool interpolate assign  -d model.sqlite …
+///   mikeplus tool interpolate neighbour -d model.sqlite …
+///   mikeplus tool catchment-process -d model.sqlite --catch-ids c1,c2 …
 /// </summary>
 public static class ToolCommand
 {
-    private static readonly Option<string> DatabaseOption = new(
-        aliases: new[] { "--database", "-d" },
-        description: "Path to the MIKE+ SQLite database file")
-    { IsRequired = true };
-
     public static Command Build()
     {
-        var cmd = new Command("tool", "Run MIKE+ processing tools (topology repair, import, interpolation, etc.)");
+        var cmd = new Command("tool", "Run MIKE+ analysis and repair tools (topology, interpolation, etc.)");
         cmd.AddCommand(BuildTopoRepair());
-        cmd.AddCommand(BuildImport());
         cmd.AddCommand(BuildConnectionRepair());
         cmd.AddCommand(BuildInterpolate());
         cmd.AddCommand(BuildCatchmentProcess());
@@ -36,6 +33,7 @@ public static class ToolCommand
 
     private static Command BuildTopoRepair()
     {
+        var dbOpt = SharedOptions.Database();
         var deleteUnlinked = new Option<bool>("--delete-unlinked", () => true, "Delete unlinked nodes/links");
         var dissolveOverlap = new Option<bool>("--dissolve-overlap", () => true, "Dissolve overlapping nodes");
         var correctConnection = new Option<bool>("--correct-connection", () => true, "Correct link connections");
@@ -45,8 +43,8 @@ public static class ToolCommand
         var addMissingZones = new Option<bool>("--add-missing-zones", () => true, "Add missing zones");
         var snapDistance = new Option<double>("--snap-distance", () => 0.1, "Snap distance tolerance");
 
-        var cmd = new Command("topo-repair", "Run topology repair tool");
-        cmd.AddOption(DatabaseOption);
+        var cmd = new Command("topo-repair", "Run topology repair (CSTopologyRepairTool / WDTopologyRepairTool)");
+        cmd.AddOption(dbOpt);
         cmd.AddOption(deleteUnlinked);
         cmd.AddOption(dissolveOverlap);
         cmd.AddOption(correctConnection);
@@ -58,31 +56,38 @@ public static class ToolCommand
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
-                // In a full implementation this would invoke the DHI .NET TopoRepairTool.
-                // Here we show the feasible structure and parameter handling.
-                var parameters = new
+                using var ctx = AmeliaContext.Open(db);
+
+                var param = new DHI.Amelia.Tools.TopologyRepairTool.TopologyRepairParam
                 {
-                    delete_unlinked = context.ParseResult.GetValueForOption(deleteUnlinked),
-                    dissolve_overlap = context.ParseResult.GetValueForOption(dissolveOverlap),
-                    correct_connection = context.ParseResult.GetValueForOption(correctConnection),
-                    search_junction = context.ParseResult.GetValueForOption(searchJunction),
-                    create_junction = context.ParseResult.GetValueForOption(createJunction),
-                    split_t_junction = context.ParseResult.GetValueForOption(splitTJunction),
-                    add_missing_zones = context.ParseResult.GetValueForOption(addMissingZones),
-                    snap_distance = context.ParseResult.GetValueForOption(snapDistance),
+                    DeleteUnLinkedNodeLink = context.ParseResult.GetValueForOption(deleteUnlinked),
+                    DissolveOverlapNode = context.ParseResult.GetValueForOption(dissolveOverlap),
+                    CorrectLinkConnection = context.ParseResult.GetValueForOption(correctConnection),
+                    SearchJunctionConnection = context.ParseResult.GetValueForOption(searchJunction),
+                    CreateJunctionConnection = context.ParseResult.GetValueForOption(createJunction),
+                    SplitLinkOnTjunction = context.ParseResult.GetValueForOption(splitTJunction),
+                    AddMissingZones = context.ParseResult.GetValueForOption(addMissingZones),
+                    SnapDistance = context.ParseResult.GetValueForOption(snapDistance),
                 };
 
-                using var ctx = DatabaseContext.Open(db);
-                // TopoRepairTool integration point:
-                // var tool = new CSTopologyRepairTool(ctx.DataTableContainer);
-                // tool.DeleteUnLinkedNodeLink = parameters.delete_unlinked;
-                // ...
-                // tool.Run();
+                var cts = new CancellationTokenSource();
 
-                CliResult.Ok("tool topo-repair", db, new { tool = "topo-repair", parameters }).Print();
+                // Choose CS or WD tool based on the active model
+                if (ctx.ActiveModel == MUModelOption.CS)
+                {
+                    var tool = new DHI.Amelia.Tools.TopologyRepairTool.CSTopologyRepairTool(ctx.DataTables);
+                    tool.Run(param, cts.Token, false);
+                }
+                else
+                {
+                    var tool = new DHI.Amelia.Tools.TopologyRepairTool.WDTopologyRepairTool(ctx.DataTables);
+                    tool.Run(param, cts.Token, false);
+                }
+
+                CliResult.Ok("tool topo-repair", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
@@ -93,67 +98,29 @@ public static class ToolCommand
         return cmd;
     }
 
-    // ── tool import ───────────────────────────────────────────────────
-
-    private static Command BuildImport()
-    {
-        var configOpt = new Option<string>("--config", "Path to import XML configuration file") { IsRequired = true };
-
-        var cmd = new Command("import", "Import data from an XML configuration file");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(configOpt);
-
-        cmd.SetHandler((string db, string config) =>
-        {
-            try
-            {
-                if (!File.Exists(config))
-                {
-                    CliResult.Fail("tool import", $"Config file not found: {config}", db).Print();
-                    return;
-                }
-
-                using var ctx = DatabaseContext.Open(db);
-                // ImportTool integration point:
-                // var engine = new ImportEngine();
-                // engine.SetConfigFile(config);
-                // engine.SetDataTableContainer(ctx.DataTableContainer);
-                // engine.Run();
-
-                CliResult.Ok("tool import", db, new { tool = "import", config_file = config }).Print();
-            }
-            catch (Exception ex)
-            {
-                CliResult.Fail("tool import", ex.Message, db).Print();
-            }
-        }, DatabaseOption, configOpt);
-
-        return cmd;
-    }
-
     // ── tool connection-repair ────────────────────────────────────────
 
     private static Command BuildConnectionRepair()
     {
-        var cmd = new Command("connection-repair", "Repair network connections");
-        cmd.AddOption(DatabaseOption);
+        var dbOpt = SharedOptions.Database();
+
+        var cmd = new Command("connection-repair", "Repair network connections (ConnectionRepairEngine)");
+        cmd.AddOption(dbOpt);
 
         cmd.SetHandler((string db) =>
         {
             try
             {
-                using var ctx = DatabaseContext.Open(db);
-                // ConnectionRepairTool integration point:
-                // var engine = new ConnectionRepairEngine(ctx.DataTableContainer);
-                // engine.Run();
-
-                CliResult.Ok("tool connection-repair", db, new { tool = "connection-repair" }).Print();
+                using var ctx = AmeliaContext.Open(db);
+                var engine = new DHI.Amelia.Tools.ConnectionRepairEngine.ConnectionRepairEngine(ctx.DataTables);
+                engine.Run();
+                CliResult.Ok("tool connection-repair", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
                 CliResult.Fail("tool connection-repair", ex.Message, db).Print();
             }
-        }, DatabaseOption);
+        }, dbOpt);
 
         return cmd;
     }
@@ -162,7 +129,7 @@ public static class ToolCommand
 
     private static Command BuildInterpolate()
     {
-        var cmd = new Command("interpolate", "Spatial interpolation tools");
+        var cmd = new Command("interpolate", "Spatial interpolation tools (InterpolationEngine)");
         cmd.AddCommand(BuildInterpolateNearest());
         cmd.AddCommand(BuildInterpolateDem());
         cmd.AddCommand(BuildInterpolateIdw());
@@ -173,7 +140,7 @@ public static class ToolCommand
 
     // Shared interpolation options
     private static Option<string> TargetTableOpt() =>
-        new("--target-table", "Target database table name") { IsRequired = true };
+        new("--target-table", "Target model table name") { IsRequired = true };
 
     private static Option<string> TargetAttrOpt() =>
         new("--target-attr", "Target attribute/column name") { IsRequired = true };
@@ -182,13 +149,22 @@ public static class ToolCommand
         new("--only-null", () => true, "Only update NULL values");
 
     private static Option<bool> MissingFlagOpt() =>
-        new("--assign-missing", () => false, "Assign a specific value as missing");
+        new("--assign-missing", () => false, "Assign a value as missing marker");
 
     private static Option<double?> MissingValueOpt() =>
         new("--missing-value", "Value to treat as missing");
 
+    private static void RunInterpolation(AmeliaContext ctx,
+        DHI.Amelia.Tools.InterpolationEngine.InterpolationToolParameters param)
+    {
+        var engine = new DHI.Amelia.Tools.InterpolationEngine.InterpolationEngine(ctx.DataTables);
+        var messages = new List<string>();
+        engine.Run(param, false, messages);
+    }
+
     private static Command BuildInterpolateNearest()
     {
+        var dbOpt = SharedOptions.Database();
         var targetTable = TargetTableOpt();
         var targetAttr = TargetAttrOpt();
         var sourceLayer = new Option<string>("--source-layer", "Source layer name") { IsRequired = true };
@@ -199,36 +175,36 @@ public static class ToolCommand
         var searchRadius = new Option<double>("--search-radius", () => 300.0, "Search radius");
 
         var cmd = new Command("nearest", "Interpolate from nearest feature");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(targetTable);
-        cmd.AddOption(targetAttr);
-        cmd.AddOption(sourceLayer);
-        cmd.AddOption(sourceAttr);
-        cmd.AddOption(onlyNull);
-        cmd.AddOption(assignMissing);
-        cmd.AddOption(missingValue);
-        cmd.AddOption(searchRadius);
+        cmd.AddOption(dbOpt);
+        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
+        cmd.AddOption(sourceLayer); cmd.AddOption(sourceAttr);
+        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
+        cmd.AddOption(missingValue); cmd.AddOption(searchRadius);
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
-                var parameters = new
+                using var ctx = AmeliaContext.Open(db);
+
+                var param = new DHI.Amelia.Tools.InterpolationEngine.InterpolationToolParameters
                 {
-                    method = "nearest_feature",
-                    target_table = context.ParseResult.GetValueForOption(targetTable),
-                    target_attr = context.ParseResult.GetValueForOption(targetAttr),
-                    source_layer = context.ParseResult.GetValueForOption(sourceLayer),
-                    source_attr = context.ParseResult.GetValueForOption(sourceAttr),
-                    only_null = context.ParseResult.GetValueForOption(onlyNull),
-                    assign_missing = context.ParseResult.GetValueForOption(assignMissing),
-                    missing_value = context.ParseResult.GetValueForOption(missingValue),
-                    search_radius = context.ParseResult.GetValueForOption(searchRadius),
+                    TargetDbName = context.ParseResult.GetValueForOption(targetTable)!,
+                    TargetAttribute = context.ParseResult.GetValueForOption(targetAttr)!,
+                    SourceLayerName = context.ParseResult.GetValueForOption(sourceLayer)!,
+                    SourceAttribute = context.ParseResult.GetValueForOption(sourceAttr)!,
+                    OnlyNullValues = context.ParseResult.GetValueForOption(onlyNull),
+                    AssignValAsMissing = context.ParseResult.GetValueForOption(assignMissing),
+                    SearchRadius = context.ParseResult.GetValueForOption(searchRadius),
+                    InterpolationMethod = 0, // Nearest feature
                 };
 
-                using var ctx = DatabaseContext.Open(db);
-                CliResult.Ok("tool interpolate nearest", db, new { tool = "interpolate", parameters }).Print();
+                var mv = context.ParseResult.GetValueForOption(missingValue);
+                if (mv.HasValue) param.ValueAsMissing = mv.Value;
+
+                RunInterpolation(ctx, param);
+                CliResult.Ok("tool interpolate nearest", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
@@ -241,6 +217,7 @@ public static class ToolCommand
 
     private static Command BuildInterpolateDem()
     {
+        var dbOpt = SharedOptions.Database();
         var targetTable = TargetTableOpt();
         var targetAttr = TargetAttrOpt();
         var rasterFile = new Option<string>("--raster-file", "Path to DEM raster file") { IsRequired = true };
@@ -250,34 +227,35 @@ public static class ToolCommand
         var missingValue = MissingValueOpt();
 
         var cmd = new Command("dem", "Interpolate from DEM raster");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(targetTable);
-        cmd.AddOption(targetAttr);
-        cmd.AddOption(rasterFile);
-        cmd.AddOption(itemNumber);
-        cmd.AddOption(onlyNull);
-        cmd.AddOption(assignMissing);
+        cmd.AddOption(dbOpt);
+        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
+        cmd.AddOption(rasterFile); cmd.AddOption(itemNumber);
+        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
-                var parameters = new
+                using var ctx = AmeliaContext.Open(db);
+
+                var param = new DHI.Amelia.Tools.InterpolationEngine.InterpolationToolParameters
                 {
-                    method = "dem",
-                    target_table = context.ParseResult.GetValueForOption(targetTable),
-                    target_attr = context.ParseResult.GetValueForOption(targetAttr),
-                    raster_file = context.ParseResult.GetValueForOption(rasterFile),
-                    item_number = context.ParseResult.GetValueForOption(itemNumber),
-                    only_null = context.ParseResult.GetValueForOption(onlyNull),
-                    assign_missing = context.ParseResult.GetValueForOption(assignMissing),
-                    missing_value = context.ParseResult.GetValueForOption(missingValue),
+                    TargetDbName = context.ParseResult.GetValueForOption(targetTable)!,
+                    TargetAttribute = context.ParseResult.GetValueForOption(targetAttr)!,
+                    RasterFile = context.ParseResult.GetValueForOption(rasterFile)!,
+                    ItemNumber = context.ParseResult.GetValueForOption(itemNumber),
+                    OnlyNullValues = context.ParseResult.GetValueForOption(onlyNull),
+                    AssignValAsMissing = context.ParseResult.GetValueForOption(assignMissing),
+                    InterpolationMethod = 1, // DEM
                 };
 
-                using var ctx = DatabaseContext.Open(db);
-                CliResult.Ok("tool interpolate dem", db, new { tool = "interpolate", parameters }).Print();
+                var mv = context.ParseResult.GetValueForOption(missingValue);
+                if (mv.HasValue) param.ValueAsMissing = mv.Value;
+
+                RunInterpolation(ctx, param);
+                CliResult.Ok("tool interpolate dem", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
@@ -290,6 +268,7 @@ public static class ToolCommand
 
     private static Command BuildInterpolateIdw()
     {
+        var dbOpt = SharedOptions.Database();
         var targetTable = TargetTableOpt();
         var targetAttr = TargetAttrOpt();
         var sourceLayer = new Option<string>("--source-layer", "Source layer name") { IsRequired = true };
@@ -301,38 +280,38 @@ public static class ToolCommand
         var searchRadius = new Option<double>("--search-radius", () => 300.0, "Search radius");
 
         var cmd = new Command("idw", "Inverse Distance Weighting interpolation");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(targetTable);
-        cmd.AddOption(targetAttr);
-        cmd.AddOption(sourceLayer);
-        cmd.AddOption(sourceAttr);
-        cmd.AddOption(onlyNull);
-        cmd.AddOption(assignMissing);
+        cmd.AddOption(dbOpt);
+        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
+        cmd.AddOption(sourceLayer); cmd.AddOption(sourceAttr);
+        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
-        cmd.AddOption(maxPoints);
-        cmd.AddOption(searchRadius);
+        cmd.AddOption(maxPoints); cmd.AddOption(searchRadius);
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
-                var parameters = new
+                using var ctx = AmeliaContext.Open(db);
+
+                var param = new DHI.Amelia.Tools.InterpolationEngine.InterpolationToolParameters
                 {
-                    method = "idw",
-                    target_table = context.ParseResult.GetValueForOption(targetTable),
-                    target_attr = context.ParseResult.GetValueForOption(targetAttr),
-                    source_layer = context.ParseResult.GetValueForOption(sourceLayer),
-                    source_attr = context.ParseResult.GetValueForOption(sourceAttr),
-                    only_null = context.ParseResult.GetValueForOption(onlyNull),
-                    assign_missing = context.ParseResult.GetValueForOption(assignMissing),
-                    missing_value = context.ParseResult.GetValueForOption(missingValue),
-                    max_points = context.ParseResult.GetValueForOption(maxPoints),
-                    search_radius = context.ParseResult.GetValueForOption(searchRadius),
+                    TargetDbName = context.ParseResult.GetValueForOption(targetTable)!,
+                    TargetAttribute = context.ParseResult.GetValueForOption(targetAttr)!,
+                    SourceLayerName = context.ParseResult.GetValueForOption(sourceLayer)!,
+                    SourceAttribute = context.ParseResult.GetValueForOption(sourceAttr)!,
+                    OnlyNullValues = context.ParseResult.GetValueForOption(onlyNull),
+                    AssignValAsMissing = context.ParseResult.GetValueForOption(assignMissing),
+                    MaxIdwPoints = context.ParseResult.GetValueForOption(maxPoints),
+                    SearchRadius = context.ParseResult.GetValueForOption(searchRadius),
+                    InterpolationMethod = 2, // IDW
                 };
 
-                using var ctx = DatabaseContext.Open(db);
-                CliResult.Ok("tool interpolate idw", db, new { tool = "interpolate", parameters }).Print();
+                var mv = context.ParseResult.GetValueForOption(missingValue);
+                if (mv.HasValue) param.ValueAsMissing = mv.Value;
+
+                RunInterpolation(ctx, param);
+                CliResult.Ok("tool interpolate idw", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
@@ -345,6 +324,7 @@ public static class ToolCommand
 
     private static Command BuildInterpolateAssign()
     {
+        var dbOpt = SharedOptions.Database();
         var targetTable = TargetTableOpt();
         var targetAttr = TargetAttrOpt();
         var value = new Option<double>("--value", "Fixed value to assign") { IsRequired = true };
@@ -352,33 +332,35 @@ public static class ToolCommand
         var assignMissing = MissingFlagOpt();
         var missingValue = MissingValueOpt();
 
-        var cmd = new Command("assign", "Directly assign a fixed value");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(targetTable);
-        cmd.AddOption(targetAttr);
+        var cmd = new Command("assign", "Directly assign a fixed value to a column");
+        cmd.AddOption(dbOpt);
+        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
         cmd.AddOption(value);
-        cmd.AddOption(onlyNull);
-        cmd.AddOption(assignMissing);
+        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
-                var parameters = new
+                using var ctx = AmeliaContext.Open(db);
+
+                var param = new DHI.Amelia.Tools.InterpolationEngine.InterpolationToolParameters
                 {
-                    method = "assign",
-                    target_table = context.ParseResult.GetValueForOption(targetTable),
-                    target_attr = context.ParseResult.GetValueForOption(targetAttr),
-                    value = context.ParseResult.GetValueForOption(value),
-                    only_null = context.ParseResult.GetValueForOption(onlyNull),
-                    assign_missing = context.ParseResult.GetValueForOption(assignMissing),
-                    missing_value = context.ParseResult.GetValueForOption(missingValue),
+                    TargetDbName = context.ParseResult.GetValueForOption(targetTable)!,
+                    TargetAttribute = context.ParseResult.GetValueForOption(targetAttr)!,
+                    FixedValue = context.ParseResult.GetValueForOption(value),
+                    OnlyNullValues = context.ParseResult.GetValueForOption(onlyNull),
+                    AssignValAsMissing = context.ParseResult.GetValueForOption(assignMissing),
+                    InterpolationMethod = 3, // Direct assign
                 };
 
-                using var ctx = DatabaseContext.Open(db);
-                CliResult.Ok("tool interpolate assign", db, new { tool = "interpolate", parameters }).Print();
+                var mv = context.ParseResult.GetValueForOption(missingValue);
+                if (mv.HasValue) param.ValueAsMissing = mv.Value;
+
+                RunInterpolation(ctx, param);
+                CliResult.Ok("tool interpolate assign", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
@@ -391,6 +373,7 @@ public static class ToolCommand
 
     private static Command BuildInterpolateNeighbour()
     {
+        var dbOpt = SharedOptions.Database();
         var targetTable = TargetTableOpt();
         var targetAttr = TargetAttrOpt();
         var sourceLayer = new Option<string>("--source-layer", "Source layer name") { IsRequired = true };
@@ -398,45 +381,45 @@ public static class ToolCommand
         var onlyNull = OnlyNullOpt();
         var assignMissing = MissingFlagOpt();
         var missingValue = MissingValueOpt();
-        var assignOption = new Option<int>("--assign-option", () => 0, "Assignment option (0=default)");
-        var alongPath = new Option<bool>("--along-path", () => false, "Interpolate along path");
+        var assignOption = new Option<int>("--assign-option", () => 0, "Assignment strategy (0=default)");
+        var alongPath = new Option<bool>("--along-path", () => false, "Interpolate along flow path");
         var maxNeighbours = new Option<int>("--max-neighbours", () => 3, "Maximum number of neighbours");
 
         var cmd = new Command("neighbour", "Interpolate from neighbouring features");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(targetTable);
-        cmd.AddOption(targetAttr);
-        cmd.AddOption(sourceLayer);
-        cmd.AddOption(sourceAttr);
-        cmd.AddOption(onlyNull);
-        cmd.AddOption(assignMissing);
+        cmd.AddOption(dbOpt);
+        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
+        cmd.AddOption(sourceLayer); cmd.AddOption(sourceAttr);
+        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
-        cmd.AddOption(assignOption);
-        cmd.AddOption(alongPath);
+        cmd.AddOption(assignOption); cmd.AddOption(alongPath);
         cmd.AddOption(maxNeighbours);
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
-                var parameters = new
+                using var ctx = AmeliaContext.Open(db);
+
+                var param = new DHI.Amelia.Tools.InterpolationEngine.InterpolationToolParameters
                 {
-                    method = "neighbour",
-                    target_table = context.ParseResult.GetValueForOption(targetTable),
-                    target_attr = context.ParseResult.GetValueForOption(targetAttr),
-                    source_layer = context.ParseResult.GetValueForOption(sourceLayer),
-                    source_attr = context.ParseResult.GetValueForOption(sourceAttr),
-                    only_null = context.ParseResult.GetValueForOption(onlyNull),
-                    assign_missing = context.ParseResult.GetValueForOption(assignMissing),
-                    missing_value = context.ParseResult.GetValueForOption(missingValue),
-                    assign_option = context.ParseResult.GetValueForOption(assignOption),
-                    along_path = context.ParseResult.GetValueForOption(alongPath),
-                    max_neighbours = context.ParseResult.GetValueForOption(maxNeighbours),
+                    TargetDbName = context.ParseResult.GetValueForOption(targetTable)!,
+                    TargetAttribute = context.ParseResult.GetValueForOption(targetAttr)!,
+                    SourceLayerName = context.ParseResult.GetValueForOption(sourceLayer)!,
+                    SourceAttribute = context.ParseResult.GetValueForOption(sourceAttr)!,
+                    OnlyNullValues = context.ParseResult.GetValueForOption(onlyNull),
+                    AssignValAsMissing = context.ParseResult.GetValueForOption(assignMissing),
+                    AssignOption = context.ParseResult.GetValueForOption(assignOption),
+                    AlongPath = context.ParseResult.GetValueForOption(alongPath),
+                    MaxNeighbours = context.ParseResult.GetValueForOption(maxNeighbours),
+                    InterpolationMethod = 4, // Neighbour
                 };
 
-                using var ctx = DatabaseContext.Open(db);
-                CliResult.Ok("tool interpolate neighbour", db, new { tool = "interpolate", parameters }).Print();
+                var mv = context.ParseResult.GetValueForOption(missingValue);
+                if (mv.HasValue) param.ValueAsMissing = mv.Value;
+
+                RunInterpolation(ctx, param);
+                CliResult.Ok("tool interpolate neighbour", db, new { completed = true }).Print();
             }
             catch (Exception ex)
             {
@@ -451,45 +434,56 @@ public static class ToolCommand
 
     private static Command BuildCatchmentProcess()
     {
-        var catchIds = new Option<string>("--catch-ids", "Comma-separated catchment IDs") { IsRequired = true };
+        var dbOpt = SharedOptions.Database();
+        var catchIds = new Option<string>("--catch-ids", "Comma-separated catchment MUIDs") { IsRequired = true };
         var lineLayer = new Option<string>("--line-layer", "Path to slope line layer (shapefile)") { IsRequired = true };
-        var demLayer = new Option<string>("--dem-layer", "Path to DEM layer (dfs2)") { IsRequired = true };
+        var demLayer = new Option<string>("--dem-layer", "Path to DEM layer (dfs2 file)") { IsRequired = true };
         var direction = new Option<int>("--direction", () => 0, "Flow direction: 0=Downstream, 1=Upstream");
         var minSlope = new Option<double>("--min-slope", () => 0.002, "Minimum slope value");
-        var demUnit = new Option<int>("--dem-unit", () => 1000, "DEM unit key");
+        var demUnit = new Option<int>("--dem-unit", () => 1000, "DEM unit key (eumUnit code)");
         var overwrite = new Option<bool>("--overwrite", () => true, "Overwrite existing values");
 
-        var cmd = new Command("catchment-process", "Calculate catchment slope and length");
-        cmd.AddOption(DatabaseOption);
-        cmd.AddOption(catchIds);
-        cmd.AddOption(lineLayer);
-        cmd.AddOption(demLayer);
-        cmd.AddOption(direction);
-        cmd.AddOption(minSlope);
-        cmd.AddOption(demUnit);
+        var cmd = new Command("catchment-process", "Calculate catchment slope and length (CatchmentSlope engine)");
+        cmd.AddOption(dbOpt);
+        cmd.AddOption(catchIds); cmd.AddOption(lineLayer);
+        cmd.AddOption(demLayer); cmd.AddOption(direction);
+        cmd.AddOption(minSlope); cmd.AddOption(demUnit);
         cmd.AddOption(overwrite);
 
         cmd.SetHandler((context) =>
         {
-            var db = context.ParseResult.GetValueForOption(DatabaseOption)!;
+            var db = context.ParseResult.GetValueForOption(dbOpt)!;
             try
             {
+                using var ctx = AmeliaContext.Open(db);
+
                 var ids = context.ParseResult.GetValueForOption(catchIds)!
                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-                var parameters = new
-                {
-                    catch_ids = ids,
-                    line_layer = context.ParseResult.GetValueForOption(lineLayer),
-                    dem_layer = context.ParseResult.GetValueForOption(demLayer),
-                    direction = context.ParseResult.GetValueForOption(direction),
-                    min_slope = context.ParseResult.GetValueForOption(minSlope),
-                    dem_unit = context.ParseResult.GetValueForOption(demUnit),
-                    overwrite = context.ParseResult.GetValueForOption(overwrite),
-                };
+                var catchList = new List<string>(ids);
+                var warnings = new List<string>();
 
-                using var ctx = DatabaseContext.Open(db);
-                CliResult.Ok("tool catchment-process", db, new { tool = "catchment-process", parameters }).Print();
+                var unit = new DHI.Generic.MikeZero.eumUnit(
+                    context.ParseResult.GetValueForOption(demUnit));
+
+                var tool = new DHI.Amelia.Tools.CatchmentProcessing.CatchmentSlope(ctx.DataTables);
+                tool.CalculateSlopeLength(
+                    catchList,
+                    context.ParseResult.GetValueForOption(overwrite),
+                    context.ParseResult.GetValueForOption(minSlope),
+                    context.ParseResult.GetValueForOption(direction),
+                    context.ParseResult.GetValueForOption(lineLayer)!,
+                    context.ParseResult.GetValueForOption(demLayer)!,
+                    0, // method
+                    unit,
+                    warnings);
+
+                CliResult.Ok("tool catchment-process", db, new
+                {
+                    completed = true,
+                    catchment_count = ids.Length,
+                    warnings,
+                }).Print();
             }
             catch (Exception ex)
             {
