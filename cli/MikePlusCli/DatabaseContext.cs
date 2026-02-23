@@ -200,16 +200,17 @@ public sealed class DatabaseContext : IDisposable
         if (string.IsNullOrWhiteSpace(where) && !all)
             throw new InvalidOperationException("UPDATE requires --where or --all flag for safety.");
 
-        var setClauses = values.Select((kv, i) => $"{QuoteIdentifier(kv.Key)} = @p{i}");
+        int idx = 0;
+        var setClauses = values.Select(kv => $"{QuoteIdentifier(kv.Key)} = @p{idx++}");
         var sql = $"UPDATE {QuoteIdentifier(tableName)} SET {string.Join(", ", setClauses)}";
         if (!string.IsNullOrWhiteSpace(where))
             sql += $" WHERE {where}";
 
         using var cmd = Connection.CreateCommand();
         cmd.CommandText = sql;
-        int i2 = 0;
+        idx = 0;
         foreach (var kv in values)
-            cmd.Parameters.AddWithValue($"@p{i2++}", ParseValue(kv.Value));
+            cmd.Parameters.AddWithValue($"@p{idx++}", ParseValue(kv.Value));
 
         return cmd.ExecuteNonQuery();
     }
@@ -274,7 +275,20 @@ public sealed class DatabaseContext : IDisposable
     }
 
     public int DeleteScenario(string scenarioId)
-        => Delete("msm_Scenario", $"ScenarioId = '{EscapeValue(scenarioId)}'", all: false);
+    {
+        using var cmd = Connection.CreateCommand();
+        cmd.CommandText = "DELETE FROM msm_Scenario WHERE ScenarioId = @id;";
+        cmd.Parameters.AddWithValue("@id", scenarioId);
+        return cmd.ExecuteNonQuery();
+    }
+
+    public bool ScenarioExists(string scenarioId)
+    {
+        using var cmd = Connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM msm_Scenario WHERE ScenarioId = @id;";
+        cmd.Parameters.AddWithValue("@id", scenarioId);
+        return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+    }
 
     // ── Alternative helpers ───────────────────────────────────────────
 
@@ -283,8 +297,22 @@ public sealed class DatabaseContext : IDisposable
 
     public List<Dictionary<string, object?>> ListAlternatives(string? groupId)
     {
-        var where = groupId != null ? $"GroupId = '{EscapeValue(groupId)}'" : null;
-        return Select("msm_Alternative", null, where, "AlternativeName", descending: false);
+        if (groupId == null)
+            return Select("msm_Alternative", null, null, "AlternativeName", descending: false);
+
+        var rows = new List<Dictionary<string, object?>>();
+        using var cmd = Connection.CreateCommand();
+        cmd.CommandText = "SELECT * FROM \"msm_Alternative\" WHERE GroupId = @gid ORDER BY \"AlternativeName\" ASC;";
+        cmd.Parameters.AddWithValue("@gid", groupId);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            var row = new Dictionary<string, object?>();
+            for (int i = 0; i < reader.FieldCount; i++)
+                row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
+            rows.Add(row);
+        }
+        return rows;
     }
 
     public int CreateAlternative(string name, string groupId, int? parentId, string? comment)

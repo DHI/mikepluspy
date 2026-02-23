@@ -126,9 +126,7 @@ public static class ScenarioCommand
                 using var ctx = DatabaseContext.Open(db);
                 // Activation is typically tracked in application state.
                 // Here we verify the scenario exists and report success.
-                var scenarios = ctx.Select("msm_Scenario", null,
-                    $"ScenarioId = '{id.Replace("'", "''")}'", null, false);
-                if (scenarios.Count == 0)
+                if (!ctx.ScenarioExists(id))
                 {
                     CliResult.Fail("scenario activate", $"Scenario '{id}' not found.", db).Print();
                     return;
