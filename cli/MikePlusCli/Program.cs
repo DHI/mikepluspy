@@ -19,7 +19,9 @@ namespace MikePlusCli;
 ///
 ///   mikeplus edit select msm_Node -d model.sqlite --columns Diameter,InvertLevel
 ///   mikeplus edit insert msm_Node -d model.sqlite --set MUID=N1 --set Diameter=1.5
+///   mikeplus edit insert msm_Node -d model.sqlite --input nodes.json
 ///   mikeplus edit update msm_Node -d model.sqlite --set Diameter=2.0 --where "MUID='N1'"
+///   mikeplus edit update msm_Node -d model.sqlite --input updates.json
 ///   mikeplus edit delete msm_Node -d model.sqlite --where "MUID='N1'"
 ///
 ///   mikeplus scenario list     -d model.sqlite

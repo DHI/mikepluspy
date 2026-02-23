@@ -172,7 +172,7 @@ public sealed class AmeliaContext : IDisposable
         return table.GetMuidAndFieldsWhereOrder(colList, where, orderBy, !descending);
     }
 
-    /// <summary>Insert a row. Returns the MUID of the new row.</summary>
+    /// <summary>Insert a single row. Returns the MUID of the new row.</summary>
     public string InsertRow(string tableName, Dictionary<string, object> values)
     {
         var table = GetTable(tableName);
@@ -190,7 +190,38 @@ public sealed class AmeliaContext : IDisposable
         return muid;
     }
 
-    /// <summary>Update matching rows. Returns MUIDs of updated rows.</summary>
+    /// <summary>
+    /// Insert multiple rows in a single Amelia session.
+    /// Each row is a column→value dictionary (may include "MUID").
+    /// Returns the list of MUIDs for all inserted rows.
+    /// </summary>
+    public List<string> InsertRows(string tableName, List<Dictionary<string, object>> rows)
+    {
+        var table = GetTable(tableName);
+        var muids = new List<string>(rows.Count);
+
+        foreach (var row in rows)
+        {
+            string muid;
+            if (row.TryGetValue("MUID", out var muidObj) && muidObj is string provided && !string.IsNullOrEmpty(provided))
+                muid = provided;
+            else
+                muid = table.CreateUniqueMuid();
+
+            var values = new Dictionary<string, object>(row, StringComparer.OrdinalIgnoreCase);
+            values.Remove("MUID");
+
+            table.InsertByCommand(muid, null, values);
+            muids.Add(muid);
+        }
+
+        return muids;
+    }
+
+    /// <summary>
+    /// Update matching rows with the same set of values.
+    /// Returns MUIDs of updated rows.
+    /// </summary>
     public List<string> UpdateRows(string tableName, Dictionary<string, object> values, string? where, bool all)
     {
         if (string.IsNullOrWhiteSpace(where) && !all)
@@ -207,6 +238,31 @@ public sealed class AmeliaContext : IDisposable
             table.SetValuesByCommand(muid, values);
             updated.Add(muid);
         }
+        return updated;
+    }
+
+    /// <summary>
+    /// Update multiple rows with per-row values.
+    /// Each row dictionary must contain a "MUID" key identifying the target row.
+    /// Returns MUIDs of updated rows.
+    /// </summary>
+    public List<string> UpdateRowsBulk(string tableName, List<Dictionary<string, object>> rows)
+    {
+        var table = GetTable(tableName);
+        var updated = new List<string>(rows.Count);
+
+        foreach (var row in rows)
+        {
+            if (!row.TryGetValue("MUID", out var muidObj) || muidObj is not string muid || string.IsNullOrEmpty(muid))
+                throw new ArgumentException("Each row in bulk update must have a 'MUID' key.");
+
+            var values = new Dictionary<string, object>(row, StringComparer.OrdinalIgnoreCase);
+            values.Remove("MUID");
+
+            table.SetValuesByCommand(muid, values);
+            updated.Add(muid);
+        }
+
         return updated;
     }
 
