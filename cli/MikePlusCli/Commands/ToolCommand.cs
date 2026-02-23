@@ -176,10 +176,14 @@ public static class ToolCommand
 
         var cmd = new Command("nearest", "Interpolate from nearest feature");
         cmd.AddOption(dbOpt);
-        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
-        cmd.AddOption(sourceLayer); cmd.AddOption(sourceAttr);
-        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
-        cmd.AddOption(missingValue); cmd.AddOption(searchRadius);
+        cmd.AddOption(targetTable);
+        cmd.AddOption(targetAttr);
+        cmd.AddOption(sourceLayer);
+        cmd.AddOption(sourceAttr);
+        cmd.AddOption(onlyNull);
+        cmd.AddOption(assignMissing);
+        cmd.AddOption(missingValue);
+        cmd.AddOption(searchRadius);
 
         cmd.SetHandler((context) =>
         {
@@ -228,9 +232,12 @@ public static class ToolCommand
 
         var cmd = new Command("dem", "Interpolate from DEM raster");
         cmd.AddOption(dbOpt);
-        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
-        cmd.AddOption(rasterFile); cmd.AddOption(itemNumber);
-        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
+        cmd.AddOption(targetTable);
+        cmd.AddOption(targetAttr);
+        cmd.AddOption(rasterFile);
+        cmd.AddOption(itemNumber);
+        cmd.AddOption(onlyNull);
+        cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
 
         cmd.SetHandler((context) =>
@@ -281,11 +288,15 @@ public static class ToolCommand
 
         var cmd = new Command("idw", "Inverse Distance Weighting interpolation");
         cmd.AddOption(dbOpt);
-        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
-        cmd.AddOption(sourceLayer); cmd.AddOption(sourceAttr);
-        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
+        cmd.AddOption(targetTable);
+        cmd.AddOption(targetAttr);
+        cmd.AddOption(sourceLayer);
+        cmd.AddOption(sourceAttr);
+        cmd.AddOption(onlyNull);
+        cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
-        cmd.AddOption(maxPoints); cmd.AddOption(searchRadius);
+        cmd.AddOption(maxPoints);
+        cmd.AddOption(searchRadius);
 
         cmd.SetHandler((context) =>
         {
@@ -334,9 +345,11 @@ public static class ToolCommand
 
         var cmd = new Command("assign", "Directly assign a fixed value to a column");
         cmd.AddOption(dbOpt);
-        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
+        cmd.AddOption(targetTable);
+        cmd.AddOption(targetAttr);
         cmd.AddOption(value);
-        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
+        cmd.AddOption(onlyNull);
+        cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
 
         cmd.SetHandler((context) =>
@@ -387,11 +400,15 @@ public static class ToolCommand
 
         var cmd = new Command("neighbour", "Interpolate from neighbouring features");
         cmd.AddOption(dbOpt);
-        cmd.AddOption(targetTable); cmd.AddOption(targetAttr);
-        cmd.AddOption(sourceLayer); cmd.AddOption(sourceAttr);
-        cmd.AddOption(onlyNull); cmd.AddOption(assignMissing);
+        cmd.AddOption(targetTable);
+        cmd.AddOption(targetAttr);
+        cmd.AddOption(sourceLayer);
+        cmd.AddOption(sourceAttr);
+        cmd.AddOption(onlyNull);
+        cmd.AddOption(assignMissing);
         cmd.AddOption(missingValue);
-        cmd.AddOption(assignOption); cmd.AddOption(alongPath);
+        cmd.AddOption(assignOption);
+        cmd.AddOption(alongPath);
         cmd.AddOption(maxNeighbours);
 
         cmd.SetHandler((context) =>
@@ -445,9 +462,12 @@ public static class ToolCommand
 
         var cmd = new Command("catchment-process", "Calculate catchment slope and length (CatchmentSlope engine)");
         cmd.AddOption(dbOpt);
-        cmd.AddOption(catchIds); cmd.AddOption(lineLayer);
-        cmd.AddOption(demLayer); cmd.AddOption(direction);
-        cmd.AddOption(minSlope); cmd.AddOption(demUnit);
+        cmd.AddOption(catchIds);
+        cmd.AddOption(lineLayer);
+        cmd.AddOption(demLayer);
+        cmd.AddOption(direction);
+        cmd.AddOption(minSlope);
+        cmd.AddOption(demUnit);
         cmd.AddOption(overwrite);
 
         cmd.SetHandler((context) =>

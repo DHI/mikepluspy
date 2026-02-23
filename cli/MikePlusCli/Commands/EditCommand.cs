@@ -9,7 +9,7 @@ namespace MikePlusCli.Commands;
 /// respects scenarios, alternatives, undo/redo, and geometry handling.
 ///
 ///   mikeplus edit select msm_Node -d model.sqlite --columns Diameter,InvertLevel
-///   mikeplus edit select msm_Node -d model.sqlite --where "Diameter &gt; 0.5" --order-by Diameter
+///   mikeplus edit select msm_Node -d model.sqlite --where "Diameter > 0.5" --order-by Diameter
 ///   mikeplus edit insert msm_Node -d model.sqlite --set MUID=N1 --set Diameter=1.5
 ///   mikeplus edit update msm_Node -d model.sqlite --set Diameter=2.0 --where "MUID='N1'"
 ///   mikeplus edit delete msm_Node -d model.sqlite --where "MUID='N1'"

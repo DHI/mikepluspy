@@ -6,7 +6,7 @@ namespace MikePlusCli;
 /// <summary>
 /// MIKE+ CLI — a workflow-oriented command-line interface backed by the
 /// Amelia .NET engine.  Mirrors the capabilities of the MIKE+ GUI so that
-/// every modelling task (creating a model, editing network data, running
+/// every modeling task (creating a model, editing network data, running
 /// simulations, post-processing) can be scripted or invoked by AI agents.
 ///
 /// All commands emit structured JSON to stdout for machine consumption.
