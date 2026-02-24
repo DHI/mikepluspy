@@ -26,6 +26,7 @@ _install_root, _dll_dir_handle = _setup_bin_path(
     fallback_mikeplus_install_root=Path("C:/Program Files (x86)/DHI/MIKE+/2026"),
     env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT",  # set this environment variable to use custom install path
     bin_path=Path("bin/x64"),
+    env_var_name_bin_path="MIKEPLUSPY_INSTALL_BIN",  # set this environment variable to use a custom bin path suffix (e.g. 'bin/x64')
 )
 
 #  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
