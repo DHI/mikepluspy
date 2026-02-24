@@ -67,8 +67,6 @@ quartodoc:
   style: pkgdown
   title: API Reference
   dir: api
-  options:
-    include_inherited: true
   renderer:
     style: markdown
     display_name: relative
@@ -93,6 +91,10 @@ quartodoc:
         - Database
         - name: TableCollection
           package: mikeplus.tables.auto_generated
+          members:
+            - keys
+            - values
+            - items
     - title: Tables
       package: mikeplus.tables.auto_generated
       contents:
