@@ -20,7 +20,6 @@ def setup_bin_path(
     fallback_mikeplus_install_root: Path,
     env_var_name_install_root: str,
     bin_path: Path,
-    env_var_name_bin_path: str = "MIKEPLUSPY_INSTALL_BIN",
 ) -> tuple[Path | None, Any]:
     """Set up the bin path for mikepluspy."""
     global _setup_called
@@ -30,11 +29,6 @@ def setup_bin_path(
 
     fallback_mikeplus_install_root = Path(fallback_mikeplus_install_root)
     bin_path = Path(bin_path)
-
-    env_var_bin_path: str | None = os.getenv(env_var_name_bin_path)
-    if env_var_bin_path is not None:
-        # env var specifies the relative bin path suffix, e.g. 'bin/x64'
-        bin_path = Path(env_var_bin_path)
 
     # bin path for DHI.Mike.Install (required for versions before MIKE+ 2025 Update 1)
     sys.path.append(str(Path(__file__).parent / "bin"))
@@ -67,9 +61,16 @@ def _try_setup_custom_bin_path(
     mikeplus_install_bin = mikeplus_install_root / bin_path
     if not mikeplus_install_bin.exists():
         raise FileNotFoundError(
-            f"{env_var_name_install_root} {bin_path} does not exist: {mikeplus_install_bin}"
+            f"{env_var_name_install_root}={env_var_install_root!r}: bin path does not exist: '{mikeplus_install_bin}'. "
+            f"Ensure the path is correct or unset {env_var_name_install_root} to use auto-detection."
         )
 
+    warnings.warn(
+        f"Using custom MIKE+ installation from {env_var_name_install_root}='{mikeplus_install_root}' "
+        f"(bin: '{mikeplus_install_bin}').",
+        category=UserWarning,
+        stacklevel=2,
+    )
     _update_python_env_path([str(mikeplus_install_bin)])
     _update_clr_assembly_resolve(str(mikeplus_install_bin))
     dll_dir_handle = os.add_dll_directory(str(mikeplus_install_bin)) if sys.platform == "win32" else None  # type: ignore
@@ -110,7 +111,12 @@ def _try_mike_install_bin_setup(major_assembly_version: int):
         _update_python_env_path(mikeplus_env_paths)
         dll_dir_handle = os.add_dll_directory(str(mikeplus_env_paths[0])) if sys.platform == "win32" else None  # type: ignore
         return mikeplus_install_root, dll_dir_handle
-    except Exception:
+    except Exception as e:
+        warnings.warn(
+            f"DHI.Mike.Install auto-detection failed ({e}). Falling back to default MIKE+ installation path.",
+            category=UserWarning,
+            stacklevel=2,
+        )
         return None, None
 
 
