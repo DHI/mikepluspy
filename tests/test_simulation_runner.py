@@ -8,6 +8,7 @@ from mikeplus import Database
 from mikeplus.simulation_runner import SimulationRunner
 
 
+@pytest.mark.slow
 def test_mike_engine_run_1d(sirius_db):
     """Test running a MIKE 1D simulation."""
     db = Database(sirius_db)
@@ -32,6 +33,7 @@ def test_mike_engine_run_1d(sirius_db):
     db.close()
 
 # TODO: Fix license issue on CI
+@pytest.mark.slow
 @pytest.mark.skip_ci(reason="Passes locally, license issue on CI")
 def test_mike_engine_run_flood(flood_db):
     """Test running a Flood simulation."""
@@ -57,6 +59,7 @@ def test_mike_engine_run_flood(flood_db):
     
     db.close()
 
+@pytest.mark.slow
 def test_mike_engine_run_swmm(swmm_db):
     """Test running a SWMM simulation."""
     db = Database(swmm_db)
@@ -84,6 +87,7 @@ def test_mike_engine_run_swmm(swmm_db):
     db.close()
 
 
+@pytest.mark.slow
 def test_mike_engine_run_epanet(epanet_demo_db):
     """Test running an EPANET simulation."""
     db = Database(epanet_demo_db)

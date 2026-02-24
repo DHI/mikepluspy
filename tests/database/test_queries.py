@@ -26,11 +26,17 @@ class TestBaseQuery:
         def _execute_impl(self) -> bool:
             return True
 
-    @pytest.fixture
-    def base_query(self, session_sirius_db):
-        """Fixture providing a BaseQuery instance."""
+    @pytest.fixture(scope="class")
+    def _db(self, session_sirius_db):
+        """Open the database once for all tests in this class."""
         db = Database(session_sirius_db)
-        table = db.tables.msm_Link
+        yield db
+        db.close()
+
+    @pytest.fixture
+    def base_query(self, _db):
+        """Fixture providing a BaseQuery instance."""
+        table = _db.tables.msm_Link
         return self.BaseQueryTest(table)
 
     def test_base_query_error_if_not_open(self, session_sirius_db):
