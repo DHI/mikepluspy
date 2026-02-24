@@ -95,6 +95,16 @@ quartodoc:
             - keys
             - values
             - items
+    - title: Base Table Classes
+      desc: "Base classes for all table types. See these for inherited methods available on all tables."
+      package: mikeplus.tables
+      contents:
+        - name: BaseTable
+          package: mikeplus.tables.base_table
+        - name: BaseGeometryTable
+          package: mikeplus.tables.base_geometry_table
+        - name: BaseNodeTable
+          package: mikeplus.tables.base_node_table
     - title: Tables
       package: mikeplus.tables.auto_generated
       contents:
