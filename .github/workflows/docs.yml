@@ -13,20 +13,28 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.12"
+
+    - name: Install Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
         
     - name: Install mikeplus
-      run: pip install .[dev]
+      run: pip install .[docs]
     
-    - name: MkDocs
-      run: mkdocs build
+    - name: Build API docs
+      working-directory: docs
+      run: quartodoc build
+
+    - name: Render site
+      working-directory: docs
+      run: quarto render
     
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: site
+        publish_dir: docs/_site
