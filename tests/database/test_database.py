@@ -69,10 +69,10 @@ class TestDatabaseCreate:
         # Check that the database file was created
         assert db_path.exists()
 
-    def test_create_existing_model_raises_error(self, sirius_db: Path):
+    def test_create_existing_model_raises_error(self, session_sirius_db: Path):
         """Test that creating an existing model raises FileExistsError."""
         with pytest.raises(FileExistsError):
-            Database.create(sirius_db)
+            Database.create(session_sirius_db)
 
     def test_import_epanet(self, tmp_path: Path):
         """Test importing from an EPANET .inp file."""
@@ -110,9 +110,9 @@ class TestDatabaseCreate:
 class TestDatabase:
     """Tests for the Database class."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def db(self, class_sirius_db: Path):
-        """Fixture providing a test Database instance."""
+        """Fixture providing a test Database instance shared across the class."""
         db = Database(class_sirius_db)
         yield db
         db.close()
@@ -187,11 +187,6 @@ class TestDatabase:
         simulation = db.active_simulation
         assert simulation == "Sirius_1_DEMO"
 
-    def test_close(self, db):
-        """Test close method."""
-        db.close()
-        assert not db.is_open
-
     def test_top_level_imports(self, tmp_path: Path):
         """Test that top-level imports work correctly."""
         from mikeplus import Database
@@ -211,3 +206,14 @@ class TestDatabase:
         db = open(new_db_path)
         assert db.is_open
         db.close()
+
+
+class TestDatabaseClose:
+    """Tests for the Database close functionality."""
+
+    def test_close(self, session_sirius_db: Path):
+        """Test close method."""
+        db = Database(session_sirius_db)
+        assert db.is_open
+        db.close()
+        assert not db.is_open

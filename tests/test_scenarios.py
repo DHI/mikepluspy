@@ -7,56 +7,77 @@ from pathlib import Path
 import mikeplus as mp
 from mikeplus.scenarios import Scenario, Alternative, AlternativeGroup
 
-def test_api_access_scenarios_and_alternatives(sirius_db):
-    """
-    Test the basic usage flow of the scenario API using an actual database.
-    """
-    # Open a database using a test-specific isolated copy
-    db = mp.open(sirius_db)
-    
-    # Access scenarios
-    active_scenario = db.scenarios.active
-    base_scenario = db.scenarios.base
-    
-    # Verify scenario properties
-    assert isinstance(active_scenario, Scenario)
-    assert isinstance(base_scenario, Scenario)
-    assert active_scenario.name is not None
-    assert base_scenario.name is not None
-    
-    # Test accessing specific alternative groups we know exist in the sirius_db
-    expected_groups = [
-        "CS Network data",
-        "River network data",
-        "Loads and boundaries data",
-        "Catchments and hydrology data",
-        "Transport data",
-        "Control rules data",
-        "Long Term Statistics data",
-        "Profiles and curves",
-        "2D overland",
-        "2D boundaries data"
-    ]
-    
-    for group_name in expected_groups:
-        # Verify we can access the group by name
-        alt_group = db.alternative_groups[group_name]
-        assert alt_group is not None
-        assert alt_group.name == group_name
-        assert len(alt_group.tables) > 0
+
+class TestScenarioReadOnly:
+    """Read-only scenario tests sharing a single database connection."""
+
+    @pytest.fixture(scope="class")
+    def db(self, session_sirius_db):
+        """Open the database once for all read-only tests in this class."""
+        db = mp.open(session_sirius_db)
+        yield db
+        db.close()
+
+    def test_api_access_scenarios_and_alternatives(self, db):
+        """
+        Test the basic usage flow of the scenario API using an actual database.
+        """
+        # Access scenarios
+        active_scenario = db.scenarios.active
+        base_scenario = db.scenarios.base
         
-        # Check base and active alternatives are available
-        assert alt_group.base is not None
-        assert alt_group.active is not None
-    
-    # Test getting alternative group by table name
-    # Use the "Catchments and hydrology data" group which should have msm_Catchment table
-    catchment_group = db.alternative_groups["Catchments and hydrology data"]
-    if catchment_group.tables:  # Make sure there are tables in this group
-        table_name = catchment_group.tables[0]  # Get the first table
-        group_by_table = db.alternative_groups.by_table(table_name)
-        assert group_by_table is not None
-        assert table_name in group_by_table.tables
+        # Verify scenario properties
+        assert isinstance(active_scenario, Scenario)
+        assert isinstance(base_scenario, Scenario)
+        assert active_scenario.name is not None
+        assert base_scenario.name is not None
+        
+        # Test accessing specific alternative groups we know exist in the sirius_db
+        expected_groups = [
+            "CS Network data",
+            "River network data",
+            "Loads and boundaries data",
+            "Catchments and hydrology data",
+            "Transport data",
+            "Control rules data",
+            "Long Term Statistics data",
+            "Profiles and curves",
+            "2D overland",
+            "2D boundaries data"
+        ]
+        
+        for group_name in expected_groups:
+            # Verify we can access the group by name
+            alt_group = db.alternative_groups[group_name]
+            assert alt_group is not None
+            assert alt_group.name == group_name
+            assert len(alt_group.tables) > 0
+            
+            # Check base and active alternatives are available
+            assert alt_group.base is not None
+            assert alt_group.active is not None
+        
+        # Test getting alternative group by table name
+        # Use the "Catchments and hydrology data" group which should have msm_Catchment table
+        catchment_group = db.alternative_groups["Catchments and hydrology data"]
+        if catchment_group.tables:  # Make sure there are tables in this group
+            table_name = catchment_group.tables[0]  # Get the first table
+            group_by_table = db.alternative_groups.by_table(table_name)
+            assert group_by_table is not None
+            assert table_name in group_by_table.tables
+
+    def test_alternative_group_finding(self, db):
+        """
+        Tests that AlternativeGroup.find_by_name returns the correct alternative.
+        """
+        network_group = db.alternative_groups["CS Network data"]
+        found = network_group.find_by_name("Base Alternative")
+        assert len(found) == 1
+        assert found[0].name == "Base Alternative"
+
+        assert len(list(network_group)) == 2
+
+        assert network_group.by_name("Base Alternative").name == "Base Alternative"
 
 
 def test_api_create_and_activate_scenario(sirius_db):
@@ -99,19 +120,4 @@ def test_api_create_and_activate_scenario(sirius_db):
     found_scenario = db.scenarios.by_name(scenario_name)
     assert found_scenario is not None
     assert found_scenario.id == new_scenario.id
-
-
-def test_alternative_group_finding(sirius_db):
-    """
-    Tests that AlternativeGroup.find_by_name returns the correct alternative.
-    """
-    db = mp.open(sirius_db)
-    network_group = db.alternative_groups["CS Network data"]
-    found = network_group.find_by_name("Base Alternative")
-    assert len(found) == 1
-    assert found[0].name == "Base Alternative"
-
-    assert len(list(network_group)) == 2
-
-    assert network_group.by_name("Base Alternative").name == "Base Alternative"
 
