@@ -161,3 +161,7 @@ cython_debug/
 
 # this is a library, not an application
 uv.lock
+
+# .NET build artifacts
+cli/**/bin/
+cli/**/obj/

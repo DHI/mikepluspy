@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>mikeplus-json</AssemblyName>
+    <RootNamespace>MikePlusJsonCli</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    System.Text.Json is included in net8.0 — no extra package needed.
+    System.CommandLine is intentionally absent: the streaming protocol
+    replaces argument parsing entirely.
+  -->
+
+  <!--
+    DHI Amelia assemblies — resolved at runtime from the MIKE+ installation
+    directory via AmeliaContext.Bootstrap().  Private=false so they are NOT
+    copied to the publish output; the target machine already has them installed.
+  -->
+  <ItemGroup Label="DHI Amelia references">
+    <Reference Include="DHI.Amelia.DataModule"               Private="false" />
+    <Reference Include="DHI.Amelia.DataModule.Interface"     Private="false" />
+    <Reference Include="DHI.Amelia.Infrastructure.Interface" Private="false" />
+    <Reference Include="DHI.Amelia.GlobalUtility"            Private="false" />
+    <Reference Include="DHI.Amelia.Tools.EngineTool"         Private="false" />
+    <Reference Include="DHI.Amelia.DomainServices.Interface" Private="false" />
+    <Reference Include="DHI.Amelia.EPANETBridge"             Private="false" />
+    <Reference Include="DHI.Amelia.SWMMBridge"               Private="false" />
+    <Reference Include="DHI.Amelia.Tools.ImportTool.ImportEngine" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.TopologyRepairTool" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.InterpolationEngine" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.ConnectionRepairEngine" Private="false" />
+    <Reference Include="DHI.Amelia.Tools.CatchmentProcessing" Private="false" />
+    <Reference Include="DHI.Mike.Install"                    Private="false" />
+  </ItemGroup>
+
+</Project>
