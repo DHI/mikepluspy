@@ -54,6 +54,7 @@ test = [
 docs = [
     # "quarto-cli==1.7.30", # TODO: Add quarto-cli when it is available on Windows via PyPI
     "quartodoc==0.10.0",
+    "griffe<2",
 ]
 
 [project.urls]
