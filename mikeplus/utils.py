@@ -61,17 +61,24 @@ def _try_setup_custom_bin_path(
     mikeplus_install_bin = mikeplus_install_root / bin_path
     if not mikeplus_install_bin.exists():
         raise FileNotFoundError(
-            f"{env_var_name_install_root} {bin_path} does not exist: {mikeplus_install_bin}"
+            f"{env_var_name_install_root}={env_var_install_root!r}: bin path does not exist: '{mikeplus_install_bin}'. "
+            f"Ensure the path is correct or unset {env_var_name_install_root} to use auto-detection."
         )
 
+    warnings.warn(
+        f"Using custom MIKE+ installation from {env_var_name_install_root}='{mikeplus_install_root}' "
+        f"(bin: '{mikeplus_install_bin}').",
+        category=UserWarning,
+        stacklevel=2,
+    )
     _update_python_env_path([str(mikeplus_install_bin)])
     _update_clr_assembly_resolve(str(mikeplus_install_bin))
-    dll_dir_handle = os.add_dll_directory(str(mikeplus_install_bin))  # type: ignore
+    dll_dir_handle = os.add_dll_directory(str(mikeplus_install_bin)) if sys.platform == "win32" else None  # type: ignore
     return mikeplus_install_root, dll_dir_handle
 
 
 def _update_python_env_path(mikeplus_env_paths: list[str]):
-    os.environ["PATH"] = ";".join(mikeplus_env_paths) + ";" + os.environ["PATH"]
+    os.environ["PATH"] = os.pathsep.join(mikeplus_env_paths) + os.pathsep + os.environ["PATH"]
 
 
 def _update_clr_assembly_resolve(mikeplus_install_bin: str):
@@ -97,14 +104,19 @@ def _try_mike_install_bin_setup(major_assembly_version: int):
 
         # MikeImport adds install bin to end of PATH, this brings it to the front
         env_path = System.Environment.GetEnvironmentVariable("PATH")
-        all_paths = [Path(p) for p in env_path.split(";")]
+        all_paths = [Path(p) for p in env_path.split(os.pathsep)]
         mikeplus_env_paths = [
             str(p) for p in all_paths if p.is_relative_to(mikeplus_install_root)
         ]
         _update_python_env_path(mikeplus_env_paths)
-        dll_dir_handle = os.add_dll_directory(str(mikeplus_env_paths[0]))  # type: ignore
+        dll_dir_handle = os.add_dll_directory(str(mikeplus_env_paths[0])) if sys.platform == "win32" else None  # type: ignore
         return mikeplus_install_root, dll_dir_handle
-    except Exception:
+    except Exception as e:
+        warnings.warn(
+            f"DHI.Mike.Install auto-detection failed ({e}). Falling back to default MIKE+ installation path.",
+            category=UserWarning,
+            stacklevel=2,
+        )
         return None, None
 
 
@@ -127,9 +139,12 @@ def _try_setup_default_bin_path(
         )
     _update_python_env_path([str(fallback_mikeplus_install_root / bin_path)])
     _update_clr_assembly_resolve(str(fallback_mikeplus_install_root / bin_path))
-    return fallback_mikeplus_install_root, os.add_dll_directory(  # type: ignore
-        str(fallback_mikeplus_install_root / bin_path)
+    dll_dir_handle = (
+        os.add_dll_directory(str(fallback_mikeplus_install_root / bin_path))  # type: ignore
+        if sys.platform == "win32"
+        else None
     )
+    return fallback_mikeplus_install_root, dll_dir_handle
 
 
 def to_sql(value) -> str:
