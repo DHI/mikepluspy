@@ -56,9 +56,9 @@ class DotNetConverter:
     def to_dotnet_value(value: Any, db_type: DbType | None = None) -> Any:
         """Convert a Python value to its appropriate .NET equivalent.
 
-        String values are returned unchanged unless ``db_type`` is
-        ``DbType.DateTime``. Strings for DateTime fields are parsed and converted
-        to ``System.DateTime``.
+        String values for Double fields accept either dot or comma as the
+        decimal separator. Strings for DateTime fields are parsed and converted
+        to ``System.DateTime``. Other strings are returned unchanged.
 
         Parameters
         ----------
@@ -66,7 +66,7 @@ class DotNetConverter:
             The Python value to convert
 
         db_type : DbType, optional
-            Destination database type. Used to identify DateTime fields.
+            Destination database type. Used to identify Double and DateTime fields.
 
         Returns
         -------
@@ -86,6 +86,11 @@ class DotNetConverter:
         elif isinstance(value, datetime.datetime):
             return DotNetConverter.to_dotnet_datetime(value)
         elif isinstance(value, str):
+            if db_type == DbType.Double:
+                try:
+                    return Nullable[float](float(value.replace(",", ".")))
+                except ValueError:
+                    return value
             if db_type != DbType.DateTime:
                 return value
             value = pd.to_datetime(value).to_pydatetime()

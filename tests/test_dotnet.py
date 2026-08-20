@@ -17,6 +17,34 @@ def test_arbitrary_strings_are_not_inferred_as_datetimes(value):
     assert converted == value
 
 
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("1.2", 1.2),
+        ("1,2", 1.2),
+        ("-1.2", -1.2),
+        ("-1,2", -1.2),
+        ("800", 800.0),
+    ],
+)
+def test_double_strings_accept_dot_or_comma_decimal_separator(value, expected):
+    """Convert either decimal separator for schema-declared Double fields."""
+    converted = DotNetConverter.to_dotnet_value(value, DbType.Double)
+
+    assert not isinstance(converted, str)
+    assert converted.GetType().FullName == "System.Double"
+    assert converted.Value == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("value", ["not a number", "1,2,3"])
+def test_invalid_double_strings_remain_strings(value):
+    """Leave invalid Double strings unchanged for MIKE+ to validate."""
+    converted = DotNetConverter.to_dotnet_value(value, DbType.Double)
+
+    assert isinstance(converted, str)
+    assert converted == value
+
+
 def test_dictionary_conversion_respects_schema_column_types():
     """Convert only strings belonging to schema-declared DateTime fields."""
     values = {

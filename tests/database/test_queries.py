@@ -368,6 +368,33 @@ class TestInsertQuery:
         assert inserted_muid == values["muid"]
         assert dict(zip(expected, inserted[inserted_muid])) == expected
 
+    @pytest.mark.parametrize(
+        ("separator", "diameter"),
+        [("dot", "1.2"), ("comma", "1,2")],
+    )
+    def test_insert_double_string_accepts_either_decimal_separator(
+        self, sirius_db, separator, diameter
+    ):
+        """Insert a Double string independently of the machine locale."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = f"decimal_separator_insert_{separator}"
+
+            table.insert(
+                {
+                    "MUID": muid,
+                    "Diameter": diameter,
+                    "Length": 100.0,
+                    "Description": "Test locale-independent Double insert",
+                }
+            )
+
+            inserted = table.select(["Diameter"]).by_muid(muid).execute()
+            assert inserted[muid][0] == pytest.approx(1.2)
+        finally:
+            db.close()
+
     def test_insert_sends_canonical_field_names_to_command(self):
         """Normalize field names before crossing the MIKE+ command boundary."""
         captured = {}
@@ -494,6 +521,23 @@ class TestUpdateQuery:
         )
         other_row = dict(zip(list(values.keys()), other_data[other_muid]))
         assert other_row != values, "Other rows should not be updated"
+
+    @pytest.mark.parametrize("diameter", ["1.2", "1,2"])
+    def test_update_double_string_accepts_either_decimal_separator(
+        self, sirius_db, diameter
+    ):
+        """Update a Double string independently of the machine locale."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+
+            table.update({"Diameter": diameter}).by_muid(muid).execute()
+
+            updated = table.select(["Diameter"]).by_muid(muid).execute()
+            assert updated[muid][0] == pytest.approx(1.2)
+        finally:
+            db.close()
 
     @pytest.fixture(scope="class")
     def project_table_fixture(self, class_sirius_db):
