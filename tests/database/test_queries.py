@@ -3,6 +3,8 @@ Tests for the query classes implementing the fluent SQL API.
 """
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 import pandas as pd
 import datetime
@@ -14,6 +16,7 @@ from mikeplus.queries import SelectQuery
 from mikeplus.queries import InsertQuery
 from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
+from mikeplus.dotnet import DotNetConverter
 from mikeplus.tables.base_table import BaseTable
 
 
@@ -343,6 +346,93 @@ class TestInsertQuery:
 
         assert inserted_muid in table.get_muids()
 
+    def test_insert_accepts_lowercase_field_names(self, table: BaseTable):
+        """Insert lowercase field names into the SQLite integration fixture."""
+        values = {
+            "muid": "case_insensitive_link",
+            "diameter": 12.5,
+            "length": 100.0,
+            "description": "Test lowercase field names",
+        }
+
+        inserted_muid = InsertQuery(table, values).execute()
+
+        expected = {
+            "MUID": values["muid"],
+            "Diameter": values["diameter"],
+            "Length": values["length"],
+            "Description": values["description"],
+        }
+        inserted = table.select(list(expected)).by_muid(inserted_muid).execute()
+
+        assert inserted_muid == values["muid"]
+        assert dict(zip(expected, inserted[inserted_muid])) == expected
+
+    @pytest.mark.parametrize(
+        ("separator", "diameter"),
+        [("dot", "1.2"), ("comma", "1,2")],
+    )
+    def test_insert_double_string_accepts_either_decimal_separator(
+        self, sirius_db, separator, diameter
+    ):
+        """Insert a Double string independently of the machine locale."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = f"decimal_separator_insert_{separator}"
+
+            table.insert(
+                {
+                    "MUID": muid,
+                    "Diameter": diameter,
+                    "Length": 100.0,
+                    "Description": "Test locale-independent Double insert",
+                }
+            )
+
+            inserted = table.select(["Diameter"]).by_muid(muid).execute()
+            assert inserted[muid][0] == pytest.approx(1.2)
+        finally:
+            db.close()
+
+    def test_insert_sends_canonical_field_names_to_command(self):
+        """Normalize field names before crossing the MIKE+ command boundary."""
+        captured = {}
+
+        def insert_by_command(muid, geometry, values):
+            captured["muid"] = muid
+            captured["geometry"] = geometry
+            captured["fields"] = set(values.Keys)
+            return None, muid
+
+        net_table = SimpleNamespace(
+            Columns=[],
+            CreateUniqueMuid=lambda: "generated_muid",
+            IsMuidExistInActive=lambda *_: False,
+            InsertByCommand=insert_by_command,
+        )
+        table = SimpleNamespace(
+            _net_table=net_table,
+            _user_defined_columns=set(),
+            columns=["MUID", "Diameter", "Length", "Description"],
+            name="msm_Link",
+        )
+        values = {
+            "muid": "case_insensitive_link",
+            "diameter": 12.5,
+            "length": 100.0,
+            "description": "Test lowercase field names",
+        }
+
+        inserted_muid = InsertQuery(table, values)._execute_impl()
+
+        assert inserted_muid == values["muid"]
+        assert captured == {
+            "muid": values["muid"],
+            "geometry": None,
+            "fields": {"Diameter", "Length", "Description"},
+        }
+
 
 class TestUpdateQuery:
     """Tests for the UpdateQuery class."""
@@ -432,6 +522,23 @@ class TestUpdateQuery:
         other_row = dict(zip(list(values.keys()), other_data[other_muid]))
         assert other_row != values, "Other rows should not be updated"
 
+    @pytest.mark.parametrize("diameter", ["1.2", "1,2"])
+    def test_update_double_string_accepts_either_decimal_separator(
+        self, sirius_db, diameter
+    ):
+        """Update a Double string independently of the machine locale."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+
+            table.update({"Diameter": diameter}).by_muid(muid).execute()
+
+            updated = table.select(["Diameter"]).by_muid(muid).execute()
+            assert updated[muid][0] == pytest.approx(1.2)
+        finally:
+            db.close()
+
     @pytest.fixture(scope="class")
     def project_table_fixture(self, class_sirius_db):
         """Fixture providing the msm_Project table."""
@@ -461,6 +568,95 @@ class TestUpdateQuery:
             f"Expected ComputationBegin to be datetime.datetime, but got {type(retrieved_value)}."
         assert retrieved_value == expected_datetime, \
             f"Expected ComputationBegin datetime {expected_datetime}, but got {retrieved_value}."
+
+    def test_geometry_update_persists(self, sirius_db):
+        """Persist a LINESTRING through the MIKE+ geometry update command."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+            geometry = (
+                "LINESTRING (102405.85711669922 108873.84887695312, "
+                "103200 108100, 104049.65692138672 107628.56768798828)"
+            )
+            previous_geometry = table._net_table.GetGeometry(muid).AsText()
+
+            updated_muids = table.update({"geometry": geometry}).by_muid(muid).execute()
+            persisted_geometry = table._net_table.GetGeometry(muid).AsText()
+
+            assert updated_muids == [muid]
+            assert persisted_geometry != previous_geometry
+            assert persisted_geometry == geometry
+        finally:
+            db.close()
+
+    def test_geometry_uses_geometry_command(self, monkeypatch):
+        """Route geometry separately instead of using the ordinary field command."""
+        captured = {}
+        converted_geometry = object()
+
+        def set_values_by_command(muid, values):
+            captured["ordinary"] = (muid, list(values.Keys))
+
+        def update_geom_by_command(muid, geometry):
+            captured["geometry"] = (muid, geometry)
+            return SimpleNamespace(CmdCommitted=True, Msg="")
+
+        net_table = SimpleNamespace(
+            Columns=[],
+            SetValuesByCommand=set_values_by_command,
+            UpdateGeomByCommand=update_geom_by_command,
+        )
+        table = SimpleNamespace(
+            _net_table=net_table,
+            _user_defined_columns=set(),
+            get_muids=lambda: ["Link_2"],
+            name="msm_Link",
+        )
+        monkeypatch.setattr(
+            DotNetConverter,
+            "to_dotnet_geometry",
+            lambda _: converted_geometry,
+        )
+
+        updated_muids = UpdateQuery(
+            table,
+            {"geometry": "LINESTRING (0 0, 1 1)"},
+        ).all()._execute_impl()
+
+        assert updated_muids == ["Link_2"]
+        assert "ordinary" not in captured
+        assert captured["geometry"] == ("Link_2", converted_geometry)
+
+    def test_geometry_command_failure_raises(self, monkeypatch):
+        """Expose a failed geometry commit instead of reporting a successful update."""
+        net_table = SimpleNamespace(
+            Columns=[],
+            SetValuesByCommand=lambda *_: None,
+            UpdateGeomByCommand=lambda *_: SimpleNamespace(
+                CmdCommitted=False,
+                Msg="Geometry command rejected",
+            ),
+        )
+        table = SimpleNamespace(
+            _net_table=net_table,
+            _user_defined_columns=set(),
+            get_muids=lambda: ["Link_2"],
+            name="msm_Link",
+        )
+        monkeypatch.setattr(
+            DotNetConverter,
+            "to_dotnet_geometry",
+            lambda geometry: geometry,
+        )
+
+        query = UpdateQuery(
+            table,
+            {"geometry": "LINESTRING (0 0, 1 1)"},
+        ).all()
+
+        with pytest.raises(RuntimeError, match="Geometry command rejected"):
+            query._execute_impl()
 
 
 class TestDeleteQuery:

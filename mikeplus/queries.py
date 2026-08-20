@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union
 if TYPE_CHECKING:
     from .tables import BaseTable
 
-
 from System.Data import ConnectionState
 
 from .dotnet import DotNetConverter
@@ -318,18 +317,49 @@ class InsertQuery(BaseQuery[str]):
     def _execute_impl(self) -> str:
         """Implement the INSERT query execution.
 
+        Supplied field names are matched case-insensitively to their canonical
+        MIKE+ schema names. Strings assigned to schema-declared DateTime fields
+        are parsed before conversion to .NET values. If no MUID is supplied,
+        MIKE+ generates a unique one. Geometry and user-defined fields are
+        handled separately from ordinary fields.
+
         Returns
         -------
         str
-
             The MUID of the newly inserted row
 
+        Raises
+        ------
+        ValueError
+            If the requested MUID already exists in the active scenario.
 
+        Notes
+        -----
+        Conversion and MIKE+ SDK exceptions are allowed to propagate. This
+        method is called internally by ``BaseQuery.execute``.
 
         """
         net_table = self._table._net_table
 
         values = self._values.copy()
+
+        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
+
+        canonical_names = {
+            name.casefold(): name
+            for name in [*self._table.columns, *ud_columns]
+        }
+        canonical_names.update({"muid": "MUID", "geometry": "geometry"})
+
+        values = {
+            canonical_names.get(name.casefold(), name): value
+            for name, value in values.items()
+        }
+
+        column_types = {
+            column.Field.casefold(): column.DbType
+            for column in net_table.Columns
+        }
 
         muid = values.pop("MUID", net_table.CreateUniqueMuid())
 
@@ -344,11 +374,10 @@ class InsertQuery(BaseQuery[str]):
             geometry = DotNetConverter.to_dotnet_geometry(geometry)
 
         # Split values into user-defined and non-user-defined
-        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
         non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
-        net_values = DotNetConverter.to_dotnet_dictionary(non_ud_values)
+        net_values = DotNetConverter.to_dotnet_dictionary(non_ud_values, column_types)
 
         _, inserted_muid = net_table.InsertByCommand(
             muid,
@@ -358,7 +387,14 @@ class InsertQuery(BaseQuery[str]):
 
         # Set user-defined values after insert (not by command)
         for col, val in ud_values.items():
-            net_table.SetValue(inserted_muid, col, DotNetConverter.to_dotnet_value(val))
+            net_table.SetValue(
+                inserted_muid,
+                col,
+                DotNetConverter.to_dotnet_value(
+                    val,
+                    column_types.get(col.casefold()),
+                ),
+            )
 
         return inserted_muid
 
@@ -396,13 +432,27 @@ class UpdateQuery(BaseQuery[list[str]]):
     def _execute_impl(self) -> list[str]:
         """Implement the UPDATE query execution.
 
+        Schema-declared DateTime strings are parsed before conversion.
+        Ordinary fields are updated with ``SetValuesByCommand`` and geometry
+        is updated separately with ``UpdateGeomByCommand``. User-defined fields
+        are applied individually after those commands.
+
         Returns
         -------
         list of str
-
             List of MUIDs updated
 
+        Raises
+        ------
+        ValueError
+            If no filter is supplied and ``all()`` was not called explicitly.
+        RuntimeError
+            If a requested geometry update does not commit.
 
+        Notes
+        -----
+        Conversion and MIKE+ SDK exceptions are allowed to propagate. This
+        method is called internally by ``BaseQuery.execute``.
 
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
@@ -415,7 +465,18 @@ class UpdateQuery(BaseQuery[list[str]]):
 
         net_table = self._table._net_table
 
+        column_types = {
+            column.Field.casefold(): column.DbType
+            for column in net_table.Columns
+        }
+
         values = self._values.copy()
+
+        geometry_key = next(
+            (key for key in values if key.casefold() == "geometry"),
+            None,
+        )
+        geometry = values.pop(geometry_key) if geometry_key is not None else None
 
         # Split values into user-defined and non-user-defined
         ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
@@ -423,7 +484,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
         net_values_non_ud = (
-            DotNetConverter.to_dotnet_dictionary(non_ud_values)
+            DotNetConverter.to_dotnet_dictionary(non_ud_values, column_types)
             if non_ud_values
             else None
         )
@@ -443,8 +504,27 @@ class UpdateQuery(BaseQuery[list[str]]):
             if net_values_non_ud is not None:
                 net_table.SetValuesByCommand(muid, net_values_non_ud)
 
+            if geometry is not None:
+                result = net_table.UpdateGeomByCommand(
+                    muid,
+                    DotNetConverter.to_dotnet_geometry(geometry),
+                )
+
+                if not result.CmdCommitted:
+                    raise RuntimeError(
+                        result.Msg
+                        or f"Geometry update failed for {self._table.name}, MUID {muid}"
+                    )
+
             for col, val in ud_values.items():
-                net_table.SetValue(muid, col, DotNetConverter.to_dotnet_value(val))
+                net_table.SetValue(
+                    muid,
+                    col,
+                    DotNetConverter.to_dotnet_value(
+                        val,
+                        column_types.get(col.casefold()),
+                    ),
+                )
             updated_muids.append(muid)
 
         return updated_muids

@@ -11,13 +11,13 @@ import clr  # noqa: F401
 import datetime
 from typing import Any, Dict
 
-import pandas as pd
-
 import System
 from System import String, Object, Nullable
 from System.Collections.Generic import List, IList, IDictionary, Dictionary
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 
+from System.Data import DbType
+import pandas as pd
 
 def get_implementation(net_object: Any, raw: bool = False) -> Any:
     """Get the implementation of a .NET interface object.
@@ -53,18 +53,26 @@ class DotNetConverter:
     """
 
     @staticmethod
-    def to_dotnet_value(value: Any) -> Any:
-        """Convert a Python value to its appropriate .NET equivalent for database operations.
+    def to_dotnet_value(value: Any, db_type: DbType | None = None) -> Any:
+        """Convert a Python value to its appropriate .NET equivalent.
+
+        String values for Double fields accept either dot or comma as the
+        decimal separator. Strings for DateTime fields are parsed and converted
+        to ``System.DateTime``. Other strings are returned unchanged.
 
         Parameters
         ----------
         value : Any
             The Python value to convert
 
+        db_type : DbType, optional
+            Destination database type. Used to identify Double and DateTime fields.
+
         Returns
         -------
         Any
-            The converted .NET value
+            Converted .NET value, or the original value when no conversion is
+            required.
 
         """
         if value is None:
@@ -78,13 +86,16 @@ class DotNetConverter:
         elif isinstance(value, datetime.datetime):
             return DotNetConverter.to_dotnet_datetime(value)
         elif isinstance(value, str):
-            try:
-                value = pd.to_datetime(value)
-            except ValueError:
-                pass
-            if isinstance(value, datetime.datetime):
-                return DotNetConverter.to_dotnet_datetime(value)
-            return value  # Strings automatically convert
+            if db_type == DbType.Double:
+                try:
+                    return Nullable[float](float(value.replace(",", ".")))
+                except ValueError:
+                    return value
+            if db_type != DbType.DateTime:
+                return value
+            value = pd.to_datetime(value).to_pydatetime()
+            return DotNetConverter.to_dotnet_datetime(value)
+
         elif isinstance(value, list):
             return DotNetConverter.as_dotnet_list(value)
         # Add other type conversions as needed
@@ -119,6 +130,7 @@ class DotNetConverter:
     @staticmethod
     def to_dotnet_dictionary(
         py_dict: Dict[str, Any],
+        column_types: Dict[str, DbType] | None = None
     ) -> Dictionary[String, Object]:
         """Convert a Python dictionary to a .NET Dictionary.
 
@@ -130,6 +142,9 @@ class DotNetConverter:
         py_dict : Dict[str, Any]
             Python dictionary to convert
 
+        column_types : Dict[str, DbType], optional
+            Casefold field names mapped to their destination database types.
+
         Returns
         -------
         Dictionary[String, Object]
@@ -137,12 +152,14 @@ class DotNetConverter:
 
         """
         net_dict = Dictionary[String, Object]()
+        column_types = column_types or {}
 
         if not py_dict:
             return net_dict
 
         for key, value in py_dict.items():
-            net_dict[key] = DotNetConverter.to_dotnet_value(value)
+            db_type = column_types.get(key.casefold())
+            net_dict[key] = DotNetConverter.to_dotnet_value(value, db_type)
 
         return net_dict
 
