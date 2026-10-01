@@ -87,12 +87,41 @@ quartodoc:
       contents:
         - open
         - create
+        - to_sql
     - title: Database
       desc: ""
       contents:
         - Database
+        - DatabaseError
         - name: TableCollection
           package: mikeplus.tables.auto_generated
+    - title: Queries
+      desc: "Returned by the `select`, `insert`, `update` and `delete` methods of a table."
+      package: mikeplus.queries
+      contents:
+        - BaseQuery
+        - SelectQuery
+        - InsertQuery
+        - UpdateQuery
+        - DeleteQuery
+    - title: Scenarios
+      desc: "Returned by `Database.scenarios` and `Database.alternative_groups`."
+      package: mikeplus.scenarios
+      contents:
+        - ScenarioCollection
+        - Scenario
+        - AlternativeGroupCollection
+        - AlternativeGroup
+        - Alternative
+    - title: Table base classes
+      desc: "Shared by every table in `Database.tables`."
+      package: mikeplus.tables
+      contents:
+        - BaseTable
+        - BaseGeometryTable
+        - BaseNodeTable
+        - BaseColumns
+        - BaseTableCollection
     - title: Tables
       package: mikeplus.tables.auto_generated
       contents:
@@ -116,6 +145,7 @@ quartodoc:
       - m2d_ADPrecipitationArea
       - m2d_ADPrecipitationD
       - m2d_BndDistributedSource
+      - m2d_BndGlobalSetting
       - m2d_BndQHRelation
       - m2d_Boundary
       - m2d_Coupling
@@ -126,6 +156,7 @@ quartodoc:
       - m2d_GlobalSetting
       - m2d_GridDefinition
       - m2d_GridInactiveArea
+      - m2d_GridInactiveAreaLayer
       - m2d_InfBuilding
       - m2d_InfRoad
       - m2d_Infiltration
@@ -147,6 +178,7 @@ quartodoc:
       - m_CustomConfig
       - m_CustomUnit
       - m_DefaultValue
+      - m_GenericSetting
       - m_GlobalParameter
       - m_Measurement
       - m_Media
@@ -332,6 +364,8 @@ quartodoc:
       - mss_HydrographD
       - mss_Inflow
       - mss_InflowD
+      - mss_Inlet
+      - mss_InletConduitCon
       - mss_LIDControl
       - mss_LIDControlD
       - mss_LIDusage
@@ -345,11 +379,13 @@ quartodoc:
       - mss_Pattern
       - mss_Pollutant
       - mss_Project
+      - mss_ProjectEvents
       - mss_Pump
       - mss_RDII
       - mss_Raingauge
       - mss_Rule
       - mss_SnowPack
+      - mss_Street
       - mss_Tab
       - mss_TabD
       - mss_Temperature
@@ -410,6 +446,9 @@ quartodoc:
       - mw_TraceNode
       - mw_Turbine
       - mw_Valve
+      - mw_WDOAggSensors
+      - mw_WDOAggSensorsD
+      - mw_WDOAmi
       - mw_WDOComparisons
       - mw_WDOControls
       - mw_WDODemandPredictions
@@ -419,8 +458,21 @@ quartodoc:
       - mw_WH_Boundary
       - mw_ZoneDef
       - mw_ZoneWB
-
-        
+    - title: Tools
+      desc: ""
+      package: mikeplus.tools
+      contents:
+        - ImportTool
+        - InterpolationTool
+        - TopoRepairTool
+        - ConnectionRepairTool
+        - CathSlopeLengthProcess
+    - title: Utilities
+      desc: ""
+      package: mikeplus.utilities
+      contents:
+        - get_nearest_river_at
+        - get_nearest_river_chainage_at
 
 metadata-files:
   - api/_sidebar.yml

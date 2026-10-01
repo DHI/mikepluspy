@@ -104,7 +104,7 @@ Operations like `update().all().execute()` or `delete().all().execute()` will af
 *   Use these commands with extreme care.
 :::
 
-To prevent accidental modification of all rows, `mikepluspy` will raise a `ValueError` if `update()` is called without `where()` or `all()`. To update all rows in a table (use with caution):
+To prevent accidental modification of all rows, MIKE+Py will raise a `ValueError` if `update()` is called without `where()` or `all()`. To update all rows in a table (use with caution):
 ```python
 # This would attempt to set Description for all nodes
 # Ensure this is intended and the table is correct!

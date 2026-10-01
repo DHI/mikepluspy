@@ -34,6 +34,11 @@ def get_implementation(net_object: Any, raw: bool = False) -> Any:
     Any
         The implementation of the .NET object
 
+    Raises
+    ------
+    ValueError
+        If `net_object` is not a Python.NET interface object
+
     """
     if not hasattr(net_object, "__implementation__"):
         raise ValueError(f"Expected Python.NET interface object, got: {net_object}")
@@ -199,7 +204,7 @@ class DotNetConverter:
             return GeoAPIHelper.GetIGeometryFromWKT(wkt)
 
     @staticmethod
-    def as_dotnet_list(py_list: list, dotnet_type=None) -> List:
+    def as_dotnet_list(py_list: list, dotnet_type: Any = None) -> List:
         """Convert a Python list to a .NET List.
 
         Parameters
@@ -256,7 +261,7 @@ class DotNetConverter:
 
     @staticmethod
     def from_dotnet_datetime(
-        dt: System.DateTime, round_to_milliseconds=True
+        dt: System.DateTime, round_to_milliseconds: bool = True
     ) -> datetime.datetime:
         """Convert from .NET System.DateTime to Python datetime.
 
@@ -312,7 +317,7 @@ class DotNetConverter:
 # but make them delegate to the DotNetConverter class methods
 
 
-def as_dotnet_list(py_list: list, dotnet_type=None):
+def as_dotnet_list(py_list: list, dotnet_type: Any = None) -> List:
     """Convert Python list to .NET List.
 
     Parameters
@@ -331,7 +336,7 @@ def as_dotnet_list(py_list: list, dotnet_type=None):
     return DotNetConverter.as_dotnet_list(py_list, dotnet_type)
 
 
-def to_dotnet_datetime(x):
+def to_dotnet_datetime(x: datetime.datetime) -> System.DateTime:
     """Convert from Python datetime to .NET System.DateTime.
 
     Parameters
@@ -348,7 +353,9 @@ def to_dotnet_datetime(x):
     return DotNetConverter.to_dotnet_datetime(x)
 
 
-def from_dotnet_datetime(x, round_to_milliseconds=True):
+def from_dotnet_datetime(
+    x: System.DateTime, round_to_milliseconds: bool = True
+) -> datetime.datetime:
     """Convert from .NET System.DateTime to Python datetime.
 
     Parameters
@@ -367,7 +374,7 @@ def from_dotnet_datetime(x, round_to_milliseconds=True):
     return DotNetConverter.from_dotnet_datetime(x, round_to_milliseconds)
 
 
-def from_dotnet_dict(dotnet_dict):
+def from_dotnet_dict(dotnet_dict: IDictionary) -> dict[str, Any] | None:
     """Convert a .NET IDictionary to a Python dictionary.
 
     Parameters
@@ -382,3 +389,6 @@ def from_dotnet_dict(dotnet_dict):
 
     """
     return DotNetConverter.from_dotnet_dictionary(dotnet_dict)
+
+
+__all__: list[str] = []

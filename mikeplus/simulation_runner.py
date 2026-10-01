@@ -78,6 +78,13 @@ class SimulationRunner:
         -------
         list[Path]
             Paths to the result files.
+
+        Raises
+        ------
+        ValueError
+            If `sim_option` is invalid, or not given and the active model does not
+            determine one.
+
         """
         VALID_OPTIONS = (
             "CS_MIKE_1D",
@@ -206,7 +213,7 @@ class SimulationRunner:
 
         return self._get_result_files("mw_Project", sim_muid)
 
-    def run_swmm(self, sim_muid: str | None = None) -> List[Path]:
+    def run_swmm(self, sim_muid: str | None = None) -> list[Path]:
         """Run an SWMM urban drainage simulation.
 
         Parameters
@@ -236,7 +243,14 @@ class SimulationRunner:
         return self._get_result_files("mss_Project", sim_muid)
 
     def _get_sim_muid(self, sim_muid: str | None) -> str:
-        """Get simulation MUID, or active simulation MUID if None."""
+        """Get simulation MUID, or active simulation MUID if None.
+
+        Returns
+        -------
+        str
+            The simulation MUID.
+
+        """
         if sim_muid is None:
             return self._database.active_simulation
         return sim_muid
@@ -244,7 +258,14 @@ class SimulationRunner:
     def _handle_engine_launch(
         self, success: bool, launcher: DhiEngineSimpleLauncher, messages: List[String]
     ) -> None:
-        """Handle engine launch: starts launcher or raises error."""
+        """Handle engine launch: starts launcher or raises error.
+
+        Raises
+        ------
+        RuntimeError
+            If the engine failed to launch.
+
+        """
         if not success or launcher is None:
             messages_str = ". ".join(messages) if messages else "Unknown error"
             raise RuntimeError(f"Simulation failed to start: {messages_str}")
@@ -266,8 +287,15 @@ class SimulationRunner:
 
     def _get_result_files(
         self, project_table_name: str, sim_muid: str, is_lts_joblist: bool = False
-    ) -> List[Path]:
-        """Get result file paths for the completed simulation."""
+    ) -> list[Path]:
+        """Get result file paths for the completed simulation.
+
+        Returns
+        -------
+        list[Path]
+            Paths to the result files.
+
+        """
         if is_lts_joblist:
             return self._get_result_file_lts_job_list(sim_muid)
 
@@ -291,3 +319,6 @@ class SimulationRunner:
 
         result_file_name = f"{sim_muid}{scenario}.MJL"
         return [Path(self._database.db_path.parent / result_file_name)]
+
+
+__all__: list[str] = []

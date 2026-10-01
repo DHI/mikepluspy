@@ -43,3 +43,6 @@ def check_conflicts():
             category=UserWarning,
             stacklevel=2,
         )
+
+
+__all__: list[str] = []

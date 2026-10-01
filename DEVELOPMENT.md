@@ -2,6 +2,27 @@
 
 This is a space for documenting standard development and maintenance processes.
 
+## Task runner
+
+Development tasks are [just](https://just.systems) recipes, run from the
+repository root; `just` lists them. Recipes are the stable interface for
+contributors, agents and CI, so call `just <recipe>` rather than the tools
+behind it. You need `just` and [uv](https://docs.astral.sh/uv/) on your PATH.
+
+```bash
+just setup              # create .venv and install .[dev]; `just setup dev,docs` adds docs extras
+just lint               # ruff, formatting and the public API check; no MIKE+ needed
+just lint-changed       # stricter rules on files changed since main; `just lint-changed <base>`
+just typecheck          # mypy
+just fix                # apply formatting and safe lint fixes
+just test               # pytest; extra arguments go to pytest, e.g. `just test -m slow`
+just check              # lint + typecheck + test: run before opening a PR
+```
+
+`lint-changed` adds annotation rules (ANN001, ANN201) and Returns/Raises
+docstring sections (DOC201, DOC501). They are not enforced repo-wide because of
+the existing backlog; make the files you touch pass so it shrinks.
+
 ## Compatibility principle: no breaking changes within a year line
 
 Within a MIKE+ year (all `2026.x.x` releases), avoid changes that break users
@@ -16,6 +37,55 @@ Save genuine breaks for the next year bump.
   rather than swapping. See `SimulationRunner.__init__`. Tag fallbacks with
   `TODO(<next year>)` for cleanup at the year bump.
 
+## Public API
+
+The public API is the names in `__all__` of `mikeplus`, of its public
+subpackages, and of the public modules directly in `mikeplus/`, plus every
+non-underscore member of an exported class. A module or package whose name
+starts with a single underscore is private, along with everything in it.
+Everything public is covered by the compatibility principle above; anything
+else may change in any release.
+
+`just api` checks this against the source and the docs, and runs in CI as
+part of `just lint`. It reads files only, so it needs no MIKE+ install.
+
+### What is public
+
+- `mikeplus`: `open`, `create`, `Database`, `DatabaseError`, `to_sql`.
+- `mikeplus.queries`: the query classes returned by `select`, `insert`,
+  `update` and `delete` on a table.
+- `mikeplus.scenarios`, `mikeplus.tools`, `mikeplus.utilities`: their
+  `__all__`.
+- `mikeplus.tables`: the base table classes and every auto-generated table
+  class, which it re-exports from `mikeplus.tables.auto_generated`.
+
+Import from those packages, not from the modules that implement them
+(`mikeplus.scenarios`, not `mikeplus.scenarios.scenario`). `mikeplus.shortcuts`,
+`mikeplus.utils` and `mikeplus.database` list the names they define for
+`mikeplus` to re-export, but `mikeplus` is the documented path.
+
+### What is internal
+
+`mikeplus.conflicts`, `mikeplus.dotnet` and `mikeplus.simulation_runner`
+declare an empty `__all__`: they are the machinery behind `import mikeplus` and
+`Database.run`, and they deal in .NET types. Their names still import, so no
+caller breaks, but they may change without notice. Put new internal code in
+underscore-prefixed modules so the name says it.
+
+### Rules for public code
+
+- A new public name goes in `__all__` and in the docs: the user guide, or the
+  quartodoc sections in `docs/_quarto.yml`. Listing a module in quartodoc
+  documents every class in it, which is how the auto-generated tables are
+  covered.
+- Public signatures must not mention .NET (`DHI.*`, `System.*`, `ThinkGeo.*`)
+  or underscore-private types. A signature that exposes one on purpose, such
+  as an escape hatch to the underlying .NET object, carries the comment
+  `# api: allow-leaked-type` on its `def` line or on the line that closes it.
+  The marker records a decision; it is not a way to silence the linter.
+- The linter only sees .NET names imported with `from DHI... import X`, and
+  only reads annotations, so unannotated signatures go unchecked.
+
 ## Release process for new MIKE+ versions
 
 When a new version of MIKE+ is released, the following needs to be done before releasing a corresponing Python vesrion:
@@ -24,9 +94,9 @@ When a new version of MIKE+ is released, the following needs to be done before r
 2. Set environment variable MIKEPLUSPY_INSTALL_ROOT to the root install directory of the new version (the parent folder of bin).
 3. Confirm assemblies are loaded via procmon or similar when running test suite.
 4. Update auto-generated tables (since database schema can change version to version)
-    - Run `python scripts/generate_tables.py` from root directory
+    - Run `just generate-tables`
     - Check the git diff to see if the changes to auto generated tables make sense (it should be adding or removing columns)
-5. Run test suite (make sure all green)
+5. Run test suite, `just test` and `just test -m slow` (make sure all green)
 6. Run all notebooks (make sure all cells run with readable output)
 7. Be aware that runtimeconfig.json *may* need to change if MIKE+ runtime changes, though that should not happen often.
 8. Update the package init to link to the new version
@@ -36,8 +106,9 @@ When a new version of MIKE+ is released, the following needs to be done before r
 10. Update CI runner to use the new MIKE+ version
 11. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
 12. Update auto generated table documentation.
-    - `uv run .\docs\generate_table_docs.py`
+    - `just table-docs`
     - Review the diff in `docs/_table_generated_sections.yml`. It may be the same, or include new or removed tables.
+    - Copy its contents into the `Tables` section of `docs/_quarto.yml`.
 Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.
 
 ## Documentation
@@ -45,9 +116,9 @@ Note that the above list is a guideline and may not be exaustive. Automation of 
 To build the documentation locally, follow these steps:
 
 1. Install quarto
-2. Run the following from `docs` as the root:
-    - `uv run quartodoc build` ... if this seems to hang, use the `--verbose` flag, it's just really slow due to auto generated tables.
-    - `uv run quarto render`
-... wip
+2. `just setup dev,docs`
+3. `just docs`, which builds into `docs/_site`. `quartodoc build` is really slow
+   because of the auto-generated tables; if it seems to hang, run
+   `uv run --no-sync quartodoc build --verbose` from `docs` to watch progress.
 
 
