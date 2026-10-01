@@ -1,5 +1,9 @@
 """Util to do spatial analysis for MIKE+ geometry data."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from ThinkGeo.Core import (
     BaseShape,
@@ -7,24 +11,31 @@ from ThinkGeo.Core import (
     PointShape,
 )
 
+if TYPE_CHECKING:
+    from ..database import Database
 
-def get_nearest_river_chainage_at(database, x: float, y: float, tolorance: float):
-    """Get the nearest river chainage location by a give (x,y) location.
+
+def get_nearest_river_chainage_at(
+    database: Database, x: float, y: float, tolorance: float
+) -> list[str | float] | None:
+    """Get the river and chainage nearest to a point.
 
     Parameters
     ----------
-    database : Database or DataTables
+    database : Database
+        An open database.
     x : float
-        x coordinate of target search location
+        X coordinate of the point.
     y : float
-        y coordinate of target search location
+        Y coordinate of the point.
     tolorance : float
-        search radiu distance
+        Search radius around the point.
 
     Returns
     -------
-    [str, float]
-        first value is the river name, second value is the chainage value
+    list[str | float] | None
+        `[river_name, chainage]` for the nearest point on the nearest river,
+        or None if no river lies within the search radius.
 
     """
     river_id = database.tables.mrm_Branch._net_table.GetNearestMuid(
@@ -46,23 +57,26 @@ def get_nearest_river_chainage_at(database, x: float, y: float, tolorance: float
         return None
 
 
-def get_nearest_river_at(database, x: float, y: float, tolorance: float):
-    """Get the nearest river name by a give (x,y) location.
+def get_nearest_river_at(
+    database: Database, x: float, y: float, tolorance: float
+) -> str | None:
+    """Get the name of the river nearest to a point.
 
     Parameters
     ----------
-    database : Database or DataTables
+    database : Database
+        An open database.
     x : float
-        x coordinate of target search location
+        X coordinate of the point.
     y : float
-        y coordinate of target search location
+        Y coordinate of the point.
     tolorance : float
-        search radiu distance
+        Search radius around the point.
 
     Returns
     -------
-    str:
-        river name
+    str | None
+        The river name, or None if no river lies within the search radius.
 
     """
     river_id = database.tables.mrm_Branch._net_table.GetNearestMuid(
