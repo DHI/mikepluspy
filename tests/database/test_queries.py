@@ -3,8 +3,6 @@ Tests for the query classes implementing the fluent SQL API.
 """
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import pytest
 import pandas as pd
 import datetime
@@ -16,25 +14,7 @@ from mikeplus.queries import SelectQuery
 from mikeplus.queries import InsertQuery
 from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
-from mikeplus.dotnet import DotNetConverter
 from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table_columns import BaseColumns
-
-
-def _fake_table(columns, **net_table_methods):
-    """Build a stand-in table whose .NET side records calls instead of hitting MIKE+."""
-    net_table = SimpleNamespace(
-        Columns=[SimpleNamespace(Field=name, DbType=None) for name in columns],
-        **net_table_methods,
-    )
-    table = SimpleNamespace(
-        _net_table=net_table,
-        _user_defined_columns=set(),
-        get_muids=lambda: ["Link_2"],
-        name="msm_Link",
-    )
-    table.columns = BaseColumns(table)
-    return table
 
 
 class TestBaseQuery:
@@ -449,48 +429,16 @@ class TestInsertQuery:
         finally:
             db.close()
 
-    def test_insert_sends_canonical_field_names_to_command(self):
-        """Normalize field names before crossing the MIKE+ command boundary."""
-        captured = {}
-
-        def insert_by_command(muid, geometry, values):
-            captured["muid"] = muid
-            captured["geometry"] = geometry
-            captured["fields"] = set(values.Keys)
-            return None, muid
-
-        table = _fake_table(
-            ["MUID", "Diameter", "Length", "Description"],
-            CreateUniqueMuid=lambda: "generated_muid",
-            IsMuidExistInActive=lambda *_: False,
-            InsertByCommand=insert_by_command,
-        )
-        values = {
-            "muid": "case_insensitive_link",
-            "diameter": 12.5,
-            "length": 100.0,
-            "description": "Test lowercase field names",
-        }
-
-        inserted_muid = InsertQuery(table, values)._execute_impl()
-
-        assert inserted_muid == values["muid"]
-        assert captured == {
-            "muid": values["muid"],
-            "geometry": None,
-            "fields": {"Diameter", "Length", "Description"},
-        }
-
-    def test_insert_rejects_field_names_differing_only_in_case(self):
+    def test_insert_rejects_field_names_differing_only_in_case(self, table):
         """Refuse to silently drop one of two values for the same field."""
-        table = _fake_table(
-            ["MUID", "Diameter"],
-            CreateUniqueMuid=lambda: "generated_muid",
-            IsMuidExistInActive=lambda *_: False,
-        )
+        muid = "duplicate_casing_link"
 
         with pytest.raises(ValueError, match="Diameter"):
-            InsertQuery(table, {"Diameter": 1.0, "diameter": 2.0})._execute_impl()
+            InsertQuery(
+                table, {"MUID": muid, "Diameter": 1.0, "diameter": 2.0}
+            ).execute()
+
+        assert muid not in table.get_muids()
 
 
 class TestUpdateQuery:
@@ -649,86 +597,32 @@ class TestUpdateQuery:
         finally:
             db.close()
 
-    def test_geometry_uses_geometry_command(self, monkeypatch):
-        """Route geometry separately instead of using the ordinary field command."""
-        captured = {}
-        converted_geometry = object()
+    def test_geometry_command_failure_raises(self, table):
+        """Expose a geometry update that MIKE+ refuses to commit."""
+        muid = "Link_2"
+        previous_geometry = table._net_table.GetGeometry(muid).AsText()
 
-        def set_values_by_command(muid, values):
-            captured["ordinary"] = (muid, list(values.Keys))
+        # MIKE+ rejects a point on a link with CmdCommitted=False and Msg=None.
+        with pytest.raises(RuntimeError, match=f"msm_Link, MUID {muid}"):
+            table.update({"geometry": "POINT (0 0)"}).by_muid(muid).execute()
 
-        def update_geom_by_command(muid, geometry):
-            captured["geometry"] = (muid, geometry)
-            return SimpleNamespace(CmdCommitted=True, Msg="")
+        assert table._net_table.GetGeometry(muid).AsText() == previous_geometry
 
-        table = _fake_table(
-            ["MUID"],
-            SetValuesByCommand=set_values_by_command,
-            UpdateGeomByCommand=update_geom_by_command,
-        )
-        monkeypatch.setattr(
-            DotNetConverter,
-            "to_dotnet_geometry",
-            lambda _: converted_geometry,
-        )
+    def test_update_lowercase_field_names(self, sirius_db):
+        """Update a field supplied in lowercase."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
 
-        updated_muids = UpdateQuery(
-            table,
-            {"geometry": "LINESTRING (0 0, 1 1)"},
-        ).all()._execute_impl()
+            updated = table.update({"diameter": 1.2}).by_muid(muid).execute()
 
-        assert updated_muids == ["Link_2"]
-        assert "ordinary" not in captured
-        assert captured["geometry"] == ("Link_2", converted_geometry)
-
-    def test_geometry_command_failure_raises(self, monkeypatch):
-        """Expose a failed geometry commit instead of reporting a successful update."""
-        table = _fake_table(
-            ["MUID"],
-            SetValuesByCommand=lambda *_: None,
-            UpdateGeomByCommand=lambda *_: SimpleNamespace(
-                CmdCommitted=False,
-                Msg="Geometry command rejected",
-            ),
-        )
-        monkeypatch.setattr(
-            DotNetConverter,
-            "to_dotnet_geometry",
-            lambda geometry: geometry,
-        )
-
-        query = UpdateQuery(
-            table,
-            {"geometry": "LINESTRING (0 0, 1 1)"},
-        ).all()
-
-        with pytest.raises(RuntimeError, match="Geometry command rejected"):
-            query._execute_impl()
-
-    def test_update_sends_canonical_field_names_to_command(self):
-        """Send canonical field names across the MIKE+ command boundary."""
-        captured = {}
-
-        def set_values_by_command(muid, values):
-            captured["muid"] = muid
-            captured["fields"] = set(values.Keys)
-
-        table = _fake_table(
-            ["MUID", "Diameter", "Description"],
-            SetValuesByCommand=set_values_by_command,
-        )
-
-        updated = (
-            UpdateQuery(table, {"diameter": 1.2})
-            .all()
-            ._execute_impl()
-        )
-
-        assert updated == ["Link_2"]
-        assert captured == {
-            "muid": "Link_2",
-            "fields": {"Diameter"},
-        }
+            assert updated == [muid]
+            assert table.select(["Diameter"]).by_muid(muid).execute()[muid][0] == (
+                pytest.approx(1.2)
+            )
+        finally:
+            db.close()
 
 
 class TestDeleteQuery:
