@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pytest *)",
+      "Bash(python -m pytest *)",
+      "Bash(uv run pytest *)",
+      "Bash(ruff *)",
+      "Bash(uv run ruff *)",
+      "Bash(mypy *)",
+      "Bash(uv run mypy *)",
+      "Bash(uv pip install *)",
+      "Bash(python scripts/generate_tables.py*)",
+      "Bash(uv run scripts/generate_tables.py*)",
+      "PowerShell(pytest *)",
+      "PowerShell(python -m pytest *)",
+      "PowerShell(uv run pytest *)",
+      "PowerShell(ruff *)",
+      "PowerShell(uv run ruff *)",
+      "PowerShell(mypy *)",
+      "PowerShell(uv run mypy *)",
+      "PowerShell(uv pip install *)",
+      "PowerShell(python scripts/generate_tables.py*)",
+      "PowerShell(uv run scripts/generate_tables.py*)"
+    ],
+    "deny": [
+      "Edit(/mikeplus/tables/auto_generated/**)",
+      "Edit(/tests/testdata/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/ruff_on_edit.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
