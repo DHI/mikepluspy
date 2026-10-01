@@ -119,6 +119,16 @@ class TestSelectQuery:
         query = SelectQuery(table, "Diameter")
         assert query._columns == ["Diameter"]
 
+    def test_select_single_column_through_table(self, table):
+        """table.select() takes a lone column name in any casing."""
+        df = table.select("diameter").to_pandas()
+        assert list(df.columns) == ["Diameter"]
+
+    def test_select_empty_string_column(self, table):
+        """An empty column name is invalid, not a request for all columns."""
+        with pytest.raises(ValueError):
+            SelectQuery(table, "")
+
     def test_invalid_columns(self, table):
         """Test selecting invalid columns raises a ValueError."""
         with pytest.raises(ValueError):

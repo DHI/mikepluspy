@@ -17,6 +17,8 @@
 
 ### Fixed
 
+- `select()` accepts a single column name instead of splitting it into characters (#44).
+
 ### Security
 
 ## [2026.1.0] - 2026-06-23

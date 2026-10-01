@@ -58,7 +58,7 @@ df_sorted_nodes = query.where(f"Diameter > {min_diam}") \
                        .to_pandas()
 ```
 
-If `columns` is not specified in `select()`, all columns are returned.
+A single column can be passed as a string, e.g. `nodes_table.select("Diameter")`. If `columns` is not specified in `select()`, all columns are returned.
 
 ## {{< fa plus >}} Inserting Data
 
