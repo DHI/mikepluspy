@@ -8,6 +8,7 @@ for database operations and interacting with the MIKE+ .NET API.
 from __future__ import annotations
 
 import datetime
+import re
 from typing import Any
 
 import clr  # noqa: F401
@@ -17,6 +18,8 @@ from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
 from System import Nullable, Object, String
 from System.Collections.Generic import Dictionary, IDictionary, IList, List
 from System.Data import DbType
+
+_DECIMAL_STRING = re.compile(r"[+-]?(\d+([.,]\d*)?|[.,]\d+)([eE][+-]?\d+)?")
 
 
 def get_implementation(net_object: Any, raw: bool = False) -> Any:
@@ -56,10 +59,11 @@ class DotNetConverter:
     def to_dotnet_value(value: Any, db_type: DbType | None = None) -> Any:
         """Convert a Python value to its appropriate .NET equivalent.
 
-        String values for Double fields accept either dot or comma as the
-        decimal separator. Strings for DateTime fields are parsed and converted
-        to ``System.DateTime``; an empty string becomes ``None``. Other strings
-        are returned unchanged.
+        Strings for Double fields are parsed independently of the machine's
+        regional settings: a single ``.`` or ``,`` is the decimal separator,
+        and thousands separators are rejected. Strings for DateTime fields are
+        parsed and converted to ``System.DateTime``. For both, an empty string
+        becomes ``None``. Other strings are returned unchanged.
 
         Parameters
         ----------
@@ -75,6 +79,11 @@ class DotNetConverter:
             Converted .NET value, or the original value when no conversion is
             required.
 
+        Raises
+        ------
+        ValueError
+            If a string for a Double or DateTime field can't be parsed.
+
         """
         if value is None:
             return None
@@ -88,10 +97,7 @@ class DotNetConverter:
             return DotNetConverter.to_dotnet_datetime(value)
         elif isinstance(value, str):
             if db_type == DbType.Double:
-                try:
-                    return Nullable[float](float(value.replace(",", ".")))
-                except ValueError:
-                    return value
+                return DotNetConverter._parse_double(value)
             if db_type != DbType.DateTime:
                 return value
             if not value.strip():
@@ -103,6 +109,20 @@ class DotNetConverter:
             return DotNetConverter.as_dotnet_list(value)
         # Add other type conversions as needed
         return value
+
+    @staticmethod
+    def _parse_double(value: str) -> Any:
+        # Parse here rather than pass the string on, so the stored number never
+        # depends on how MIKE+ or the machine's regional settings read it.
+        text = value.strip()
+        if not text:
+            return None
+        if not _DECIMAL_STRING.fullmatch(text):
+            raise ValueError(
+                f"Cannot parse {value!r} as a number. Use a single '.' or ',' "
+                "as the decimal separator and no thousands separators."
+            )
+        return Nullable[float](float(text.replace(",", ".")))
 
     @staticmethod
     def from_dotnet_value(value: Any) -> Any:
@@ -152,6 +172,11 @@ class DotNetConverter:
         Dictionary[String, Object]
             .NET Dictionary with converted values
 
+        Raises
+        ------
+        ValueError
+            If a value can't be converted; the message names the field.
+
         """
         net_dict = Dictionary[String, Object]()
         column_types = column_types or {}
@@ -161,7 +186,10 @@ class DotNetConverter:
 
         for key, value in py_dict.items():
             db_type = column_types.get(key.casefold())
-            net_dict[key] = DotNetConverter.to_dotnet_value(value, db_type)
+            try:
+                net_dict[key] = DotNetConverter.to_dotnet_value(value, db_type)
+            except ValueError as error:
+                raise ValueError(f"{key}: {error}") from error
 
         return net_dict
 

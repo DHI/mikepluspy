@@ -25,6 +25,12 @@ def test_arbitrary_strings_are_not_inferred_as_datetimes(value):
         ("-1.2", -1.2),
         ("-1,2", -1.2),
         ("800", 800.0),
+        ("+3", 3.0),
+        (".5", 0.5),
+        (",5", 0.5),
+        (" 2,5 ", 2.5),
+        ("1.5e3", 1500.0),
+        ("1,234", 1.234),
     ],
 )
 def test_double_strings_accept_dot_or_comma_decimal_separator(value, expected):
@@ -36,13 +42,28 @@ def test_double_strings_accept_dot_or_comma_decimal_separator(value, expected):
     assert converted.Value == pytest.approx(expected)
 
 
-@pytest.mark.parametrize("value", ["not a number", "1,2,3"])
-def test_invalid_double_strings_remain_strings(value):
-    """Leave invalid Double strings unchanged for MIKE+ to validate."""
-    converted = DotNetConverter.to_dotnet_value(value, DbType.Double)
+@pytest.mark.parametrize(
+    "value",
+    ["not a number", "1,2,3", "1.234,5", "1,234.5", "1 234", "1_000", "nan", "inf"],
+)
+def test_invalid_double_strings_raise(value):
+    """Reject strings whose meaning would depend on the reader's locale."""
+    with pytest.raises(ValueError, match="Cannot parse"):
+        DotNetConverter.to_dotnet_value(value, DbType.Double)
 
-    assert isinstance(converted, str)
-    assert converted == value
+
+@pytest.mark.parametrize("value", ["", "  "])
+def test_empty_double_strings_become_none(value):
+    """Treat an empty Double string as a null value."""
+    assert DotNetConverter.to_dotnet_value(value, DbType.Double) is None
+
+
+def test_dictionary_conversion_error_names_the_field():
+    """Say which field held the value that couldn't be converted."""
+    with pytest.raises(ValueError, match="^Diameter: Cannot parse '1.234,5'"):
+        DotNetConverter.to_dotnet_dictionary(
+            {"Diameter": "1.234,5"}, {"diameter": DbType.Double}
+        )
 
 
 def test_dictionary_conversion_respects_schema_column_types():

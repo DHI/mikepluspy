@@ -427,6 +427,15 @@ class TestInsertQuery:
         finally:
             db.close()
 
+    def test_insert_rejects_ambiguous_double_string(self, table):
+        """Refuse a number whose value would depend on the reader's locale."""
+        muid = "ambiguous_double_link"
+
+        with pytest.raises(ValueError, match="Diameter: Cannot parse"):
+            InsertQuery(table, {"MUID": muid, "Diameter": "1.234,5"}).execute()
+
+        assert muid not in table.get_muids()
+
     def test_insert_rejects_field_names_differing_only_in_case(self, table):
         """Refuse to silently drop one of two values for the same field."""
         muid = "duplicate_casing_link"
