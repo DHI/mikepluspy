@@ -91,6 +91,8 @@ class TestBaseQuery:
         else:
             with pytest.raises(expected_conditions):
                 base_query.by_muid(muid)
+
+
 class TestSelectQuery:
     """Tests for the SelectQuery class."""
 
@@ -292,6 +294,34 @@ class TestSelectQuery:
         assert len(df) == 8
         assert "Link_2" in df.index
 
+    @pytest.mark.parametrize(
+        "columns",
+        [
+            ["muid", "diameter"],
+            ["MuId", "DIAMETER"],
+        ],
+    )
+    def test_select_accepts_case_insensitive_columns(self, table, columns):
+        """Resolve selected columns before sending them to MIKE+."""
+        query = SelectQuery(table, columns).by_muid("Link_2")
+
+        result = query.execute()
+
+        assert query._columns == ["MUID", "Diameter"]
+        assert result["Link_2"] == ["Link_2", 1.0]
+
+    @pytest.mark.parametrize("column", ["muid", "MuId"])
+    def test_order_by_resolves_canonical_column_name(self, table, column):
+        """Resolve the ordering field to canonical MIKE+ casing."""
+        query = SelectQuery(table, ["MUID"]).order_by(column)
+
+        assert query._order_by == ("MUID", False)
+
+    def test_order_by_rejects_unknown_column(self, table):
+        """Raise the same error type as invalid selected columns."""
+        with pytest.raises(ValueError, match="Invalid column"):
+            SelectQuery(table, ["MUID"]).order_by("not_a_column")
+
 
 class TestInsertQuery:
     """Tests for the InsertQuery class."""
@@ -342,6 +372,80 @@ class TestInsertQuery:
         assert isinstance(inserted_muid, str)
 
         assert inserted_muid in table.get_muids()
+
+    def test_insert_accepts_lowercase_field_names(self, sirius_db):
+        """Insert lowercase field names into the SQLite integration fixture."""
+        values = {
+            "muid": "case_insensitive_link",
+            "diameter": 12.5,
+            "length": 100.0,
+            "description": "Test lowercase field names",
+        }
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+
+            inserted_muid = InsertQuery(table, values).execute()
+
+            expected = {
+                "MUID": values["muid"],
+                "Diameter": values["diameter"],
+                "Length": values["length"],
+                "Description": values["description"],
+            }
+            inserted = table.select(list(expected)).by_muid(inserted_muid).execute()
+
+            assert inserted_muid == values["muid"]
+            assert dict(zip(expected, inserted[inserted_muid])) == expected
+        finally:
+            db.close()
+
+    @pytest.mark.parametrize(
+        ("separator", "diameter"),
+        [("dot", "1.2"), ("comma", "1,2")],
+    )
+    def test_insert_double_string_accepts_either_decimal_separator(
+        self, sirius_db, separator, diameter
+    ):
+        """Insert a Double string independently of the machine locale."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = f"decimal_separator_insert_{separator}"
+
+            table.insert(
+                {
+                    "MUID": muid,
+                    "Diameter": diameter,
+                    "Length": 100.0,
+                    "Description": "Test locale-independent Double insert",
+                }
+            )
+
+            inserted = table.select(["Diameter"]).by_muid(muid).execute()
+            assert inserted[muid][0] == pytest.approx(1.2)
+        finally:
+            db.close()
+
+    def test_insert_rejects_ambiguous_double_string(self, table):
+        """Refuse a number whose value would depend on the reader's locale."""
+        muid = "ambiguous_double_link"
+
+        with pytest.raises(ValueError, match="Diameter: Cannot parse"):
+            InsertQuery(table, {"MUID": muid, "Diameter": "1.234,5"}).execute()
+
+        assert muid not in table.get_muids()
+
+    def test_insert_rejects_field_names_differing_only_in_case(self, table):
+        """Refuse to silently drop one of two values for the same field."""
+        muid = "duplicate_casing_link"
+
+        with pytest.raises(ValueError, match="Diameter"):
+            InsertQuery(
+                table, {"MUID": muid, "Diameter": 1.0, "diameter": 2.0}
+            ).execute()
+
+        assert muid not in table.get_muids()
 
 
 class TestUpdateQuery:
@@ -432,6 +536,23 @@ class TestUpdateQuery:
         other_row = dict(zip(list(values.keys()), other_data[other_muid]))
         assert other_row != values, "Other rows should not be updated"
 
+    @pytest.mark.parametrize("diameter", ["1.2", "1,2"])
+    def test_update_double_string_accepts_either_decimal_separator(
+        self, sirius_db, diameter
+    ):
+        """Update a Double string independently of the machine locale."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+
+            table.update({"Diameter": diameter}).by_muid(muid).execute()
+
+            updated = table.select(["Diameter"]).by_muid(muid).execute()
+            assert updated[muid][0] == pytest.approx(1.2)
+        finally:
+            db.close()
+
     @pytest.fixture(scope="class")
     def project_table_fixture(self, class_sirius_db):
         """Fixture providing the msm_Project table."""
@@ -461,6 +582,73 @@ class TestUpdateQuery:
             f"Expected ComputationBegin to be datetime.datetime, but got {type(retrieved_value)}."
         assert retrieved_value == expected_datetime, \
             f"Expected ComputationBegin datetime {expected_datetime}, but got {retrieved_value}."
+
+    def test_geometry_update_persists(self, sirius_db):
+        """Persist a LINESTRING through the MIKE+ geometry update command."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+            geometry = (
+                "LINESTRING (102405.85711669922 108873.84887695312, "
+                "103200 108100, 104049.65692138672 107628.56768798828)"
+            )
+            previous_geometry = table._net_table.GetGeometry(muid).AsText()
+
+            updated_muids = table.update({"geometry": geometry}).by_muid(muid).execute()
+            persisted_geometry = table._net_table.GetGeometry(muid).AsText()
+
+            assert updated_muids == [muid]
+            assert persisted_geometry != previous_geometry
+            assert persisted_geometry == geometry
+        finally:
+            db.close()
+
+    def test_geometry_command_failure_raises(self, sirius_db):
+        """Expose a geometry update that MIKE+ refuses to commit."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+            previous_geometry = table._net_table.GetGeometry(muid).AsText()
+
+            # MIKE+ rejects a point on a link with CmdCommitted=False and Msg=None.
+            with pytest.raises(RuntimeError, match=f"msm_Link, MUID {muid}"):
+                table.update({"geometry": "POINT (0 0)"}).by_muid(muid).execute()
+
+            assert table._net_table.GetGeometry(muid).AsText() == previous_geometry
+        finally:
+            db.close()
+
+    def test_update_datetime_with_empty_string_clears_value(self, sirius_db):
+        """Clear a DateTime field when given an empty string."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Project
+            muid = table.insert({"ComputationBegin": "2025-01-01 14:30:00"})
+
+            table.update({"ComputationBegin": ""}).by_muid(muid).execute()
+
+            result = table.select(["ComputationBegin"]).by_muid(muid).execute()
+            assert result[muid][0] is None
+        finally:
+            db.close()
+
+    def test_update_lowercase_field_names(self, sirius_db):
+        """Update a field supplied in lowercase."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+
+            updated = table.update({"diameter": 1.2}).by_muid(muid).execute()
+
+            assert updated == [muid]
+            assert table.select(["Diameter"]).by_muid(muid).execute()[muid][0] == (
+                pytest.approx(1.2)
+            )
+        finally:
+            db.close()
 
 
 class TestDeleteQuery:

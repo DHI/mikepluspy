@@ -67,3 +67,13 @@ class TestBaseTableCollection:
     def test_table_access(self, table_collection):
         """Test accessing tables through the collection."""
         assert table_collection.msm_Link is table_collection["msm_Link"]
+
+    @pytest.mark.parametrize("table_name", ["msm_link", "MSM_LINK"])
+    def test_getitem_is_case_insensitive(self, table_collection, table_name):
+        """Resolve table names independently of input casing."""
+        assert table_collection[table_name] is table_collection["msm_Link"]
+
+    @pytest.mark.parametrize("table_name", ["msm_link", "MSM_LINK"])
+    def test_contains_is_case_insensitive(self, table_collection, table_name):
+        """Check table membership independently of input casing."""
+        assert table_name in table_collection
