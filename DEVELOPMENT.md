@@ -111,7 +111,8 @@ When a new version of MIKE+ is released, the following needs to be done before r
     - Update assembly version to match latest version (23 = 2025, 24 = 2026)
 9. Bump package version to match year of MIKE+ (e.g. 2026.0.0 for the first 2026 release)
 10. Update CI runner to use the new MIKE+ version
-11. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
+11. In `CHANGELOG.md`, rename `[Unreleased]` to `[<version>] - <date>`, add an empty `[Unreleased]` above it, and update the link references at the bottom (see `adr/0003-keep-a-changelog.md`).
+12. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
 Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.
 
 ## Documentation
