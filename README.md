@@ -3,7 +3,7 @@
  ![Python version](https://img.shields.io/pypi/pyversions/mikeplus.svg)
  [![Full test](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml/badge.svg)](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml)
 [![PyPI version](https://badge.fury.io/py/mikeplus.svg)](https://badge.fury.io/py/mikeplus)
-![OS](https://img.shields.io/badge/OS-Windows-blue)
+![OS](https://img.shields.io/badge/OS-Windows%20%7C%20Linux-blue)
 ![Downloads](https://img.shields.io/pypi/dm/mikeplus)
 
 MIKE+Py is an open-source Python package for interacting with MIKE+ model databases (`.sqlite` files). It enables automation of modelling tasks, programmatic data manipulation, scenario management, and simulation execution, enhancing the reproducibility and efficiency of MIKE+ workflows.

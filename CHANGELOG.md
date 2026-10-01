@@ -5,8 +5,11 @@
 ### Added
 
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
+- Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed
+
+- Importing `mikeplus` with anything other than x64 Python on Windows or Linux now raises `ImportError`.
 
 ### Deprecated
 
