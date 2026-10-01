@@ -5,8 +5,9 @@ This guide will help you get started with MIKE+Py, from installation to running 
 ## Requirements
 
 *   A licensed installation of MIKE+ (MIKE+Py is compatible with MIKE+ 2023 and later).
-*   Python (x64) 3.13 or later.
+*   Python (x64) 3.13 or later, on Windows or Linux.
 *   (Windows) [VC++ redistributables](https://aka.ms/vs/17/release/vc_redist.x64.exe) (often already installed if you have MIKE+).
+*   (Linux) The .NET 8 runtime, and the `MIKEPLUSPY_INSTALL_ROOT` environment variable set to the MIKE+ install root (the parent folder of `bin`). If MIKE+ native libraries fail to load, also add `$MIKEPLUSPY_INSTALL_ROOT/bin/x64` to `LD_LIBRARY_PATH` before starting Python; it can't be changed from within a running process.
 
 ::: {.callout-important title="Import Conflicts with `mikeio` and `mikeio1d`" collapse="true"}
 Due to underlying library dependencies, `mikeplus` currently has known conflicts:

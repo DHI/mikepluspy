@@ -7,7 +7,7 @@ _Streamline your MIKE+ workflows_
 [![Python version](https://img.shields.io/pypi/pyversions/mikeplus.svg)](https://pypi.org/project/mikeplus/)
 [![Full test](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml/badge.svg)](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml)
 [![PyPI version](https://badge.fury.io/py/mikeplus.svg)](https://badge.fury.io/py/mikeplus)
-[![OS](https://img.shields.io/badge/OS-Windows-blue)](https://pypi.org/project/mikeplus/)
+[![OS](https://img.shields.io/badge/OS-Windows%20%7C%20Linux-blue)](https://pypi.org/project/mikeplus/)
 [![Downloads](https://img.shields.io/pypi/dm/mikeplus)](https://pypistats.org/packages/mikeplus)
 
 </div>

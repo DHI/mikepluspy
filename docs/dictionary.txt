@@ -71,6 +71,7 @@ InterpolationTool
 IScenario
 IScenarioManager
 JobList
+LD
 len
 MaxValueNeighbours
 MIKE1D
@@ -133,5 +134,6 @@ VC
 venv
 WD
 WGS84
+WindowsDesktop
 WKT
 wkt

@@ -1,10 +1,10 @@
 # AGENTS.md
 
-MIKE+Py: a Python veneer (pythonnet) over the .NET assemblies of a local MIKE+ install. Windows-only; most functionality needs a MIKE+ license.
+MIKE+Py: a Python veneer (pythonnet) over the .NET assemblies of a local MIKE+ install. Windows and Linux, x64 only; most functionality needs a MIKE+ license.
 
 ## Environment
 
-- Importing `mikeplus` loads coreclr and MIKE+ assemblies from `C:/Program Files (x86)/DHI/MIKE+/<year>`. Override with `MIKEPLUSPY_INSTALL_ROOT` (parent of `bin`).
+- Importing `mikeplus` loads coreclr and MIKE+ assemblies from `C:/Program Files (x86)/DHI/MIKE+/<year>`. Override with `MIKEPLUSPY_INSTALL_ROOT` (parent of `bin`), which is required on Linux.
 - `major_assembly_version` in `mikeplus/__init__.py` must match the installed MIKE+ (23 = 2025, 24 = 2026). Package version tracks the MIKE+ year (`2026.x.x`).
 - Import order is enforced by `mikeplus/conflicts.py`: `mikeio1d` before `mikeplus` raises; `mikeio` in the same process warns. `MIKEPLUSPY_DISABLE_CONFLICT_CHECKS=true` disables.
 
