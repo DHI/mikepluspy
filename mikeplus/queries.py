@@ -11,6 +11,10 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 if TYPE_CHECKING:
+    from typing import Self
+
+    import pandas as pd
+
     from .tables import BaseTable
 
 
@@ -39,12 +43,19 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         self._executed = False
 
     def __repr__(self) -> str:
-        """Get nice string representation."""
+        """Get nice string representation.
+
+        Returns
+        -------
+        str
+            The query type, table name and whether it has been executed.
+
+        """
         return (
             f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
         )
 
-    def where(self, condition: str):
+    def where(self, condition: str) -> Self:
         """Add a WHERE condition to the query.
 
         Parameters
@@ -61,7 +72,7 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         self._conditions.append(condition)
         return self
 
-    def by_muid(self, muid_or_muids: str | list[str] | tuple[str]):
+    def by_muid(self, muid_or_muids: str | list[str] | tuple[str]) -> Self:
         """Filter the query by one or more MUIDs.
 
         Parameters
@@ -120,7 +131,7 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         where_clause = " AND ".join(wrapped_conditions)
         return where_clause
 
-    def reset(self):
+    def reset(self) -> Self:
         """Reset the query execution status to allow re-execution.
 
         Returns
@@ -147,6 +158,8 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         ------
         RuntimeError
             If the query has already been executed
+        ValueError
+            If the database is not open
 
         """
         if self._executed:
@@ -206,7 +219,14 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
         self._validate_columns()
 
     def _validate_columns(self):
-        """Validate the columns specified in the query."""
+        """Validate the columns specified in the query.
+
+        Raises
+        ------
+        ValueError
+            If a column is not in the table
+
+        """
         self._columns = list(self._columns)
         if not self._columns:
             self._columns = list(self._table.columns)
@@ -217,7 +237,7 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
             if invalid_columns:
                 raise ValueError(f"Invalid columns: {invalid_columns}")
 
-    def order_by(self, column: str, descending: bool = False):
+    def order_by(self, column: str, descending: bool = False) -> Self:
         """Add an ORDER BY clause to the query.
 
         Parameters
@@ -265,7 +285,7 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
 
         return result
 
-    def to_pandas(self):
+    def to_pandas(self) -> pd.DataFrame:
         """Convert the query results to a pandas DataFrame.
 
         Returns
@@ -282,10 +302,10 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
             return pd.DataFrame(index=pd.Index([], name="MUID"), columns=self._columns)
 
         df_result = pd.DataFrame(result).T
-        df_result.columns = self._columns
+        df_result.columns = pd.Index(self._columns)
         return df_result
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> pd.DataFrame:
         """Convert the query results to a pandas DataFrame.
 
         Returns
@@ -320,10 +340,12 @@ class InsertQuery(BaseQuery[str]):
         Returns
         -------
         str
-
             The MUID of the newly inserted row
 
-
+        Raises
+        ------
+        ValueError
+            If the MUID already exists in the active scenario
 
         """
         net_table = self._table._net_table
@@ -380,7 +402,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         self._values = values
         self._all_rows = False
 
-    def all(self):
+    def all(self) -> Self:
         """Explicitly indicate that this query should affect all rows.
 
         Returns
@@ -398,10 +420,12 @@ class UpdateQuery(BaseQuery[list[str]]):
         Returns
         -------
         list of str
-
             List of MUIDs updated
 
-
+        Raises
+        ------
+        ValueError
+            If no WHERE conditions specified and all() not called
 
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
@@ -464,7 +488,7 @@ class DeleteQuery(BaseQuery[list[str]]):
         super().__init__(table)
         self._all_rows = False
 
-    def all(self):
+    def all(self) -> Self:
         """Explicitly indicate that this query should affect all rows.
 
         Returns
