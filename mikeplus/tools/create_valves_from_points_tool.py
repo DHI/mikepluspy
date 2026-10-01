@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import math
 import os
 from typing import TYPE_CHECKING
 
 from DHI.Amelia.DomainServices.Services import AmeliaMapService
-from DHI.Amelia.GlobalUtility.DataType import MUModelOption
+from DHI.Amelia.GlobalUtility.DataType import GeometryType, MUModelOption
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import ShapeFileHelper
 from DHI.Amelia.Tools.CreateValveFromPntToolEngine import (
     CreateValveFromPntToolEngine,
 )
 
+from ..database import DatabaseError
 from ..dotnet import DotNetConverter
 
 if TYPE_CHECKING:
@@ -62,6 +65,7 @@ class CreateValvesFromPointsTool:
         """
         if not database.is_open:
             database.open()
+        self._database = database
         self._dataTables = database._data_table_container
 
     def run(
@@ -81,7 +85,11 @@ class CreateValvesFromPointsTool:
 
         The `*_field` arguments name the shapefile column to read each valve
         attribute from. Attributes without a column keep the MIKE+ defaults.
-        Values that can't be read fall back to a default and add a message.
+        Column names are matched case-insensitively. Values that can't be read
+        fall back to a default and add a message.
+
+        If the database was closed after the tool was created, it is opened
+        again.
 
         Parameters
         ----------
@@ -118,28 +126,43 @@ class CreateValvesFromPointsTool:
         Raises
         ------
         ValueError
-            If the model is not a water distribution model, or if
-            `search_radius` or `valve_length` is not positive.
+            If the model is not a water distribution model, if `search_radius`
+            or `valve_length` is not a positive finite number, if
+            `points_file` is not a point shapefile, or if a `*_field` names a
+            column the shapefile doesn't have.
         FileNotFoundError
             If `points_file` does not exist.
-        RuntimeError
-            If MIKE+ reports that the tool failed.
+        DatabaseError
+            If MIKE+ fails while creating valves. Valves created before the
+            failure are kept.
 
         """
+        if not self._database.is_open:
+            self._database.open()
         if self._dataTables.ActiveModel != MUModelOption.WD_EPANET:
             raise ValueError(
                 "Creating valves from points needs a water distribution model, "
                 f"but the active model is {self._dataTables.ActiveModel}."
             )
-        if search_radius <= 0:
-            raise ValueError(f"search_radius must be positive, got {search_radius}.")
-        if valve_length <= 0:
-            raise ValueError(f"valve_length must be positive, got {valve_length}.")
-        points_file = os.fspath(points_file)
+        for name, value in (
+            ("search_radius", search_radius),
+            ("valve_length", valve_length),
+        ):
+            if not (math.isfinite(value) and value > 0):
+                raise ValueError(
+                    f"{name} must be a positive finite number, got {value}."
+                )
+        points_file = os.path.abspath(points_file)
         if not os.path.isfile(points_file):
             raise FileNotFoundError(points_file)
+        # The engine dereferences a null point geometry on anything but points.
+        if ShapeFileHelper.GetFileGeometryType(points_file) not in (
+            GeometryType.Point,
+            GeometryType.PointZ,
+        ):
+            raise ValueError(f"{points_file} is not a point shapefile.")
 
-        mapped_fields = {
+        fields = {
             "MUID": muid_field,
             "TypeNo": type_field,
             "StatusNo": status_field,
@@ -147,24 +170,40 @@ class CreateValvesFromPointsTool:
             "Setting": setting_field,
             "Description": description_field,
         }
-        field_infos = DotNetConverter.to_dotnet_string_dictionary(
-            {key: col for key, col in mapped_fields.items() if col is not None}
+        mapped_fields = {key: col for key, col in fields.items() if col is not None}
+        # MIKE+ silently ignores a mapped column the shapefile lacks.
+        columns = list(
+            DotNetConverter.from_dotnet_dictionary(
+                ShapeFileHelper.GetFeatureColumnInfo(points_file)
+            )
+            or ()
         )
+        known = {col.casefold() for col in columns}
+        unknown = sorted(
+            {col for col in mapped_fields.values() if col.casefold() not in known}
+        )
+        if unknown:
+            raise ValueError(
+                f"{points_file} has no column(s) {', '.join(map(repr, unknown))}. "
+                f"Its columns are {', '.join(map(repr, columns))}."
+            )
+        field_infos = DotNetConverter.to_dotnet_string_dictionary(mapped_fields)
 
         # The map service is only used to split pipes, which needs nothing but the tables.
         map_service = AmeliaMapService()
         map_service.DataTables = self._dataTables
         engine = CreateValveFromPntToolEngine(self._dataTables, map_service)
-        succeeded, messages = engine.CreateValve(
-            os.path.abspath(points_file),
-            float(search_radius),
-            float(valve_length),
-            field_infos,
-            None,
-        )
-        messages = DotNetConverter.from_dotnet_list(messages)
-        if not succeeded:
-            raise RuntimeError(
-                "MIKE+ failed to create valves from points: " + "; ".join(messages)
+        try:
+            # The return value is always true; failures surface as exceptions.
+            _, messages = engine.CreateValve(
+                points_file,
+                float(search_radius),
+                float(valve_length),
+                field_infos,
+                None,
             )
-        return messages
+        except Exception as e:
+            raise DatabaseError(
+                f"MIKE+ failed to create valves from points: {e}"
+            ) from e
+        return DotNetConverter.from_dotnet_list(messages)

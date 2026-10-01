@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import shutil
+import re
 import struct
 from pathlib import Path
 
@@ -9,6 +9,7 @@ from shapely import wkt
 from shapely.geometry import Point
 
 import mikeplus as mp
+from conftest import EPANET_DEMO_DB, create_test_specific_db_copy
 from mikeplus.tools import CreateValvesFromPointsTool
 
 pytestmark = pytest.mark.license_required
@@ -58,9 +59,10 @@ def geometry(table, muid):
     return wkt.loads(table._net_table.GetGeometry(muid).AsText())
 
 
-EPANET_DEMO_DIR = Path(__file__).parent / "testdata" / "Db" / "Epanet_Demo"
 PIPE_3_POINT = (-2486.67, 1640.0)
 JUNCTION_4_POINT = (-1702.0, 815.0)
+# Junction_3 joins four pipes.
+JUNCTION_3_POINT = (-1713.333333, 1573.333333)
 FAR_POINT = (0.0, 10000.0)
 
 
@@ -75,20 +77,20 @@ def points_file(tmp_path):
 def created(tmp_path_factory):
     """Run the tool once on a private copy; the tests below only read the result."""
     tmp_path = tmp_path_factory.mktemp("create_valves")
-    shutil.copytree(EPANET_DEMO_DIR, tmp_path / "db")
+    db_path = create_test_specific_db_copy(EPANET_DEMO_DB, tmp_path, "epanet_demo")
     points_file = write_point_shapefile(
         tmp_path / "valves.shp",
-        [PIPE_3_POINT, JUNCTION_4_POINT, FAR_POINT],
+        [PIPE_3_POINT, JUNCTION_4_POINT, FAR_POINT, JUNCTION_3_POINT],
         {
-            "ID": ["V_pipe", "V_junction", "V_far"],
-            "VTYPE": ["FCV", "3", "PRV"],
-            "STATUS": ["1", "0", "2"],
-            "DIAM": ["0.3", "not a number", "0.2"],
-            "SETTING": ["12.5", "4", "1"],
-            "DESCR": ["on a pipe", "at a junction", "too far"],
+            "ID": ["V_pipe", "V_junction", "V_far", "V_busy"],
+            "VTYPE": ["FCV", "3", "PRV", "PRV"],
+            "STATUS": ["1", "0", "2", "0"],
+            "DIAM": ["0.3", "not a number", "0.2", "0.2"],
+            "SETTING": ["12.5", "4", "1", "1"],
+            "DESCR": ["on a pipe", "at a junction", "too far", "busy junction"],
         },
     )
-    with mp.open(tmp_path / "db" / "Epanet_Demo.sqlite") as db:
+    with mp.open(db_path) as db:
         pipe_3 = geometry(db.tables.mw_Pipe, "Pipe_3")
         messages = CreateValvesFromPointsTool(db).run(
             points_file,
@@ -107,10 +109,11 @@ def created(tmp_path_factory):
 def test_reports_created_and_skipped_points(created):
     _, messages, _ = created
 
-    assert len(messages) == 3
-    assert "2" in messages[0] and "3" in messages[0]
+    assert len(messages) == 4
+    assert re.match(r"2 valves .* out of 4 points", messages[0])
     assert any("V_junction" in m for m in messages[1:])
     assert any("10000" in m for m in messages[1:])
+    assert any("more than 2 pipes" in m for m in messages[1:])
 
 
 def test_maps_attributes_from_columns(created):
@@ -170,15 +173,52 @@ def test_without_field_mapping_generates_ids(epanet_demo_db, tmp_path):
 
 
 @pytest.mark.parametrize(
-    ("search_radius", "valve_length"), [(0.0, 2.0), (50.0, 0.0), (-1.0, 2.0)]
+    ("search_radius", "valve_length"),
+    [(0.0, 2.0), (50.0, 0.0), (-1.0, 2.0), (float("nan"), 2.0), (50.0, float("inf"))],
 )
-def test_rejects_non_positive_distances(
+def test_rejects_invalid_distances(
     session_epanet_demo_db, points_file, search_radius, valve_length
 ):
     with mp.open(session_epanet_demo_db) as db:
         tool = CreateValvesFromPointsTool(db)
-        with pytest.raises(ValueError, match="must be positive"):
+        with pytest.raises(ValueError, match="must be a positive finite number"):
             tool.run(points_file, search_radius, valve_length)
+
+
+def test_rejects_unknown_columns(session_epanet_demo_db, points_file):
+    with mp.open(session_epanet_demo_db) as db:
+        tool = CreateValvesFromPointsTool(db)
+        with pytest.raises(ValueError, match="no column.*'VTYPE'"):
+            tool.run(points_file, 50.0, 2.0, muid_field="ID", type_field="VTYPE")
+        assert db.tables.mw_Valve.get_muids() == []
+
+
+def test_matches_columns_case_insensitively(epanet_demo_db, points_file):
+    with mp.open(epanet_demo_db) as db:
+        CreateValvesFromPointsTool(db).run(points_file, 50.0, 2.0, muid_field="id")
+
+        assert db.tables.mw_Valve.get_muids() == ["V1"]
+
+
+def test_rejects_non_point_shapefile(session_epanet_demo_db):
+    polygons = Path(__file__).parent / "testdata" / "catchSlopeLen" / "Catch_Slope.shp"
+    with mp.open(session_epanet_demo_db) as db:
+        tool = CreateValvesFromPointsTool(db)
+        with pytest.raises(ValueError, match="not a point shapefile"):
+            tool.run(polygons, 50.0, 2.0)
+
+
+def test_reopens_closed_database(epanet_demo_db, points_file):
+    db = mp.open(epanet_demo_db)
+    tool = CreateValvesFromPointsTool(db)
+    db.close()
+    try:
+        messages = tool.run(points_file, 50.0, 2.0)
+
+        assert db.is_open
+        assert re.match(r"1 valves .* out of 2 points", messages[0])
+    finally:
+        db.close()
 
 
 def test_rejects_missing_file(session_epanet_demo_db, tmp_path):
