@@ -49,12 +49,12 @@ def great_docs(*args: str) -> int:
 def proofread_files() -> list[str]:
     """Return absolute paths of the prose to proofread; great-docs needs them absolute."""
     tracked = subprocess.run(
-        ["git", "ls-files", "README.md", "docs/user_guide", "mikeplus"],
+        ["git", "ls-files", "-z", "README.md", "docs/user_guide", "mikeplus"],
         cwd=ROOT,
         capture_output=True,
         text=True,
         check=True,
-    ).stdout.split()
+    ).stdout.split("\0")
     return [
         str(ROOT / path)
         for path in tracked
@@ -102,16 +102,21 @@ def preview(pr: str) -> int:
     """Serve the newest successful docs build of a pull request locally."""
     # `great-docs preview --pr` takes the newest run for the PR's head commit, which has
     # no site yet while it is still building, so pick the run here.
-    branch = gh("pr", "view", pr, "--json", "headRefName", "--jq", ".headRefName")
+    branch, head_repo = gh(
+        "pr", "view", pr,
+        "--json=headRefName,headRepositoryOwner,headRepository",
+        "--jq=.headRefName, .headRepositoryOwner.login + \"/\" + .headRepository.name",
+    ).splitlines()  # fmt: skip
+    # Match the head repository too: a fork's branch can share a name with one here.
     run = gh(
-        "run", "list",
-        "--workflow=docs.yml",
-        "--event=pull_request",
-        "--status=success",
-        f"--branch={branch}",
-        "--limit=1",
-        "--json=databaseId",
-        "--jq=.[0].databaseId",
+        "api", "--method=GET",
+        "repos/{owner}/{repo}/actions/workflows/docs.yml/runs",
+        "-f", "event=pull_request",
+        "-f", "status=success",
+        "-f", f"branch={branch}",
+        "-f", "per_page=100",
+        "--jq",
+        f'[.workflow_runs[] | select(.head_repository.full_name == "{head_repo}")][0].id // empty',
     )  # fmt: skip
     if not run:
         print(f"PR #{pr} has no successful docs build yet.", file=sys.stderr)

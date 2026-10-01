@@ -15,6 +15,7 @@ on:
       - "!mikeplus/tables/auto_generated/**"
       - "mikeplus/tables/auto_generated/table_collection.py"
       - "pyproject.toml"
+      - "justfile"
       - "scripts/docs.py"
       - ".github/workflows/docs.yml"
   schedule:
@@ -26,12 +27,16 @@ on:
 permissions:
   contents: read
 
+# A newer push supersedes a PR build, but a Pages deploy must not be cut off halfway,
+# and the link check must not queue behind or displace one.
 concurrency:
-  group: docs-${{ github.ref }}
-  cancel-in-progress: true
+  group: docs-${{ github.event_name == 'schedule' && 'links' || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   HARPER_VERSION: v2.11.0
+  # The release asset's digest; update it with HARPER_VERSION.
+  HARPER_SHA256: 1bfbe16927ef86b8ae09a964f83ea0662bca023f3ad32a5dc0dd141d5e684cd9
 
 jobs:
   build:
@@ -44,15 +49,17 @@ jobs:
     - name: Set up uv and Python
       uses: astral-sh/setup-uv@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: Set up just
       uses: extractions/setup-just@v2
     - name: Set up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
     - name: Set up Harper
       run: |
-        curl -sSL "https://github.com/Automattic/harper/releases/download/${HARPER_VERSION}/harper-cli-x86_64-unknown-linux-gnu.tar.gz" \
-          | tar xz -C "$RUNNER_TEMP"
+        archive="$RUNNER_TEMP/harper-cli.tar.gz"
+        curl -sSfL -o "$archive" "https://github.com/Automattic/harper/releases/download/${HARPER_VERSION}/harper-cli-x86_64-unknown-linux-gnu.tar.gz"
+        echo "${HARPER_SHA256}  $archive" | sha256sum -c -
+        tar xzf "$archive" -C "$RUNNER_TEMP"
         echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
     - name: Install docs tools
@@ -96,7 +103,7 @@ jobs:
     - name: Set up uv and Python
       uses: astral-sh/setup-uv@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: Set up just
       uses: extractions/setup-just@v2
     - name: Install docs tools
@@ -123,17 +130,16 @@ jobs:
       uses: actions/deploy-pages@v4
 
   links:
-    # Reports only: a dead external link should not block anyone.
+    # Nothing waits on this job, so a failure only flags the dead link.
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
     - uses: actions/checkout@v4
     - name: Set up uv and Python
       uses: astral-sh/setup-uv@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: Set up just
       uses: extractions/setup-just@v2
     - name: Set up Quarto

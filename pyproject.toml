@@ -9,9 +9,9 @@ exclude = ["notebooks", "tests"]
 name = "mikeplus"
 version = "2026.1.0"
 dependencies = [
-    "numpy",
-    "pythonnet>=3.0",
-    "pandas",
+    "numpy>=2.3",
+    "pythonnet>=3.0.5",
+    "pandas>=2.3",
 ]
 authors = [
   { name="Ryan Walter Murray", email="rywm@dhigroup.com" },
@@ -19,16 +19,13 @@ authors = [
 ]
 description = "A python script package to manipulate MIKE+ database, run simulation by using MIKE+ data, run tools based on MIKE+ data"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
@@ -58,7 +55,7 @@ test = [
 # and importing mikeplus needs a MIKE+ install. Quarto is installed separately.
 docs = [
     # Pre-1.0; minor releases change the config format.
-    "great-docs~=0.17.0; python_version >= '3.11'",
+    "great-docs~=0.17.0",
 ]
 
 [project.urls]

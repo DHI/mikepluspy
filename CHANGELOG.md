@@ -8,12 +8,18 @@
 
 ### Changed
 
+- Minimum versions now follow [SPEC 0](https://scientific-python.org/specs/spec-0000/): numpy 2.3, pandas 2.3 and pythonnet 3.0.5.
+
 ### Deprecated
 
 ### Removed
 
+- Support for Python 3.10, 3.11 and 3.12. MIKE+Py now requires Python 3.13 or later.
+
 ### Fixed
 
+- `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
+- The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
 ### Security
 
 ## [2026.1.0] - 2026-06-23

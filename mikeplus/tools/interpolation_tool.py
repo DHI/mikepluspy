@@ -8,9 +8,15 @@ from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import
     InterpolationToolParameters,
 )
 from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
+from System import Convert
 
 if TYPE_CHECKING:
     from ..database import Database
+
+
+def _missing_value_text(value: float | None) -> str | None:
+    # MIKE+ takes the missing value as text. Convert formats it in the current culture.
+    return None if value is None else Convert.ToString(float(value))
 
 
 class InterpolationTool:
@@ -88,7 +94,7 @@ class InterpolationTool:
         param.bOverallAssignInside = False
         param.dSearhRadius = search_radius
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -134,7 +140,7 @@ class InterpolationTool:
         param.bOverallAssignSelected = False
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -189,7 +195,7 @@ class InterpolationTool:
         param.iMaxFeatureSkip = max_IDW_points
         param.dSearhRadius = search_radius
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -231,7 +237,7 @@ class InterpolationTool:
         param.bOverallAssignSelected = False
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -305,7 +311,7 @@ class InterpolationTool:
         param.bOverallAssignSelected = False
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         param.assigmentOption = assign_option
         param.nNeighbours = max_neighbours
         tool = InterpolationEngine(self._dataTables)

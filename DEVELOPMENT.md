@@ -36,6 +36,12 @@ Save genuine breaks for the next year bump.
 - For changed .NET signatures, support both forms (try new, fall back to old)
   rather than swapping. See `SimulationRunner.__init__`. Tag fallbacks with
   `TODO(<next year>)` for cleanup at the year bump.
+- Minimum Python and dependency versions follow
+  [SPEC 0](https://scientific-python.org/specs/spec-0000/), not the year line.
+  In the first release of each quarter, raise any floor that the
+  [drop schedule](https://scientific-python.org/specs/spec-0000/#drop-schedule)
+  has passed, along with the oldest Python in the CI matrices. See
+  `adr/0002-dependency-floors-follow-spec-0.md`.
 
 ## Public API
 
