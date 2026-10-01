@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
     from .tables import BaseTable
 
-
 from System.Data import ConnectionState
 
 from .dotnet import DotNetConverter
@@ -131,6 +130,52 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         where_clause = " AND ".join(wrapped_conditions)
         return where_clause
 
+    def _canonicalize_field_names(
+        self,
+        values: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Resolve field names to canonical MIKE+ casing.
+
+        Parameters
+        ----------
+        values : dict[str, Any]
+            Field-value pairs whose field names may use any casing.
+
+        Returns
+        -------
+        dict[str, Any]
+            Field-value pairs with recognized names replaced by their canonical
+            MIKE+ names. Unknown names are left unchanged.
+
+        Raises
+        ------
+        ValueError
+            If two supplied names differ only in casing.
+
+        """
+        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
+
+        canonical_names = {
+            name.casefold(): name for name in [*self._table.columns, *ud_columns]
+        }
+        canonical_names.update(
+            {
+                "muid": "MUID",
+                "geometry": "geometry",
+            }
+        )
+
+        canonical_values: dict[str, Any] = {}
+        for name, value in values.items():
+            canonical_name = canonical_names.get(name.casefold(), name)
+            if canonical_name in canonical_values:
+                raise ValueError(
+                    f"Field '{canonical_name}' supplied more than once "
+                    "with different casing."
+                )
+            canonical_values[canonical_name] = value
+        return canonical_values
+
     def reset(self) -> Self:
         """Reset the query execution status to allow re-execution.
 
@@ -219,7 +264,7 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
         self._validate_columns()
 
     def _validate_columns(self):
-        """Validate the columns specified in the query.
+        """Validate selected columns and resolve them to canonical MIKE+ casing.
 
         Raises
         ------
@@ -237,13 +282,15 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
             if invalid_columns:
                 raise ValueError(f"Invalid columns: {invalid_columns}")
 
+        self._columns = [self._table.columns[column] for column in self._columns]
+
     def order_by(self, column: str, descending: bool = False) -> Self:
         """Add an ORDER BY clause to the query.
 
         Parameters
         ----------
         column : str
-            Column name to order by
+            Column name in any casing
         descending : bool, optional
             Whether to sort in descending order
 
@@ -252,8 +299,18 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
         self
             For method chaining
 
+        Raises
+        ------
+        ValueError
+            If no column matches ``column``.
+
         """
-        self._order_by = (column, descending)
+        if column not in self._table.columns:
+            raise ValueError(f"Invalid column: {column}")
+        self._order_by = (
+            self._table.columns[column],
+            descending,
+        )
         return self
 
     def _execute_impl(self) -> dict[str, dict[str, Any]] | None:
@@ -337,6 +394,13 @@ class InsertQuery(BaseQuery[str]):
     def _execute_impl(self) -> str:
         """Implement the INSERT query execution.
 
+        Supplied field names are matched case-insensitively to their canonical
+        MIKE+ schema names. Strings assigned to schema-declared Double and
+        DateTime fields are parsed before conversion to .NET values. If no MUID
+        is supplied,
+        MIKE+ generates a unique one. Geometry and user-defined fields are
+        handled separately from ordinary fields.
+
         Returns
         -------
         str
@@ -345,12 +409,20 @@ class InsertQuery(BaseQuery[str]):
         Raises
         ------
         ValueError
-            If the MUID already exists in the active scenario
+            If the requested MUID already exists in the active scenario, a
+            field is supplied twice with different casing, or a Double or
+            DateTime string can't be parsed.
+
+        Notes
+        -----
+        Conversion and MIKE+ SDK exceptions are allowed to propagate. This
+        method is called internally by ``BaseQuery.execute``.
 
         """
         net_table = self._table._net_table
 
-        values = self._values.copy()
+        values = self._canonicalize_field_names(self._values)
+        column_types = self._table.columns.db_types()
 
         muid = values.pop("MUID", net_table.CreateUniqueMuid())
 
@@ -369,7 +441,7 @@ class InsertQuery(BaseQuery[str]):
         non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
-        net_values = DotNetConverter.to_dotnet_dictionary(non_ud_values)
+        net_values = DotNetConverter.to_dotnet_dictionary(non_ud_values, column_types)
 
         _, inserted_muid = net_table.InsertByCommand(
             muid,
@@ -379,7 +451,14 @@ class InsertQuery(BaseQuery[str]):
 
         # Set user-defined values after insert (not by command)
         for col, val in ud_values.items():
-            net_table.SetValue(inserted_muid, col, DotNetConverter.to_dotnet_value(val))
+            net_table.SetValue(
+                inserted_muid,
+                col,
+                DotNetConverter.to_dotnet_value(
+                    val,
+                    column_types.get(col.casefold()),
+                ),
+            )
 
         return inserted_muid
 
@@ -417,6 +496,12 @@ class UpdateQuery(BaseQuery[list[str]]):
     def _execute_impl(self) -> list[str]:
         """Implement the UPDATE query execution.
 
+        Supplied field names are matched case-insensitively to their canonical
+        MIKE+ schema names. Strings for schema-declared Double and DateTime
+        fields are parsed before conversion. Ordinary fields are updated with ``SetValuesByCommand`` and
+        geometry is updated separately with ``UpdateGeomByCommand``. User-defined
+        fields are applied individually after those commands.
+
         Returns
         -------
         list of str
@@ -425,7 +510,16 @@ class UpdateQuery(BaseQuery[list[str]]):
         Raises
         ------
         ValueError
-            If no WHERE conditions specified and all() not called
+            If no filter is supplied and ``all()`` was not called explicitly, a
+            field is supplied twice with different casing, or a Double or
+            DateTime string can't be parsed.
+        RuntimeError
+            If a requested geometry update does not commit.
+
+        Notes
+        -----
+        Conversion and MIKE+ SDK exceptions are allowed to propagate. This
+        method is called internally by ``BaseQuery.execute``.
 
         """
         # Safety check: if no conditions and all() not called, prevent accidental updates
@@ -438,7 +532,10 @@ class UpdateQuery(BaseQuery[list[str]]):
 
         net_table = self._table._net_table
 
-        values = self._values.copy()
+        values = self._canonicalize_field_names(self._values)
+        column_types = self._table.columns.db_types()
+
+        geometry = values.pop("geometry", None)
 
         # Split values into user-defined and non-user-defined
         ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
@@ -446,7 +543,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
         net_values_non_ud = (
-            DotNetConverter.to_dotnet_dictionary(non_ud_values)
+            DotNetConverter.to_dotnet_dictionary(non_ud_values, column_types)
             if non_ud_values
             else None
         )
@@ -466,8 +563,27 @@ class UpdateQuery(BaseQuery[list[str]]):
             if net_values_non_ud is not None:
                 net_table.SetValuesByCommand(muid, net_values_non_ud)
 
+            if geometry is not None:
+                result = net_table.UpdateGeomByCommand(
+                    muid,
+                    DotNetConverter.to_dotnet_geometry(geometry),
+                )
+
+                if not result.CmdCommitted:
+                    raise RuntimeError(
+                        result.Msg
+                        or f"Geometry update failed for {self._table.name}, MUID {muid}"
+                    )
+
             for col, val in ud_values.items():
-                net_table.SetValue(muid, col, DotNetConverter.to_dotnet_value(val))
+                net_table.SetValue(
+                    muid,
+                    col,
+                    DotNetConverter.to_dotnet_value(
+                        val,
+                        column_types.get(col.casefold()),
+                    ),
+                )
             updated_muids.append(muid)
 
         return updated_muids

@@ -39,3 +39,5 @@ CI currently runs only `just lint` and `just typecheck`, so run the relevant tes
 ## Tests
 
 `tests/conftest.py` provides each test DB at four scopes: `session_*_db`, `module_*_db`, `class_*_db` (shared copies, read-only by convention) and plain `*_db` (fresh per test). Use the coarsest scope that's safe; any test that mutates the DB needs the function-scoped one. Mark tests that run simulations or licensed APIs with `license_required` and, if slow, `slow`.
+
+Don't mock, fake or monkeypatch .NET objects or `mikeplus/dotnet.py` helpers. Interop tests run against real MIKE+ and a fixture DB. Get speed from fixture scope, not stand-ins. See `adr/0001-no-mocking-dotnet.md`.
