@@ -510,3 +510,12 @@ class DeleteQuery(BaseQuery[list[str]]):
         muids_net = DotNetConverter.as_dotnet_list(muids)
         net_table.MultiDeleteByCommand(muids_net)
         return muids
+
+
+__all__ = [
+    "BaseQuery",
+    "DeleteQuery",
+    "InsertQuery",
+    "SelectQuery",
+    "UpdateQuery",
+]

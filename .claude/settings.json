@@ -11,6 +11,7 @@
       "Bash(uv run mypy *)",
       "Bash(uv pip install *)",
       "Bash(python scripts/generate_tables.py*)",
+      "Bash(python scripts/lint_public_api.py*)",
       "Bash(uv run scripts/generate_tables.py*)",
       "PowerShell(pytest *)",
       "PowerShell(python -m pytest *)",
@@ -21,6 +22,7 @@
       "PowerShell(uv run mypy *)",
       "PowerShell(uv pip install *)",
       "PowerShell(python scripts/generate_tables.py*)",
+      "PowerShell(python scripts/lint_public_api.py*)",
       "PowerShell(uv run scripts/generate_tables.py*)"
     ],
     "deny": [

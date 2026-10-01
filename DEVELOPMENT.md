@@ -16,6 +16,55 @@ Save genuine breaks for the next year bump.
   rather than swapping. See `SimulationRunner.__init__`. Tag fallbacks with
   `TODO(<next year>)` for cleanup at the year bump.
 
+## Public API
+
+The public API is the names in `__all__` of `mikeplus`, of its public
+subpackages, and of the public modules directly in `mikeplus/`, plus every
+non-underscore member of an exported class. A module or package whose name
+starts with a single underscore is private, along with everything in it.
+Everything public is covered by the compatibility principle above; anything
+else may change in any release.
+
+`python scripts/lint_public_api.py` checks this against the source and the
+docs, and runs in CI. It reads files only, so it needs no MIKE+ install.
+
+### What is public
+
+- `mikeplus`: `open`, `create`, `Database`, `DatabaseError`, `to_sql`.
+- `mikeplus.queries`: the query classes returned by `select`, `insert`,
+  `update` and `delete` on a table.
+- `mikeplus.scenarios`, `mikeplus.tools`, `mikeplus.utilities`: their
+  `__all__`.
+- `mikeplus.tables`: the base table classes and every auto-generated table
+  class, which it re-exports from `mikeplus.tables.auto_generated`.
+
+Import from those packages, not from the modules that implement them
+(`mikeplus.scenarios`, not `mikeplus.scenarios.scenario`). `mikeplus.shortcuts`,
+`mikeplus.utils` and `mikeplus.database` list the names they define for
+`mikeplus` to re-export, but `mikeplus` is the documented path.
+
+### What is internal
+
+`mikeplus.conflicts`, `mikeplus.dotnet` and `mikeplus.simulation_runner`
+declare an empty `__all__`: they are the machinery behind `import mikeplus` and
+`Database.run`, and they deal in .NET types. Their names still import, so no
+caller breaks, but they may change without notice. Put new internal code in
+underscore-prefixed modules so the name says it.
+
+### Rules for public code
+
+- A new public name goes in `__all__` and in the docs: the user guide, or the
+  quartodoc sections in `docs/_quarto.yml`. Listing a module in quartodoc
+  documents every class in it, which is how the auto-generated tables are
+  covered.
+- Public signatures must not mention .NET (`DHI.*`, `System.*`, `ThinkGeo.*`)
+  or underscore-private types. A signature that exposes one on purpose, such
+  as an escape hatch to the underlying .NET object, carries the comment
+  `# api: allow-leaked-type` on its `def` line or on the line that closes it.
+  The marker records a decision; it is not a way to silence the linter.
+- The linter only sees .NET names imported with `from DHI... import X`, and
+  only reads annotations, so unannotated signatures go unchecked.
+
 ## Release process for new MIKE+ versions
 
 When a new version of MIKE+ is released, the following needs to be done before releasing a corresponing Python vesrion:

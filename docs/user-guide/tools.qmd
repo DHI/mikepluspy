@@ -1,6 +1,6 @@
 # Tools
 
-MIKE+Py provides access to several MIKE+ data processing tools through the `mikepluspy.tools` module. These tools allow you to perform common data manipulation and preparation tasks programmatically.
+MIKE+Py provides access to several MIKE+ data processing tools through the `mikeplus.tools` module. These tools allow you to perform common data manipulation and preparation tasks programmatically.
 
 ## {{< fa tools >}} Available Tools
 
@@ -14,11 +14,11 @@ The following tools are available:
 
 ## {{< fa play >}} General Usage
 
-To use a tool, first import it from `mikepluspy.tools`. Then, create an instance of the tool, passing your opened `Database` object to its constructor.
+To use a tool, first import it from `mikeplus.tools`. Then, create an instance of the tool, passing your opened `Database` object to its constructor.
 
 ```python
-from mikepluspy.tools import InterpolationTool
-# Assuming 'db' is your opened mikepluspy.Database object
+from mikeplus.tools import InterpolationTool
+# Assuming 'db' is your opened mikeplus.Database object
 interpolation_tool = InterpolationTool(db)
 ```
 
@@ -33,7 +33,7 @@ Here are a couple of examples to illustrate how to use these tools.
 The `ImportTool` can import data into your MIKE+ model using an XML configuration file. For instance, to import data from an XML file:
 
 ```python
-from mikepluspy.tools import ImportTool
+from mikeplus.tools import ImportTool
 
 import_tool = ImportTool("path/to/your/xml/file.xml", db)
 import_tool.run()
@@ -59,7 +59,7 @@ interpolation_tool.interpolate_from_DEM(**tool_parameters)
 The `TopoRepairTool` helps clean up network topology. To delete unlinked nodes and dissolve overlapping nodes, you can use its `run` method:
 
 ```python
-from mikepluspy.tools import TopoRepairTool
+from mikeplus.tools import TopoRepairTool
 # repair_tool = TopoRepairTool(db) # Instantiate with your db object
 repair_tool.run(
     delete_unLink_node_Link=True, 
@@ -69,4 +69,4 @@ repair_tool.run(
 
 ### {{< fa book >}} Further Information
 
-For detailed information on all available parameters and methods for each tool, please consult the MIKE+ software documentation or the specific API reference for `mikepluspy`.
+For detailed information on all available parameters and methods for each tool, please consult the MIKE+ software documentation or the specific API reference for `mikeplus`.

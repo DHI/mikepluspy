@@ -23,6 +23,12 @@ jobs:
       with:
         version: "0.16.9"  # keep in sync with ruff pin in pyproject.toml
         src: "."  # Adjust the source directory as needed
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Check public API
+      run: python scripts/lint_public_api.py
 
   typecheck:
     runs-on: ubuntu-latest

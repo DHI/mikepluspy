@@ -16,15 +16,17 @@ pytest                                   # addopts includes -m "not slow"
 pytest -m slow                           # slow tests only
 ruff check . && ruff format . && mypy mikeplus
 python scripts/generate_tables.py        # regenerate mikeplus/tables/auto_generated/
+python scripts/lint_public_api.py        # check __all__ against source and docs; no MIKE+ needed
 ```
 
-CI currently runs only ruff + mypy, so run the relevant tests locally before calling a change done.
+CI currently runs only ruff, mypy and the public API check, so run the relevant tests locally before calling a change done.
 
 ## Rules
 
 - Never hand-edit `mikeplus/tables/auto_generated/`. Change `scripts/table_templates/` or `scripts/generate_tables.py` and regenerate.
 - Go through `mikeplus/dotnet.py` helpers for .NET type conversion instead of touching .NET types directly. Extend existing wrappers rather than adding parallel abstractions.
 - No breaking changes within a MIKE+ year line (GA, U1, U2… must all keep working): new tables/columns must degrade gracefully, and changed .NET signatures get a try-new/fall-back-to-old path tagged `TODO(<next year>)`. See `DEVELOPMENT.md`, which also holds the release checklist.
+- The public API is what `__all__` declares; see "Public API" in `DEVELOPMENT.md`. New public names need an `__all__` entry and docs. Public signatures must not expose .NET types except where marked `# api: allow-leaked-type`.
 - MIKE+Py writes `.sqlite`/`.mupp` files with no undo. Only operate on copies of example or user databases.
 
 ## Tests

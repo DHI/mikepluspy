@@ -206,7 +206,7 @@ class SimulationRunner:
 
         return self._get_result_files("mw_Project", sim_muid)
 
-    def run_swmm(self, sim_muid: str | None = None) -> List[Path]:
+    def run_swmm(self, sim_muid: str | None = None) -> list[Path]:
         """Run an SWMM urban drainage simulation.
 
         Parameters
@@ -291,3 +291,6 @@ class SimulationRunner:
 
         result_file_name = f"{sim_muid}{scenario}.MJL"
         return [Path(self._database.db_path.parent / result_file_name)]
+
+
+__all__: list[str] = []
