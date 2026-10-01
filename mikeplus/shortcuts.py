@@ -7,12 +7,11 @@ without having to directly instantiate the Database class.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
 
 from .database import Database
 
 
-def open(model_path: Union[str, Path], **kwargs) -> Database:
+def open(model_path: str | Path, **kwargs) -> Database:
     """Open an existing MIKE+ model database.
 
     Parameters
@@ -40,7 +39,7 @@ def open(model_path: Union[str, Path], **kwargs) -> Database:
 
 
 def create(
-    model_path: Union[str, Path],
+    model_path: str | Path,
     *,
     projection_string: str = "",
     srid: int = -1,

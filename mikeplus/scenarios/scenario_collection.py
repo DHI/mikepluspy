@@ -6,7 +6,7 @@ Collection-like access to scenarios in the MIKE+ model.
 
 from __future__ import annotations
 
-from typing import Iterator
+from collections.abc import Iterator
 
 from .scenario import Scenario
 
@@ -176,9 +176,7 @@ class ScenarioCollection:
 
             return Scenario(self._scenario_manager, new_scenario)
         except Exception as e:
-            raise ValueError(
-                f"Failed to create scenario '{name}'. Error: {str(e)}"
-            ) from e
+            raise ValueError(f"Failed to create scenario '{name}'. Error: {e!s}") from e
 
     def delete(self, scenario: Scenario | str) -> None:
         """Delete a scenario by object or id.

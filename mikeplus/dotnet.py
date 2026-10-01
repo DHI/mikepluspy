@@ -8,7 +8,7 @@ for database operations and interacting with the MIKE+ .NET API.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Dict
+from typing import Any
 
 import clr  # noqa: F401
 import pandas as pd
@@ -129,7 +129,7 @@ class DotNetConverter:
 
     @staticmethod
     def to_dotnet_dictionary(
-        py_dict: Dict[str, Any], column_types: Dict[str, DbType] | None = None
+        py_dict: dict[str, Any], column_types: dict[str, DbType] | None = None
     ) -> Dictionary[String, Object]:
         """Convert a Python dictionary to a .NET Dictionary.
 
@@ -292,7 +292,7 @@ class DotNetConverter:
         """
         # Get microseconds from .NET ticks
         microseconds = dt.Ticks % 10**7 // 10
-        time = datetime.datetime(
+        time = datetime.datetime(  # noqa: DTZ001 - MIKE+ datetimes are naive
             dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, microseconds
         )
 

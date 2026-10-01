@@ -1,9 +1,10 @@
 """The Catchment Slope Length Process tool from MIKE+."""
 
 import os.path
-from System.Collections.Generic import List
+
 from DHI.Amelia.Tools.CatchmentProcessing import CatchmentSlope
 from DHI.Generic.MikeZero import eumUnit
+from System.Collections.Generic import List
 
 
 class CathSlopeLengthProcess:

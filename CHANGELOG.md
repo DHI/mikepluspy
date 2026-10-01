@@ -4,6 +4,8 @@
 
 ### Added
 
+- `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
+
 ### Changed
 
 ### Deprecated
