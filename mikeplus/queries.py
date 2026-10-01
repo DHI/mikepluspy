@@ -246,18 +246,20 @@ class BaseQuery(ABC, Generic[QueryResultT]):
 class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     """Query class for SELECT operations."""
 
-    def __init__(self, table: BaseTable, columns: list[str] | None = None):
+    def __init__(self, table: BaseTable, columns: str | list[str] | None = None):
         """Initialize a new SELECT query.
 
         Parameters
         ----------
         table : BaseTable
             The table to select from
-        columns : list of str, optional
-            The columns to select
+        columns : str or list of str, optional
+            The column or columns to select
 
         """
         super().__init__(table)
+        if isinstance(columns, str):
+            columns = [columns]
         self._columns = columns or []
         self._order_by: tuple[str, bool] | None = None
 

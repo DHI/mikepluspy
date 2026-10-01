@@ -114,6 +114,11 @@ class TestSelectQuery:
         query = SelectQuery(table, ["MUID", "Diameter"])
         assert query._columns == ["MUID", "Diameter"]
 
+    def test_select_single_column_as_string(self, table):
+        """A lone column name is not split into characters."""
+        query = SelectQuery(table, "Diameter")
+        assert query._columns == ["Diameter"]
+
     def test_invalid_columns(self, table):
         """Test selecting invalid columns raises a ValueError."""
         with pytest.raises(ValueError):
