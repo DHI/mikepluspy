@@ -28,7 +28,6 @@ from DHI.Amelia.DataModule.Services.DataTables import (
 from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
 from DHI.Amelia.EPANETBridge import INPBridge
 from DHI.Amelia.GlobalUtility.DataType import DataBaseType
-from DHI.Amelia.ProjectLoaderPFS.Interface.Services import ServicesFactory
 from DHI.Amelia.SWMMBridge import SWMMStorageBridge
 from System.Threading import CancellationTokenSource
 
@@ -248,8 +247,8 @@ class Database:
     ) -> Path:
         """Create a MIKE+ project file (.mupp) for this database.
 
-        The file points to the database, with the model type and unit system
-        read from it, as MIKE+ writes one when it opens a bare `.sqlite` file.
+        Writes a minimal project file that references the database by a path
+        relative to itself and records its model type and unit system.
 
         Parameters
         ----------
@@ -257,7 +256,9 @@ class Database:
             Where to write the project file. Defaults to the database path
             with a `.mupp` suffix. The database is referenced relative to it.
         overwrite : bool, optional (default is False)
-            If True, replace an existing project file.
+            If True, replace an existing project file. The replacement is
+            minimal, so settings MIKE+ stores there, such as map layers,
+            symbology and the map's coordinate system, are lost.
 
         Returns
         -------
@@ -268,6 +269,8 @@ class Database:
         ------
         ValueError
             If the database is not open, or `mupp_path` doesn't end in `.mupp`.
+        FileNotFoundError
+            If the folder for the project file does not exist.
         FileExistsError
             If the project file exists and `overwrite` is False.
         DatabaseError
@@ -290,8 +293,15 @@ class Database:
             raise ValueError(f"Project file '{mupp_path}' must have a .mupp suffix.")
         if mupp_path.exists() and not overwrite:
             raise FileExistsError(f"Project file '{mupp_path}' already exists.")
+        if not mupp_path.parent.is_dir():
+            raise FileNotFoundError(f"Folder '{mupp_path.parent}' does not exist.")
 
         try:
+            import clr
+
+            clr.AddReference("DHI.Amelia.ProjectLoaderPFS.Interface")
+            from DHI.Amelia.ProjectLoaderPFS.Interface.Services import ServicesFactory
+
             project_file = ServicesFactory.CreateProjectFileOper()
             module_data = project_file.ProjectRootNodeData.ModuleData
             module_data.DBType = DataBaseType.SpatiaLite
@@ -303,8 +313,11 @@ class Database:
             module_data.CreateNewDB = False
             written = project_file.Write(str(mupp_path))
         except Exception as e:
-            raise DatabaseError(f"Failed to create project file: {mupp_path}.\n{e!s}")
-        if not written:
+            raise DatabaseError(
+                f"Failed to create project file: {mupp_path}.\n{e!s}"
+            ) from e
+        # Write() reports success even when it writes nothing
+        if not written or not mupp_path.exists():
             raise DatabaseError(f"Failed to create project file: {mupp_path}.")
 
         if mupp_path == sqlite_path.with_suffix(".mupp"):

@@ -86,6 +86,10 @@ with mp.open("model.sqlite") as db:
 
 The project file records the database's model type and unit system, and refers to the database by a path relative to itself. Pass a path to write it elsewhere, and `overwrite=True` to replace an existing one.
 
+::: {.callout-warning}
+`overwrite=True` replaces the project file with a minimal one. Settings MIKE+ keeps in a `.mupp`, such as map layers, symbology and the map's coordinate system, are lost.
+:::
+
 ### General Database Properties
 
 Retrieve general information about the database:

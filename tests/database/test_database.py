@@ -254,6 +254,15 @@ class TestDatabaseCreateMupp:
             assert reopened.is_open
             assert reopened.mupp_path == mupp_path
 
+    def test_create_mupp_missing_folder_raises_error(self, sirius_db: Path):
+        """The folder for the project file must already exist."""
+        mupp_path = sirius_db.parent / "missing" / "custom.mupp"
+
+        with Database(sirius_db) as db:
+            with pytest.raises(FileNotFoundError):
+                db.create_mupp(mupp_path)
+        assert not mupp_path.parent.exists()
+
     def test_create_mupp_existing_raises_error(self, sirius_db: Path):
         """An existing .mupp is kept unless overwrite is True."""
         mupp_path = sirius_db.with_suffix(".mupp")
