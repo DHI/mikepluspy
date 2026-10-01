@@ -20,8 +20,10 @@
 
 ### Fixed
 
+- `select()` accepts a single column name instead of splitting it into characters (#44).
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
+
 ### Security
 
 ## [2026.1.0] - 2026-06-23
