@@ -58,6 +58,31 @@ if all_muids:
 ```
 You can also sort the MUIDs by a specific column using `get_muids(order_by="ColumnName")`.
 
+## Finding Tables and Columns
+
+The API reference documents the shared table classes, not each of the several hundred
+tables. To find a table and what its columns mean, ask the database:
+
+```python
+import inspect
+
+# Every table in this database, with its display name
+for name, table in db.tables.items():
+    print(name, "-", table.display_name)
+
+# The columns of one table
+nodes_table = db.tables.msm_Node
+print(list(nodes_table.columns))
+
+# Column descriptions, with units, as written in the table's source
+print(inspect.getsource(type(nodes_table.columns)))
+```
+
+The last call prints the table's columns class, where each column is followed by its
+description as MIKE+ shows it, such as `GroundLevel` with `Ground level [m]`. Python drops
+these descriptions at runtime, so `help()` does not show them; read the source as above, or
+open the file `inspect.getsourcefile(type(nodes_table.columns))` returns.
+
 ## Querying and Modifying Data
 
 While the table object itself provides access to metadata, the actual reading, adding, updating, or deleting of data rows within the table is handled through queries.

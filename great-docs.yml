@@ -1,0 +1,94 @@
+display_name: MIKE+Py
+parser: numpy
+
+# Importing mikeplus loads the MIKE+ .NET assemblies, which CI does not have.
+dynamic: false
+
+repo: https://github.com/DHI/mikepluspy
+site_url: https://dhi.github.io/mikepluspy/
+github_style: icon
+
+source:
+  branch: main
+
+user_guide: docs/user_guide
+
+logo:
+  light: docs/assets/logo.svg
+favicon: docs/assets/favicon.png
+
+accent_color:
+  light: "#004165"
+  dark: "#01C4FF"
+
+# Methods stay on their class page, as quartodoc rendered them.
+inline_methods: true
+
+# Release notes live in CHANGELOG.md, not GitHub Releases.
+changelog:
+  enabled: false
+
+funding:
+  name: DHI Group
+  roles: ["Copyright holder"]
+
+interlinks:
+  sources:
+    numpy:
+      url: https://numpy.org/doc/stable/
+      aliases: [np]
+    pandas:
+      url: https://pandas.pydata.org/docs/
+      aliases: [pd]
+
+# The auto-generated table classes in mikeplus.tables are public but not listed:
+# there are hundreds of them, and their columns are discoverable at runtime.
+reference:
+  title: API Reference
+  sections:
+    - title: Main
+      contents:
+        - open
+        - create
+        - to_sql
+    - title: Database
+      contents:
+        - Database
+        - DatabaseError
+        - name: tables.TableCollection
+          members: [keys, values, items]
+    - title: Queries
+      desc: Returned by the `select`, `insert`, `update` and `delete` methods of a table.
+      contents:
+        - queries.BaseQuery
+        - queries.SelectQuery
+        - queries.InsertQuery
+        - queries.UpdateQuery
+        - queries.DeleteQuery
+    - title: Scenarios
+      desc: Returned by `Database.scenarios` and `Database.alternative_groups`.
+      contents:
+        - scenarios.ScenarioCollection
+        - scenarios.Scenario
+        - scenarios.AlternativeGroupCollection
+        - scenarios.AlternativeGroup
+        - scenarios.Alternative
+    - title: Table base classes
+      desc: Shared by every table in `Database.tables`.
+      contents:
+        - tables.BaseTable
+        - tables.BaseGeometryTable
+        - tables.BaseNodeTable
+        - tables.BaseColumns
+        - tables.BaseTableCollection
+    - title: Tools
+      contents:
+        - tools.ImportTool
+        - tools.InterpolationTool
+        - tools.TopoRepairTool
+        - tools.ConnectionRepairTool
+        - tools.CathSlopeLengthProcess
+    - title: Utilities
+      contents:
+        - utilities.get_nearest_river_at
+        - utilities.get_nearest_river_chainage_at

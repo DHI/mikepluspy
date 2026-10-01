@@ -72,7 +72,7 @@ class BaseColumns:
 
         Returns
         -------
-        iterator
+        Iterator[str]
             Iterator over column names
 
         """

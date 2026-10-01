@@ -12,7 +12,7 @@ db = mp.open("your_model.sqlite")
 # Use 'with mp.open("your_model.sqlite") as db:' for automatic closing
 ```
 
-## {{< fa sitemap >}} Accessing Scenarios
+## {{< icon network >}} Accessing Scenarios
 
 The `db.scenarios` attribute provides access to a `ScenarioCollection` object, which is your entry point for working with scenarios.
 
@@ -53,7 +53,7 @@ except KeyError:
     print("Scenario with ID 'SCENARIO_GUID_123' not found.")
 ```
 
-## {{< fa cogs >}} Working with Individual Scenarios
+## {{< icon settings >}} Working with Individual Scenarios
 
 Once you have a `Scenario` object, you can inspect its properties and manage it.
 
@@ -92,7 +92,7 @@ for alt in scenario.alternatives:
     print(f"- {alt.name} (from group: {alt.group.name})")
 ```
 
-## {{< fa tasks >}} Managing Scenarios
+## {{< icon list-checks >}} Managing Scenarios
 
 MIKE+Py allows you to create, delete, and rename scenarios.
 
@@ -132,7 +132,7 @@ Change the name of a scenario:
 #    print(f"Scenario renamed to: {scenario_to_rename.name}")
 ```
 
-## {{< fa puzzle-piece >}} Alternatives and Alternative Groups
+## {{< icon puzzle >}} Alternatives and Alternative Groups
 
 Alternatives represent specific configurations of model components (e.g., network data, operational controls). They are organized into `AlternativeGroup` objects.
 
@@ -154,7 +154,7 @@ network_data_group = alt_groups["CS Network data"] # Example group name
 print(f"Group ID: {network_data_group.id}")
 ```
 
-## {{< fa layer-group >}} Working with Alternative Groups
+## {{< icon layers >}} Working with Alternative Groups
 
 An `AlternativeGroup` object allows you to manage the alternatives within that group.
 
@@ -191,7 +191,7 @@ print(f"Group Name: {group.name}")
 print(f"Tables: {group.tables}")
 ```
 
-## {{< fa wrench >}} Working with Individual Alternatives
+## {{< icon hammer >}} Working with Individual Alternatives
 
 An `Alternative` object has properties detailing its configuration.
 
@@ -211,7 +211,7 @@ if alt.parent:
 
 ### Scenarios Using an Alternative
 
-Find out which scenarios use a particular alternative:
+Find which scenarios use a particular alternative:
 
 ```python
 # Assuming 'alt' is a valid Alternative object
@@ -220,7 +220,7 @@ for scn in alt.scenarios:
     print(f"- {scn.name}")
 ```
 
-## {{< fa edit >}} Managing Alternatives
+## {{< icon square-pen >}} Managing Alternatives
 
 Create and rename alternatives within their respective groups.
 

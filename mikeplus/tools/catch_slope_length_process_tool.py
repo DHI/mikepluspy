@@ -1,10 +1,17 @@
 """The Catchment Slope Length Process tool from MIKE+."""
 
+from __future__ import annotations
+
 import os.path
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any
 
 from DHI.Amelia.Tools.CatchmentProcessing import CatchmentSlope
 from DHI.Generic.MikeZero import eumUnit
 from System.Collections.Generic import List
+
+if TYPE_CHECKING:
+    from ..database import Database
 
 
 class CathSlopeLengthProcess:
@@ -24,7 +31,7 @@ class CathSlopeLengthProcess:
 
     """
 
-    def __init__(self, database):
+    def __init__(self, database: Database) -> None:
         """Initialize the CathSlopeLengthProcess with the given Database.
 
         Parameters
@@ -39,20 +46,20 @@ class CathSlopeLengthProcess:
 
     def run(
         self,
-        catch_ids,
-        line_layer,
-        dem_layer,
-        direction,
-        min_slope=0.002,
-        demUnitKey=1000,
-        overwrite_exist=True,
-    ):
+        catch_ids: Iterable[str],
+        line_layer: str,
+        dem_layer: str,
+        direction: int,
+        min_slope: float = 0.002,
+        demUnitKey: int = 1000,
+        overwrite_exist: bool = True,
+    ) -> None:
         """Calculate the slope and length for each catchment and print progress information.
 
         Parameters
         ----------
-        catch_ids : string
-            a array of cathment muids
+        catch_ids : Iterable[str]
+            MUIDs of the catchments
         line_layer : string
             a slope shape file path
         dem_layer : string
@@ -88,5 +95,5 @@ class CathSlopeLengthProcess:
         )
         tool.RuningProgress += self._on_tool_runing_progress
 
-    def _on_tool_runing_progress(self, source, args):
+    def _on_tool_runing_progress(self, source: Any, args: Any) -> None:
         print(args.Msg)

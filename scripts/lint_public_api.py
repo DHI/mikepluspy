@@ -18,8 +18,8 @@ missing-all          a public package, or a public module directly in mikeplus/,
 misspelled-all       a module assigns something like ``__all___`` or ``__ALL__``
 docs-import          docs or notebooks import a name the module does not export,
                      import from a private module, or import ``mikepluspy``
-undocumented-export  an exported name is never mentioned in the docs, and the module
-                     defining it is not listed in the quartodoc API reference
+undocumented-export  an exported name is neither mentioned in the docs nor listed in the
+                     great-docs API reference; the auto-generated tables are exempt
 leaked-type          a public signature mentions a .NET type or a private name
 
 Modules inside a subpackage need no ``__all__`` of their own: the subpackage's
@@ -60,7 +60,7 @@ DOTNET_ROOTS = ("DHI", "System", "ThinkGeo")
 
 DOC_SUFFIXES = {".qmd", ".md", ".ipynb", ".yml", ".yaml"}
 
-QUARTO_CONFIG = ROOT / "docs" / "_quarto.yml"
+GREAT_DOCS_CONFIG = ROOT / "great-docs.yml"
 
 # The repository's name, which docs sometimes import by mistake.
 MISNAMED_PACKAGES = {"mikepluspy"}
@@ -566,17 +566,20 @@ def check_doc_imports(
     return findings
 
 
-QUARTODOC_ENTRY = re.compile(
+REFERENCE_ENTRY = re.compile(
     r"^\s*-\s+(?:name:\s*)?([A-Za-z_][\w.]*)\s*$", re.MULTILINE
 )
 
+# Public, but too many to list in the reference; they are found at runtime instead.
+UNLISTED_MODULE = "mikeplus.tables.auto_generated"
 
-def quartodoc_entries() -> set[str]:
-    """Return the last component of every object or module listed in the quartodoc config."""
-    if not QUARTO_CONFIG.is_file():
+
+def reference_entries() -> set[str]:
+    """Return the last component of every object listed in the great-docs config."""
+    if not GREAT_DOCS_CONFIG.is_file():
         return set()
-    text = QUARTO_CONFIG.read_text(encoding="utf-8")
-    return {entry.rsplit(".", 1)[-1] for entry in QUARTODOC_ENTRY.findall(text)}
+    text = GREAT_DOCS_CONFIG.read_text(encoding="utf-8")
+    return {entry.rsplit(".", 1)[-1] for entry in REFERENCE_ENTRY.findall(text)}
 
 
 def check_documented(
@@ -584,19 +587,20 @@ def check_documented(
 ) -> list[Finding]:
     """Check that every exported name is documented.
 
-    A name is documented when the docs mention it, or when the quartodoc config lists the
-    module that defines it, since quartodoc then renders every class in that module. The
-    auto-generated tables are documented that way.
+    A name is documented when the docs mention it or the great-docs config lists it. Names
+    defined in ``mikeplus.tables.auto_generated`` are exempt.
     """
     corpus = "\n".join(notebook_text(path, text) for path, text in docs.items())
     words = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", corpus))
-    entries = quartodoc_entries()
+    entries = reference_entries()
     findings = []
     reported = set()
     for module in public_modules(modules):
         for name in module.exports or []:
             found = resolve(modules, module.name, name)
-            if found and found[0].name.rsplit(".", 1)[-1] in entries:
+            if name in entries or (
+                found and found[0].name.startswith(UNLISTED_MODULE)
+            ):
                 continue
             if name not in words and name not in reported:
                 reported.add(name)
@@ -605,8 +609,8 @@ def check_documented(
                         module.path,
                         module.exports_line,
                         "undocumented-export",
-                        f"'{name}' is exported but never mentioned in docs/, notebooks/ "
-                        "or README.md",
+                        f"'{name}' is exported but neither listed in great-docs.yml nor "
+                        "mentioned in docs/, notebooks/ or README.md",
                     )
                 )
     return findings
