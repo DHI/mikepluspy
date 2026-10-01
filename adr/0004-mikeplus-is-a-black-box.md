@@ -1,4 +1,4 @@
-# ADR 0003: MIKE+ is a black box; its source stays inside DHI
+# ADR 0004: MIKE+ is a black box; its source stays inside DHI
 
 - Status: Accepted
 - Date: 2026-10-01

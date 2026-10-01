@@ -4,7 +4,7 @@ MIKE+Py: a Python veneer (pythonnet) over the .NET assemblies of a local MIKE+ i
 
 ## MIKE+ is a black box
 
-This repo and everything around it (commits, PRs, issues, docs, releases) is public; MIKE+ source is DHI-internal. Work only from what a MIKE+ install exposes: public assembly members, signatures and observed behaviour. You may read MIKE+ source or decompiled assemblies to understand a behaviour, but write up only the observed behaviour and the fix. MIKE+ code, decompiled output or close paraphrases of either must never appear in anything you write here. See `adr/0003-mikeplus-is-a-black-box.md`.
+This repo and everything around it (commits, PRs, issues, docs, releases) is public; MIKE+ source is DHI-internal. Work only from what a MIKE+ install exposes: public assembly members, signatures and observed behaviour. You may read MIKE+ source or decompiled assemblies to understand a behaviour, but write up only the observed behaviour and the fix. MIKE+ code, decompiled output or close paraphrases of either must never appear in anything you write here. See `adr/0004-mikeplus-is-a-black-box.md`.
 
 ## Environment
 
