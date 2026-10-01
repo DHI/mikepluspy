@@ -133,6 +133,8 @@ To build locally:
 The CI Docs workflow runs `docs-check` and `docs` on pull requests that
 touch the docs, docstrings or docs tooling, deploys to GitHub Pages on push to
 `main`, and checks links weekly. On those pull requests it uploads the built
-site and comments how to view it: `great-docs preview --pr <number> --use-gh`. A build
+site and comments how to view it: `great-docs preview --pr <number> --use-gh`.
+On Windows, set `PYTHONUTF8=1` first; without it the command fails on
+non-ASCII output. A build
 takes under a minute on Linux; on Windows, Quarto and great-docs are several
 times slower.
