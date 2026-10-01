@@ -8,7 +8,7 @@ UPDATE, DELETE) with chainable methods and consistent error handling.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 if TYPE_CHECKING:
     from .tables import BaseTable
@@ -22,7 +22,7 @@ from .utils import to_sql
 QueryResultT = TypeVar("QueryResultT")
 
 
-class BaseQuery(Generic[QueryResultT], ABC):
+class BaseQuery(ABC, Generic[QueryResultT]):
     """Base class for all query types."""
 
     def __init__(self, table: BaseTable):
@@ -99,7 +99,7 @@ class BaseQuery(Generic[QueryResultT], ABC):
             condition = f"MUID IN ({', '.join(formatted_muids)})"
             self.where(condition)
         else:
-            raise ValueError(
+            raise ValueError(  # noqa: TRY004 - TypeError would break callers catching ValueError
                 "by_muid() accepts a single MUID string or a list/tuple of MUID strings."
             )
         return self
@@ -183,13 +183,12 @@ class BaseQuery(Generic[QueryResultT], ABC):
         This is an internal implementation method called by execute().
 
         """
-        pass
 
 
-class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
+class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
     """Query class for SELECT operations."""
 
-    def __init__(self, table: BaseTable, columns: list[str] = []):
+    def __init__(self, table: BaseTable, columns: list[str] | None = None):
         """Initialize a new SELECT query.
 
         Parameters
@@ -201,7 +200,7 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
 
         """
         super().__init__(table)
-        self._columns = columns
+        self._columns = columns or []
         self._order_by: tuple[str, bool] | None = None
 
         self._validate_columns()
@@ -301,7 +300,7 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
 class InsertQuery(BaseQuery[str]):
     """Query class for INSERT operations."""
 
-    def __init__(self, table: BaseTable, values: dict[str, Any] = {}):
+    def __init__(self, table: BaseTable, values: dict[str, Any] | None = None):
         """Initialize a new INSERT query.
 
         Parameters
@@ -313,7 +312,7 @@ class InsertQuery(BaseQuery[str]):
 
         """
         super().__init__(table)
-        self._values = values
+        self._values = values or {}
 
     def _execute_impl(self) -> str:
         """Implement the INSERT query execution.

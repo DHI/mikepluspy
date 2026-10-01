@@ -7,16 +7,15 @@ for database operations and interacting with the MIKE+ .NET API.
 
 from __future__ import annotations
 
-import clr  # noqa: F401
 import datetime
-from typing import Any, Dict
+from typing import Any
 
+import clr  # noqa: F401
 import pandas as pd
-
 import System
-from System import String, Object, Nullable
-from System.Collections.Generic import List, IList, IDictionary, Dictionary
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from System import Nullable, Object, String
+from System.Collections.Generic import Dictionary, IDictionary, IList, List
 
 
 def get_implementation(net_object: Any, raw: bool = False) -> Any:
@@ -118,7 +117,7 @@ class DotNetConverter:
 
     @staticmethod
     def to_dotnet_dictionary(
-        py_dict: Dict[str, Any],
+        py_dict: dict[str, Any],
     ) -> Dictionary[String, Object]:
         """Convert a Python dictionary to a .NET Dictionary.
 
@@ -276,7 +275,7 @@ class DotNetConverter:
         """
         # Get microseconds from .NET ticks
         microseconds = dt.Ticks % 10**7 // 10
-        time = datetime.datetime(
+        time = datetime.datetime(  # noqa: DTZ001 - MIKE+ datetimes are naive
             dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, microseconds
         )
 

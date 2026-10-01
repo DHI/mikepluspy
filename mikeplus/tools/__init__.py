@@ -18,16 +18,16 @@ clr.AddReference("DHI.Amelia.Tools.InterpolationEngine")
 clr.AddReference("DHI.Amelia.Tools.ConnectionRepairEngine")
 clr.AddReference("DHI.Amelia.Tools.CatchmentProcessing")
 
-from .import_tool import ImportTool  # noqa: E402
-from .topology_repair_tool import TopoRepairTool  # noqa: E402
-from .interpolation_tool import InterpolationTool  # noqa: E402
-from .connection_repair_tool import ConnectionRepairTool  # noqa: E402
-from .catch_slope_length_process_tool import CathSlopeLengthProcess  # noqa: E402
+from .catch_slope_length_process_tool import CathSlopeLengthProcess
+from .connection_repair_tool import ConnectionRepairTool
+from .import_tool import ImportTool
+from .interpolation_tool import InterpolationTool
+from .topology_repair_tool import TopoRepairTool
 
 __all__ = [
-    "ImportTool",
-    "TopoRepairTool",
-    "InterpolationTool",
-    "ConnectionRepairTool",
     "CathSlopeLengthProcess",
+    "ConnectionRepairTool",
+    "ImportTool",
+    "InterpolationTool",
+    "TopoRepairTool",
 ]

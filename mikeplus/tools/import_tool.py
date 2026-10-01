@@ -1,8 +1,8 @@
 """The Import Tool from MIKE+."""
 
 import os.path
-from DHI.Amelia.Tools.ImportTool.ImportEngine import FunctionHelper
-from DHI.Amelia.Tools.ImportTool.ImportEngine import ImportToolBase
+
+from DHI.Amelia.Tools.ImportTool.ImportEngine import FunctionHelper, ImportToolBase
 
 
 class ImportTool:

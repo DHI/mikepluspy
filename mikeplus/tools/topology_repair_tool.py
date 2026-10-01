@@ -4,8 +4,10 @@ from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool impor
     TopologyRepairParam,
 )
 from DHI.Amelia.GlobalUtility.DataType import MUModelOption
-from DHI.Amelia.Tools.TopologyRepairTool import CSTopologyRepairTool
-from DHI.Amelia.Tools.TopologyRepairTool import WDTopologyRepairTool
+from DHI.Amelia.Tools.TopologyRepairTool import (
+    CSTopologyRepairTool,
+    WDTopologyRepairTool,
+)
 from System.Threading import CancellationTokenSource
 
 

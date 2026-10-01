@@ -7,32 +7,36 @@ MIKE+ model files, including access to tables and scenarios.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .scenarios.scenario import Scenario
 
-from System.Threading import CancellationTokenSource
+from pathlib import Path
+from plistlib import InvalidFileException
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
-from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
-from DHI.Amelia.DataModule.Services.DataTables import AmlUndoRedoManager
-from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
 from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
     ScenarioManager as NetScenarioManager,
 )
+from DHI.Amelia.DataModule.Services.DataTables import (
+    AmlUndoRedoManager,
+    DataTableContainer,
+)
+from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
 from DHI.Amelia.EPANETBridge import INPBridge
 from DHI.Amelia.SWMMBridge import SWMMStorageBridge
-
-from plistlib import InvalidFileException
-from pathlib import Path
+from System.Threading import CancellationTokenSource
 
 from .conflicts import check_conflicts
-from .tables.auto_generated import TableCollection
-from .simulation_runner import SimulationRunner
-from .scenarios.scenario_collection import ScenarioCollection
 from .scenarios.alternative_group_collection import AlternativeGroupCollection
+from .scenarios.scenario_collection import ScenarioCollection
+from .simulation_runner import SimulationRunner
+from .tables.auto_generated import TableCollection
+
+
+class DatabaseError(Exception):
+    """Raised when a MIKE+ database operation fails."""
 
 
 class Database:
@@ -149,7 +153,7 @@ class Database:
             data_source.CreateModelTables(srid, projection_string)
             data_source.CloseDatabase()
         except Exception as e:
-            raise Exception(f"Failed to create model database: {str(e)}")
+            raise DatabaseError(f"Failed to create model database: {e!s}")
 
         db = cls(model_path, auto_open=auto_open)
         return db
@@ -184,8 +188,8 @@ class Database:
             )
             self._is_open = True
         except Exception as e:
-            raise Exception(
-                f"Failed to open model database: {self._db_path}.\n{str(e)}"
+            raise DatabaseError(
+                f"Failed to open model database: {self._db_path}.\n{e!s}"
             )
 
         return self
@@ -200,8 +204,8 @@ class Database:
             self._data_table_container.DataSource.CloseDatabase()
             self._is_open = False
         except Exception as e:
-            raise Exception(
-                f"Failed to close model database: {self._db_path}.\n{str(e)}"
+            raise DatabaseError(
+                f"Failed to close model database: {self._db_path}.\n{e!s}"
             )
 
     def begin_transaction(self):
@@ -543,13 +547,14 @@ class Database:
         try:
             cancellation_token = CancellationTokenSource()
             result = inp_bridge.Import(file_path.as_posix(), cancellation_token.Token)
-            if not result:
-                raise Exception()
         except Exception as e:
             messages = "\n".join(inp_bridge.ErrorMsgs)
-            raise Exception(
-                f"Error importing from EPANET file.\n{str(e)}\n{messages}"
+            raise DatabaseError(
+                f"Error importing from EPANET file.\n{e!s}\n{messages}"
             ) from None
+        if not result:
+            messages = "\n".join(inp_bridge.ErrorMsgs)
+            raise DatabaseError(f"Error importing from EPANET file.\n{messages}")
 
     def import_from_swmm(self, file_path: str | Path):
         """Import a model from a SWMM .inp file.
@@ -577,15 +582,17 @@ class Database:
         try:
             cancellation_token = CancellationTokenSource()
             result = inp_bridge.Import(file_path.as_posix(), cancellation_token.Token)
-            if not result:
-                raise Exception()
         except Exception as e:
             messages = "\n".join(inp_bridge.ErrorMsgs)
-            raise Exception(
-                f"Error importing from SWMM file.\n{str(e)}\n{messages}"
+            raise DatabaseError(
+                f"Error importing from SWMM file.\n{e!s}\n{messages}"
             ) from None
+        if not result:
+            messages = "\n".join(inp_bridge.ErrorMsgs)
+            raise DatabaseError(f"Error importing from SWMM file.\n{messages}")
 
 
 __all__ = [
     "Database",
+    "DatabaseError",
 ]
