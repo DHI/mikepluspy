@@ -10,7 +10,7 @@ contributors, agents and CI, so call `just <recipe>` rather than the tools
 behind it. You need `just` and [uv](https://docs.astral.sh/uv/) on your PATH.
 
 ```bash
-just setup              # create .venv and install .[dev]; `just setup dev,docs` adds docs extras
+just setup              # create .venv and install .[dev]
 just lint               # ruff, formatting and the public API check; no MIKE+ needed
 just lint-changed       # stricter rules on files changed since main; `just lint-changed <base>`
 just typecheck          # mypy
@@ -36,6 +36,12 @@ Save genuine breaks for the next year bump.
 - For changed .NET signatures, support both forms (try new, fall back to old)
   rather than swapping. See `SimulationRunner.__init__`. Tag fallbacks with
   `TODO(<next year>)` for cleanup at the year bump.
+- Minimum Python and dependency versions follow
+  [SPEC 0](https://scientific-python.org/specs/spec-0000/), not the year line.
+  In the first release of each quarter, raise any floor that the
+  [drop schedule](https://scientific-python.org/specs/spec-0000/#drop-schedule)
+  has passed, along with the oldest Python in the CI matrices. See
+  `adr/0002-dependency-floors-follow-spec-0.md`.
 
 ## Public API
 
@@ -57,7 +63,9 @@ part of `just lint`. It reads files only, so it needs no MIKE+ install.
 - `mikeplus.scenarios`, `mikeplus.tools`, `mikeplus.utilities`: their
   `__all__`.
 - `mikeplus.tables`: the base table classes and every auto-generated table
-  class, which it re-exports from `mikeplus.tables.auto_generated`.
+  class, which it re-exports from `mikeplus.tables.auto_generated`. The
+  table classes are public but not in the API reference; the "Tables" user
+  guide shows how to find tables and column descriptions at runtime.
 
 Import from those packages, not from the modules that implement them
 (`mikeplus.scenarios`, not `mikeplus.scenarios.scenario`). `mikeplus.shortcuts`,
@@ -75,9 +83,8 @@ underscore-prefixed modules so the name says it.
 ### Rules for public code
 
 - A new public name goes in `__all__` and in the docs: the user guide, or the
-  quartodoc sections in `docs/_quarto.yml`. Listing a module in quartodoc
-  documents every class in it, which is how the auto-generated tables are
-  covered.
+  `reference` sections in `great-docs.yml`. The auto-generated tables are
+  exempt.
 - Public signatures must not mention .NET (`DHI.*`, `System.*`, `ThinkGeo.*`)
   or underscore-private types. A signature that exposes one on purpose, such
   as an escape hatch to the underlying .NET object, carries the comment
@@ -105,20 +112,34 @@ When a new version of MIKE+ is released, the following needs to be done before r
 9. Bump package version to match year of MIKE+ (e.g. 2026.0.0 for the first 2026 release)
 10. Update CI runner to use the new MIKE+ version
 11. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
-12. Update auto generated table documentation.
-    - `just table-docs`
-    - Review the diff in `docs/_table_generated_sections.yml`. It may be the same, or include new or removed tables.
-    - Copy its contents into the `Tables` section of `docs/_quarto.yml`.
 Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.
 
 ## Documentation
 
-To build the documentation locally, follow these steps:
+The site is built with [great-docs](https://posit-dev.github.io/great-docs/) on
+top of [Quarto](https://quarto.org). It reads the source statically and does
+not need `mikeplus` to be importable, so it builds without MIKE+, on Linux too.
 
-1. Install quarto
-2. `just setup dev,docs`
-3. `just docs`, which builds into `docs/_site`. `quartodoc build` is really slow
-   because of the auto-generated tables; if it seems to hang, run
-   `uv run --no-sync quartodoc build --verbose` from `docs` to watch progress.
+- `great-docs.yml` (repository root) configures the site and lists the API
+  reference sections.
+- `docs/user_guide/` holds the user guide. The numeric prefixes set the order
+  and are dropped from the URLs.
+- `README.md` is the home page. Its centred block (logo, tagline, badges)
+  becomes the hero.
+- `docs/dictionary.txt` lists words the proofreader accepts.
 
+To build locally:
 
+1. Install [Quarto](https://quarto.org/docs/get-started/), and
+   [harper-cli](https://github.com/Automattic/harper/releases) for `just docs-check`.
+2. `just setup-docs`, which installs the `docs` dependency group into `.venv`.
+3. `just docs` builds into `great-docs/_site`; `just docs-check` lints and
+   proofreads (British English); `just docs-links` checks links.
+
+The CI Docs workflow runs `docs-check` and `docs` on pull requests that
+touch the docs, docstrings or docs tooling, deploys to GitHub Pages on push to
+`main`, and checks links weekly. On those pull requests it uploads the built
+site and comments how to view it. `just docs-preview <number>` downloads
+that build and serves it locally, using your `gh` login. A build
+takes under a minute on Linux; on Windows, Quarto and great-docs are several
+times slower.

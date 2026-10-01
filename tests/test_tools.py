@@ -52,6 +52,37 @@ def test_interpolate_tool(interpolate_db):
     assert field_val_get["Node_3"][0] == 3.0
 
 
+def test_direct_assign_value_treats_value_as_missing(interpolate_db):
+    db = Database(interpolate_db)
+    db.tables.msm_Node.update({"Diameter": -999.0}).where("MUID='Node_1'").execute()
+    db.tables.msm_Node.update({"Diameter": 1.5}).where("MUID='Node_2'").execute()
+    InterpolationTool(db).direct_assign_value(
+        "msm_Node", "Diameter", 5.0, assign_val_as_missing=True, value_as_missing=-999.0
+    )
+    field_val_get = db.tables.msm_Node.select(["Diameter"]).execute()
+    db.close()
+    assert field_val_get["Node_1"][0] == 5.0
+    assert field_val_get["Node_2"][0] == 1.5
+
+
+def test_interpolate_from_neighbour_along_path(interpolate_db):
+    """`alongPath` reaches the engine: the two assignment methods give different values."""
+    db = Database(interpolate_db)
+    tool = InterpolationTool(db)
+    diameters = {}
+    for along_path in (False, True):
+        db.tables.msm_Node.update({"Diameter": None}).where("MUID='Node_2'").execute()
+        tool.interpolate_from_neighobour(
+            "msm_Node", "Diameter", "msm_Node", "Diameter", alongPath=along_path
+        )
+        row = db.tables.msm_Node.select(["Diameter"]).by_muid("Node_2").execute()
+        diameters[along_path] = row["Node_2"][0]
+    db.close()
+    assert diameters[False] == pytest.approx(2.0)
+    assert diameters[True] is not None
+    assert diameters[True] != pytest.approx(diameters[False])
+
+
 def test_connect_repair_tool(connection_repair_db):
     db = Database(connection_repair_db)
 

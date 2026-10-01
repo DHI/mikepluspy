@@ -7,6 +7,7 @@ Collection-like access to scenarios in the MIKE+ model.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Any
 
 from .scenario import Scenario
 
@@ -39,14 +40,14 @@ class ScenarioCollection:
     >>> # Access by ID
     >>> scenario = db.scenarios["scenario_id"]
     >>>
-    >>> # Get active scenario
+    >>> # Get the active scenario
     >>> active = db.scenarios.active
     >>>
-    >>> # Create new scenario
+    >>> # Create a new scenario
     >>> new_scenario = db.scenarios.create("Future Development")
     """
 
-    def __init__(self, scenario_manager):
+    def __init__(self, scenario_manager: Any) -> None:
         """ScenarioCollection constructor.
 
         Parameters
@@ -56,8 +57,14 @@ class ScenarioCollection:
         """
         self._scenario_manager = scenario_manager
 
-    def __repr__(self):
-        """Get string representation of the ScenarioCollection object."""
+    def __repr__(self) -> str:
+        """Get string representation of the ScenarioCollection object.
+
+        Returns
+        -------
+        str
+            The class name and the number of scenarios.
+        """
         return f"ScenarioCollection <{len(list(self))}>"
 
     @property
@@ -72,6 +79,11 @@ class ScenarioCollection:
 
     def __getitem__(self, id: str) -> Scenario:
         """Access scenario by its ID.
+
+        Returns
+        -------
+        Scenario
+            The scenario with the given ID.
 
         Raises
         ------
@@ -155,6 +167,11 @@ class ScenarioCollection:
             Name for the new scenario
         parent : Scenario, optional
             Parent scenario (defaults to base scenario if None)
+
+        Returns
+        -------
+        Scenario
+            The new scenario.
 
         Raises
         ------

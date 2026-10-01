@@ -2,7 +2,7 @@
 
 MIKE+Py allows you to interact with data in your model's tables using a query-based approach. This involves building a query object by specifying the operation (select, insert, update, delete), optionally filtering or ordering, and then executing it.
 
-## {{< fa code >}} Workflow
+## {{< icon code >}} Workflow
 
 Most query operations follow a general pattern:
 
@@ -11,7 +11,7 @@ Most query operations follow a general pattern:
 3.  Optionally chain methods like `where()` or `order_by()`.
 4.  Finally, call `execute()` to perform the database action, or `to_pandas()` for select queries.
 
-## {{< fa database >}} Selecting Data
+## {{< icon database >}} Selecting Data
 
 To read data, use the `select()` method. You can specify columns, filter rows with `where()`, and order results with `order_by()`. The `execute()` method typically returns a dictionary, but converting to a pandas DataFrame with `to_pandas()` is often more convenient for analysis.
 
@@ -60,7 +60,7 @@ df_sorted_nodes = query.where(f"Diameter > {min_diam}") \
 
 A single column can be passed as a string, e.g. `nodes_table.select("Diameter")`. If `columns` is not specified in `select()`, all columns are returned.
 
-## {{< fa plus >}} Inserting Data
+## {{< icon plus >}} Inserting Data
 
 To add new rows to a table, use the `insert()` method. Provide a dictionary where keys are column names and values are the data to be inserted. The `execute()` method (called by `insert()`) returns the MUID (a string) of the newly created row.
 
@@ -82,7 +82,7 @@ new_node_geom_muid = nodes_table.insert({
 print(f"Inserted new node with geometry, MUID: {new_node_geom_muid}")
 ```
 
-## {{< fa pencil >}} Updating Data
+## {{< icon pencil >}} Updating Data
 
 To modify existing data, use the `update()` method, providing a dictionary of columns and their new values. You must specify which rows to update using `where()` or update all rows using `all()`. The `execute()` method returns a list of MUIDs of the updated rows.
 
@@ -113,7 +113,7 @@ To prevent accidental modification of all rows, MIKE+Py will raise a `ValueError
 # print(f"Updated {len(all_updated_muids)} nodes.")
 ```
 
-## {{< fa trash >}} Deleting Data
+## {{< icon trash-2 >}} Deleting Data
 
 To remove rows, use the `delete()` method. Similar to `update()`, you must specify which rows to delete using `where()` or delete all rows using `all()`. The `execute()` method returns a list of MUIDs of the deleted rows.
 
@@ -132,6 +132,6 @@ Attempting to delete without `where()` or `all()` will result in a `ValueError`.
 # print(f"Deleted {len(all_deleted_muids)} nodes.")
 ```
 
-## {{< fa play >}} Query Execution
+## {{< icon play >}} Query Execution
 
 Queries are constructed by chaining methods and are only performed when `execute()` (for insert, update, delete) or `to_pandas()` (for select) is called. If you need to re-run a query with the exact same parameters (uncommon), you can call `reset()` on the query object before calling `execute()` again. Typically, you would just define and execute a new query.

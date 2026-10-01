@@ -9,15 +9,20 @@
 
 ### Changed
 
+- Minimum versions now follow [SPEC 0](https://scientific-python.org/specs/spec-0000/): numpy 2.3, pandas 2.3 and pythonnet 3.0.5.
 - Importing `mikeplus` with anything other than x64 Python on Windows or Linux now raises `ImportError`.
 
 ### Deprecated
 
 ### Removed
 
+- Support for Python 3.10, 3.11 and 3.12. MIKE+Py now requires Python 3.13 or later.
+
 ### Fixed
 
 - `select()` accepts a single column name instead of splitting it into characters (#44).
+- `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
+- The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
 
 ### Security
 

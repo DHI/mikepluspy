@@ -1,5 +1,9 @@
 """The Topology Repair Tool from MIKE+."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from DHI.Amelia.DomainServices.Interface.TransferEntity.TopologyRepairTool import (
     TopologyRepairParam,
 )
@@ -9,6 +13,9 @@ from DHI.Amelia.Tools.TopologyRepairTool import (
     WDTopologyRepairTool,
 )
 from System.Threading import CancellationTokenSource
+
+if TYPE_CHECKING:
+    from ..database import Database
 
 
 class TopoRepairTool:
@@ -29,7 +36,7 @@ class TopoRepairTool:
 
     """
 
-    def __init__(self, database):
+    def __init__(self, database: Database) -> None:
         """Initialize the TopoRepairTool with the given Database.
 
         Parameters
@@ -44,15 +51,15 @@ class TopoRepairTool:
 
     def run(
         self,
-        delete_unLink_node_Link=True,
-        dissolve_overlap_node=True,
-        correct_link_connection=True,
-        search_junction_connection=True,
-        create_junction_connection=True,
-        split_link_on_tjunction=True,
-        add_missing_zones=True,
-        snap_distance=0.1,
-    ):
+        delete_unLink_node_Link: bool = True,
+        dissolve_overlap_node: bool = True,
+        correct_link_connection: bool = True,
+        search_junction_connection: bool = True,
+        create_junction_connection: bool = True,
+        split_link_on_tjunction: bool = True,
+        add_missing_zones: bool = True,
+        snap_distance: float = 0.1,
+    ) -> None:
         """Offers a way to detect and repair topology or network geometry issues in the model.
 
         Parameters
@@ -62,9 +69,9 @@ class TopoRepairTool:
         dissolve_overlap_node : bool, optional
             If true, extra nodes within the specified search radius will be removed. By default True
         correct_link_connection : bool, optional
-            When a link's end is not con­nected to a node, if this operation is true, it will connect it either to the closest exist­ing node within the specified search radius, or to a new node. By default True
+            When a link's end is not connected to a node, if this operation is true, it will connect it either to the closest existing node within the specified search radius, or to a new node. By default True
         search_junction_connection : bool, optional
-            If true, it will connect to the closest exist­ing node within the specified search radius. By default True
+            If true, it will connect to the closest existing node within the specified search radius. By default True
         create_junction_connection : bool, optional
             If true, it will connect to a new node. By default True
         split_link_on_tjunction : bool, optional
@@ -96,5 +103,5 @@ class TopoRepairTool:
             tool.RuningProgress += self._on_tool_runing_progress
             tool.Run(topology_param, cancel_source.Token, False)
 
-    def _on_tool_runing_progress(self, source, args):
+    def _on_tool_runing_progress(self, source: Any, args: Any) -> None:
         print(args.Msg)

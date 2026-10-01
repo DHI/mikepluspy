@@ -1,9 +1,22 @@
 """The Interpolation and Assignment tool from MIKE+."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import (
     InterpolationToolParameters,
 )
 from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
+from System import Convert
+
+if TYPE_CHECKING:
+    from ..database import Database
+
+
+def _missing_value_text(value: float | None) -> str | None:
+    # MIKE+ takes the missing value as text. Convert formats it in the current culture.
+    return None if value is None else Convert.ToString(float(value))
 
 
 class InterpolationTool:
@@ -23,7 +36,7 @@ class InterpolationTool:
 
     """
 
-    def __init__(self, database):
+    def __init__(self, database: Database) -> None:
         """Initialize the InterpolationTool with the given Database.
 
         Parameters
@@ -38,15 +51,15 @@ class InterpolationTool:
 
     def interpolate_from_nearest_feature(
         self,
-        target_Db_Name,
-        target_attribute,
-        source_layer_name,
-        source_attribute,
-        only_null_values=True,
-        assign_val_as_missing=False,
-        value_as_missing=None,
-        search_radius=300.0,
-    ):
+        target_Db_Name: str,
+        target_attribute: str,
+        source_layer_name: str,
+        source_attribute: str,
+        only_null_values: bool = True,
+        assign_val_as_missing: bool = False,
+        value_as_missing: float | None = None,
+        search_radius: float = 300.0,
+    ) -> None:
         """Interpolate target attribute from nearest source in search radius.
 
         Parameters
@@ -62,7 +75,7 @@ class InterpolationTool:
         only_null_values : bool, optional
             If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True
         assign_val_as_missing : bool, optional
-            If true, assgined value as missing value. By default False
+            If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
         search_radius : float, optional
@@ -81,7 +94,7 @@ class InterpolationTool:
         param.bOverallAssignInside = False
         param.dSearhRadius = search_radius
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -89,14 +102,14 @@ class InterpolationTool:
 
     def interpolate_from_DEM(
         self,
-        target_Db_Name,
-        target_attribute,
-        raster_file,
-        item_number,
-        only_null_values=True,
-        assign_val_as_missing=False,
-        value_as_missing=None,
-    ):
+        target_Db_Name: str,
+        target_attribute: str,
+        raster_file: str,
+        item_number: int,
+        only_null_values: bool = True,
+        assign_val_as_missing: bool = False,
+        value_as_missing: float | None = None,
+    ) -> None:
         """Interpolate target attribute from specified item number in raster layer.
 
         Parameters
@@ -112,7 +125,7 @@ class InterpolationTool:
         only_null_values : bool, optional
             If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True
         assign_val_as_missing : bool, optional
-            If true, assgined value as missing value. By default False
+            If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
 
@@ -127,7 +140,7 @@ class InterpolationTool:
         param.bOverallAssignSelected = False
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -135,16 +148,16 @@ class InterpolationTool:
 
     def interpolation_IDW(
         self,
-        target_Db_name,
-        target_attribute,
-        source_layer_name,
-        source_attribute,
-        only_null_values=True,
-        assign_val_as_missing=False,
-        value_as_missing=None,
-        max_IDW_points=12,
-        search_radius=300.0,
-    ):
+        target_Db_name: str,
+        target_attribute: str,
+        source_layer_name: str,
+        source_attribute: str,
+        only_null_values: bool = True,
+        assign_val_as_missing: bool = False,
+        value_as_missing: float | None = None,
+        max_IDW_points: int = 12,
+        search_radius: float = 300.0,
+    ) -> None:
         """Interpolate target attribute from the specified max number of sources in search radius.
 
         Parameters
@@ -160,7 +173,7 @@ class InterpolationTool:
         only_null_values : bool, optional
             If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True
         assign_val_as_missing : bool, optional
-            If true, assgined value as missing value. By default False
+            If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
         max_IDW_points : int, optional
@@ -182,7 +195,7 @@ class InterpolationTool:
         param.iMaxFeatureSkip = max_IDW_points
         param.dSearhRadius = search_radius
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -190,13 +203,13 @@ class InterpolationTool:
 
     def direct_assign_value(
         self,
-        target_Db_name,
-        target_attribute,
-        fixed_value,
-        only_null_values=True,
-        assign_val_as_missing=False,
-        value_as_missing=None,
-    ):
+        target_Db_name: str,
+        target_attribute: str,
+        fixed_value: float,
+        only_null_values: bool = True,
+        assign_val_as_missing: bool = False,
+        value_as_missing: float | None = None,
+    ) -> None:
         """Set the target attribute as the fixed value.
 
         Parameters
@@ -210,7 +223,7 @@ class InterpolationTool:
         only_null_values : bool, optional
             If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True
         assign_val_as_missing : bool, optional
-            If true, assgined value as missing value. By default False
+            If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
 
@@ -224,7 +237,7 @@ class InterpolationTool:
         param.bOverallAssignSelected = False
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         tool = InterpolationEngine(self._dataTables)
         tool.RuningProgress += self._on_tool_runing_progress
         msgs = None
@@ -236,17 +249,17 @@ class InterpolationTool:
 
     def interpolate_from_neighobour(
         self,
-        target_Db_name,
-        target_attribute,
-        source_layer_name,
-        source_attribute,
-        only_null_values=True,
-        assign_val_as_missing=False,
-        value_as_missing=None,
-        assign_option=0,
-        alongPath=False,
-        max_neighbours=3,
-    ):
+        target_Db_name: str,
+        target_attribute: str,
+        source_layer_name: str,
+        source_attribute: str,
+        only_null_values: bool = True,
+        assign_val_as_missing: bool = False,
+        value_as_missing: float | None = None,
+        assign_option: int = 0,
+        alongPath: bool = False,
+        max_neighbours: int = 3,
+    ) -> None:
         """Interpolate target attribute from the source attribute along the network.
 
         Parameters
@@ -262,7 +275,7 @@ class InterpolationTool:
         only_null_values : bool, optional
             If true, only interpolate null value or defined as missing value in target attribute in target table. Otherwise, interpolate all. By default True
         assign_val_as_missing : bool, optional
-            If true, assgined value as missing value. By default False
+            If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
         assign_option : int, optional
@@ -286,7 +299,7 @@ class InterpolationTool:
 
         """
         param = InterpolationToolParameters()
-        if self.alongPath is True:
+        if alongPath:
             param.assigmentMethod = 4
         else:
             param.assigmentMethod = 3
@@ -298,7 +311,7 @@ class InterpolationTool:
         param.bOverallAssignSelected = False
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
-        param.sMissingVaue = value_as_missing
+        param.sMissingVaue = _missing_value_text(value_as_missing)
         param.assigmentOption = assign_option
         param.nNeighbours = max_neighbours
         tool = InterpolationEngine(self._dataTables)
@@ -306,5 +319,5 @@ class InterpolationTool:
         msgs = None
         tool.Run(param, False, msgs)
 
-    def _on_tool_runing_progress(self, source, args):
+    def _on_tool_runing_progress(self, source: Any, args: Any) -> None:
         print(args.Msg)

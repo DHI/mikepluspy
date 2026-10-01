@@ -1,36 +1,152 @@
-name: Documentation
+# `great-docs preview --pr` finds this workflow by name.
+name: CI Docs
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    # Only PRs that can change the site: prose, docstrings, and the docs tooling
+    paths:
+      - "docs/**"
+      - "great-docs.yml"
+      - "README.md"
+      - "LICENSE"
+      - "mikeplus/**.py"
+      - "!mikeplus/tables/auto_generated/**"
+      - "mikeplus/tables/auto_generated/table_collection.py"
+      - "pyproject.toml"
+      - "justfile"
+      - "scripts/docs.py"
+      - ".github/workflows/docs.yml"
+  schedule:
+    # Weekly, to catch external links that have gone dead
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 
-  #push:
-  #  branches:
-  #    - main
+# Jobs that need more than read access ask for it themselves.
+permissions:
+  contents: read
+
+# A newer push supersedes a PR build, but a Pages deploy must not be cut off halfway,
+# and the link check must not queue behind or displace one.
+concurrency:
+  group: docs-${{ github.event_name == 'schedule' && 'links' || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  HARPER_VERSION: v2.11.0
+  # The release asset's digest; update it with HARPER_VERSION.
+  HARPER_SHA256: 1bfbe16927ef86b8ae09a964f83ea0662bca023f3ad32a5dc0dd141d5e684cd9
 
 jobs:
   build:
-
-    runs-on: windows-latest
+    if: github.event_name != 'schedule'
+    # The docs are built from source alone, so Linux works without MIKE+.
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
     - name: Set up uv and Python
       uses: astral-sh/setup-uv@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: Set up just
       uses: extractions/setup-just@v2
     - name: Set up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
+    - name: Set up Harper
+      run: |
+        archive="$RUNNER_TEMP/harper-cli.tar.gz"
+        curl -sSfL -o "$archive" "https://github.com/Automattic/harper/releases/download/${HARPER_VERSION}/harper-cli-x86_64-unknown-linux-gnu.tar.gz"
+        echo "${HARPER_SHA256}  $archive" | sha256sum -c -
+        tar xzf "$archive" -C "$RUNNER_TEMP"
+        echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
-    - name: Install mikeplus
-      run: just setup dev,docs
+    - name: Install docs tools
+      run: just setup-docs
+
+    - name: Lint and proofread
+      run: just docs-check
 
     - name: Build documentation
       run: just docs
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Upload site
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/_site
+        path: great-docs/_site
+
+    # `great-docs preview --pr <number>` downloads this artifact and serves it locally.
+    - name: Upload PR preview
+      if: github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: docs-html
+        path: great-docs/_site
+        retention-days: 14
+    - name: How to preview this build
+      if: github.event_name == 'pull_request'
+      run: uv run --no-sync great-docs ci notice --run ${{ github.run_id }} --pr ${{ github.event.number }}
+
+  preview-comment:
+    # A fork's token cannot comment; its build still prints the notice above.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up uv and Python
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.13"
+    - name: Set up just
+      uses: extractions/setup-just@v2
+    - name: Install docs tools
+      run: just setup-docs
+    - name: Post preview instructions to the PR
+      run: uv run --no-sync great-docs ci pr-comment --run ${{ github.run_id }} --pr ${{ github.event.number }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+  links:
+    # Nothing waits on this job, so a failure only flags the dead link.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up uv and Python
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.13"
+    - name: Set up just
+      uses: extractions/setup-just@v2
+    - name: Set up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+    - name: Install docs tools
+      run: just setup-docs
+    - name: Build documentation
+      run: just docs
+    - name: Check links
+      run: just docs-links

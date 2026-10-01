@@ -8,7 +8,7 @@ UPDATE, DELETE) with chainable methods and consistent error handling.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from typing import Self
@@ -22,10 +22,8 @@ from System.Data import ConnectionState
 from .dotnet import DotNetConverter
 from .utils import to_sql
 
-QueryResultT = TypeVar("QueryResultT")
 
-
-class BaseQuery(ABC, Generic[QueryResultT]):
+class BaseQuery[QueryResultT](ABC):
     """Base class for all query types."""
 
     def __init__(self, table: BaseTable):
