@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/ruff_on_edit.py\""
+            "command": "grep -qE '\"file_path\": *\"[^\"]*\\.py\"' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && uv run --no-sync bash -c 'ruff format -q mikeplus && ruff check --fix -q mikeplus' >&2 || exit 2"
           }
         ]
       }
