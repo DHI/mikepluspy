@@ -49,9 +49,13 @@ def setup_bin_path(
     if install_root is not None:
         return install_root, dll_dir_handle
 
-    install_root, dll_dir_handle = _try_mike_install_bin_setup(major_assembly_version)
-    if install_root is not None:
-        return install_root, dll_dir_handle
+    # DHI.Mike.Install locates MIKE+ through the Windows registry
+    if sys.platform == "win32":
+        install_root, dll_dir_handle = _try_mike_install_bin_setup(
+            major_assembly_version
+        )
+        if install_root is not None:
+            return install_root, dll_dir_handle
 
     install_root, dll_dir_handle = _try_setup_default_bin_path(
         fallback_mikeplus_install_root, bin_path, env_var_name_install_root
@@ -91,11 +95,27 @@ def _update_python_env_path(mikeplus_env_paths: list[str]):
 
 
 def _update_clr_assembly_resolve(mikeplus_install_bin: str):
+    # Assembly references may not match file name casing, which matters on Linux
+    dlls_by_lower_name: dict[str, str] | None = None
+
     def assembly_resolver(sender: Any, args: Any) -> Any:
+        nonlocal dlls_by_lower_name
         assembly_name = args.Name.split(",")[0] + ".dll"
         assembly_path = os.path.join(mikeplus_install_bin, assembly_name)
         if os.path.isfile(assembly_path):
             return Reflection.Assembly.LoadFrom(assembly_path)
+        if sys.platform != "win32":
+            if dlls_by_lower_name is None:
+                dlls_by_lower_name = {
+                    name.lower(): name
+                    for name in os.listdir(mikeplus_install_bin)
+                    if name.lower().endswith(".dll")
+                }
+            match = dlls_by_lower_name.get(assembly_name.lower())
+            if match is not None:
+                return Reflection.Assembly.LoadFrom(
+                    os.path.join(mikeplus_install_bin, match)
+                )
         return None
 
     AppDomain.CurrentDomain.AssemblyResolve += assembly_resolver

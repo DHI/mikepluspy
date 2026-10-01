@@ -3,25 +3,26 @@
 __version__ = "2026.1.0"
 
 
-import platform as _platform
 import sys as _sys
+import sysconfig as _sysconfig
 from pathlib import Path
 
 from .conflicts import check_conflicts as _check_conflicts
 
 _check_conflicts()
 
-if _platform.machine().lower() not in ("amd64", "x86_64"):
-    raise ImportError(f"MIKE+Py requires an x64 machine, not '{_platform.machine()}'.")
+# The interpreter's arch, not the CPU's, so emulated x64 Python on ARM64 isn't rejected
+if _sysconfig.get_platform() not in ("win-amd64", "linux-x86_64"):
+    raise ImportError(
+        f"MIKE+Py requires x64 Python on Windows or Linux, not '{_sysconfig.get_platform()}'."
+    )
 if _sys.platform == "win32":
     _runtime_config = "runtimeconfig.json"
     _fallback_install_root: Path | None = Path("C:/Program Files (x86)/DHI/MIKE+/2026")
-elif _sys.platform == "linux":
+else:
     # Microsoft.WindowsDesktop.App does not exist on Linux
     _runtime_config = "runtimeconfig.linux.json"
     _fallback_install_root = None
-else:
-    raise ImportError(f"MIKE+Py supports Windows and Linux, not '{_sys.platform}'.")
 
 from pythonnet import load
 
