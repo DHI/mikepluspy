@@ -6,7 +6,8 @@ Collection-like access to alternative groups in the MIKE+ model.
 Provides a Pythonic interface for accessing alternative groups in the MIKE+ model.
 """
 
-from typing import Iterator, List
+from collections.abc import Iterator
+
 from .alternative_group import AlternativeGroup
 
 
@@ -83,7 +84,7 @@ class AlternativeGroupCollection:
         """Return a string representation of the AlternativeGroupCollection."""
         return "<AlternativeGroupCollection>"
 
-    def group_names(self) -> List[str]:
+    def group_names(self) -> list[str]:
         """Get a list of available group names."""
         return [group.Name for group in self._scenario_manager.AlternativeGroups]
 

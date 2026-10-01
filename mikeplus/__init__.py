@@ -9,7 +9,7 @@ from .conflicts import check_conflicts as _check_conflicts
 
 _check_conflicts()
 
-from pythonnet import load  # noqa: E402
+from pythonnet import load
 
 load(
     "coreclr",
@@ -17,9 +17,9 @@ load(
         (Path(__file__).parent / "bin" / "runtimeconfig.json").absolute().as_posix()
     ),
 )
-import clr  # noqa: E402
+import clr
 
-from .utils import setup_bin_path as _setup_bin_path  # noqa: E402
+from .utils import setup_bin_path as _setup_bin_path
 
 _install_root, _dll_dir_handle = _setup_bin_path(
     major_assembly_version=24,
@@ -31,19 +31,19 @@ _install_root, _dll_dir_handle = _setup_bin_path(
 #  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
 try:
     from DHI.Mike.Install import (
-        MikeImport,  # noqa: E402, F401
-        MikeProducts,  # noqa: E402, F401
+        MikeImport,
+        MikeProducts,  # noqa: F401
     )
 except ImportError:
     # mock this case:
     # mikeplus.MikeImport.ActiveProduct().InstallRoot
     # used by mikeio1d
-    class _MockMikeImport:  # noqa: E402, F401
+    class _MockMikeImport:
         @staticmethod
         def ActiveProduct():
             return _MockMikeProduct()
 
-    class _MockMikeProduct:  # noqa: E402, F401
+    class _MockMikeProduct:
         InstallRoot = _install_root
 
     MikeImport = _MockMikeImport
@@ -62,13 +62,14 @@ clr.AddReference("DHI.Amelia.Tools.EngineTool")
 clr.AddReference("DHI.Amelia.EPANETBridge")
 clr.AddReference("DHI.Amelia.SWMMBridge")
 
-from .database import Database  # noqa: E402
-from .shortcuts import create, open  # noqa: E402
-from .utils import to_sql  # noqa: E402
+from .database import Database, DatabaseError
+from .shortcuts import create, open
+from .utils import to_sql
 
 __all__ = [
     "Database",
-    "open",
+    "DatabaseError",
     "create",
+    "open",
     "to_sql",
 ]

@@ -21,7 +21,7 @@ jobs:
     - name: Run Ruff
       uses: chartboost/ruff-action@v1
       with:
-        version: "0.15.22"  # keep in sync with ruff pin in pyproject.toml
+        version: "0.16.9"  # keep in sync with ruff pin in pyproject.toml
         src: "."  # Adjust the source directory as needed
 
   typecheck:

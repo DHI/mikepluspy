@@ -37,7 +37,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "ruff<0.16",  # 0.16 expands the default rule set
+    "ruff>=0.16,<0.17",  # minor releases change the default rule set
     "shapely",
     "jinja2>=3.0.0",
     "mypy==1.15.0",
@@ -88,7 +88,10 @@ lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 lint.extend-select = ["D", "PD", "NPY", "FA"]
 lint.pydocstyle.convention = "numpy"
-lint.ignore = ["E501"]
+lint.ignore = [
+    "E501",
+    "BLE001",  # wrapping arbitrary .NET exceptions from pythonnet is intentional
+]
 
 [tool.pytest.ini_options]
 addopts = [

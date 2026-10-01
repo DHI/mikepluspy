@@ -4,20 +4,17 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .database import Database
 
-from System import Enum
-from System import String
+from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
+from DHI.Amelia.GlobalUtility.DataType import MUModelOption, MUSimulationOption
+from DHI.Amelia.Tools.EngineTool import EngineTool
+from System import Enum, String
 from System.Collections.Generic import List
 from System.Threading import CancellationTokenSource
-from DHI.Amelia.Tools.EngineTool import EngineTool
-from DHI.Amelia.GlobalUtility.DataType import MUSimulationOption
-from DHI.Amelia.GlobalUtility.DataType import MUModelOption
-from DHI.Amelia.DomainServices.Interface.SharedEntity import DhiEngineSimpleLauncher
 
 
 class SimulationRunner:

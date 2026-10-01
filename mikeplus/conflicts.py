@@ -1,7 +1,7 @@
 """Provides useful warnings about conflicts related to usage alongside mikeio and mikeio1d."""
 
-import sys
 import os
+import sys
 import warnings
 
 MIKEIO1D_IMPORTED_BEFORE_MIKEPLUS = "mikeio1d" in sys.modules
@@ -36,11 +36,10 @@ def check_conflicts():
 
     MIKEIO_IMPORTED = "mikeio" in sys.modules
 
-    if MIKEIO_IMPORTED:
-        if not hasattr(check_conflicts, "warned"):
-            check_conflicts.warned = True
-            warnings.warn(
-                "mikeio and mikeplus are both imported in the same process. There could be some conflicts. See docs for more info.",
-                category=UserWarning,
-                stacklevel=2,
-            )
+    if MIKEIO_IMPORTED and not hasattr(check_conflicts, "warned"):
+        check_conflicts.warned = True
+        warnings.warn(
+            "mikeio and mikeplus are both imported in the same process. There could be some conflicts. See docs for more info.",
+            category=UserWarning,
+            stacklevel=2,
+        )

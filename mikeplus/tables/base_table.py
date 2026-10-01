@@ -82,7 +82,7 @@ class BaseTable:
         """
         return list(self._net_table.GetMuids(order_by, descending))
 
-    def select(self, columns: list[str] = []):
+    def select(self, columns: list[str] | None = None):
         """Create a SELECT query for this table.
 
         Parameters

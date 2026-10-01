@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import os
 import sys
-from pathlib import Path
 import warnings
+from pathlib import Path
 from typing import Any
-import clr
 
-from System import AppDomain
-from System import Reflection
+import clr
+from System import AppDomain, Reflection
 
 _setup_called = False
 
@@ -88,9 +87,11 @@ def _update_clr_assembly_resolve(mikeplus_install_bin: str):
 def _try_mike_install_bin_setup(major_assembly_version: int):
     try:
         clr.AddReference("DHI.Mike.Install")
-        import System  # noqa: E402
-        from DHI.Mike.Install import MikeImport  # noqa: E402
-        from DHI.Mike.Install import MikeProducts  # noqa: E402
+        import System
+        from DHI.Mike.Install import (
+            MikeImport,
+            MikeProducts,
+        )
 
         MikeImport.Setup(major_assembly_version, MikeProducts.MikePlus)
         mikeplus_install_root = Path(MikeImport.ActiveProduct().InstallRoot)
@@ -161,4 +162,4 @@ def to_sql(value) -> str:
     elif isinstance(value, (int, float)):
         return str(value)
     else:
-        return f"'{str(value)}'"
+        return f"'{value!s}'"

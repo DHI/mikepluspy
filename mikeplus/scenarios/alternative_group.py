@@ -8,7 +8,9 @@ Each group has a base alternative and potentially an active alternative.
 """
 
 from __future__ import annotations
-from typing import Iterator, Any
+
+from collections.abc import Iterator
+from typing import Any
 
 from .alternative import Alternative
 
@@ -95,8 +97,7 @@ class AlternativeGroup:
     def __iter__(self) -> Iterator[Alternative]:
         """Iterate through all alternatives in this group."""
         yield self.base
-        for child in self.base.children:
-            yield child
+        yield from self.base.children
 
     def _find_by_name(
         self, name: str, parent: IAlternative, found: list[IAlternative]
@@ -152,6 +153,6 @@ class AlternativeGroup:
         except Exception as e:
             existing_names = [alt.Name for alt in self._scenario_manager.Alternatives]
             raise ValueError(
-                f"Failed to create alternative '{name}'. Error: {str(e)}. "
+                f"Failed to create alternative '{name}'. Error: {e!s}. "
                 f"Group: {self.name}, Existing alternatives: {existing_names}"
             ) from e

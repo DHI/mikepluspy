@@ -1,9 +1,11 @@
 """Util to do spatial analysis for MIKE+ geometry data."""
 
-from ThinkGeo.Core import BaseShape  # noqa: E402
-from ThinkGeo.Core import PointShape  # noqa: E402
-from ThinkGeo.Core import GeographyUnit  # noqa: E402
-from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper  # noqa: E402
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from ThinkGeo.Core import (
+    BaseShape,
+    GeographyUnit,
+    PointShape,
+)
 
 
 def get_nearest_river_chainage_at(database, x: float, y: float, tolorance: float):
