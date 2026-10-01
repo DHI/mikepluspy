@@ -2,28 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "Bash(pytest *)",
-      "Bash(python -m pytest *)",
-      "Bash(uv run pytest *)",
-      "Bash(ruff *)",
-      "Bash(uv run ruff *)",
-      "Bash(mypy *)",
-      "Bash(uv run mypy *)",
-      "Bash(uv pip install *)",
-      "Bash(python scripts/generate_tables.py*)",
-      "Bash(python scripts/lint_public_api.py*)",
-      "Bash(uv run scripts/generate_tables.py*)",
-      "PowerShell(pytest *)",
-      "PowerShell(python -m pytest *)",
-      "PowerShell(uv run pytest *)",
-      "PowerShell(ruff *)",
-      "PowerShell(uv run ruff *)",
-      "PowerShell(mypy *)",
-      "PowerShell(uv run mypy *)",
-      "PowerShell(uv pip install *)",
-      "PowerShell(python scripts/generate_tables.py*)",
-      "PowerShell(python scripts/lint_public_api.py*)",
-      "PowerShell(uv run scripts/generate_tables.py*)"
+      "Bash(just *)",
+      "PowerShell(just *)"
     ],
     "deny": [
       "Edit(/mikeplus/tables/auto_generated/**)",
@@ -37,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "grep -qE '\"file_path\": *\"[^\"]*\\.py\"' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && uv run --no-sync bash -c 'ruff format -q mikeplus && ruff check --fix -q mikeplus' >&2 || exit 2"
+            "command": "grep -qE '\"file_path\": *\"[^\"]*\\.py\"' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && just fix >&2 || exit 2"
           }
         ]
       }

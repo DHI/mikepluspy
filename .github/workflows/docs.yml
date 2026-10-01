@@ -2,9 +2,9 @@ name: Documentation
 
 on:
   workflow_dispatch:
-  
+
   #push:
-  #  branches:    
+  #  branches:
   #    - main
 
 jobs:
@@ -13,20 +13,24 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - name: Set up uv and Python
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: "3.12"
-        
+    - name: Set up just
+      uses: extractions/setup-just@v2
+    - name: Set up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+
     - name: Install mikeplus
-      run: pip install .[dev]
-    
-    - name: MkDocs
-      run: mkdocs build
-    
+      run: just setup dev,docs
+
+    - name: Build documentation
+      run: just docs
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: site
+        publish_dir: docs/_site

@@ -10,20 +10,25 @@ MIKE+Py: a Python veneer (pythonnet) over the .NET assemblies of a local MIKE+ i
 
 ## Commands
 
+Use the `just` recipes rather than the tools behind them; `just` lists them all.
+
 ```bash
-uv pip install -e ".[dev]"
-pytest                                   # addopts includes -m "not slow"
-pytest -m slow                           # slow tests only
-ruff check . && ruff format . && mypy mikeplus
-python scripts/generate_tables.py        # regenerate mikeplus/tables/auto_generated/
-python scripts/lint_public_api.py        # check __all__ against source and docs; no MIKE+ needed
+just setup                  # create .venv and install .[dev]
+just lint                   # ruff, formatting and the public API check; no MIKE+ needed
+just lint-changed           # stricter annotation/docstring rules on files changed since main
+just typecheck              # mypy
+just fix                    # format and apply safe lint fixes
+just test                   # addopts includes -m "not slow"; extra args go to pytest
+just test -m slow           # slow tests only
+just generate-tables        # regenerate mikeplus/tables/auto_generated/
+just check                  # lint + typecheck + test, before opening a PR
 ```
 
-CI currently runs only ruff, mypy and the public API check, so run the relevant tests locally before calling a change done.
+CI currently runs only `just lint` and `just typecheck`, so run the relevant tests locally before calling a change done. Files you touch should pass `just lint-changed`.
 
 ## Rules
 
-- Never hand-edit `mikeplus/tables/auto_generated/`. Change `scripts/table_templates/` or `scripts/generate_tables.py` and regenerate.
+- Never hand-edit `mikeplus/tables/auto_generated/`. Change `scripts/table_templates/` or `scripts/generate_tables.py` and regenerate with `just generate-tables`.
 - Go through `mikeplus/dotnet.py` helpers for .NET type conversion instead of touching .NET types directly. Extend existing wrappers rather than adding parallel abstractions.
 - No breaking changes within a MIKE+ year line (GA, U1, U2… must all keep working): new tables/columns must degrade gracefully, and changed .NET signatures get a try-new/fall-back-to-old path tagged `TODO(<next year>)`. See `DEVELOPMENT.md`, which also holds the release checklist.
 - The public API is what `__all__` declares; see "Public API" in `DEVELOPMENT.md`. New public names need an `__all__` entry and docs. Public signatures must not expose .NET types except where marked `# api: allow-leaked-type`.
