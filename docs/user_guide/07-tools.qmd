@@ -90,7 +90,9 @@ tool.run(
 )
 ```
 
-A demand allocation for which no target is found loses any connection it had.
+`max_distance` does not apply to `"junction_by_pipe_id"`, `max_diameter` and `pipe_ids` apply only to the pipe-based methods, and `junction_ids` only to `"nearest_junction"`; passing one to a method it does not apply to raises `ValueError`.
+
+After a run, a demand allocation connected to a junction has no `PipeID`, and one connected to a pipe has no `JunctionID`, so switching methods leaves no stale connection behind. A demand allocation for which no target is found loses any connection it had. If MIKE+ fails, the tool raises `mikeplus.DatabaseError`; demand allocations processed before the failure keep their new connections.
 
 ### {{< icon book-open >}} Further Information
 
