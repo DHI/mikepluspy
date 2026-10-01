@@ -130,7 +130,7 @@ To build locally:
 3. `just docs` builds into `great-docs/_site`; `just docs-check` lints and
    proofreads (British English); `just docs-links` checks links.
 
-The Documentation workflow runs `docs-check` and `docs` on pull requests that
+The CI Docs workflow runs `docs-check` and `docs` on pull requests that
 touch the docs, docstrings or docs tooling, deploys to GitHub Pages on push to
 `main`, and checks links weekly. On those pull requests it uploads the built
 site and comments how to view it: `great-docs preview --pr <number> --use-gh`. A build

@@ -1,4 +1,5 @@
-name: Documentation
+# `great-docs preview --pr` finds this workflow by name.
+name: CI Docs
 
 on:
   push:
