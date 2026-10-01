@@ -5,6 +5,7 @@
 ### Added
 
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
+- `mikeplus.tools.DemandConnectionTool`, the MIKE+ connection tool for demand allocations: connects `mw_DemAlloc` points to the nearest junction, a junction of the nearest pipe or the nearest pipe (part of #120).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed

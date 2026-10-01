@@ -10,6 +10,7 @@ The following tools are available:
 *   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
 *   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
 *   **`ConnectionRepairTool`**: Repairs network connectivity issues.
+*   **`DemandConnectionTool`**: Connects demand allocations in a water distribution model to junctions or pipes.
 *   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
 
 ## {{< icon play >}} General Usage
@@ -66,6 +67,30 @@ repair_tool.run(
     dissolve_overlap_node=True
 )
 ```
+
+### DemandConnectionTool
+
+The `DemandConnectionTool` does what the MIKE+ connection tool does for demand allocations: it connects each point in `mw_DemAlloc` to a junction or a pipe, sets its `JunctionID` or `PipeID`, and draws the connection line in `mw_DemAllocConn`. To connect every demand allocation to the nearest junction within 50 m:
+
+```python
+from mikeplus.tools import DemandConnectionTool
+
+tool = DemandConnectionTool(db)
+tool.run("nearest_junction", max_distance=50.0)
+```
+
+The other methods are `"junction_by_nearest_pipe"`, `"junction_by_pipe_id"` and `"nearest_pipe"`. You can limit the run to some demand allocations with `demand_ids`, and the candidate targets with `junction_ids`, `pipe_ids`, `max_diameter` or a SQL `where` condition:
+
+```python
+tool.run(
+    "nearest_pipe",
+    demand_ids=["Demand_1", "Demand_2"],
+    max_distance=100.0,
+    max_diameter=300.0,
+)
+```
+
+A demand allocation for which no target is found loses any connection it had.
 
 ### {{< icon book-open >}} Further Information
 

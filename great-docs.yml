@@ -87,6 +87,7 @@ reference:
         - tools.InterpolationTool
         - tools.TopoRepairTool
         - tools.ConnectionRepairTool
+        - tools.DemandConnectionTool
         - tools.CathSlopeLengthProcess
     - title: Utilities
       contents:
