@@ -1,18 +1,26 @@
 # MIKE+Py Changelog
 
+All notable changes to MIKE+Py are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow the MIKE+ year (`2026.x.x`) rather than [Semantic Versioning](https://semver.org/).
+
 ## [Unreleased]
 
 ### Added
 
+- Support for MIKE+ 2026 Update 1, including its new tables (such as `mss_InletConduitCon` and `mw_WDOAmi`) and columns.
+- `mikeplus.utilities.get_nearest_river_at` and `get_nearest_river_chainage_at`, which find the river (and chainage) nearest to a point, for example to couple river junction nodes to rivers (#112).
+- `Database.begin_transaction()` and `Database.end_transaction(commit)`, which group many updates into one transaction and make batch edits much faster (#112).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed
 
+- Table and column names in `select`, `insert`, `update` and `order_by` are matched case-insensitively (#119). Two field names that differ only in casing now raise `ValueError`, and `order_by` raises `ValueError` for an unknown column, as `select` does.
+- Strings are converted only when the destination column needs it. DateTime columns parse them; Double columns accept a single `.` or `,` as the decimal separator, so `"1,234"` is 1.234, and anything else raises `ValueError` naming the field. An empty string becomes `None` for both. Strings bound for other columns are passed through unchanged.
 - Minimum versions now follow [SPEC 0](https://scientific-python.org/specs/spec-0000/): numpy 2.3, pandas 2.3 and pythonnet 3.0.5.
 - Importing `mikeplus` with anything other than x64 Python on Windows or Linux now raises `ImportError`.
-
-### Deprecated
+- The documentation site moved to great-docs. API reference pages moved from `api/` to `reference/`, and the auto-generated table classes no longer have their own pages. User guide URLs are unchanged.
 
 ### Removed
 
@@ -21,20 +29,12 @@
 ### Fixed
 
 - `select()` accepts a single column name instead of splitting it into characters (#44).
+- Strings that look like numbers, such as `"760309"`, were written to text columns as datetimes.
+- Geometry updates through `update()` were not saved. They now go through MIKE+'s geometry command and raise `RuntimeError` if it doesn't commit.
+- `from mikeplus.tables import *` raised `AttributeError`, and the table classes couldn't be imported from `mikeplus.tables`.
+- Inserting a row with no field values on MIKE+ 2026 Update 1.
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
-
-### Security
-
-## [2026.1.0] - 2026-06-23
-
-### Added
-
-- Support for MIKE+ 2026 Update 1.
-
-### Fixed
-
-- Inserting a row with no field values on MIKE+ 2026 Update 1.
 
 ## [2026.0.0] - 2026-01-29
 
@@ -194,3 +194,20 @@
 - Fix Opening and closing a database in a loop takes increasingly long time.
 - Fix setting the value of a database does not auto cast values. Int value can accept as double value now.
 - Fix inserting fails silently when no value is provided for 'Seq'.
+
+[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2026.0.0...HEAD
+[2026.0.0]: https://github.com/DHI/mikepluspy/compare/v2025.6.0...v2026.0.0
+[2025.6.0]: https://github.com/DHI/mikepluspy/compare/v2025.5.0...v2025.6.0
+[2025.5.0]: https://github.com/DHI/mikepluspy/compare/v2025.4.0...v2025.5.0
+[2025.4.0]: https://github.com/DHI/mikepluspy/compare/v2025.3.1...v2025.4.0
+[2025.3.1]: https://github.com/DHI/mikepluspy/compare/v2025.3.0...v2025.3.1
+[2025.3.0]: https://github.com/DHI/mikepluspy/compare/v2025.2.0...v2025.3.0
+[2025.2.0]: https://github.com/DHI/mikepluspy/compare/v2025.1.1...v2025.2.0
+[2025.1.1]: https://github.com/DHI/mikepluspy/compare/v2025.1.0...v2025.1.1
+[2025.1.0]: https://github.com/DHI/mikepluspy/compare/v2025.0.2...v2025.1.0
+[2025.0.2]: https://github.com/DHI/mikepluspy/compare/v2025.0.1...v2025.0.2
+[2025.0.1]: https://github.com/DHI/mikepluspy/compare/v2025.0.0...v2025.0.1
+[2025.0.0]: https://github.com/DHI/mikepluspy/compare/v2024.1.1...v2025.0.0
+[2024.1.1]: https://github.com/DHI/mikepluspy/compare/v2024.1.0...v2024.1.1
+[2024.1.0]: https://github.com/DHI/mikepluspy/compare/v2024.0.0...v2024.1.0
+[2024.0.0]: https://github.com/DHI/mikepluspy/releases/tag/v2024.0.0

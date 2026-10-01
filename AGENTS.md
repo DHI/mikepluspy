@@ -38,6 +38,7 @@ CI currently runs only `just lint` and `just typecheck`, so run the relevant tes
 - Go through `mikeplus/dotnet.py` helpers for .NET type conversion instead of touching .NET types directly. Extend existing wrappers rather than adding parallel abstractions.
 - No breaking changes within a MIKE+ year line (GA, U1, U2… must all keep working): new tables/columns must degrade gracefully, and changed .NET signatures get a try-new/fall-back-to-old path tagged `TODO(<next year>)`. See `DEVELOPMENT.md`, which also holds the release checklist.
 - The public API is what `__all__` declares; see "Public API" in `DEVELOPMENT.md`. New public names need an `__all__` entry and docs. Public signatures must not expose .NET types except where marked `# api: allow-leaked-type`.
+- User-visible changes add a line under `## [Unreleased]` in `CHANGELOG.md` in the same PR, in Keep a Changelog form. See `adr/0003-keep-a-changelog.md`.
 - MIKE+Py writes `.sqlite`/`.mupp` files with no undo. Only operate on copies of example or user databases.
 
 ## Tests
