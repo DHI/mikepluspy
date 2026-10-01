@@ -91,9 +91,32 @@ def links() -> int:
     return great_docs("check-links")
 
 
+def gh(*args: str) -> str:
+    """Run the GitHub CLI and return its output."""
+    return subprocess.run(
+        ["gh", *args], cwd=ROOT, capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+
 def preview(pr: str) -> int:
-    """Download the site CI built for a pull request and serve it locally."""
-    return great_docs("preview", "--pr", pr, "--use-gh")
+    """Serve the newest successful docs build of a pull request locally."""
+    # `great-docs preview --pr` takes the newest run for the PR's head commit, which has
+    # no site yet while it is still building, so pick the run here.
+    branch = gh("pr", "view", pr, "--json", "headRefName", "--jq", ".headRefName")
+    run = gh(
+        "run", "list",
+        "--workflow=docs.yml",
+        "--event=pull_request",
+        "--status=success",
+        f"--branch={branch}",
+        "--limit=1",
+        "--json=databaseId",
+        "--jq=.[0].databaseId",
+    )  # fmt: skip
+    if not run:
+        print(f"PR #{pr} has no successful docs build yet.", file=sys.stderr)
+        return 1
+    return great_docs("preview", "--run", run, "--use-gh")
 
 
 COMMANDS = {"build": build, "check": check, "links": links}
