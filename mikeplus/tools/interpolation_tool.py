@@ -28,7 +28,7 @@ def _restrict_to_muids(param: Any, muids: Iterable[str] | None) -> None:
         return
     if isinstance(muids, str):
         raise TypeError("muids must be an iterable of MUIDs, not a single string")
-    param.SelectedMuids = as_dotnet_list(list(muids), String)
+    param.SelectedMuids = as_dotnet_list([str(m) for m in muids], String)
     param.bOverallAssignSelected = True
 
 
@@ -97,6 +97,8 @@ class InterpolationTool:
         muids : iterable of str, optional
             MUIDs of the target table elements to assign values to. By default None, which
             means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -149,6 +151,8 @@ class InterpolationTool:
         muids : iterable of str, optional
             MUIDs of the target table elements to assign values to. By default None, which
             means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -205,6 +209,8 @@ class InterpolationTool:
         muids : iterable of str, optional
             MUIDs of the target table elements to assign values to. By default None, which
             means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -255,6 +261,8 @@ class InterpolationTool:
         muids : iterable of str, optional
             MUIDs of the target table elements to assign values to. By default None, which
             means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -329,6 +337,8 @@ class InterpolationTool:
         muids : iterable of str, optional
             MUIDs of the target table elements to assign values to. By default None, which
             means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
