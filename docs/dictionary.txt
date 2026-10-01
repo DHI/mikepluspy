@@ -6,9 +6,13 @@ AlternativeGroup
 AlternativeGroupCollection
 AssignOption
 BaseNodeTable
+BaseQuery
 BaseRun
 BaseTable
 BaseTableCollection
+Casefold
+Casefolded
+casefolded
 catchSlopeLen
 CatchSlopeLengthProcess
 CathSlopeLengthProcess
@@ -22,6 +26,7 @@ DataFrame
 DataFrames
 DataTableContainer
 DataTables
+DbType
 DeleteQuery
 DEM
 dem
@@ -99,6 +104,7 @@ QueryResultT
 redistributables
 ScenarioCollection
 SelectQuery
+SetValuesByCommand
 shapefile
 shp
 SI
@@ -117,6 +123,7 @@ tolorance
 TopoRepairTool
 TRY004
 U1
+UpdateGeomByCommand
 UpdateQuery
 UpstreamElement
 UpstreamMaxValue

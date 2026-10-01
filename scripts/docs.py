@@ -24,6 +24,7 @@ IGNORED_PROOFREAD_RULES = [
     "ExpandConfiguration",
     "ExpandMinimum",
     "ExpandTimeShorthands",
+    "MissingTo",
     "Nowhere",
     "SplitWords",
     "ToDoHyphen",
