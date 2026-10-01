@@ -1,10 +1,16 @@
-![logo](https://raw.githubusercontent.com/DHI/mikepluspy/main/images/logo/mikeplus-py.svg)
-# MIKE+Py: Streamline your MIKE+ workflows
- ![Python version](https://img.shields.io/pypi/pyversions/mikeplus.svg)
- [![Full test](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml/badge.svg)](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml)
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/DHI/mikepluspy/main/images/logo/mikeplus-py.svg" alt="MIKE+Py" width="600">
+
+_Streamline your MIKE+ workflows_
+
+[![Python version](https://img.shields.io/pypi/pyversions/mikeplus.svg)](https://pypi.org/project/mikeplus/)
+[![Full test](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml/badge.svg)](https://github.com/DHI/mikepluspy/actions/workflows/full_test.yml)
 [![PyPI version](https://badge.fury.io/py/mikeplus.svg)](https://badge.fury.io/py/mikeplus)
-![OS](https://img.shields.io/badge/OS-Windows-blue)
-![Downloads](https://img.shields.io/pypi/dm/mikeplus)
+[![OS](https://img.shields.io/badge/OS-Windows-blue)](https://pypi.org/project/mikeplus/)
+[![Downloads](https://img.shields.io/pypi/dm/mikeplus)](https://pypistats.org/packages/mikeplus)
+
+</div>
 
 MIKE+Py is an open-source Python package for interacting with MIKE+ model databases (`.sqlite` files). It enables automation of modelling tasks, programmatic data manipulation, scenario management, and simulation execution, enhancing the reproducibility and efficiency of MIKE+ workflows.
 
@@ -59,6 +65,12 @@ with mp.open("your_model.sqlite") as db:
 ## Documentation
 
 Comprehensive documentation is available at: [https://dhi.github.io/mikepluspy/](https://dhi.github.io/mikepluspy/)
+
+## Related Packages
+
+- [MIKE IO](https://dhi.github.io/mikeio/): read and write MIKE files such as dfs0, dfs2 and dfsu.
+- [MIKE IO 1D](https://dhi.github.io/mikeio1d/): read MIKE 1D network results.
+- [ModelSkill](https://dhi.github.io/modelskill/): compare model results with observations.
 
 ## Caution: Work with Database Copies
 

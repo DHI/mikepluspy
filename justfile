@@ -12,10 +12,15 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 default:
     @just --list
 
-# Create .venv if needed and install the package with extras, e.g. `just setup dev,docs`
+# Create .venv if needed and install the package with extras, e.g. `just setup dev,test`
 setup extras="dev":
     uv venv --allow-existing
     uv pip install -e ".[{{ extras }}]"
+
+# Create .venv if needed and install the docs tools; the package itself is not needed
+setup-docs:
+    uv venv --allow-existing
+    uv pip install --group docs
 
 # --- Fast tier: no MIKE+ install needed ---------------------------------------------
 
@@ -60,17 +65,19 @@ test-unlicensed *args:
 generate-tables *args:
     uv run --no-sync python scripts/generate_tables.py {{ args }}
 
-# Regenerate the quartodoc table sections in docs/_table_generated_sections.yml
-table-docs:
-    uv run --no-sync python docs/generate_table_docs.py
+# --- Docs: needs Quarto and `just setup-docs` ------------------------------------
 
-# Build the documentation site into docs/_site (needs quarto and `just setup dev,docs`)
-[working-directory: 'docs']
+# Build the documentation site into great-docs/_site
 docs:
-    uv run --no-sync quartodoc build
-    uv run --no-sync quartodoc interlinks
-    uv run --no-sync quarto render
-    uv run --no-sync python -c "import pathlib, sys; sys.exit('quarto render produced no _site/index.html' if not pathlib.Path('_site/index.html').is_file() else 0)"
+    uv run --no-sync python scripts/docs.py build
+
+# Lint the docs and proofread them (needs harper-cli on PATH)
+docs-check:
+    uv run --no-sync python scripts/docs.py check
+
+# Check links in the docs and the source
+docs-links:
+    uv run --no-sync python scripts/docs.py links
 
 # What to run before opening a PR
 check: lint typecheck test

@@ -21,7 +21,7 @@ Please plan your scripts accordingly. For instance, if you need functionality fr
 
 ::: {.callout-tip}
 # Using uv
-[uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10-100x faster than pip, and also makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as `uv venv`.
+[uv](https://docs.astral.sh/uv/) is an extremely fast Python package and project manager that is 10–100x faster than pip, and makes it easy to install Python and manage projects. With uv, creating a virtual environment is as easy as `uv venv`.
 :::
 
 To install MIKE+Py, run this command in your terminal:
@@ -42,7 +42,7 @@ uv pip install mikeplus
 The Python package is named `mikeplus` (for `import mikeplus`) and is installed from PyPI using `pip install mikeplus`. The development repository is named `mikepluspy`.
 :::
 
-## {{< fa fa-table >}} Accessing Model Data
+## {{< icon table >}} Accessing Model Data
 
 The core of MIKE+Py is the `Database` object, which provides an interface to your MIKE+ model. You can open a model, access its tables, and query data.
 
@@ -55,7 +55,7 @@ with mp.open("your_model_project.sqlite") as db:
     db.tables.msm_Node.select().to_pandas()
 ```
 
-## {{< fa fa-play >}} Running a Simulation
+## {{< icon play >}} Running a Simulation
 
 MIKE+Py allows you to execute simulations defined in your MIKE+ model directly from Python.
 

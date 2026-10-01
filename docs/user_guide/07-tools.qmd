@@ -2,7 +2,7 @@
 
 MIKE+Py provides access to several MIKE+ data processing tools through the `mikeplus.tools` module. These tools allow you to perform common data manipulation and preparation tasks programmatically.
 
-## {{< fa tools >}} Available Tools
+## {{< icon hammer >}} Available Tools
 
 The following tools are available:
 
@@ -12,7 +12,7 @@ The following tools are available:
 *   **`ConnectionRepairTool`**: Repairs network connectivity issues.
 *   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
 
-## {{< fa play >}} General Usage
+## {{< icon play >}} General Usage
 
 To use a tool, first import it from `mikeplus.tools`. Then, create an instance of the tool, passing your opened `Database` object to its constructor.
 
@@ -24,7 +24,7 @@ interpolation_tool = InterpolationTool(db)
 
 Once you have a tool instance, you can call its methods to perform specific actions.
 
-## {{< fa code >}} Examples
+## {{< icon code >}} Examples
 
 Here are a couple of examples to illustrate how to use these tools.
 
@@ -67,6 +67,6 @@ repair_tool.run(
 )
 ```
 
-### {{< fa book >}} Further Information
+### {{< icon book-open >}} Further Information
 
 For detailed information on all available parameters and methods for each tool, please consult the MIKE+ software documentation or the specific API reference for `mikeplus`.

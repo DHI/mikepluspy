@@ -52,9 +52,13 @@ test = [
     "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
 ]
+
+[dependency-groups]
+# Installed without the package itself: great-docs reads the source statically,
+# and importing mikeplus needs a MIKE+ install. Quarto is installed separately.
 docs = [
-    # "quarto-cli==1.7.30", # TODO: Add quarto-cli when it is available on Windows via PyPI
-    "quartodoc==0.10.0",
+    # Pre-1.0; minor releases change the config format.
+    "great-docs~=0.17.0; python_version >= '3.11'",
 ]
 
 [project.urls]
