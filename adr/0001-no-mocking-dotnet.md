@@ -7,12 +7,12 @@
 
 MIKE+Py is a thin layer over the MIKE+ .NET assemblies, reached through pythonnet. Most of its bugs show up where the two meet: implicit conversions by pythonnet, `DbType` values, the `CmdCommitted`/`Msg` objects that commands return, canonical field casing, and signatures that change between MIKE+ releases within the same year line. The Python logic on either side of that boundary is usually trivial.
 
-PR #128 added unit tests that swap the .NET table for `SimpleNamespace` fakes (`_fake_table`) and monkeypatch `DotNetConverter`. Those tests are fast and don't need a database, but each one asserts behaviour that it set up itself:
+An early draft of PR #128 had unit tests that swapped the .NET table for `SimpleNamespace` fakes (`_fake_table`) and monkeypatched `DotNetConverter`. Those tests were fast and didn't need a database, but each one asserted behaviour that it had set up itself:
 
-- Fake columns have `DbType=None`, so the `DbType`-driven string conversion that the PR introduces is never exercised. The fake reaches the "pass the string through" path, which a real table would never take.
-- `test_geometry_command_failure_raises` gives `UpdateGeomByCommand` a hand-written `CmdCommitted`/`Msg` result. The PR itself lists those attributes as unverified on MIKE+ 2026 GA. The test would keep passing on a release where they don't exist.
-- `DotNetConverter.to_dotnet_geometry` is monkeypatched out, so the geometry conversion that ends up reaching MIKE+ is never tested.
-- `values.Keys` is read from a real .NET `Dictionary`, but the fake methods accept whatever is passed to them. A wrong argument order or type would never raise the error that pythonnet raises against the real method.
+- Fake columns had `DbType=None`, so the `DbType`-driven string conversion that the PR introduced was never exercised. The fake reached the "pass the string through" path, which a real table would never take.
+- `test_geometry_command_failure_raises` gave `UpdateGeomByCommand` a hand-written `CmdCommitted`/`Msg` result, although those attributes were unverified on MIKE+ 2026 GA. The test would have kept passing on a release where they don't exist.
+- `DotNetConverter.to_dotnet_geometry` was monkeypatched out, so the geometry conversion that reaches MIKE+ was never tested.
+- `values.Keys` was read from a real .NET `Dictionary`, but the fake methods accepted whatever was passed to them. A wrong argument order or type would never have raised the error that pythonnet raises against the real method.
 
 A mock of a foreign API encodes what we believe that API does. At this boundary our beliefs are the thing under test, so a mocked test can't fail for the reasons that matter.
 
@@ -38,6 +38,6 @@ When speed and correctness conflict, correctness wins.
 
 ## Consequences
 
-- The mocked tests in PR #128 are rewritten against `sirius_db`, or the fixture fitting their scope, before merge. The case-insensitive insert/update tests and the duplicate-casing `ValueError` test convert directly. The geometry failure test is either reproduced with real input that MIKE+ rejects, or dropped and noted as untested.
+- The mocked tests in PR #128 were rewritten against the real test databases before merge. The geometry failure test now uses real input that MIKE+ rejects (a `POINT` on a link), which confirmed that `CmdCommitted` and `Msg` exist on 2026 GA.
 - Developers and CI need a local MIKE+ install to run most tests. CI already only runs ruff and mypy, so nothing changes there.
 - Running the suite on each supported release in a year line (GA, U1, U2…) catches .NET signature drift. Mocks would hide it.

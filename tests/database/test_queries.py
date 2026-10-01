@@ -294,7 +294,6 @@ class TestSelectQuery:
         assert len(df) == 8
         assert "Link_2" in df.index
 
-
     @pytest.mark.parametrize(
         "columns",
         [
@@ -310,7 +309,6 @@ class TestSelectQuery:
 
         assert query._columns == ["MUID", "Diameter"]
         assert result["Link_2"] == ["Link_2", 1.0]
-
 
     @pytest.mark.parametrize("column", ["muid", "MuId"])
     def test_order_by_resolves_canonical_column_name(self, table, column):
@@ -597,16 +595,35 @@ class TestUpdateQuery:
         finally:
             db.close()
 
-    def test_geometry_command_failure_raises(self, table):
+    def test_geometry_command_failure_raises(self, sirius_db):
         """Expose a geometry update that MIKE+ refuses to commit."""
-        muid = "Link_2"
-        previous_geometry = table._net_table.GetGeometry(muid).AsText()
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
+            muid = "Link_2"
+            previous_geometry = table._net_table.GetGeometry(muid).AsText()
 
-        # MIKE+ rejects a point on a link with CmdCommitted=False and Msg=None.
-        with pytest.raises(RuntimeError, match=f"msm_Link, MUID {muid}"):
-            table.update({"geometry": "POINT (0 0)"}).by_muid(muid).execute()
+            # MIKE+ rejects a point on a link with CmdCommitted=False and Msg=None.
+            with pytest.raises(RuntimeError, match=f"msm_Link, MUID {muid}"):
+                table.update({"geometry": "POINT (0 0)"}).by_muid(muid).execute()
 
-        assert table._net_table.GetGeometry(muid).AsText() == previous_geometry
+            assert table._net_table.GetGeometry(muid).AsText() == previous_geometry
+        finally:
+            db.close()
+
+    def test_update_datetime_with_empty_string_clears_value(self, sirius_db):
+        """Clear a DateTime field when given an empty string."""
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Project
+            muid = table.insert({"ComputationBegin": "2025-01-01 14:30:00"})
+
+            table.update({"ComputationBegin": ""}).by_muid(muid).execute()
+
+            result = table.select(["ComputationBegin"]).by_muid(muid).execute()
+            assert result[muid][0] is None
+        finally:
+            db.close()
 
     def test_update_lowercase_field_names(self, sirius_db):
         """Update a field supplied in lowercase."""

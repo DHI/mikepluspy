@@ -58,7 +58,8 @@ class DotNetConverter:
 
         String values for Double fields accept either dot or comma as the
         decimal separator. Strings for DateTime fields are parsed and converted
-        to ``System.DateTime``. Other strings are returned unchanged.
+        to ``System.DateTime``; an empty string becomes ``None``. Other strings
+        are returned unchanged.
 
         Parameters
         ----------
@@ -93,6 +94,8 @@ class DotNetConverter:
                     return value
             if db_type != DbType.DateTime:
                 return value
+            if not value.strip():
+                return None
             value = pd.to_datetime(value).to_pydatetime()
             return DotNetConverter.to_dotnet_datetime(value)
 

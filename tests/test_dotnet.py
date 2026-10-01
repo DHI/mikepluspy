@@ -66,3 +66,9 @@ def test_dictionary_conversion_respects_schema_column_types():
     assert DotNetConverter.from_dotnet_datetime(
         converted["ComputationBegin"]
     ) == datetime.datetime(2025, 1, 1, 14, 30)
+
+
+@pytest.mark.parametrize("value", ["", "  "])
+def test_empty_datetime_strings_become_none(value):
+    """Treat an empty DateTime string as a null value."""
+    assert DotNetConverter.to_dotnet_value(value, DbType.DateTime) is None
