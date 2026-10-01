@@ -136,6 +136,11 @@ class BaseQuery(Generic[QueryResultT], ABC):
             Field-value pairs with recognized names replaced by their canonical
             MIKE+ names. Unknown names are left unchanged.
 
+        Raises
+        ------
+        ValueError
+            If two supplied names differ only in casing.
+
         """
         ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
 
@@ -149,10 +154,16 @@ class BaseQuery(Generic[QueryResultT], ABC):
             }
         )
 
-        return {
-            canonical_names.get(name.casefold(), name): value
-            for name, value in values.items()
-        }
+        canonical_values: dict[str, Any] = {}
+        for name, value in values.items():
+            canonical_name = canonical_names.get(name.casefold(), name)
+            if canonical_name in canonical_values:
+                raise ValueError(
+                    f"Field '{canonical_name}' supplied more than once "
+                    "with different casing."
+                )
+            canonical_values[canonical_name] = value
+        return canonical_values
 
     def reset(self):
         """Reset the query execution status to allow re-execution.
@@ -271,10 +282,12 @@ class SelectQuery(BaseQuery[Union[dict[str, dict[str, Any]], None]]):
 
         Raises
         ------
-        KeyError
+        ValueError
             If no column matches ``column``.
 
         """
+        if column not in self._table.columns:
+            raise ValueError(f"Invalid column: {column}")
         self._order_by = (
             self._table.columns[column],
             descending,
@@ -387,12 +400,7 @@ class InsertQuery(BaseQuery[str]):
         net_table = self._table._net_table
 
         values = self._canonicalize_field_names(self._values)
-
-        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
-
-        column_types = {
-            column.Field.casefold(): column.DbType for column in net_table.Columns
-        }
+        column_types = self._table.columns.db_types()
 
         muid = values.pop("MUID", net_table.CreateUniqueMuid())
 
@@ -407,6 +415,7 @@ class InsertQuery(BaseQuery[str]):
             geometry = DotNetConverter.to_dotnet_geometry(geometry)
 
         # Split values into user-defined and non-user-defined
+        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
         non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
@@ -499,17 +508,10 @@ class UpdateQuery(BaseQuery[list[str]]):
 
         net_table = self._table._net_table
 
-        column_types = {
-            column.Field.casefold(): column.DbType for column in net_table.Columns
-        }
-
         values = self._canonicalize_field_names(self._values)
+        column_types = self._table.columns.db_types()
 
-        geometry_key = next(
-            (key for key in values if key.casefold() == "geometry"),
-            None,
-        )
-        geometry = values.pop(geometry_key) if geometry_key is not None else None
+        geometry = values.pop("geometry", None)
 
         # Split values into user-defined and non-user-defined
         ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()

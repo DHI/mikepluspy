@@ -3,6 +3,8 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from System.Data import DbType
+
     from .base_table import BaseTable
 
 
@@ -47,6 +49,23 @@ class BaseColumns:
 
         """
         return self._columns_by_name[column_name.casefold()]
+
+    def db_types(self) -> dict[str, "DbType"]:
+        """Map casefolded column names to their database types.
+
+        Read from the .NET table on each call, unlike the cached names, so
+        user-defined columns added after construction are included.
+
+        Returns
+        -------
+        dict[str, DbType]
+            Casefolded column names mapped to their ``DbType``.
+
+        """
+        return {
+            column.Field.casefold(): column.DbType
+            for column in self._table._net_table.Columns
+        }
 
     def __iter__(self):
         """Make the columns iterable.

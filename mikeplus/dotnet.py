@@ -7,17 +7,17 @@ for database operations and interacting with the MIKE+ .NET API.
 
 from __future__ import annotations
 
-import clr  # noqa: F401
 import datetime
 from typing import Any, Dict
 
-import System
-from System import String, Object, Nullable
-from System.Collections.Generic import List, IList, IDictionary, Dictionary
-from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
-
-from System.Data import DbType
+import clr  # noqa: F401
 import pandas as pd
+import System
+from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
+from System import Nullable, Object, String
+from System.Collections.Generic import Dictionary, IDictionary, IList, List
+from System.Data import DbType
+
 
 def get_implementation(net_object: Any, raw: bool = False) -> Any:
     """Get the implementation of a .NET interface object.
@@ -129,8 +129,7 @@ class DotNetConverter:
 
     @staticmethod
     def to_dotnet_dictionary(
-        py_dict: Dict[str, Any],
-        column_types: Dict[str, DbType] | None = None
+        py_dict: Dict[str, Any], column_types: Dict[str, DbType] | None = None
     ) -> Dictionary[String, Object]:
         """Convert a Python dictionary to a .NET Dictionary.
 

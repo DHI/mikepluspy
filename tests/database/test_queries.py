@@ -18,6 +18,23 @@ from mikeplus.queries import UpdateQuery
 from mikeplus.queries import DeleteQuery
 from mikeplus.dotnet import DotNetConverter
 from mikeplus.tables.base_table import BaseTable
+from mikeplus.tables.base_table_columns import BaseColumns
+
+
+def _fake_table(columns, **net_table_methods):
+    """Build a stand-in table whose .NET side records calls instead of hitting MIKE+."""
+    net_table = SimpleNamespace(
+        Columns=[SimpleNamespace(Field=name, DbType=None) for name in columns],
+        **net_table_methods,
+    )
+    table = SimpleNamespace(
+        _net_table=net_table,
+        _user_defined_columns=set(),
+        get_muids=lambda: ["Link_2"],
+        name="msm_Link",
+    )
+    table.columns = BaseColumns(table)
+    return table
 
 
 class TestBaseQuery:
@@ -322,6 +339,11 @@ class TestSelectQuery:
 
         assert query._order_by == ("MUID", False)
 
+    def test_order_by_rejects_unknown_column(self, table):
+        """Raise the same error type as invalid selected columns."""
+        with pytest.raises(ValueError, match="Invalid column"):
+            SelectQuery(table, ["MUID"]).order_by("not_a_column")
+
 
 class TestInsertQuery:
     """Tests for the InsertQuery class."""
@@ -373,7 +395,7 @@ class TestInsertQuery:
 
         assert inserted_muid in table.get_muids()
 
-    def test_insert_accepts_lowercase_field_names(self, table: BaseTable):
+    def test_insert_accepts_lowercase_field_names(self, sirius_db):
         """Insert lowercase field names into the SQLite integration fixture."""
         values = {
             "muid": "case_insensitive_link",
@@ -381,19 +403,24 @@ class TestInsertQuery:
             "length": 100.0,
             "description": "Test lowercase field names",
         }
+        db = Database(sirius_db)
+        try:
+            table = db.tables.msm_Link
 
-        inserted_muid = InsertQuery(table, values).execute()
+            inserted_muid = InsertQuery(table, values).execute()
 
-        expected = {
-            "MUID": values["muid"],
-            "Diameter": values["diameter"],
-            "Length": values["length"],
-            "Description": values["description"],
-        }
-        inserted = table.select(list(expected)).by_muid(inserted_muid).execute()
+            expected = {
+                "MUID": values["muid"],
+                "Diameter": values["diameter"],
+                "Length": values["length"],
+                "Description": values["description"],
+            }
+            inserted = table.select(list(expected)).by_muid(inserted_muid).execute()
 
-        assert inserted_muid == values["muid"]
-        assert dict(zip(expected, inserted[inserted_muid])) == expected
+            assert inserted_muid == values["muid"]
+            assert dict(zip(expected, inserted[inserted_muid])) == expected
+        finally:
+            db.close()
 
     @pytest.mark.parametrize(
         ("separator", "diameter"),
@@ -432,17 +459,11 @@ class TestInsertQuery:
             captured["fields"] = set(values.Keys)
             return None, muid
 
-        net_table = SimpleNamespace(
-            Columns=[],
+        table = _fake_table(
+            ["MUID", "Diameter", "Length", "Description"],
             CreateUniqueMuid=lambda: "generated_muid",
             IsMuidExistInActive=lambda *_: False,
             InsertByCommand=insert_by_command,
-        )
-        table = SimpleNamespace(
-            _net_table=net_table,
-            _user_defined_columns=set(),
-            columns=["MUID", "Diameter", "Length", "Description"],
-            name="msm_Link",
         )
         values = {
             "muid": "case_insensitive_link",
@@ -459,6 +480,17 @@ class TestInsertQuery:
             "geometry": None,
             "fields": {"Diameter", "Length", "Description"},
         }
+
+    def test_insert_rejects_field_names_differing_only_in_case(self):
+        """Refuse to silently drop one of two values for the same field."""
+        table = _fake_table(
+            ["MUID", "Diameter"],
+            CreateUniqueMuid=lambda: "generated_muid",
+            IsMuidExistInActive=lambda *_: False,
+        )
+
+        with pytest.raises(ValueError, match="Diameter"):
+            InsertQuery(table, {"Diameter": 1.0, "diameter": 2.0})._execute_impl()
 
 
 class TestUpdateQuery:
@@ -629,17 +661,10 @@ class TestUpdateQuery:
             captured["geometry"] = (muid, geometry)
             return SimpleNamespace(CmdCommitted=True, Msg="")
 
-        net_table = SimpleNamespace(
-            Columns=[],
+        table = _fake_table(
+            ["MUID"],
             SetValuesByCommand=set_values_by_command,
             UpdateGeomByCommand=update_geom_by_command,
-        )
-        table = SimpleNamespace(
-            _net_table=net_table,
-            _user_defined_columns=set(),
-            columns=["MUID"],
-            get_muids=lambda: ["Link_2"],
-            name="msm_Link",
         )
         monkeypatch.setattr(
             DotNetConverter,
@@ -658,20 +683,13 @@ class TestUpdateQuery:
 
     def test_geometry_command_failure_raises(self, monkeypatch):
         """Expose a failed geometry commit instead of reporting a successful update."""
-        net_table = SimpleNamespace(
-            Columns=[],
+        table = _fake_table(
+            ["MUID"],
             SetValuesByCommand=lambda *_: None,
             UpdateGeomByCommand=lambda *_: SimpleNamespace(
                 CmdCommitted=False,
                 Msg="Geometry command rejected",
             ),
-        )
-        table = SimpleNamespace(
-            _net_table=net_table,
-            _user_defined_columns=set(),
-            columns=["MUID"],
-            get_muids=lambda: ["Link_2"],
-            name="msm_Link",
         )
         monkeypatch.setattr(
             DotNetConverter,
@@ -695,16 +713,9 @@ class TestUpdateQuery:
             captured["muid"] = muid
             captured["fields"] = set(values.Keys)
 
-        net_table = SimpleNamespace(
-            Columns=[],
+        table = _fake_table(
+            ["MUID", "Diameter", "Description"],
             SetValuesByCommand=set_values_by_command,
-        )
-        table = SimpleNamespace(
-            _net_table=net_table,
-            _user_defined_columns=set(),
-            columns=["MUID", "Diameter", "Description"],
-            get_muids=lambda: ["Link_2"],
-            name="msm_Link",
         )
 
         updated = (
