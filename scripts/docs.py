@@ -5,6 +5,7 @@ Usage
     python scripts/docs.py build    # build the site into great-docs/_site
     python scripts/docs.py check    # great-docs lint, and proofread with Harper
     python scripts/docs.py links    # check links in the docs and the source
+    python scripts/docs.py preview <pr>  # serve the site CI built for a pull request
 
 Run from the repository root, in an environment with the ``docs`` dependency group.
 """
@@ -38,7 +39,11 @@ def great_docs(*args: str) -> int:
     # great-docs writes generated pages in the locale encoding, which breaks non-ASCII
     # docstrings on Windows.
     env = {**os.environ, "PYTHONUTF8": "1"}
-    return subprocess.run(["great-docs", *args], cwd=ROOT, env=env).returncode
+    # great-docs has no __main__, so call its entry point with this interpreter, which
+    # finds it in this environment whether or not the environment is on PATH.
+    cli = "from great_docs.cli import main; main()"
+    command = [sys.executable, "-c", cli, *args]
+    return subprocess.run(command, cwd=ROOT, env=env).returncode
 
 
 def proofread_files() -> list[str]:
@@ -86,9 +91,16 @@ def links() -> int:
     return great_docs("check-links")
 
 
+def preview(pr: str) -> int:
+    """Download the site CI built for a pull request and serve it locally."""
+    return great_docs("preview", "--pr", pr, "--use-gh")
+
+
 COMMANDS = {"build": build, "check": check, "links": links}
 
 if __name__ == "__main__":
+    if len(sys.argv) == 3 and sys.argv[1] == "preview":
+        sys.exit(preview(sys.argv[2]))
     if len(sys.argv) != 2 or sys.argv[1] not in COMMANDS:
         sys.exit(__doc__)
     sys.exit(COMMANDS[sys.argv[1]]())

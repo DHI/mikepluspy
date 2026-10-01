@@ -79,5 +79,9 @@ docs-check:
 docs-links:
     uv run --no-sync python scripts/docs.py links
 
+# Serve the site CI built for a pull request, e.g. `just docs-preview 129` (needs `gh auth login`)
+docs-preview pr:
+    uv run --no-sync python scripts/docs.py preview {{ pr }}
+
 # What to run before opening a PR
 check: lint typecheck test
