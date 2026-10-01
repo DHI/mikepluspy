@@ -29,7 +29,8 @@ class DemandAggregationTool:
     entered any other way.
 
     Every method takes an optional list of demand allocation MUIDs to
-    aggregate. Leave it out to aggregate all demand allocations.
+    aggregate. Leave it out to aggregate all demand allocations; an empty
+    list does nothing, not even `reset_existing`.
 
     Examples
     --------
@@ -56,6 +57,7 @@ class DemandAggregationTool:
         """
         if not database.is_open:
             database.open()
+        self._database = database
         self._service = AmeliaWdEditorService()
         self._service.DataTables = database._data_table_container
 
@@ -70,11 +72,14 @@ class DemandAggregationTool:
     ) -> None:
         """Sum the demand allocations of each junction into junction demands.
 
+        As in MIKE+, a sum with any allocation whose `Demand` is NULL is NULL.
+
         Parameters
         ----------
         demand_allocations : Sequence[str], optional
-            MUIDs of the demand allocations to aggregate. By default all.
-            Allocations without a junction are skipped.
+            MUIDs of the demand allocations to aggregate. By default all;
+            an empty list does nothing. Allocations without a junction are
+            skipped.
         reset_existing : bool, optional
             If true, first delete the junction demands that earlier
             aggregations wrote. By default False.
@@ -92,8 +97,12 @@ class DemandAggregationTool:
 
         Raises
         ------
+        TypeError
+            If `demand_allocations` is a str or contains anything but str.
         ValueError
-            If `category` or `pattern` is given while `keep_categories` is true.
+            If `category` or `pattern` is given while `keep_categories` is
+            true, or if `demand_allocations` contains MUIDs not in
+            `mw_DemAlloc`.
 
         """
         if keep_categories and (category is not None or pattern is not None):
@@ -123,11 +132,19 @@ class DemandAggregationTool:
         Parameters
         ----------
         demand_allocations : Sequence[str], optional
-            MUIDs of the demand allocations to assign. By default all.
-            Allocations without a junction are skipped.
+            MUIDs of the demand allocations to assign. By default all;
+            an empty list does nothing. Allocations without a junction are
+            skipped.
         reset_existing : bool, optional
             If true, first delete the junction demands that earlier
             aggregations wrote. By default False.
+
+        Raises
+        ------
+        TypeError
+            If `demand_allocations` is a str or contains anything but str.
+        ValueError
+            If `demand_allocations` contains MUIDs not in `mw_DemAlloc`.
 
         """
         self._run(
@@ -147,11 +164,14 @@ class DemandAggregationTool:
     ) -> None:
         """Sum the demand allocations of each pipe into a pipe demand coefficient.
 
+        As in MIKE+, a sum with any allocation whose `Demand` is NULL is NULL.
+
         Parameters
         ----------
         demand_allocations : Sequence[str], optional
-            MUIDs of the demand allocations to aggregate. By default all.
-            Allocations without a pipe are skipped.
+            MUIDs of the demand allocations to aggregate. By default all;
+            an empty list does nothing. Allocations without a pipe are
+            skipped.
         coefficient : int, optional
             Which pipe demand coefficient to write, 1 to 4 for `Coeff1` to
             `Coeff4`. By default 1.
@@ -161,8 +181,11 @@ class DemandAggregationTool:
 
         Raises
         ------
+        TypeError
+            If `demand_allocations` is a str or contains anything but str.
         ValueError
-            If `coefficient` is not 1, 2, 3 or 4.
+            If `coefficient` is not 1, 2, 3 or 4, or if `demand_allocations`
+            contains MUIDs not in `mw_DemAlloc`.
 
         """
         if coefficient not in _PIPE_COEFFICIENTS:
@@ -184,12 +207,15 @@ class DemandAggregationTool:
         call: Callable[[Any, Any], Any],
         demand_allocations: Sequence[str] | None,
     ) -> None:
-        ids = None if demand_allocations is None else list(demand_allocations)
+        ids = None
+        if demand_allocations is not None:
+            muids = self._validated_muids(demand_allocations)
+            # MIKE+ would still apply reset_existing to an empty list.
+            if not muids:
+                return
+            ids = as_dotnet_list(muids)
         try:
-            result = call(
-                CancellationTokenSource().Token,
-                None if ids is None else as_dotnet_list(ids),
-            )
+            result = call(CancellationTokenSource().Token, ids)
         except Exception as error:
             raise DatabaseError(f"Failed to {action}: {error}") from None
         # MIKE+ rolls back and returns null on failure, without the error.
@@ -197,3 +223,21 @@ class DemandAggregationTool:
             raise DatabaseError(f"Failed to {action}; no changes were saved.")
         if result.Status == CommandStatus.Failure:
             raise DatabaseError(f"Failed to {action}: {result.Msg}")
+
+    def _validated_muids(self, demand_allocations: Sequence[str]) -> list[str]:
+        if isinstance(demand_allocations, str):
+            raise TypeError(
+                "demand_allocations must be a sequence of MUIDs, not a str; "
+                f"use [{demand_allocations!r}]."
+            )
+        ids = list(demand_allocations)
+        not_str = [muid for muid in ids if not isinstance(muid, str)]
+        if not_str:
+            raise TypeError(
+                f"demand_allocations must contain str MUIDs, got {not_str!r}."
+            )
+        known = set(self._database.tables.mw_DemAlloc.get_muids())
+        unknown = [muid for muid in ids if muid not in known]
+        if unknown:
+            raise ValueError(f"Unknown demand allocation MUIDs: {unknown!r}.")
+        return ids

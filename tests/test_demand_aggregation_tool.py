@@ -168,6 +168,61 @@ def test_aggregate_to_pipe_coefficients_rejects_unknown_coefficient(db, coeffici
         )
 
 
+def test_aggregate_null_demand_gives_null(db):
+    db.tables.mw_DemAlloc.insert(
+        {"MUID": "N", "JunctionID": "Junction_2", "PipeID": "Pipe_3", "Demand": None}
+    )
+    tool = DemandAggregationTool(db)
+
+    tool.aggregate_to_node_demands(["A4", "N"], keep_categories=False)
+    tool.aggregate_to_pipe_coefficients(["A4", "N"])
+
+    assert demands(db) == [("Junction_2", None, None, None)]
+    assert pipe_coefficients(db, "Coeff1")["Pipe_3"] is None
+
+
+def test_empty_list_does_nothing(db):
+    db.tables.mw_Pipe.update({"Coeff1": 99.0}).all().execute()
+    tool = DemandAggregationTool(db)
+    tool.aggregate_to_node_demands(["A1"])
+    before = demands(db)
+
+    tool.aggregate_to_node_demands([], reset_existing=True)
+    tool.assign_to_multiple_demands([], reset_existing=True)
+    tool.aggregate_to_pipe_coefficients([], reset_existing=True)
+
+    assert demands(db) == before
+    assert set(pipe_coefficients(db, "Coeff1").values()) == {99.0}
+
+
+def test_empty_demand_allocation_table(db):
+    db.tables.mw_DemAlloc.delete().all().execute()
+    tool = DemandAggregationTool(db)
+
+    tool.aggregate_to_node_demands(reset_existing=True)
+    tool.assign_to_multiple_demands(reset_existing=True)
+    tool.aggregate_to_pipe_coefficients(reset_existing=True)
+
+    assert demands(db) == []
+
+
+def test_str_demand_allocations_raises(db):
+    with pytest.raises(TypeError, match="not a str"):
+        DemandAggregationTool(db).aggregate_to_node_demands("A1")
+
+
+def test_non_str_demand_allocation_raises(db):
+    with pytest.raises(TypeError, match="str MUIDs"):
+        DemandAggregationTool(db).aggregate_to_node_demands(["A1", 1])
+
+
+def test_unknown_demand_allocation_raises(db):
+    with pytest.raises(ValueError, match="'Nope'"):
+        DemandAggregationTool(db).aggregate_to_pipe_coefficients(["A1", "Nope"])
+
+
+# The rolled-back `None` result is not covered: no public input found makes
+# MIKE+ return it (bad input gives an exception or a Skipped status).
 def test_failure_raises_database_error(db):
     tool = DemandAggregationTool(db)
     db.close()

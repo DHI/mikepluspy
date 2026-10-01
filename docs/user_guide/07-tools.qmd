@@ -90,7 +90,9 @@ tool.assign_to_multiple_demands(reset_existing=True)
 tool.aggregate_to_pipe_coefficients(["Alloc_1", "Alloc_2"], coefficient=2)
 ```
 
-`reset_existing=True` deletes only the junction demands that earlier aggregations wrote; demands entered any other way are kept.
+For the junction methods, `reset_existing=True` deletes only the junction demands that earlier aggregations wrote; demands entered any other way are kept. For `aggregate_to_pipe_coefficients`, it sets the coefficient to 0 on pipes with no aggregated allocation.
+
+An empty list of MUIDs does nothing, not even the reset. Unknown MUIDs raise a `ValueError`. As in MIKE+, a sum that includes an allocation with a NULL demand is NULL.
 
 ### {{< icon book-open >}} Further Information
 
