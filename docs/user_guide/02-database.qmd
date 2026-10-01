@@ -75,6 +75,17 @@ with mp.open("model.sqlite") as db:
         print(f"MUPP file: {db.mupp_path}")
 ```
 
+### Creating a Project File
+
+A `.sqlite` database works without a `.mupp` project file, but MIKE+ opens models through one. To write one for a database that lacks it, for example a copy you have edited with MIKE+Py, use `create_mupp()`:
+
+```python
+with mp.open("model.sqlite") as db:
+    mupp_path = db.create_mupp()  # model.mupp, next to model.sqlite
+```
+
+The project file records the database's model type and unit system, and refers to the database by a path relative to itself. Pass a path to write it elsewhere, and `overwrite=True` to replace an existing one.
+
 ### General Database Properties
 
 Retrieve general information about the database:
