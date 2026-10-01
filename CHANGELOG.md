@@ -8,6 +8,8 @@
 
 ### Changed
 
+- Package import works on Linux x64 as well as Windows x64. On Linux there is no default install path, so set `MIKEPLUSPY_INSTALL_ROOT`. Other platforms and architectures now raise `ImportError` on import.
+
 ### Deprecated
 
 ### Removed

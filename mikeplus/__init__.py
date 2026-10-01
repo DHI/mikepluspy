@@ -3,18 +3,32 @@
 __version__ = "2026.1.0"
 
 
+import platform as _platform
+import sys as _sys
 from pathlib import Path
 
 from .conflicts import check_conflicts as _check_conflicts
 
 _check_conflicts()
 
+if _platform.machine().lower() not in ("amd64", "x86_64"):
+    raise ImportError(f"MIKE+Py requires an x64 machine, not '{_platform.machine()}'.")
+if _sys.platform == "win32":
+    _runtime_config = "runtimeconfig.json"
+    _fallback_install_root: Path | None = Path("C:/Program Files (x86)/DHI/MIKE+/2026")
+elif _sys.platform == "linux":
+    # Microsoft.WindowsDesktop.App does not exist on Linux
+    _runtime_config = "runtimeconfig.linux.json"
+    _fallback_install_root = None
+else:
+    raise ImportError(f"MIKE+Py supports Windows and Linux, not '{_sys.platform}'.")
+
 from pythonnet import load
 
 load(
     "coreclr",
     runtime_config=(
-        (Path(__file__).parent / "bin" / "runtimeconfig.json").absolute().as_posix()
+        (Path(__file__).parent / "bin" / _runtime_config).absolute().as_posix()
     ),
 )
 import clr
@@ -23,7 +37,7 @@ from .utils import setup_bin_path as _setup_bin_path
 
 _install_root, _dll_dir_handle = _setup_bin_path(
     major_assembly_version=24,
-    fallback_mikeplus_install_root=Path("C:/Program Files (x86)/DHI/MIKE+/2026"),
+    fallback_mikeplus_install_root=_fallback_install_root,
     env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT",  # set this environment variable to use custom install path
     bin_path=Path("bin/x64"),
 )
