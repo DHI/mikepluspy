@@ -10,6 +10,7 @@ The following tools are available:
 *   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
 *   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
 *   **`ConnectionRepairTool`**: Repairs network connectivity issues.
+*   **`DemandAggregationTool`**: Aggregates water distribution demand allocations to junction demands or pipe demand coefficients.
 *   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
 
 ## {{< icon play >}} General Usage
@@ -66,6 +67,30 @@ repair_tool.run(
     dissolve_overlap_node=True
 )
 ```
+
+### DemandAggregationTool
+
+The `DemandAggregationTool` turns the demand allocations in `mw_DemAlloc` into junction demands in `mw_MDemand`, or into pipe demand coefficients in `mw_Pipe`. Each method aggregates all demand allocations, or only those whose MUIDs you pass.
+
+```python
+from mikeplus.tools import DemandAggregationTool
+
+tool = DemandAggregationTool(db)
+
+# One junction demand per category and pattern, replacing earlier aggregations
+tool.aggregate_to_node_demands(reset_existing=True)
+
+# One junction demand per junction, with a fixed category and pattern
+tool.aggregate_to_node_demands(keep_categories=False, category="Total", pattern="Daily")
+
+# One junction demand per demand allocation, summing nothing
+tool.assign_to_multiple_demands(reset_existing=True)
+
+# Sum two allocations into the pipes' second demand coefficient
+tool.aggregate_to_pipe_coefficients(["Alloc_1", "Alloc_2"], coefficient=2)
+```
+
+`reset_existing=True` deletes only the junction demands that earlier aggregations wrote; demands entered any other way are kept.
 
 ### {{< icon book-open >}} Further Information
 

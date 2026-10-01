@@ -5,6 +5,7 @@
 ### Added
 
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
+- `mikeplus.tools.DemandAggregationTool`, the water distribution Aggregation tool: aggregates demand allocations to junction demands or pipe demand coefficients (#120).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed
