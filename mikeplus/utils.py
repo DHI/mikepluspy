@@ -20,7 +20,15 @@ def setup_bin_path(
     env_var_name_install_root: str,
     bin_path: Path,
 ) -> tuple[Path | None, Any]:
-    """Set up the bin path for mikepluspy."""
+    """Set up the bin path for mikepluspy.
+
+    Returns
+    -------
+    tuple
+        The MIKE+ install root and the handle from ``os.add_dll_directory``, or
+        ``(None, None)`` if the bin path was already set up.
+
+    """
     global _setup_called
     if _setup_called:
         return None, None
@@ -74,7 +82,7 @@ def _update_python_env_path(mikeplus_env_paths: list[str]):
 
 
 def _update_clr_assembly_resolve(mikeplus_install_bin: str):
-    def assembly_resolver(sender, args):
+    def assembly_resolver(sender: Any, args: Any) -> Any:
         assembly_name = args.Name.split(",")[0] + ".dll"
         assembly_path = os.path.join(mikeplus_install_bin, assembly_name)
         if os.path.isfile(assembly_path):
@@ -133,7 +141,7 @@ def _try_setup_default_bin_path(
     )
 
 
-def to_sql(value) -> str:
+def to_sql(value: Any) -> str:
     """Convert a Python value to its SQL string representation.
 
     Parameters
@@ -163,3 +171,6 @@ def to_sql(value) -> str:
         return str(value)
     else:
         return f"'{value!s}'"
+
+
+__all__ = ["to_sql"]

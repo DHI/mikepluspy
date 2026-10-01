@@ -78,7 +78,7 @@ class BaseColumns:
         """
         return iter(self._column_names)
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         """Check for a column using case-insensitive matching.
 
         Parameters

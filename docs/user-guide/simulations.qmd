@@ -7,7 +7,7 @@ MIKE+Py allows you to execute simulations defined within your MIKE+ model direct
 The most straightforward way to run a simulation is by calling `db.run()` on your database object. By default, this executes the currently active simulation setup defined in the MIKE+ project.
 
 ```python
-# db is an opened mikepluspy.Database object
+# db is an opened mikeplus.Database object
 result_files = db.run()
 ```
 
@@ -65,7 +65,7 @@ except RuntimeError as e:
 Here's a complete example of opening a database and running the active simulation:
 
 ```python
-import mikepluspy as mp
+import mikeplus as mp
 
 with mp.open("path/to/your_model.sqlite") as db:
     print(f"Active simulation: {db.active_simulation}")

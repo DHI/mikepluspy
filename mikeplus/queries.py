@@ -11,6 +11,10 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 if TYPE_CHECKING:
+    from typing import Self
+
+    import pandas as pd
+
     from .tables import BaseTable
 
 from System.Data import ConnectionState
@@ -38,12 +42,19 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         self._executed = False
 
     def __repr__(self) -> str:
-        """Get nice string representation."""
+        """Get nice string representation.
+
+        Returns
+        -------
+        str
+            The query type, table name and whether it has been executed.
+
+        """
         return (
             f"{self.__class__.__name__}<{self._table.name}, executed={self._executed}>"
         )
 
-    def where(self, condition: str):
+    def where(self, condition: str) -> Self:
         """Add a WHERE condition to the query.
 
         Parameters
@@ -60,7 +71,7 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         self._conditions.append(condition)
         return self
 
-    def by_muid(self, muid_or_muids: str | list[str] | tuple[str]):
+    def by_muid(self, muid_or_muids: str | list[str] | tuple[str]) -> Self:
         """Filter the query by one or more MUIDs.
 
         Parameters
@@ -165,7 +176,7 @@ class BaseQuery(ABC, Generic[QueryResultT]):
             canonical_values[canonical_name] = value
         return canonical_values
 
-    def reset(self):
+    def reset(self) -> Self:
         """Reset the query execution status to allow re-execution.
 
         Returns
@@ -192,6 +203,8 @@ class BaseQuery(ABC, Generic[QueryResultT]):
         ------
         RuntimeError
             If the query has already been executed
+        ValueError
+            If the database is not open
 
         """
         if self._executed:
@@ -251,7 +264,14 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
         self._validate_columns()
 
     def _validate_columns(self):
-        """Validate selected columns and resolve them to canonical MIKE+ casing."""
+        """Validate selected columns and resolve them to canonical MIKE+ casing.
+
+        Raises
+        ------
+        ValueError
+            If a column is not in the table
+
+        """
         self._columns = list(self._columns)
         if not self._columns:
             self._columns = list(self._table.columns)
@@ -264,7 +284,7 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
 
         self._columns = [self._table.columns[column] for column in self._columns]
 
-    def order_by(self, column: str, descending: bool = False):
+    def order_by(self, column: str, descending: bool = False) -> Self:
         """Add an ORDER BY clause to the query.
 
         Parameters
@@ -322,7 +342,7 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
 
         return result
 
-    def to_pandas(self):
+    def to_pandas(self) -> pd.DataFrame:
         """Convert the query results to a pandas DataFrame.
 
         Returns
@@ -339,10 +359,10 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
             return pd.DataFrame(index=pd.Index([], name="MUID"), columns=self._columns)
 
         df_result = pd.DataFrame(result).T
-        df_result.columns = self._columns
+        df_result.columns = pd.Index(self._columns)
         return df_result
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> pd.DataFrame:
         """Convert the query results to a pandas DataFrame.
 
         Returns
@@ -375,8 +395,9 @@ class InsertQuery(BaseQuery[str]):
         """Implement the INSERT query execution.
 
         Supplied field names are matched case-insensitively to their canonical
-        MIKE+ schema names. Strings assigned to schema-declared DateTime fields
-        are parsed before conversion to .NET values. If no MUID is supplied,
+        MIKE+ schema names. Strings assigned to schema-declared Double and
+        DateTime fields are parsed before conversion to .NET values. If no MUID
+        is supplied,
         MIKE+ generates a unique one. Geometry and user-defined fields are
         handled separately from ordinary fields.
 
@@ -388,7 +409,9 @@ class InsertQuery(BaseQuery[str]):
         Raises
         ------
         ValueError
-            If the requested MUID already exists in the active scenario.
+            If the requested MUID already exists in the active scenario, a
+            field is supplied twice with different casing, or a Double or
+            DateTime string can't be parsed.
 
         Notes
         -----
@@ -458,7 +481,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         self._values = values
         self._all_rows = False
 
-    def all(self):
+    def all(self) -> Self:
         """Explicitly indicate that this query should affect all rows.
 
         Returns
@@ -474,8 +497,8 @@ class UpdateQuery(BaseQuery[list[str]]):
         """Implement the UPDATE query execution.
 
         Supplied field names are matched case-insensitively to their canonical
-        MIKE+ schema names. Schema-declared DateTime strings are parsed before
-        conversion. Ordinary fields are updated with ``SetValuesByCommand`` and
+        MIKE+ schema names. Strings for schema-declared Double and DateTime
+        fields are parsed before conversion. Ordinary fields are updated with ``SetValuesByCommand`` and
         geometry is updated separately with ``UpdateGeomByCommand``. User-defined
         fields are applied individually after those commands.
 
@@ -487,7 +510,9 @@ class UpdateQuery(BaseQuery[list[str]]):
         Raises
         ------
         ValueError
-            If no filter is supplied and ``all()`` was not called explicitly.
+            If no filter is supplied and ``all()`` was not called explicitly, a
+            field is supplied twice with different casing, or a Double or
+            DateTime string can't be parsed.
         RuntimeError
             If a requested geometry update does not commit.
 
@@ -579,7 +604,7 @@ class DeleteQuery(BaseQuery[list[str]]):
         super().__init__(table)
         self._all_rows = False
 
-    def all(self):
+    def all(self) -> Self:
         """Explicitly indicate that this query should affect all rows.
 
         Returns
@@ -625,3 +650,12 @@ class DeleteQuery(BaseQuery[list[str]]):
         muids_net = DotNetConverter.as_dotnet_list(muids)
         net_table.MultiDeleteByCommand(muids_net)
         return muids
+
+
+__all__ = [
+    "BaseQuery",
+    "DeleteQuery",
+    "InsertQuery",
+    "SelectQuery",
+    "UpdateQuery",
+]

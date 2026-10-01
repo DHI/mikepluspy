@@ -6,7 +6,7 @@ A script that generates Python table classes from MIKE+ database tables.
 This tool is used during development to automatically generate table class files.
 
 Usage:
-    python scripts/generate_tables.py [options]
+    just generate-tables [options]
 
 Options:
     --output-dir, -o    Directory where generated code will be saved
@@ -15,13 +15,13 @@ Options:
 
 Examples:
     # Generate table classes using default settings
-    python scripts/generate_tables.py
+    just generate-tables
 
     # Generate table classes to a custom directory
-    python scripts/generate_tables.py --output-dir ./custom/output/directory
+    just generate-tables --output-dir ./custom/output/directory
 
     # Generate table classes from a specific database
-    python scripts/generate_tables.py --database ./path/to/database.sqlite
+    just generate-tables --database ./path/to/database.sqlite
 
 The script generates:
 1. A Python class file for each table in the database
@@ -30,7 +30,7 @@ The script generates:
 
 Notes:
 - This script is a development tool and requires Jinja2 to be installed
-  (install with: pip install -e ".[dev]")
+  (install with: just setup)
 - All generated files have a warning in their docstrings that they should not
   be manually modified.
 """

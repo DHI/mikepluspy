@@ -84,6 +84,7 @@ ignore_errors = true
 
 [tool.ruff]
 include = ["pyproject.toml", "mikeplus/**/*.py"]
+extend-exclude = [".claude"]  # agent worktrees carry their own pyproject.toml
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 lint.extend-select = ["D", "PD", "NPY", "FA"]

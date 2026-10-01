@@ -1,5 +1,9 @@
 """Base table collection for MIKE+ database tables."""
 
+from collections.abc import ItemsView, KeysView, ValuesView
+
+from DHI.Amelia.DataModule.Services.DataTables import DataTableContainer
+
 from mikeplus.tables.base_table import BaseTable
 
 
@@ -9,11 +13,15 @@ class BaseTableCollection:
     This class provides a base implementation for table collections in a model database.
     """
 
-    def __init__(self, data_table_container):
+    def __init__(
+        self, data_table_container: DataTableContainer
+    ):  # api: allow-leaked-type
         """Initialize a new BaseTableCollection.
 
-        Args:
-            data_table_container: The underlying data table container
+        Parameters
+        ----------
+        data_table_container : DataTableContainer
+            The underlying data table container
 
         """
         self._data_table_container = data_table_container
@@ -21,14 +29,28 @@ class BaseTableCollection:
         self._table_names = {name.casefold(): name for name in self._tables}
 
     def __repr__(self) -> str:
-        """Get string representation."""
+        """Get string representation.
+
+        Returns
+        -------
+        str
+            The class name and number of tables.
+
+        """
         return f"{self.__class__.__name__}<{len(self._tables)} tables>"
 
     def _init_tables(self) -> dict[str, BaseTable]:
-        """Initialize the tables dictionary."""
+        """Initialize the tables dictionary.
+
+        Returns
+        -------
+        dict[str, BaseTable]
+            Tables keyed by name. Empty in the base class.
+
+        """
         return {}
 
-    def keys(self):
+    def keys(self) -> KeysView[str]:
         """Get a list of all table names.
 
         Returns
@@ -38,7 +60,7 @@ class BaseTableCollection:
         """
         return self._tables.keys()
 
-    def values(self):
+    def values(self) -> ValuesView[BaseTable]:
         """Get a list of all table objects.
 
         Returns
@@ -48,7 +70,7 @@ class BaseTableCollection:
         """
         return self._tables.values()
 
-    def items(self):
+    def items(self) -> ItemsView[str, BaseTable]:
         """Get a list of (name, table) pairs.
 
         Returns
