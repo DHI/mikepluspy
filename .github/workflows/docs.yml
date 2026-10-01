@@ -22,6 +22,10 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
 
+# Jobs that need more than read access ask for it themselves.
+permissions:
+  contents: read
+
 concurrency:
   group: docs-${{ github.ref }}
   cancel-in-progress: true
@@ -84,6 +88,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
 
     steps:
