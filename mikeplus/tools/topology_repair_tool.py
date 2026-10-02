@@ -81,6 +81,10 @@ class TopoRepairTool:
         snap_distance : float, optional
             The distance used in dissolve the overlapped nodes, in correct link connection, and in split link on T junction, by default 0.1.
 
+        Notes
+        -----
+        Does nothing unless the active model is CS_MIKE1D or WD_EPANET.
+
         """
         cancel_source = CancellationTokenSource()
         topology_param = TopologyRepairParam()

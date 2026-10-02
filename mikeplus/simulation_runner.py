@@ -77,13 +77,17 @@ class SimulationRunner:
         Returns
         -------
         list[Path]
-            Paths to the result files.
+            Paths to the result files the simulation is configured to write. They
+            are not checked for existence; errors during the simulation itself
+            are not raised.
 
         Raises
         ------
         ValueError
             If `sim_option` is invalid, or not given and the active model does not
             determine one.
+        RuntimeError
+            If the simulation engine fails to start.
 
         """
         VALID_OPTIONS = (

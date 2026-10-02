@@ -82,7 +82,7 @@ MIKE+Py directly modifies the `.sqlite` database file. There is **no undo** func
 
 There are known compatibility issues when using MIKE+Py alongside other DHI libraries (e.g. MIKE IO, MIKE IO 1D, ModelSkill).
 
-- Importing MIKE IO *after* MIKE+Py is not supported and will cause errors.
+- MIKE IO is not fully supported in the same Python process as MIKE+Py. MIKE+Py warns when both are loaded; import MIKE IO *before* MIKE+Py, or use separate processes if you run into problems.
 - Importing MIKE IO 1D *before* MIKE+Py is not supported and will cause errors.
 
 The following is the suggest import order which works for most use cases, but could still run into issues:

@@ -59,7 +59,7 @@ Errors that occur while the engine is running are not raised. Check the simulati
 try:
     result_files = db.run()
 except RuntimeError as e:
-    print(f"Simulation failed: {e}")
+    print(f"Simulation failed to start: {e}")
 ```
 
 ## {{< icon file-code >}} Example

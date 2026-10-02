@@ -24,7 +24,7 @@ class ImportTool:
 
     """
 
-    def __init__(self, configFile, database=None):
+    def __init__(self, configFile, database):
         """Initialize the ImportTool with the given configuration file and Database.
 
         Parameters
@@ -38,9 +38,7 @@ class ImportTool:
         self._configFile = os.path.abspath(configFile)
         if not database.is_open:
             database.open()
-        self._dataTables = (
-            database._data_table_container if database is not None else None
-        )
+        self._dataTables = database._data_table_container
 
     def run(self):
         """Run the import tool."""
