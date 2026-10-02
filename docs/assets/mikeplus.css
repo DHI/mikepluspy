@@ -1,11 +1,8 @@
 /* DHI theme of the MIKE+ documentation (userdoc.mike-plus.mikepoweredbydhi.com),
    which is MkDocs Material with a custom palette. */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
-
 :root,
 html.quarto-light {
-  --dhi-primary: #2146a4;
   --dhi-primary-dark: #1c3a86;
   --dhi-accent: #0098db;
   --dhi-link: #004165;
@@ -121,13 +118,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-p, li, td {
-  color: var(--dhi-fg);
-}
-
 /* --- Headings: light weights as in Material --- */
 
-h1, h1.title, .title {
+h1, h1.title {
   font-weight: 300 !important;
   color: var(--dhi-fg-light) !important;
   letter-spacing: -0.01em;
@@ -164,45 +157,34 @@ main a:hover,
   color: var(--dhi-accent);
 }
 
-/* --- Navbar: white text on the primary colour --- */
+/* --- Navbar: navbar_color sets its colours, this matches Material's details --- */
 
-.navbar,
 #quarto-header .navbar {
-  background-color: var(--dhi-primary) !important;
   border-bottom: none !important;
   box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.1), 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
 }
 
-.navbar .nav-link,
-.navbar .navbar-title,
-.navbar .menu-text {
-  color: rgba(255, 255, 255, 0.7) !important;
-  font-weight: 500;
+#quarto-header .navbar .nav-link {
   text-decoration: none !important;
 }
 
-.navbar .nav-link:hover,
-.navbar .nav-link.active,
-.navbar .nav-link.active .menu-text,
-.navbar .nav-link:hover .menu-text {
+/* great-docs gives hovered links a translucent background, which Material does not */
+#quarto-header .navbar .nav-link:hover {
+  background-color: transparent !important;
+}
+
+.navbar .menu-text {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover .menu-text,
+.navbar .nav-link.active .menu-text {
   color: #fff !important;
 }
 
 .navbar .nav-link.active .menu-text {
   font-weight: 700;
-}
-
-.navbar .quarto-navbar-tools a,
-.navbar .quarto-navbar-tools button,
-.navbar button,
-.navbar .aa-DetachedSearchButton {
-  color: #fff !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  background-color: transparent !important;
-}
-
-.navbar .navbar-toggler-icon {
-  filter: invert(1);
 }
 
 /* --- Tabsets --- */
@@ -310,7 +292,6 @@ pre.sourceCode {
   color: #fff !important;
 }
 
-a code,
-a > code {
+a code {
   color: inherit !important;
 }

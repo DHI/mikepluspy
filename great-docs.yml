@@ -13,7 +13,6 @@ source:
 
 user_guide: docs/user_guide
 
-# Styled after the MIKE+ documentation: https://userdoc.mike-plus.mikepoweredbydhi.com
 logo: docs/assets/logo-white.svg
 favicon: docs/assets/favicon.png
 
@@ -24,12 +23,12 @@ hero:
 
 navbar_color: "#2146a4"
 
-accent_color:
-  light: "#0098DB"
-  dark: "#0098DB"
+accent_color: "#0098DB"
 
 site:
-  css: docs/assets/mikeplus.css
+  css:
+    - docs/assets/fonts.css
+    - docs/assets/mikeplus.css
 
 # Methods stay on their class page, as quartodoc rendered them.
 inline_methods: true
