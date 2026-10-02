@@ -10,7 +10,7 @@ import mikeplus as mp
 
 ## Opening an Existing Database
 
-Open an existing MIKE+ model database using `mp.open()`. Provide the path to the `.sqlite` file. MIKE+Py will also recognize `.mupp` files and automatically locate the corresponding `.sqlite` database.
+Open an existing MIKE+ model database using `mp.open()`. Provide the path to the `.sqlite` file. You can also pass a `.mupp` file; MIKE+Py opens the `.sqlite` file with the same name in the same folder.
 
 ```python
 db = mp.open("model.sqlite")
@@ -52,9 +52,9 @@ db_new.close()
 You can specify a spatial reference system using either `projection_string` or `srid` (but not both).
 
 ```python
-# Example using SRID for WGS84
-db_srid = mp.create("projected_model.sqlite", srid=4326)
-print(f"SRID: {db_srid.srid}")
+# Example using the SRID for ETRS89 / UTM zone 32N
+db_srid = mp.create("projected_model.sqlite", srid=25832)
+print(db_srid.projection_string)
 db_srid.close()
 ```
 
@@ -88,17 +88,18 @@ with mp.open("model.sqlite") as db:
 
 ### Scenarios
 
-List all available scenarios in the database with the `scenarios` property. Get or set the currently active scenario using `active_scenario`.
+The `scenarios` property is a collection of the scenarios in the database. Get or set the currently active scenario using `active_scenario`, which takes a `Scenario` object rather than a name.
 
 ```python
 with mp.open("model.sqlite") as db:
-    print(f"Available scenarios: {db.scenarios}")
+    print(f"Available scenarios: {[s.name for s in db.scenarios]}")
     current_scenario = db.active_scenario
     print(f"Active scenario: {current_scenario}")
 
     # To change the active scenario:
-    # if "MyOtherScenario" in db.scenarios:
-    # db.active_scenario = "MyOtherScenario"
+    # other = db.scenarios.by_name("MyOtherScenario")
+    # if other is not None:
+    #     db.active_scenario = other
 ```
 
 ### Active Model and Simulation Setup

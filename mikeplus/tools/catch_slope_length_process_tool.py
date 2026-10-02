@@ -36,7 +36,7 @@ class CathSlopeLengthProcess:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """
@@ -54,7 +54,7 @@ class CathSlopeLengthProcess:
         demUnitKey: int = 1000,
         overwrite_exist: bool = True,
     ) -> None:
-        """Calculate the slope and length for each catchment and print progress information.
+        """Calculate the slope and length for each catchment.
 
         Parameters
         ----------

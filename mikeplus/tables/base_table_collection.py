@@ -51,31 +51,34 @@ class BaseTableCollection:
         return {}
 
     def keys(self) -> KeysView[str]:
-        """Get a list of all table names.
+        """Get all table names.
 
         Returns
         -------
-            List of table names
+        KeysView[str]
+            View of the table names
 
         """
         return self._tables.keys()
 
     def values(self) -> ValuesView[BaseTable]:
-        """Get a list of all table objects.
+        """Get all table objects.
 
         Returns
         -------
-            List of table objects
+        ValuesView[BaseTable]
+            View of the table objects
 
         """
         return self._tables.values()
 
     def items(self) -> ItemsView[str, BaseTable]:
-        """Get a list of (name, table) pairs.
+        """Get all (name, table) pairs.
 
         Returns
         -------
-            List of (name, table) tuples
+        ItemsView[str, BaseTable]
+            View of (name, table) pairs
 
         """
         return self._tables.items()

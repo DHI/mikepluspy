@@ -38,7 +38,7 @@ class AlternativeGroup:
 
     Examples
     --------
-    >>> network_group = db.scenarios.alternative_groups["CS Network data"]
+    >>> network_group = db.alternative_groups["CS Network data"]
     >>> print(f"Tables: {network_group.tables}")
     >>> print(f"Active: {network_group.active.name}")
     >>> print(f"Base: {network_group.base.name}")

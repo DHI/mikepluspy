@@ -116,7 +116,7 @@ class Database:
         projection_string : str, optional
             The projection string for the database
         srid : int, optional
-            The SRID for the database, e.g. 4326 for WGS84
+            The SRID for the database, e.g. 25832 for ETRS89 / UTM zone 32N
         auto_open : bool, optional
             If True, immediately open the database connection
         overwrite : bool, optional (default is False)
@@ -131,6 +131,10 @@ class Database:
         ------
         FileExistsError
             If the database already exists (except if overwrite is True)
+        ValueError
+            If both `projection_string` and `srid` are given
+        DatabaseError
+            If MIKE+ fails to create the database
 
         """
         model_path = Path(model_path)
@@ -428,7 +432,8 @@ class Database:
 
         Notes
         -----
-        This can be set to a new scenario name to activate a different scenario.
+        This can be set to a `Scenario` (for example from `scenarios.by_name()`)
+        to activate a different scenario.
         For more advanced scenario management, use the `scenarios` property.
 
         """
@@ -517,7 +522,17 @@ class Database:
         Returns
         -------
         list[Path]
-            Paths to the result files.
+            Paths to the result files the simulation is configured to write. They
+            are not checked for existence; errors during the simulation itself
+            are not raised.
+
+        Raises
+        ------
+        ValueError
+            If `sim_option` is invalid, or not given and the active model does not
+            determine one.
+        RuntimeError
+            If the simulation engine fails to start.
         """
         return self._runner.run(simulation_muid, sim_option=sim_option)
 

@@ -31,7 +31,7 @@ class SimulationRunner:
         Examples
         --------
         >>> from mikeplus import Database
-        >>> from mikeplus.engines import SimulationRunner
+        >>> from mikeplus.simulation_runner import SimulationRunner
         >>> db = Database("path/to/model.sqlite")
         >>> runner = SimulationRunner(db)
         """
