@@ -208,6 +208,87 @@ class TestDatabase:
         db.close()
 
 
+class TestDatabaseCreateMupp:
+    """Tests for Database.create_mupp."""
+
+    def test_create_mupp_for_bare_sqlite(self, sirius_db: Path):
+        """A .mupp is written next to the database and reopens it."""
+        sirius_db.with_suffix(".mupp").unlink()
+
+        with Database(sirius_db) as db:
+            assert db.mupp_path is None
+            nodes = db.tables.msm_Node.select().to_dataframe()
+            mupp_path = db.create_mupp()
+            assert mupp_path == sirius_db.with_suffix(".mupp")
+            assert mupp_path.exists()
+            assert db.mupp_path == mupp_path
+
+        # Without a same-named .sqlite beside it, opening must read the .mupp
+        renamed = mupp_path.rename(mupp_path.with_name("renamed.mupp"))
+
+        with Database(renamed) as db:
+            assert db.active_model == "CS_MIKE1D"
+            assert db.unit_system == "MU_CS_SI"
+            reopened = db.tables.msm_Node.select().to_dataframe()
+        assert reopened.equals(nodes)
+
+    def test_create_mupp_at_custom_path(self, sirius_db: Path):
+        """A .mupp in another folder references the database relative to itself."""
+        mupp_path = sirius_db.parent / "projects" / "custom.mupp"
+        mupp_path.parent.mkdir()
+
+        with Database(sirius_db) as db:
+            assert db.create_mupp(mupp_path) == mupp_path
+            assert db.mupp_path == sirius_db.with_suffix(".mupp")
+
+        with Database(mupp_path) as db:
+            assert not db.tables.msm_Node.select().to_dataframe().empty
+
+    def test_create_mupp_for_new_database(self, tmp_path: Path):
+        """A database created by MIKE+Py gets a project file that reopens it."""
+        db = Database.create(tmp_path / "new.sqlite")
+        mupp_path = db.create_mupp()
+        db.close()
+
+        with Database(mupp_path) as reopened:
+            assert reopened.is_open
+            assert reopened.mupp_path == mupp_path
+
+    def test_create_mupp_missing_folder_raises_error(self, sirius_db: Path):
+        """The folder for the project file must already exist."""
+        mupp_path = sirius_db.parent / "missing" / "custom.mupp"
+
+        with Database(sirius_db) as db:
+            with pytest.raises(FileNotFoundError):
+                db.create_mupp(mupp_path)
+        assert not mupp_path.parent.exists()
+
+    def test_create_mupp_existing_raises_error(self, sirius_db: Path):
+        """An existing .mupp is kept unless overwrite is True."""
+        mupp_path = sirius_db.with_suffix(".mupp")
+        original = mupp_path.read_text()
+
+        with Database(sirius_db) as db:
+            with pytest.raises(FileExistsError):
+                db.create_mupp()
+            assert mupp_path.read_text() == original
+
+            db.create_mupp(overwrite=True)
+            assert mupp_path.read_text() != original
+
+    def test_create_mupp_wrong_suffix_raises_error(self, sirius_db: Path):
+        """The project file must be a .mupp."""
+        with Database(sirius_db) as db:
+            with pytest.raises(ValueError):
+                db.create_mupp(sirius_db.with_suffix(".txt"))
+
+    def test_create_mupp_closed_database_raises_error(self, sirius_db: Path):
+        """The database must be open to read its model type and unit system."""
+        db = Database(sirius_db, auto_open=False)
+        with pytest.raises(ValueError):
+            db.create_mupp()
+
+
 class TestDatabaseClose:
     """Tests for the Database close functionality."""
 

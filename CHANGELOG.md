@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.utilities.get_nearest_river_at` and `get_nearest_river_chainage_at`, which find the river (and chainage) nearest to a point, for example to couple river junction nodes to rivers (#112).
 - `Database.begin_transaction()` and `Database.end_transaction(commit)`, which group many updates into one transaction and make batch edits much faster (#112).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
+- `Database.create_mupp()`, which writes a MIKE+ project file (`.mupp`) for a database that has none (#121).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed
@@ -28,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Opening a `.mupp` file that has no `.sqlite` of the same name beside it failed to find the database it refers to.
 - `select()` accepts a single column name instead of splitting it into characters (#44).
 - Strings that look like numbers, such as `"760309"`, were written to text columns as datetimes.
 - Geometry updates through `update()` were not saved. They now go through MIKE+'s geometry command and raise `RuntimeError` if it doesn't commit.
