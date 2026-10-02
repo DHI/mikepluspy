@@ -133,14 +133,26 @@ def skip_reason(
     return None
 
 
+def snippet_filename(snippet: Snippet) -> str:
+    """Return the name a snippet is compiled under, unique to it among the frames."""
+    return f"<doc {snippet.path}:{snippet.line}>"
+
+
 def error_line(error: BaseException, snippet: Snippet) -> int:
     """Return the doc line an error was raised from."""
     frames = [
         f
         for f in traceback.extract_tb(error.__traceback__)
-        if f.filename == str(snippet.path)
+        if f.filename == snippet_filename(snippet)
     ]
     return frames[-1].lineno if frames and frames[-1].lineno else snippet.line
+
+
+def needs_db(snippets: list[Snippet]) -> bool:
+    """Whether a page uses ``db`` or opens a database path."""
+    return bool(placeholder_paths(snippets)) or any(
+        re.search(r"\bdb\b", s.source) for s in snippets
+    )
 
 
 def run_page(
@@ -152,8 +164,9 @@ def run_page(
     import mikeplus
 
     namespace.setdefault("mp", mikeplus)
+    opened = None
     if any(re.search(r"\bdb\b", s.source) for s in snippets):
-        namespace["db"] = mikeplus.open(source_db)
+        opened = namespace["db"] = mikeplus.open(source_db)
     assumed = {m.group("name") for s in snippets for m in ASSUMING.finditer(s.source)}
     failures, skips = [], []
     try:
@@ -170,7 +183,7 @@ def run_page(
             ast.increment_lineno(tree, snippet.line - 1)
             try:
                 with contextlib.redirect_stdout(io.StringIO()):
-                    exec(compile(tree, str(snippet.path), "exec"), namespace)  # noqa: S102 - running the docs is the test
+                    exec(compile(tree, snippet_filename(snippet), "exec"), namespace)  # noqa: S102 - running the docs is the test
             except Exception as error:
                 line = error_line(error, snippet)
                 text = f"{snippet.path.relative_to(ROOT)}:{line}: {type(error).__name__}: {error}"
@@ -179,7 +192,7 @@ def run_page(
                     f"{text.splitlines()[0]} [skipped: {reason}]" if reason else text
                 )
     finally:
-        for value in list(namespace.values()):
+        for value in [opened, *namespace.values()]:
             if isinstance(value, mikeplus.Database):
                 with contextlib.suppress(Exception):
                     value.close()
@@ -207,16 +220,27 @@ def test_user_guide_page_runs(path, sirius_db, workdir):
 @pytest.mark.parametrize(
     "path", DOCSTRING_MODULES, ids=lambda p: p.relative_to(ROOT / "mikeplus").as_posix()
 )
-def test_docstring_examples_run(path, sirius_db, workdir):
-    """The ``>>>`` examples of a module's docstrings run, each docstring on its own."""
+def test_docstring_examples_run(path, sirius_db, tmp_path, monkeypatch):
+    """The ``>>>`` examples of a module's docstrings run, each docstring on its own.
+
+    Each docstring gets its own working directory and database copy: one that creates
+    ``path/to/model.sqlite`` must not make the next one's ``mp.create`` fail.
+    ``sirius_db`` itself is only copied, never opened.
+    """
     pages = [p for p in docstring_pages(package()) if p.path == path]
     module_name = ".".join(path.relative_to(ROOT).with_suffix("").parts)
     module = importlib.import_module(module_name.removesuffix(".__init__"))
     errors = []
-    for page in pages:
-        namespace = dict(vars(module))
+    for index, page in enumerate(pages):
+        page_dir = tmp_path / f"page{index}"
+        workdir = page_dir / "work"
+        workdir.mkdir(parents=True)
+        page_db = page_dir / "db" / sirius_db.name
+        if needs_db(page.snippets):
+            copy_database(sirius_db, page_db)
+        monkeypatch.chdir(workdir)
         try:
-            run_page(page.snippets, workdir, sirius_db, namespace)
+            run_page(page.snippets, workdir, page_db, dict(vars(module)))
         except AssertionError as error:
             errors.append(str(error))
     assert not errors, "\n\n".join(errors)

@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import ast
 import builtins
+import collections.abc
 import difflib
 import importlib
 import json
@@ -84,9 +85,10 @@ ASSUMING = re.compile(
     r"\b(?P<cls>(?:\w+\.)*[A-Z]\w*)\s+object"
 )
 FENCE = re.compile(
-    r"^(?P<indent>[ \t]*)```\s*\{?\.?python(?P<attrs>[^\n]*)\n(?P<body>.*?)^(?P=indent)```",
+    r"^(?P<indent>[ \t]*)```[ \t]*\{?\.?python(?P<attrs>[^\n]*)\n(?P<body>.*?)^(?P=indent)```",
     re.DOTALL | re.MULTILINE,
 )
+NOTEBOOK_SOURCE = re.compile(r'^[ \t]*"source": \[(?:\]|$)', re.MULTILINE)
 INLINE_CODE = re.compile(r"(?<!`)`([^`\n]+)`(?!`)")
 CAMEL_CASE = re.compile(r"^[A-Z][a-z]+(?:[A-Z][a-z0-9]*)+$")
 COMMENTED = re.compile(r"^\s*#\s?(?!\|)(?P<code>.*\S)\s*$")
@@ -153,12 +155,13 @@ def union(*values: Value) -> Value:
 class Package:
     """The package as griffe sees it, and lookups on it."""
 
-    def __init__(self) -> None:
-        """Load the package statically."""
+    def __init__(self, search_path: Path = ROOT) -> None:
+        """Load the package statically from the directory that contains it."""
         self.loader = griffe.GriffeLoader(
-            search_paths=[str(ROOT)], docstring_parser="numpy"
+            search_paths=[str(search_path)], docstring_parser="numpy"
         )
-        self.root = self.loader.load(PACKAGE)
+        # By path: by name, griffe also searches sys.path and the editable install's .pth.
+        self.root = self.loader.load(search_path / PACKAGE)
         self.loader.resolve_aliases(external=False, implicit=False)
         self._class_names: dict[str, Any] | None = None
         self._subclasses: dict[str, list[Any]] | None = None
@@ -198,6 +201,28 @@ class Package:
                 return True
             pending.extend(self._subclasses.get(sub.path, []))
         return False
+
+    def may_have(self, cls: Any, attr: str) -> bool:
+        """Whether an instance of ``cls`` may have ``attr`` though griffe lists no such member."""
+        return assigns_self(cls, attr) or self.subclass_has(cls, attr)
+
+
+def assigns_self(cls: Any, attr: str) -> bool:
+    """Whether a method of ``cls`` or of a package base assigns ``self.attr``.
+
+    griffe records only the ``self.x`` assignments made in ``__init__``.
+    """
+    pattern = re.compile(rf"\bself\.{re.escape(attr)}\s*(?::[^=\n]+)?=(?!=)")
+    pending, seen = [cls], set()
+    while pending:
+        current = pending.pop()
+        if current.path in seen:
+            continue
+        seen.add(current.path)
+        if pattern.search(current.source):
+            return True
+        pending.extend(current.resolved_bases)
+    return False
 
 
 def final(obj: Any) -> Any:
@@ -346,6 +371,27 @@ def inline_code(text: str):
         yield blanked.count("\n", 0, match.start()) + 1, match.group(1).strip()
 
 
+def notebook_snippets(path: Path, text: str) -> list[Snippet]:
+    """Return a notebook's code cells, each at the line of the JSON file its source starts on.
+
+    nbformat writes one source line per JSON line, so a finding's line can be opened in
+    the file. A notebook written otherwise is numbered as if its cells were concatenated.
+    """
+    cells = json.loads(text).get("cells", [])
+    sources = ["".join(cell.get("source", [])) for cell in cells]
+    starts = [text.count("\n", 0, m.end()) + 2 for m in NOTEBOOK_SOURCE.finditer(text)]
+    if len(starts) != len(cells):
+        starts, line = [], 1
+        for source in sources:
+            starts.append(line)
+            line += source.count("\n") + 1
+    return [
+        Snippet(path, start, source)
+        for cell, start, source in zip(cells, starts, sources, strict=True)
+        if cell.get("cell_type") == "code"
+    ]
+
+
 def doc_pages() -> list[Page]:
     """Return the user guide, README and notebooks as pages of snippets."""
     pages = []
@@ -353,11 +399,7 @@ def doc_pages() -> list[Page]:
         text = path.read_text(encoding="utf-8")
         page = Page(path)
         if path.suffix == ".ipynb":
-            for cell in json.loads(text).get("cells", []):
-                if cell.get("cell_type") == "code":
-                    page.snippets.append(
-                        Snippet(path, 1, "".join(cell.get("source", [])))
-                    )
+            page.snippets = notebook_snippets(path, text)
         else:
             for line, attrs, body in code_blocks(text):
                 page.snippets.append(Snippet(path, line, body, attrs=attrs))
@@ -378,14 +420,11 @@ def docstring_pages(package: Package) -> list[Page]:
         code, first = [], None
         for index, line in enumerate(lines):
             stripped = line.strip()
-            if stripped.startswith((">>>", "...")) and (
-                stripped.startswith(">>>") or code
-            ):
+            if stripped.startswith(">>>") or (code and stripped.startswith("...")):
                 first = first if first is not None else index
-                rest = stripped[3:]
-                code.append(rest.removeprefix(" "))
-            elif code and not stripped:
-                code.append("")
+                code.append(stripped[3:].removeprefix(" "))
+            elif code:
+                code.append("")  # output and prose stay as blanks to keep line numbers
         if code:
             path = Path(module.filepath)
             snippet = Snippet(path, docstring.lineno + first, "\n".join(code), module)
@@ -556,7 +595,8 @@ class Checker:
         if not (isinstance(root, ast.Name) and root.id in INLINE_ROOTS):
             return
         saved_env, saved_ran = self.env, self.ran
-        self.env, self.ran = {"mp": self.module_value(PACKAGE)}, {}
+        package = self.module_value(PACKAGE)
+        self.env, self.ran = {"mp": package, PACKAGE: package}, {}
         try:
             self.expr(tree.body)
         finally:
@@ -642,7 +682,7 @@ class Checker:
             if (
                 is_closed(cls)
                 and not target.attr.startswith("_")
-                and not self.package.subclass_has(cls, target.attr)
+                and not self.package.may_have(cls, target.attr)
             ):
                 self.report(
                     target,
@@ -813,14 +853,14 @@ class Checker:
             if t.kind in ("class", "instance"):
                 member = t.obj.all_members.get(node.attr)
                 if member is None:
-                    if not is_closed(t.obj) or self.package.subclass_has(
-                        t.obj, node.attr
-                    ):
+                    if not is_closed(t.obj) or self.package.may_have(t.obj, node.attr):
                         return None
                     missing.append(t.obj.name)
                     continue
                 results.append(self.wrap(final(member), t.obj))
             elif t.kind in ("python", "dict"):
+                if t.obj.__module__ != "builtins":
+                    return None  # e.g. CompletedProcess.returncode is set per instance
                 if not hasattr(t.obj, node.attr):
                     missing.append(getattr(t.obj, "__name__", str(t.obj)))
                     continue
@@ -1040,7 +1080,7 @@ class Checker:
                 if isinstance(item_expr, griffe.ExprTuple):
                     item_expr = item_expr.elements[0]
                 container = (
-                    python_type("list") if left in ("list", "typing.List") else object
+                    list if left in ("list", "typing.List") else collections.abc.Iterable
                 )
                 return (
                     Type("python", container, item=self.annotation(item_expr, owner)),
@@ -1077,7 +1117,8 @@ class Checker:
         if root is None:
             return
         if function.name in QUERY_RESET_METHODS:
-            self.ran.pop(root, None)
+            if not self.snippet.commented:
+                self.ran.pop(root, None)
             return
         if (
             result
@@ -1093,7 +1134,8 @@ class Checker:
                 f"query '{root}' already ran on line {self.ran[root]}; a query runs once "
                 "(RuntimeError), so build a new one or call reset()",
             )
-        else:
+        elif not self.snippet.commented:
+            # Commented-out code is an alternative to the live code, not a step before it.
             self.ran[root] = self.snippet.line + self.offset + node.lineno - 1
 
     def same_object_root(self, node: ast.expr | None) -> str | None:
@@ -1133,7 +1175,11 @@ def check_docstring_sections(package: Package) -> list[Finding]:
         for section in cls.docstring.parsed:
             if section.kind is griffe.DocstringSectionKind.attributes:
                 for attribute in section.value:
-                    if attribute.name not in cls.all_members and is_closed(cls):
+                    if (
+                        attribute.name not in cls.all_members
+                        and is_closed(cls)
+                        and not package.may_have(cls, attribute.name)
+                    ):
                         findings.append(
                             Finding(
                                 path,

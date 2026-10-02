@@ -49,6 +49,7 @@ test = [
     "jinja2>=3.0.0",
     "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
+    "griffe~=2.1.0",  # imported by the tests of scripts/lint_docs_examples.py
 ]
 
 [dependency-groups]
