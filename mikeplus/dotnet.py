@@ -199,6 +199,28 @@ class DotNetConverter:
         return net_dict
 
     @staticmethod
+    def to_dotnet_string_dictionary(
+        py_dict: dict[str, str] | None,
+    ) -> Dictionary[String, String]:
+        """Convert a Python dictionary of strings to a .NET ``Dictionary<string, string>``.
+
+        Parameters
+        ----------
+        py_dict : dict[str, str], optional
+            Python dictionary to convert. ``None`` yields an empty Dictionary.
+
+        Returns
+        -------
+        Dictionary[String, String]
+            .NET Dictionary with the same keys and values.
+
+        """
+        net_dict = Dictionary[String, String]()
+        for key, value in (py_dict or {}).items():
+            net_dict[str(key)] = str(value)
+        return net_dict
+
+    @staticmethod
     def from_dotnet_dictionary(net_dict: IDictionary) -> dict[str, Any] | None:
         """Convert a .NET Dictionary to a Python dictionary.
 

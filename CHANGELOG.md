@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.utilities.get_nearest_river_at` and `get_nearest_river_chainage_at`, which find the river (and chainage) nearest to a point, for example to couple river junction nodes to rivers (#112).
 - `Database.begin_transaction()` and `Database.end_transaction(commit)`, which group many updates into one transaction and make batch edits much faster (#112).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
+- `mikeplus.tools.CreateValvesFromPointsTool`, the MIKE+ tool that creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe (#120).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed
