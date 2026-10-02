@@ -20,6 +20,14 @@ hero:
   logo:
     light: docs/assets/logo.svg
     dark: docs/assets/logo-white.svg
+  name: false
+
+# great-docs follows the system colour scheme and has no option to default to light.
+# It reads a stored choice first, so store light for visitors who have not chosen yet.
+include_in_header:
+  - >-
+    <script>try { if (!localStorage.getItem("great-docs-theme"))
+    localStorage.setItem("great-docs-theme", "light"); } catch (e) {}</script>
 
 navbar_color: "#2146a4"
 
