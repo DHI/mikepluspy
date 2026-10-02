@@ -27,14 +27,14 @@ class AlternativeGroupCollection:
     Examples
     --------
     >>> # Access by name/ID
-    >>> loads_group = db.scenarios.alternative_groups["Loads and boundaries data"]
+    >>> loads_group = db.alternative_groups["Loads and boundaries data"]
     >>>
     >>> # Get all group names
-    >>> group_names = db.scenarios.alternative_groups.group_names()
+    >>> group_names = db.alternative_groups.group_names()
     >>> "Loads and boundaries data" in group_names
     >>>
     >>> # Find group by associated table
-    >>> msm_group = db.scenarios.alternative_groups.by_table("msm_Link")
+    >>> msm_group = db.alternative_groups.by_table("msm_Link")
     """
 
     def __init__(self, scenario_manager):

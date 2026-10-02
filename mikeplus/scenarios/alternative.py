@@ -42,7 +42,7 @@ class Alternative:
 
     Examples
     --------
-    >>> alt = db.scenarios.alternative_groups["CS Network data"].active
+    >>> alt = db.alternative_groups["CS Network data"].active
     >>> print(f"Active network: {alt.name}")
     >>> print(f"Parent: {alt.parent.name if alt.parent else 'None'}")
     >>> print(f"Child count: {len(alt.children)}")

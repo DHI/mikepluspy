@@ -25,12 +25,12 @@ class ScenarioCollection:
     Methods
     -------
     find_by_name(name) : list[Scenario]
-        Find scenarios by name (may return multiple)
+        Find a scenario by name, as a list of at most one
     by_name(name) : Scenario or None
         Find first scenario that matches the given name
     find_by_id(id) : Scenario or None
         Find scenario by its exact ID
-    create(name, id=None, parent=None) : Scenario
+    create(name, parent=None) : Scenario
         Create a new child scenario
     delete(scenario) : None
         Delete a scenario from the database
@@ -103,7 +103,9 @@ class ScenarioCollection:
             yield Scenario(self._scenario_manager, scenario)
 
     def find_by_name(self, name: str) -> list[Scenario]:
-        """Find scenarios by name (may return multiple if names aren't unique).
+        """Find a scenario by name.
+
+        Returns at most one scenario, even if several share the name.
 
         Parameters
         ----------
@@ -113,7 +115,8 @@ class ScenarioCollection:
         Returns
         -------
         list[Scenario]
-            List of scenarios that match the given name
+            A list holding the first scenario with the given name, or an empty
+            list if none match
         """
         scenario = self._scenario_manager.FindScenarioByName(name)
         if scenario is None:
@@ -201,7 +204,8 @@ class ScenarioCollection:
         Parameters
         ----------
         scenario : Scenario or str
-            The scenario to delete (can be a Scenario object or its ID)
+            The scenario to delete (can be a Scenario object or its ID). Its child
+            scenarios are deleted with it.
 
         Raises
         ------
