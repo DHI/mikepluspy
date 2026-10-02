@@ -34,6 +34,10 @@ lint:
 api:
     uv run --no-sync python scripts/lint_public_api.py
 
+# Check code examples in the docs and docstrings against the API; not in `lint` until the docs pass
+docs-examples *args:
+    uv run --no-sync python scripts/lint_docs_examples.py {{ args }}
+
 # Stricter rules (annotations, Returns/Raises sections) on files changed since `base`
 lint-changed base="main":
     uv run --no-sync python scripts/lint_changed.py {{ base }}

@@ -137,6 +137,23 @@ To build locally:
 3. `just docs` builds into `great-docs/_site`; `just docs-check` lints and
    proofreads (British English); `just docs-links` checks links.
 
+### Checking code examples
+
+`just docs-examples` checks the Python blocks in the user guide, README and
+notebooks, inline code in the user guide's prose, and `>>>` examples in
+docstrings against the package's real API: imports, attributes, call keywords,
+`Literal` values, property setters, queries run twice, and the `Methods` and
+`Attributes` sections of class docstrings. It reads the source with griffe, so
+it needs no MIKE+. Each page is checked top to bottom as one session; a name
+used before it is bound can be typed with a comment such as
+`# Assuming 'alt' is an Alternative object` (`db` is assumed to be a
+`Database`). Expressions whose type it cannot infer are skipped, not flagged.
+
+`tests/test_docs_examples.py` (`license_required`, `slow`) runs the same
+examples against copies of the Sirius test database, which catches what static
+analysis cannot, such as calling `.execute()` on what `insert()` returned. Give a
+block that should not run the fence class `.no-run`: ```` ```{.python .no-run} ````.
+
 The CI Docs workflow runs `docs-check` and `docs` on pull requests that
 touch the docs, docstrings or docs tooling, deploys to GitHub Pages on push to
 `main`, and checks links weekly. On those pull requests it uploads the built
