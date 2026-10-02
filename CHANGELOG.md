@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Inserting a row with no field values on MIKE+ 2026 Update 1.
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
+- User guide examples and docstrings that raised or contradicted the code, notably `db.run(sim_option=...)` (not `model_option`), `insert()` running immediately, single-use queries, and `db.alternative_groups` (not `db.scenarios.alternative_groups`).
 
 ## [2026.0.0] - 2026-01-29
 
