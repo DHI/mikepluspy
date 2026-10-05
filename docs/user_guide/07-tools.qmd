@@ -10,6 +10,7 @@ The following tools are available:
 *   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
 *   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
 *   **`ConnectionRepairTool`**: Repairs network connectivity issues.
+*   **`CreateValvesFromPointsTool`**: Creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe.
 *   **`DemandConnectionTool`**: Connects demand allocations in a water distribution model to junctions or pipes.
 *   **`DemandAggregationTool`**: Aggregates water distribution demand allocations to junction demands or pipe demand coefficients.
 *   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
@@ -80,6 +81,27 @@ repair_tool.run(
     dissolve_overlap_node=True
 )
 ```
+
+### CreateValvesFromPointsTool
+
+The `CreateValvesFromPointsTool` adds a valve to a water distribution model for each point in a shapefile. A point near a junction gets a valve at that junction; otherwise the nearest pipe is split at the point. The `*_field` arguments name the shapefile columns to read valve attributes from. The points must be in the model's coordinate system.
+
+```python
+from mikeplus.tools import CreateValvesFromPointsTool
+
+tool = CreateValvesFromPointsTool(db)
+messages = tool.run(
+    "path/to/valves.shp",
+    search_radius=5.0,  # how far to look for a junction or pipe
+    valve_length=1.0,
+    muid_field="ID",
+    type_field="VTYPE",  # 1-6, or PRV, PSV, PBV, FCV, TCV or GPV
+    status_field="STATUS",  # 0 regulating, 1 open, 2 closed
+)
+print(messages[0])  # how many valves were created out of how many points
+```
+
+The remaining messages explain each point that was skipped, for example because no pipe was within the search radius.
 
 ### DemandConnectionTool
 

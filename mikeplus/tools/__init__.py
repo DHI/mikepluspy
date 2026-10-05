@@ -13,16 +13,19 @@ clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")
 clr.AddReference("DHI.Amelia.DomainServices")
 clr.AddReference("DHI.Amelia.DomainServices.Interface")
+clr.AddReference("DHI.Amelia.DomainServices")
 clr.AddReference("DHI.Amelia.Tools.ImportEngine")
 clr.AddReference("DHI.Amelia.Tools.TopologyRepairTool")
 clr.AddReference("DHI.Amelia.Tools.InterpolationEngine")
 clr.AddReference("DHI.Amelia.Tools.ConnectionRepairEngine")
 clr.AddReference("DHI.Amelia.Tools.CatchmentProcessing")
+clr.AddReference("DHI.Amelia.Tools.CreateValveFromPntToolEngine")
 clr.AddReference("DHI.Amelia.Tools.GeoCodeTool")
 
 from .catch_slope_length_process_tool import CathSlopeLengthProcess
 from .connection_repair_tool import ConnectionRepairTool
 from .demand_aggregation_tool import DemandAggregationTool
+from .create_valves_from_points_tool import CreateValvesFromPointsTool
 from .demand_connection_tool import DemandConnectionTool
 from .import_tool import ImportTool
 from .interpolation_tool import InterpolationTool
@@ -32,6 +35,7 @@ __all__ = [
     "CathSlopeLengthProcess",
     "ConnectionRepairTool",
     "DemandAggregationTool",
+    "CreateValvesFromPointsTool",
     "DemandConnectionTool",
     "ImportTool",
     "InterpolationTool",

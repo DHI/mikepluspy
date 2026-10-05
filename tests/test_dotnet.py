@@ -93,3 +93,17 @@ def test_dictionary_conversion_respects_schema_column_types():
 def test_empty_datetime_strings_become_none(value):
     """Treat an empty DateTime string as a null value."""
     assert DotNetConverter.to_dotnet_value(value, DbType.DateTime) is None
+
+
+@pytest.mark.parametrize("value", [None, {}])
+def test_empty_string_dictionary_is_empty_not_null(value):
+    converted = DotNetConverter.to_dotnet_string_dictionary(value)
+    assert converted is not None
+    assert converted.Count == 0
+
+
+def test_string_dictionary_keeps_keys_and_values():
+    values = {"MUID": "ID", "TypeNo": "T"}
+    converted = DotNetConverter.to_dotnet_string_dictionary(values)
+    assert isinstance(converted, System.Collections.Generic.Dictionary[str, str])
+    assert DotNetConverter.from_dotnet_dictionary(converted) == values
