@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
 - `Database.ensure_mupp()`, which returns a database's MIKE+ project file (`.mupp`), writing one beside it if it has none (#121).
 - `mikeplus.tools.DemandConnectionTool`, the MIKE+ connection tool for demand allocations: connects `mw_DemAlloc` points to the nearest junction, a junction of the nearest pipe or the nearest pipe (part of #120). Failures raise `mikeplus.DatabaseError`.
+- `mikeplus.tools.DemandAggregationTool`, the water distribution Aggregation tool: aggregates demand allocations to junction demands or pipe demand coefficients, rejecting unknown allocation MUIDs (#120).
 - `mikeplus.tools.CreateValvesFromPointsTool`, the MIKE+ tool that creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe (#120).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 - An optional `muids` argument on the `InterpolationTool` methods, such as `interpolate_from_DEM`, which restricts them to the given elements (#115).

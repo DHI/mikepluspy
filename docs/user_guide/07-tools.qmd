@@ -12,6 +12,7 @@ The following tools are available:
 *   **`ConnectionRepairTool`**: Repairs network connectivity issues.
 *   **`CreateValvesFromPointsTool`**: Creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe.
 *   **`DemandConnectionTool`**: Connects demand allocations in a water distribution model to junctions or pipes.
+*   **`DemandAggregationTool`**: Aggregates water distribution demand allocations to junction demands or pipe demand coefficients.
 *   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
 
 ## {{< icon play >}} General Usage
@@ -127,6 +128,32 @@ tool.run(
 `max_distance` does not apply to `"junction_by_pipe_id"`, `max_diameter` and `pipe_ids` apply only to the pipe-based methods, and `junction_ids` only to `"nearest_junction"`; passing one to a method it does not apply to raises `ValueError`.
 
 After a run, a demand allocation connected to a junction has no `PipeID`, and one connected to a pipe has no `JunctionID`, so switching methods leaves no stale connection behind. A demand allocation for which no target is found loses any connection it had. If MIKE+ fails, the tool raises `mikeplus.DatabaseError`; demand allocations processed before the failure keep their new connections.
+
+### DemandAggregationTool
+
+The `DemandAggregationTool` turns the demand allocations in `mw_DemAlloc` into junction demands in `mw_MDemand`, or into pipe demand coefficients in `mw_Pipe`. Each method aggregates all demand allocations, or only those whose MUIDs you pass.
+
+```python
+from mikeplus.tools import DemandAggregationTool
+
+tool = DemandAggregationTool(db)
+
+# One junction demand per category and pattern, replacing earlier aggregations
+tool.aggregate_to_node_demands(reset_existing=True)
+
+# One junction demand per junction, with a fixed category and pattern
+tool.aggregate_to_node_demands(keep_categories=False, category="Total", pattern="Daily")
+
+# One junction demand per demand allocation, summing nothing
+tool.assign_to_multiple_demands(reset_existing=True)
+
+# Sum two allocations into the pipes' second demand coefficient
+tool.aggregate_to_pipe_coefficients(["Alloc_1", "Alloc_2"], coefficient=2)
+```
+
+For the junction methods, `reset_existing=True` deletes only the junction demands that earlier aggregations wrote; demands entered any other way are kept. For `aggregate_to_pipe_coefficients`, it sets the coefficient to 0 on pipes with no aggregated allocation.
+
+An empty list of MUIDs does nothing, not even the reset. Unknown MUIDs raise a `ValueError`. As in MIKE+, a sum that includes an allocation with a NULL demand is NULL.
 
 ### {{< icon book-open >}} Further Information
 
