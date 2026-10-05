@@ -122,10 +122,13 @@ class Database:
     ) -> Database:
         """Create a new MIKE+ model database.
 
+        Writes the `.sqlite` database and a `.mupp` project file beside it, so
+        the new model opens in MIKE+.
+
         Parameters
         ----------
         model_path : str or Path
-            Path where the new database will be created
+            Path where the new database will be created, as `.sqlite` or `.mupp`
         projection_string : str, optional
             The projection string for the database
         srid : int, optional
@@ -133,7 +136,8 @@ class Database:
         auto_open : bool, optional
             If True, immediately open the database connection
         overwrite : bool, optional (default is False)
-            If True, overwrite the existing database file if it exists
+            If True, delete an existing database and project file first. Settings
+            MIKE+ stores in the project file, such as map layers, are lost.
 
         Returns
         -------
@@ -143,7 +147,8 @@ class Database:
         Raises
         ------
         FileExistsError
-            If the database already exists (except if overwrite is True)
+            If the database or project file already exists (except if overwrite
+            is True)
         ValueError
             If both `projection_string` and `srid` are given
         DatabaseError
@@ -152,12 +157,14 @@ class Database:
         """
         model_path = Path(model_path)
         db_sqlite = model_path.with_suffix(".sqlite")
+        db_mupp = model_path.with_suffix(".mupp")
 
         if overwrite:
             model_path.unlink(missing_ok=True)
             db_sqlite.unlink(missing_ok=True)
+            db_mupp.unlink(missing_ok=True)
 
-        if model_path.exists() or db_sqlite.exists():
+        if model_path.exists() or db_sqlite.exists() or db_mupp.exists():
             raise FileExistsError(f"Model file '{model_path}' already exists.")
 
         if projection_string and srid != -1:
@@ -168,6 +175,7 @@ class Database:
             data_source.CreateDatabase()
             data_source.OpenDatabase()
             data_source.CreateModelTables(srid, projection_string)
+            _ensure_mupp_file(data_source)
             data_source.CloseDatabase()
         except Exception as e:
             raise DatabaseError(f"Failed to create model database: {e!s}")
@@ -242,23 +250,13 @@ class Database:
             )
         return None
 
-    def create_mupp(
-        self, mupp_path: str | Path | None = None, *, overwrite: bool = False
-    ) -> Path:
-        """Create a MIKE+ project file (.mupp) for this database.
+    def ensure_mupp(self) -> Path:
+        """Get the model's project file (.mupp), writing one if it has none.
 
-        Writes a minimal project file that references the database by a path
-        relative to itself and records its model type and unit system.
-
-        Parameters
-        ----------
-        mupp_path : str or Path, optional
-            Where to write the project file. Defaults to the database path
-            with a `.mupp` suffix. The database is referenced relative to it.
-        overwrite : bool, optional (default is False)
-            If True, replace an existing project file. The replacement is
-            minimal, so settings MIKE+ stores there, such as map layers,
-            symbology and the map's coordinate system, are lost.
+        A missing project file is written beside the database with the same
+        name, as MIKE+ does when it opens a bare `.sqlite`. It records the
+        database's model type and unit system and refers to the database by a
+        path relative to itself. An existing project file is never changed.
 
         Returns
         -------
@@ -268,61 +266,21 @@ class Database:
         Raises
         ------
         ValueError
-            If the database is not open, or `mupp_path` doesn't end in `.mupp`.
-        FileNotFoundError
-            If the folder for the project file does not exist.
-        FileExistsError
-            If the project file exists and `overwrite` is False.
+            If the database is not open.
         DatabaseError
             If MIKE+ fails to write the project file.
 
         Examples
         --------
         >>> with mp.open("path/to/model.sqlite") as db:
-        ...     db.create_mupp()
+        ...     db.ensure_mupp()
         """
         if not self._is_open:
             raise ValueError("Database is not open")
 
-        sqlite_path = Path(str(self._data_source.DbFileName)).resolve()
-        mupp_path = (
-            sqlite_path.with_suffix(".mupp") if mupp_path is None else Path(mupp_path)
-        ).resolve()
-
-        if mupp_path.suffix.lower() != ".mupp":
-            raise ValueError(f"Project file '{mupp_path}' must have a .mupp suffix.")
-        if mupp_path.exists() and not overwrite:
-            raise FileExistsError(f"Project file '{mupp_path}' already exists.")
-        if not mupp_path.parent.is_dir():
-            raise FileNotFoundError(f"Folder '{mupp_path.parent}' does not exist.")
-
-        try:
-            import clr
-
-            clr.AddReference("DHI.Amelia.ProjectLoaderPFS.Interface")
-            from DHI.Amelia.ProjectLoaderPFS.Interface.Services import ServicesFactory
-
-            project_file = ServicesFactory.CreateProjectFileOper()
-            module_data = project_file.ProjectRootNodeData.ModuleData
-            module_data.DBType = DataBaseType.SpatiaLite
-            module_data.DBName = mupp_path.stem
-            # PFS garbles forward-slash Windows paths when it makes them relative
-            module_data.DBFilePath = str(sqlite_path)
-            module_data.ModelType = self._data_source.ActiveModel
-            module_data.Ubg = self._data_source.UnitSystemOption
-            module_data.CreateNewDB = False
-            written = project_file.Write(str(mupp_path))
-        except Exception as e:
-            raise DatabaseError(
-                f"Failed to create project file: {mupp_path}.\n{e!s}"
-            ) from e
-        # Write() reports success even when it writes nothing
-        if not written or not mupp_path.exists():
-            raise DatabaseError(f"Failed to create project file: {mupp_path}.")
-
-        if mupp_path == sqlite_path.with_suffix(".mupp"):
-            self._mupp_path = mupp_path
-        return mupp_path
+        if self._mupp_path is None or not self._mupp_path.exists():
+            self._mupp_path = _ensure_mupp_file(self._data_source)
+        return self._mupp_path
 
     def begin_transaction(self) -> None:
         """Begin the data transaction.
@@ -750,6 +708,50 @@ class Database:
         if not result:
             messages = "\n".join(inp_bridge.ErrorMsgs)
             raise DatabaseError(f"Error importing from SWMM file.\n{messages}")
+
+
+def _ensure_mupp_file(data_source: BaseDataSource) -> Path:
+    """Write a minimal .mupp beside an open data source's database if it has none.
+
+    Returns
+    -------
+    Path
+        Path to the project file.
+
+    Raises
+    ------
+    DatabaseError
+        If MIKE+ fails to write the project file.
+    """
+    sqlite_path = Path(str(data_source.DbFileName)).resolve()
+    mupp_path = sqlite_path.with_suffix(".mupp")
+    if mupp_path.exists():
+        return mupp_path
+
+    try:
+        import clr
+
+        clr.AddReference("DHI.Amelia.ProjectLoaderPFS.Interface")
+        from DHI.Amelia.ProjectLoaderPFS.Interface.Services import ServicesFactory
+
+        project_file = ServicesFactory.CreateProjectFileOper()
+        module_data = project_file.ProjectRootNodeData.ModuleData
+        module_data.DBType = DataBaseType.SpatiaLite
+        module_data.DBName = mupp_path.stem
+        # PFS garbles forward-slash Windows paths when it makes them relative
+        module_data.DBFilePath = str(sqlite_path)
+        module_data.ModelType = data_source.ActiveModel
+        module_data.Ubg = data_source.UnitSystemOption
+        module_data.CreateNewDB = False
+        written = project_file.Write(str(mupp_path))
+    except Exception as e:
+        raise DatabaseError(
+            f"Failed to create project file: {mupp_path}.\n{e!s}"
+        ) from e
+    # Write() reports success even when it writes nothing
+    if not written or not mupp_path.exists():
+        raise DatabaseError(f"Failed to create project file: {mupp_path}.")
+    return mupp_path
 
 
 __all__ = [

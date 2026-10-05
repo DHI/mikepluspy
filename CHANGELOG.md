@@ -12,11 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.utilities.get_nearest_river_at` and `get_nearest_river_chainage_at`, which find the river (and chainage) nearest to a point, for example to couple river junction nodes to rivers (#112).
 - `Database.begin_transaction()` and `Database.end_transaction(commit)`, which group many updates into one transaction and make batch edits much faster (#112).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
-- `Database.create_mupp()`, which writes a MIKE+ project file (`.mupp`) for a database that has none (#121).
+- `Database.ensure_mupp()`, which returns a database's MIKE+ project file (`.mupp`), writing one beside it if it has none (#121).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 
 ### Changed
 
+- `Database.create()` also writes a `.mupp` project file beside the database, so a new model opens in MIKE+, and it accepts a `.mupp` path. It raises `FileExistsError` if a `.mupp` of that name already exists, and `overwrite=True` deletes that `.mupp` too, losing its map layers and other settings (#121).
 - Table and column names in `select`, `insert`, `update` and `order_by` are matched case-insensitively (#119). Two field names that differ only in casing now raise `ValueError`, and `order_by` raises `ValueError` for an unknown column, as `select` does.
 - Strings are converted only when the destination column needs it. DateTime columns parse them; Double columns accept a single `.` or `,` as the decimal separator, so `"1,234"` is 1.234, and anything else raises `ValueError` naming the field. An empty string becomes `None` for both. Strings bound for other columns are passed through unchanged.
 - Minimum versions now follow [SPEC 0](https://scientific-python.org/specs/spec-0000/): numpy 2.3, pandas 2.3 and pythonnet 3.0.5.
