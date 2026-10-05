@@ -36,6 +36,7 @@ dev = [
     "pytest",
     "ruff>=0.16,<0.17",  # minor releases change the default rule set
     "shapely",
+    "geopandas",
     "jinja2>=3.0.0",
     "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
@@ -45,6 +46,7 @@ test = [
     "pytest",
     "pytest-timeout",
     "shapely",
+    "geopandas",
     "jinja2>=3.0.0",
     "mypy==1.15.0",
     "pandas-stubs>=2.2.2.240807",
