@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import re
-import struct
 from pathlib import Path
 
+import geopandas as gpd
 import pytest
 from shapely import wkt
 from shapely.geometry import Point
@@ -18,41 +18,8 @@ pytestmark = pytest.mark.license_required
 def write_point_shapefile(
     path: Path, points: list[tuple[float, float]], columns: dict[str, list[str]]
 ) -> Path:
-    """Write a minimal point shapefile with text columns, so the tests need no GIS library."""
-    n = len(points)
-    xs, ys = zip(*points)
-
-    def header(file_length_words: int) -> bytes:
-        return struct.pack(">7i", 9994, 0, 0, 0, 0, 0, file_length_words) + struct.pack(
-            "<2i8d", 1000, 1, min(xs), min(ys), max(xs), max(ys), 0, 0, 0, 0
-        )
-
-    # A point record is a 4-word header plus 10 words of content.
-    path.with_suffix(".shp").write_bytes(
-        header(50 + 14 * n)
-        + b"".join(
-            struct.pack(">2i", i + 1, 10) + struct.pack("<i2d", 1, x, y)
-            for i, (x, y) in enumerate(points)
-        )
-    )
-    path.with_suffix(".shx").write_bytes(
-        header(50 + 4 * n)
-        + b"".join(struct.pack(">2i", 50 + 14 * i, 10) for i in range(n))
-    )
-
-    width = 32
-    names = list(columns)
-    dbf = struct.pack(
-        "<4BIHH20x", 3, 126, 1, 1, n, 33 + 32 * len(names), 1 + width * len(names)
-    )
-    dbf += b"".join(
-        struct.pack("<11sc4xBB14x", name.encode(), b"C", width, 0) for name in names
-    )
-    dbf += b"\r"
-    for i in range(n):
-        dbf += b" " + b"".join(columns[name][i].encode().ljust(width) for name in names)
-    path.with_suffix(".dbf").write_bytes(dbf + b"\x1a")
-    return path.with_suffix(".shp")
+    gpd.GeoDataFrame(columns, geometry=[Point(xy) for xy in points]).to_file(path)
+    return path
 
 
 def geometry(table, muid):
