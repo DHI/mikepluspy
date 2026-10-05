@@ -75,6 +75,21 @@ with mp.open("model.sqlite") as db:
         print(f"MUPP file: {db.mupp_path}")
 ```
 
+### Creating a Project File
+
+A MIKE+ model is a `.sqlite` database and a `.mupp` project file beside it, and MIKE+ opens models through the `.mupp`. `mp.create()` writes both. For a database that has no `.mupp`, for example a bare `.sqlite` copied from elsewhere, use `ensure_mupp()`:
+
+```python
+with mp.open("model.sqlite") as db:
+    mupp_path = db.ensure_mupp()  # model.mupp, next to model.sqlite
+```
+
+It returns the existing project file if there is one and never changes it. A new one records the database's model type and unit system, and refers to the database by a path relative to itself, so keep the two files together when you move the model.
+
+::: {.callout-warning}
+`mp.create(..., overwrite=True)` deletes an existing `.mupp` as well as the database. Settings MIKE+ keeps in a `.mupp`, such as map layers, symbology and the map's coordinate system, are lost.
+:::
+
 ### General Database Properties
 
 Retrieve general information about the database:

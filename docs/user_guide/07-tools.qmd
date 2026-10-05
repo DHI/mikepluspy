@@ -10,6 +10,9 @@ The following tools are available:
 *   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
 *   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
 *   **`ConnectionRepairTool`**: Rebuilds connection tables, such as station connections and load point connections.
+*   **`CreateValvesFromPointsTool`**: Creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe.
+*   **`DemandConnectionTool`**: Connects demand allocations in a water distribution model to junctions or pipes.
+*   **`DemandAggregationTool`**: Aggregates water distribution demand allocations to junction demands or pipe demand coefficients.
 *   **`CathSlopeLengthProcess`**: Calculates catchment slope and length.
 
 ## {{< icon play >}} General Usage
@@ -54,6 +57,18 @@ tool_parameters = {
 interpolation_tool.interpolate_from_DEM(**tool_parameters)
 ```
 
+To interpolate only some elements, pass their MUIDs. `only_null_values=False` overwrites existing values:
+
+```python
+interpolation_tool.interpolate_from_DEM(
+    **tool_parameters,
+    only_null_values=False,
+    muids=["Node_1", "Node_2"],
+)
+```
+
+Every `InterpolationTool` method takes `muids`; by default they process all elements of the target table.
+
 ### TopoRepairTool
 
 The `TopoRepairTool` helps clean up network topology. Every repair operation of its `run` method is enabled by default, so to only delete unlinked nodes and dissolve overlapping nodes, turn the others off:
@@ -74,6 +89,79 @@ repair_tool.run(
 ```
 
 `run` only repairs CS_MIKE1D and WD_EPANET models; for any other active model it does nothing.
+
+### CreateValvesFromPointsTool
+
+The `CreateValvesFromPointsTool` adds a valve to a water distribution model for each point in a shapefile. A point near a junction gets a valve at that junction; otherwise the nearest pipe is split at the point. The `*_field` arguments name the shapefile columns to read valve attributes from. The points must be in the model's coordinate system.
+
+```python
+from mikeplus.tools import CreateValvesFromPointsTool
+
+tool = CreateValvesFromPointsTool(db)
+messages = tool.run(
+    "path/to/valves.shp",
+    search_radius=5.0,  # how far to look for a junction or pipe
+    valve_length=1.0,
+    muid_field="ID",
+    type_field="VTYPE",  # 1-6, or PRV, PSV, PBV, FCV, TCV or GPV
+    status_field="STATUS",  # 0 regulating, 1 open, 2 closed
+)
+print(messages[0])  # how many valves were created out of how many points
+```
+
+The remaining messages explain each point that was skipped, for example because no pipe was within the search radius.
+
+### DemandConnectionTool
+
+The `DemandConnectionTool` does what the MIKE+ connection tool does for demand allocations: it connects each point in `mw_DemAlloc` to a junction or a pipe, sets its `JunctionID` or `PipeID`, and draws the connection line in `mw_DemAllocConn`. To connect every demand allocation to the nearest junction within 50 m:
+
+```python
+from mikeplus.tools import DemandConnectionTool
+
+tool = DemandConnectionTool(db)
+tool.run("nearest_junction", max_distance=50.0)
+```
+
+The other methods are `"junction_by_nearest_pipe"`, `"junction_by_pipe_id"` and `"nearest_pipe"`. You can limit the run to some demand allocations with `demand_ids`, and the candidate targets with `junction_ids`, `pipe_ids`, `max_diameter` or a SQL `where` condition:
+
+```python
+tool.run(
+    "nearest_pipe",
+    demand_ids=["Demand_1", "Demand_2"],
+    max_distance=100.0,
+    max_diameter=300.0,
+)
+```
+
+`max_distance` does not apply to `"junction_by_pipe_id"`, `max_diameter` and `pipe_ids` apply only to the pipe-based methods, and `junction_ids` only to `"nearest_junction"`; passing one to a method it does not apply to raises `ValueError`.
+
+After a run, a demand allocation connected to a junction has no `PipeID`, and one connected to a pipe has no `JunctionID`, so switching methods leaves no stale connection behind. A demand allocation for which no target is found loses any connection it had. If MIKE+ fails, the tool raises `mikeplus.DatabaseError`; demand allocations processed before the failure keep their new connections.
+
+### DemandAggregationTool
+
+The `DemandAggregationTool` turns the demand allocations in `mw_DemAlloc` into junction demands in `mw_MDemand`, or into pipe demand coefficients in `mw_Pipe`. Each method aggregates all demand allocations, or only those whose MUIDs you pass.
+
+```python
+from mikeplus.tools import DemandAggregationTool
+
+tool = DemandAggregationTool(db)
+
+# One junction demand per category and pattern, replacing earlier aggregations
+tool.aggregate_to_node_demands(reset_existing=True)
+
+# One junction demand per junction, with a fixed category and pattern
+tool.aggregate_to_node_demands(keep_categories=False, category="Total", pattern="Daily")
+
+# One junction demand per demand allocation, summing nothing
+tool.assign_to_multiple_demands(reset_existing=True)
+
+# Sum two allocations into the pipes' second demand coefficient
+tool.aggregate_to_pipe_coefficients(["Alloc_1", "Alloc_2"], coefficient=2)
+```
+
+For the junction methods, `reset_existing=True` deletes only the junction demands that earlier aggregations wrote; demands entered any other way are kept. For `aggregate_to_pipe_coefficients`, it sets the coefficient to 0 on pipes with no aggregated allocation.
+
+An empty list of MUIDs does nothing, not even the reset. Unknown MUIDs raise a `ValueError`. As in MIKE+, a sum that includes an allocation with a NULL demand is NULL.
 
 ### {{< icon book-open >}} Further Information
 
