@@ -13,7 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Database.begin_transaction()` and `Database.end_transaction(commit)`, which group many updates into one transaction and make batch edits much faster (#112).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
 - `Database.ensure_mupp()`, which returns a database's MIKE+ project file (`.mupp`), writing one beside it if it has none (#121).
+- `mikeplus.tools.DemandConnectionTool`, the MIKE+ connection tool for demand allocations: connects `mw_DemAlloc` points to the nearest junction, a junction of the nearest pipe or the nearest pipe (part of #120). Failures raise `mikeplus.DatabaseError`.
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
+- An optional `muids` argument on the `InterpolationTool` methods, such as `interpolate_from_DEM`, which restricts them to the given elements (#115).
 
 ### Changed
 

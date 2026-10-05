@@ -10,6 +10,7 @@ The following tools are available:
 *   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
 *   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
 *   **`ConnectionRepairTool`**: Repairs network connectivity issues.
+*   **`DemandConnectionTool`**: Connects demand allocations in a water distribution model to junctions or pipes.
 *   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
 
 ## {{< icon play >}} General Usage
@@ -54,6 +55,18 @@ tool_parameters = {
 interpolation_tool.interpolate_from_DEM(**tool_parameters)
 ```
 
+To interpolate only some elements, pass their MUIDs. `only_null_values=False` overwrites existing values:
+
+```python
+interpolation_tool.interpolate_from_DEM(
+    **tool_parameters,
+    only_null_values=False,
+    muids=["Node_1", "Node_2"],
+)
+```
+
+Every `InterpolationTool` method takes `muids`; by default they process all elements of the target table.
+
 ### TopoRepairTool
 
 The `TopoRepairTool` helps clean up network topology. To delete unlinked nodes and dissolve overlapping nodes, you can use its `run` method:
@@ -66,6 +79,32 @@ repair_tool.run(
     dissolve_overlap_node=True
 )
 ```
+
+### DemandConnectionTool
+
+The `DemandConnectionTool` does what the MIKE+ connection tool does for demand allocations: it connects each point in `mw_DemAlloc` to a junction or a pipe, sets its `JunctionID` or `PipeID`, and draws the connection line in `mw_DemAllocConn`. To connect every demand allocation to the nearest junction within 50 m:
+
+```python
+from mikeplus.tools import DemandConnectionTool
+
+tool = DemandConnectionTool(db)
+tool.run("nearest_junction", max_distance=50.0)
+```
+
+The other methods are `"junction_by_nearest_pipe"`, `"junction_by_pipe_id"` and `"nearest_pipe"`. You can limit the run to some demand allocations with `demand_ids`, and the candidate targets with `junction_ids`, `pipe_ids`, `max_diameter` or a SQL `where` condition:
+
+```python
+tool.run(
+    "nearest_pipe",
+    demand_ids=["Demand_1", "Demand_2"],
+    max_distance=100.0,
+    max_diameter=300.0,
+)
+```
+
+`max_distance` does not apply to `"junction_by_pipe_id"`, `max_diameter` and `pipe_ids` apply only to the pipe-based methods, and `junction_ids` only to `"nearest_junction"`; passing one to a method it does not apply to raises `ValueError`.
+
+After a run, a demand allocation connected to a junction has no `PipeID`, and one connected to a pipe has no `JunctionID`, so switching methods leaves no stale connection behind. A demand allocation for which no target is found loses any connection it had. If MIKE+ fails, the tool raises `mikeplus.DatabaseError`; demand allocations processed before the failure keep their new connections.
 
 ### {{< icon book-open >}} Further Information
 
