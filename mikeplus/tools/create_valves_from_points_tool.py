@@ -26,7 +26,7 @@ class CreateValvesFromPointsTool:
     Reads a point shapefile and adds one valve to `mw_Valve` per point. A point
     within the search radius of a junction with one or two pipes gets a valve
     at that junction: the valve takes the first `valve_length` of a pipe and a
-    new junction joins the two. Otherwise the nearest pipe within the search
+    new junction joins the two. Otherwise, the nearest pipe within the search
     radius is split where the point projects onto it, and the valve takes
     `valve_length` centred there. Points that can't be placed are skipped with
     a message.

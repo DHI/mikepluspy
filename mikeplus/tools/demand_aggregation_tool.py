@@ -127,7 +127,7 @@ class DemandAggregationTool:
 
         Unlike `aggregate_to_node_demands`, nothing is summed: every
         allocation becomes one junction demand, keeping its demand, category,
-        pattern and meter.
+        pattern, and meter.
 
         Parameters
         ----------

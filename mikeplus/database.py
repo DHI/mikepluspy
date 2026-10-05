@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from .scenarios.scenario import Scenario
 
 from pathlib import Path
-from plistlib import InvalidFileException
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
@@ -59,8 +58,6 @@ class Database:
         ------
         FileNotFoundError
             If the database file doesn't exist
-        InvalidFileException
-            If the model file is invalid
 
         """
         model_path = Path(model_path)
@@ -79,11 +76,8 @@ class Database:
         if db_file.exists():
             self._db_path = db_file
 
-        if not (self._db_path or self._mupp_path):
-            raise InvalidFileException(f"Model file '{model_path}' is invalid.")
-
         resolved = self._db_path.resolve()
-        # PFS resolves a .mupp's relative DBFilePath wrongly from a forward-slash path
+        # PFS resolves the relative DBFilePath in a .mupp wrongly from a forward-slash path
         self._data_source: BaseDataSource = BaseDataSource.Create(
             str(resolved) if resolved.suffix.lower() == ".mupp" else resolved.as_posix()
         )
@@ -159,6 +153,9 @@ class Database:
         db_sqlite = model_path.with_suffix(".sqlite")
         db_mupp = model_path.with_suffix(".mupp")
 
+        if projection_string and srid != -1:
+            raise ValueError("Projection string and SRID cannot be specified together.")
+
         if overwrite:
             model_path.unlink(missing_ok=True)
             db_sqlite.unlink(missing_ok=True)
@@ -166,9 +163,6 @@ class Database:
 
         if model_path.exists() or db_sqlite.exists() or db_mupp.exists():
             raise FileExistsError(f"Model file '{model_path}' already exists.")
-
-        if projection_string and srid != -1:
-            raise ValueError("Projection string and SRID cannot be specified together.")
 
         try:
             data_source = BaseDataSource.Create(str(db_sqlite))
@@ -224,13 +218,8 @@ class Database:
 
         return self
 
-    def close(self) -> bool | None:
-        """Close the model database.
-
-        Returns
-        -------
-        bool or None
-            True if the database was already closed, otherwise None.
+    def close(self) -> None:
+        """Close the model database. Closing a closed database does nothing.
 
         Raises
         ------
@@ -238,7 +227,7 @@ class Database:
             If MIKE+ fails to close the database
         """
         if not self._is_open:
-            return True
+            return
 
         try:
             self._data_table_container.UndoRedoManager.ClearUndoRedoBuffer()
@@ -248,7 +237,6 @@ class Database:
             raise DatabaseError(
                 f"Failed to close model database: {self._db_path}.\n{e!s}"
             )
-        return None
 
     def ensure_mupp(self) -> Path:
         """Get the model's project file (.mupp), writing one if it has none.
@@ -618,9 +606,7 @@ class Database:
         Returns
         -------
         list[Path]
-            Paths to the result files the simulation is configured to write. They
-            are not checked for existence; errors during the simulation itself
-            are not raised.
+            Paths to the result files the simulation wrote.
 
         Raises
         ------
@@ -628,7 +614,8 @@ class Database:
             If `sim_option` is invalid, or not given and the active model does not
             determine one.
         RuntimeError
-            If the simulation engine fails to start.
+            If the simulation engine fails to start, exits with an error, or
+            doesn't write its result files. The message names the engine's logs.
         """
         return self._runner.run(simulation_muid, sim_option=sim_option)
 

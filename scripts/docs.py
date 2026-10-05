@@ -22,6 +22,7 @@ DICTIONARY = ROOT / "docs" / "dictionary.txt"
 # `mikeplus` and `min_slope`, doctest ellipses, `.NET`, `TODO(2027)` tags.
 IGNORED_PROOFREAD_RULES = [
     "AnA",
+    "ExpandAlloc",
     "ExpandConfiguration",
     "ExpandMinimum",
     "ExpandTimeShorthands",

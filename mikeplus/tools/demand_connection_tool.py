@@ -55,7 +55,7 @@ class DemandConnectionTool:
 
     Examples
     --------
-    Connect every demand allocation to the nearest junction within 50 m.
+    Connect every demand allocation to the nearest junction within 50 metres.
 
     ```python
     >>> from mikeplus import Database
