@@ -71,7 +71,7 @@ generate-tables *args:
 docs:
     uv run --no-sync python scripts/docs.py build
 
-# Lint the docs
+# Lint the docs and proofread them (needs harper-cli on PATH)
 docs-check:
     uv run --no-sync python scripts/docs.py check
 

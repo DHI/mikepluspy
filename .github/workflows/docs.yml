@@ -33,6 +33,11 @@ concurrency:
   group: docs-${{ github.event_name == 'schedule' && 'links' || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  HARPER_VERSION: v2.11.0
+  # The release asset's digest; update it with HARPER_VERSION.
+  HARPER_SHA256: 1bfbe16927ef86b8ae09a964f83ea0662bca023f3ad32a5dc0dd141d5e684cd9
+
 jobs:
   build:
     if: github.event_name != 'schedule'
@@ -49,11 +54,18 @@ jobs:
       uses: extractions/setup-just@v2
     - name: Set up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
+    - name: Set up Harper
+      run: |
+        archive="$RUNNER_TEMP/harper-cli.tar.gz"
+        curl -sSfL -o "$archive" "https://github.com/Automattic/harper/releases/download/${HARPER_VERSION}/harper-cli-x86_64-unknown-linux-gnu.tar.gz"
+        echo "${HARPER_SHA256}  $archive" | sha256sum -c -
+        tar xzf "$archive" -C "$RUNNER_TEMP"
+        echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
     - name: Install docs tools
       run: just setup-docs
 
-    - name: Lint
+    - name: Lint and proofread
       run: just docs-check
 
     - name: Build documentation

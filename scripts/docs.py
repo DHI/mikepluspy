@@ -3,7 +3,7 @@
 Usage
 -----
     python scripts/docs.py build    # build the site into great-docs/_site
-    python scripts/docs.py check    # great-docs lint
+    python scripts/docs.py check    # great-docs lint, and proofread with Harper
     python scripts/docs.py links    # check links in the docs and the source
     python scripts/docs.py preview <pr>  # serve the site CI built for a pull request
 
@@ -16,6 +16,23 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+DICTIONARY = ROOT / "docs" / "dictionary.txt"
+
+# Rules that misfire on code in docstrings and inline code: identifiers such as
+# `mikeplus` and `min_slope`, doctest ellipses, `.NET`, `TODO(2027)` tags.
+IGNORED_PROOFREAD_RULES = [
+    "AnA",
+    "ExpandAlloc",
+    "ExpandConfiguration",
+    "ExpandMinimum",
+    "ExpandTimeShorthands",
+    "MissingTo",
+    "Nowhere",
+    "SplitWords",
+    "ToDoHyphen",
+    "UseEllipsisCharacter",
+    "WrongNegative",
+]
 
 
 def great_docs(*args: str) -> int:
@@ -30,6 +47,22 @@ def great_docs(*args: str) -> int:
     return subprocess.run(command, cwd=ROOT, env=env).returncode
 
 
+def proofread_files() -> list[str]:
+    """Return absolute paths of the prose to proofread; great-docs needs them absolute."""
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z", "README.md", "docs/user_guide", "mikeplus"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split("\0")
+    return [
+        str(ROOT / path)
+        for path in tracked
+        if path.endswith((".md", ".qmd", ".py")) and "/auto_generated/" not in path
+    ]
+
+
 def build() -> int:
     """Build the site and check that it produced a home page."""
     code = great_docs("build")
@@ -40,8 +73,18 @@ def build() -> int:
 
 
 def check() -> int:
-    """Lint the docs."""
-    return great_docs("lint")
+    """Lint the docs and proofread them in British English."""
+    lint = great_docs("lint")
+    proofread = great_docs(
+        "proofread",
+        "--dialect=uk",
+        "--include-docstrings",
+        "--compact",
+        f"--dictionary-file={DICTIONARY}",
+        f"--ignore={','.join(IGNORED_PROOFREAD_RULES)}",
+        *proofread_files(),
+    )
+    return lint or proofread
 
 
 def links() -> int:

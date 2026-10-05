@@ -77,7 +77,7 @@ class Database:
             self._db_path = db_file
 
         resolved = self._db_path.resolve()
-        # PFS resolves a .mupp's relative DBFilePath wrongly from a forward-slash path
+        # PFS resolves the relative DBFilePath in a .mupp wrongly from a forward-slash path
         self._data_source: BaseDataSource = BaseDataSource.Create(
             str(resolved) if resolved.suffix.lower() == ".mupp" else resolved.as_posix()
         )

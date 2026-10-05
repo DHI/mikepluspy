@@ -26,7 +26,7 @@ just test                   # addopts includes -m "not slow"; extra args go to p
 just test -m slow           # slow tests only
 just generate-tables        # regenerate mikeplus/tables/auto_generated/
 just docs                   # great-docs site; needs Quarto and `just setup-docs`, not MIKE+
-just docs-check             # docs lint
+just docs-check             # docs lint + British-English proofread; needs harper-cli
 just check                  # lint + typecheck + test, before opening a PR
 ```
 
