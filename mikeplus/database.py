@@ -128,9 +128,9 @@ class Database:
             The projection string (WKT) for the database. The SRID is derived
             from it when MIKE+ recognises the projection.
         srid : int, optional
-            The EPSG code of a projected coordinate system, e.g. 25832 for
-            ETRS89 / UTM zone 32N. Geographic systems such as 4326 are not
-            supported; use a projected one such as 3857.
+            The EPSG code of a projected coordinate system, e.g. ETRS89 / UTM
+            zone 32N is 25832. Geographic systems such as 4326 are not supported;
+            use a projected one such as 3857.
         auto_open : bool, optional
             If True, immediately open the database connection
         overwrite : bool, optional (default is False)

@@ -27,6 +27,7 @@ configFile
 conn
 ConnectionRepairTool
 ConnectionTypeNo
+CreateModelTables
 CreateValvesFromPointsTool
 DatabaseError
 DataFrame
@@ -59,6 +60,7 @@ DTZ001
 EngineTool
 EPANET
 epanet
+EPSG
 ETRS89
 f
 F401
@@ -119,6 +121,7 @@ NewDbField
 NodeTable
 noqa
 NullReference
+OGC
 parameterless
 pathlib
 PathLike
