@@ -9,15 +9,15 @@ The following tools are available:
 *   **`ImportTool`**: Imports data into your MIKE+ model using an XML configuration file.
 *   **`TopoRepairTool`**: Detects and repairs common topology issues in your network model.
 *   **`InterpolationTool`**: Interpolates and assigns attribute values between model features or from external data sources (e.g., DEMs).
-*   **`ConnectionRepairTool`**: Repairs network connectivity issues.
+*   **`ConnectionRepairTool`**: Rebuilds connection tables, such as station connections and load point connections.
 *   **`CreateValvesFromPointsTool`**: Creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe.
 *   **`DemandConnectionTool`**: Connects demand allocations in a water distribution model to junctions or pipes.
 *   **`DemandAggregationTool`**: Aggregates water distribution demand allocations to junction demands or pipe demand coefficients.
-*   **`CatchSlopeLengthProcess`**: Calculates catchment slope and length. (Note: The class name in the library might be `CathSlopeLengthProcess`).
+*   **`CathSlopeLengthProcess`**: Calculates catchment slope and length.
 
 ## {{< icon play >}} General Usage
 
-To use a tool, first import it from `mikeplus.tools`. Then, create an instance of the tool, passing your opened `Database` object to its constructor.
+To use a tool, first import it from `mikeplus.tools`. Then, create an instance of the tool, passing your opened `Database` object to its constructor. `ImportTool` also takes the path of its XML configuration file, before the database.
 
 ```python
 from mikeplus.tools import InterpolationTool
@@ -71,16 +71,24 @@ Every `InterpolationTool` method takes `muids`; by default they process all elem
 
 ### TopoRepairTool
 
-The `TopoRepairTool` helps clean up network topology. To delete unlinked nodes and dissolve overlapping nodes, you can use its `run` method:
+The `TopoRepairTool` helps clean up network topology. Every repair operation of its `run` method is enabled by default, so to only delete unlinked nodes and dissolve overlapping nodes, turn the others off:
 
 ```python
 from mikeplus.tools import TopoRepairTool
-# repair_tool = TopoRepairTool(db) # Instantiate with your db object
+
+repair_tool = TopoRepairTool(db)
 repair_tool.run(
-    delete_unLink_node_Link=True, 
-    dissolve_overlap_node=True
+    delete_unLink_node_Link=True,
+    dissolve_overlap_node=True,
+    correct_link_connection=False,
+    search_junction_connection=False,
+    create_junction_connection=False,
+    split_link_on_tjunction=False,
+    add_missing_zones=False,
 )
 ```
+
+`run` only repairs CS_MIKE1D and WD_EPANET models; for any other active model it does nothing.
 
 ### CreateValvesFromPointsTool
 

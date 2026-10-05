@@ -54,7 +54,7 @@ class InterpolationTool:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """

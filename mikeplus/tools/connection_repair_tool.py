@@ -6,6 +6,9 @@ from DHI.Amelia.Tools.ConnectionRepairEngine import ConnectionRepairEngine
 class ConnectionRepairTool:
     """The Connection Repair Tool from MIKE+.
 
+    Rebuilds connection tables, such as station connections (`m_StationCon`) and
+    load point connections (`msm_LoadPointConnection`).
+
     Examples
     --------
     >>> from mikeplus import Database
@@ -21,7 +24,7 @@ class ConnectionRepairTool:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """

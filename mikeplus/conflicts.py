@@ -17,13 +17,13 @@ def check_conflicts():
     This function checks if mikeio1d was imported before mikeplus. If so, it raises an error
     that mikeio1d must be imported after mikeplus.
 
-    It also checks if mikeio is imported. If so, it raises an error that mikeio cannot currently
-    be used in same process as mikeplus.
+    It also checks if mikeio is imported. If so, it warns once that mikeio and mikeplus may
+    conflict in the same process.
 
     Raises
     ------
     ImportError
-        If mikeio1d was imported before mikeplus or if mikeio is imported
+        If mikeio1d was imported before mikeplus
 
     """
     if DISABLE_CONFLICT_CHECKS:
