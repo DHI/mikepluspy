@@ -127,15 +127,12 @@ not need `mikeplus` to be importable, so it builds without MIKE+, on Linux too.
   and are dropped from the URLs.
 - `README.md` is the home page. Its centred block (logo, tagline, badges)
   becomes the hero.
-- `docs/dictionary.txt` lists words the proofreader accepts.
 
 To build locally:
 
-1. Install [Quarto](https://quarto.org/docs/get-started/), and
-   [harper-cli](https://github.com/Automattic/harper/releases) for `just docs-check`.
+1. Install [Quarto](https://quarto.org/docs/get-started/).
 2. `just setup-docs`, which installs the `docs` dependency group into `.venv`.
-3. `just docs` builds into `great-docs/_site`; `just docs-check` lints and
-   proofreads (British English); `just docs-links` checks links.
+3. `just docs` builds into `great-docs/_site`; `just docs-check` lints; `just docs-links` checks links.
 
 The CI Docs workflow runs `docs-check` and `docs` on pull requests that
 touch the docs, docstrings or docs tooling, deploys to GitHub Pages on push to
