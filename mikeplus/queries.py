@@ -91,7 +91,7 @@ class BaseQuery[QueryResultT](ABC):
             If `muid_or_muids` is an empty list/tuple.
         """
         if isinstance(muid_or_muids, str):
-            self.where(f"MUID = '{muid_or_muids}'")
+            self.where(f"MUID = {to_sql(muid_or_muids)}")
         elif isinstance(muid_or_muids, (list, tuple)):
             if not muid_or_muids:
                 raise ValueError(

@@ -51,15 +51,13 @@ for path in result_paths:
 
 ## {{< icon triangle-alert >}} Error Handling
 
-`db.run()` raises `RuntimeError` if the engine fails to start, and `ValueError` if `sim_option` is invalid or cannot be derived from the active model.
-
-Errors that occur while the engine is running are not raised. Check the simulation log, or that the result files exist, before using the results.
+`db.run()` raises `RuntimeError` if the engine fails to start, exits with an error, or doesn't write its result files; the message names the engine's logs. It raises `ValueError` if `sim_option` is invalid or cannot be derived from the active model.
 
 ```python
 try:
     result_files = db.run()
 except RuntimeError as e:
-    print(f"Simulation failed to start: {e}")
+    print(f"Simulation failed: {e}")
 ```
 
 ## {{< icon file-code >}} Example
@@ -75,7 +73,7 @@ with mp.open("path/to/your_model.sqlite") as db:
     try:
         results = db.run()
     except RuntimeError as e:
-        print(f"Simulation failed to start: {e}")
+        print(f"Simulation failed: {e}")
     else:
         missing = [path for path in results if not path.exists()]
         if missing:

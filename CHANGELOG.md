@@ -26,6 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Strings are converted only when the destination column needs it. DateTime columns parse them; Double columns accept a single `.` or `,` as the decimal separator, so `"1,234"` is 1.234, and anything else raises `ValueError` naming the field. An empty string becomes `None` for both. Strings bound for other columns are passed through unchanged.
 - Minimum versions now follow [SPEC 0](https://scientific-python.org/specs/spec-0000/): numpy 2.3, pandas 2.3 and pythonnet 3.0.5.
 - Importing `mikeplus` with anything other than x64 Python on Windows or Linux now raises `ImportError`.
+- `Database.run()` raises `RuntimeError` when the engine exits with an error or doesn't write its result files, naming the engine's logs (#143).
+- `TopoRepairTool.run()` raises `ValueError` unless the active model is CS_MIKE1D or WD_EPANET, instead of doing nothing (#146).
+- `CathSlopeLengthProcess.run()` reports the tool's warnings with `warnings.warn` (#145).
+- `ScenarioCollection.find_by_name()` returns every scenario with the name, not at most one (#146).
+- `Database.close()` returns `None` whether or not the database was open (#146).
 - The documentation site moved to great-docs. API reference pages moved from `api/` to `reference/`, and the auto-generated table classes no longer have their own pages. User guide URLs are unchanged.
 
 ### Removed
@@ -42,6 +47,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Inserting a row with no field values on MIKE+ 2026 Update 1.
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
+- `Database.create(overwrite=True)` deleted the existing database before rejecting `srid` together with `projection_string` (#140).
+- `to_sql()` and `by_muid()` didn't escape single quotes, and `to_sql(True)` gave `True` rather than `1` (#144).
+- Progress from `CathSlopeLengthProcess` and `ConnectionRepairTool` was never printed, because the handler was attached after the tool ran (#145).
+- `Alternative.scenarios` raised `AttributeError` when the model had a scenario other than Base, and it, like `Alternative ==`, confused alternatives of different groups that share an id (#142).
+- Iterating `db.scenarios` returned scenarios with the same name as one scenario repeated, and iterating an `AlternativeGroup` skipped alternatives below the base's children (#146).
 - User guide examples and docstrings that raised or contradicted the code, notably `db.run(sim_option=...)` (not `model_option`), `insert()` running immediately, single-use queries, and `db.alternative_groups` (not `db.scenarios.alternative_groups`).
 
 ## [2026.0.0] - 2026-01-29

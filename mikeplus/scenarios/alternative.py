@@ -69,7 +69,7 @@ class Alternative:
         """Check if two alternatives are equal."""
         if not isinstance(other, Alternative):
             return False
-        return self.id == other.id
+        return self.id == other.id and self.group.id == other.group.id
 
     @property
     def id(self) -> int:
@@ -146,13 +146,16 @@ class Alternative:
     def scenarios(self) -> list[Scenario]:
         """Scenarios that use this alternative."""
         from .scenario import Scenario
+        from .scenario_collection import iter_net_scenarios
 
-        scenarios = []
-        for scenario_id in self._scenario_manager.GetScenarios():
-            scenario = self._scenario_manager.FindScenario(scenario_id)
-            for alt in scenario.CurAlternatives:
-                if alt.AltId == self._net_alternative.AltId:
-                    scenarios.append(Scenario(self._scenario_manager, scenario))
-                    break
-
-        return scenarios
+        # AltId is only unique within a group.
+        alt_id = self._net_alternative.AltId
+        group_id = self._net_alternative.Group.Id
+        return [
+            Scenario(self._scenario_manager, scenario)
+            for scenario in iter_net_scenarios(self._scenario_manager)
+            if any(
+                alt.AltId == alt_id and alt.Group.Id == group_id
+                for alt in scenario.CurAlternatives
+            )
+        ]

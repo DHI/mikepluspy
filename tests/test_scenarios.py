@@ -121,3 +121,36 @@ def test_api_create_and_activate_scenario(sirius_db):
     assert found_scenario is not None
     assert found_scenario.id == new_scenario.id
 
+
+def test_duplicate_scenario_names_are_distinct(sirius_db):
+    with mp.open(sirius_db) as db:
+        first = db.scenarios.create("dup")
+        second = db.scenarios.create("dup")
+        ids = [scenario.id for scenario in db.scenarios]
+        assert len(ids) == len(set(ids))
+        assert {s.id for s in db.scenarios.find_by_name("dup")} == {first.id, second.id}
+
+
+def test_alternative_scenarios_with_child_scenario(sirius_db):
+    with mp.open(sirius_db) as db:
+        group = db.alternative_groups["Catchments and hydrology data"]
+        alt = group.create("child alt")
+        scenario = db.scenarios.create("uses child alt")
+        scenario.set_alternative(alt)
+        assert [s.id for s in alt.scenarios] == [scenario.id]
+        assert scenario.id not in [s.id for s in group.base.scenarios]
+
+
+def test_base_alternatives_of_different_groups_differ(session_sirius_db):
+    with mp.open(session_sirius_db) as db:
+        first, second = list(db.alternative_groups)[:2]
+        assert first.base != second.base
+        assert first.base == first.base
+
+
+def test_alternative_group_iterates_grandchildren(sirius_db):
+    with mp.open(sirius_db) as db:
+        group = db.alternative_groups["Catchments and hydrology data"]
+        child = group.create("child")
+        grandchild = group.create("grandchild", parent=child)
+        assert grandchild in list(group)

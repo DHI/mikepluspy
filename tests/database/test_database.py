@@ -74,6 +74,13 @@ class TestDatabaseCreate:
         with pytest.raises(FileExistsError):
             Database.create(session_sirius_db)
 
+    def test_create_overwrite_with_invalid_args_keeps_file(self, tmp_path: Path):
+        existing = tmp_path / "existing.sqlite"
+        existing.write_bytes(b"keep me")
+        with pytest.raises(ValueError, match="cannot be specified together"):
+            Database.create(existing, srid=4326, projection_string="x", overwrite=True)
+        assert existing.read_bytes() == b"keep me"
+
     def test_import_epanet(self, tmp_path: Path):
         """Test importing from an EPANET .inp file."""
         db_path = tmp_path / "model.sqlite"

@@ -257,3 +257,8 @@ def test_import_tool(import_db):
     muids = db.tables.msm_Link.get_muids()
     assert len(muids) == 575
     db.close()
+
+
+def test_topology_repair_rejects_unsupported_model(swmm_db):
+    with Database(swmm_db) as db, pytest.raises(ValueError, match="CS_MIKE1D"):
+        TopoRepairTool(db).run()
