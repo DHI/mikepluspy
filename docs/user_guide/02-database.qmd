@@ -49,11 +49,12 @@ print(db_new.db_path)
 db_new.close()
 ```
 
-You can specify a spatial reference system using either `projection_string` or `srid` (but not both).
+You can specify a spatial reference system using either `projection_string` or `srid` (but not both). MIKE+ models need a projected coordinate system, so a geographic SRID such as 4326 raises a `ValueError`.
 
 ```python
 # Example using the SRID for ETRS89 / UTM zone 32N
 db_srid = mp.create("projected_model.sqlite", srid=25832)
+print(db_srid.srid)  # 25832
 print(db_srid.projection_string)
 db_srid.close()
 ```

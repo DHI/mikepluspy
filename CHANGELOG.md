@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- `create()` stores the SRID, so `Database.srid` and new geometry use it instead of -1. It is also derived from `projection_string` when MIKE+ recognises it. A geographic or unknown `srid` (such as 4326, which MIKE+ silently turned into Google Maps - Mercator) raises `ValueError` before any file is touched (#141).
 - Opening a `.mupp` file that has no `.sqlite` of the same name beside it failed to find the database it refers to.
 - `select()` accepts a single column name instead of splitting it into characters (#44).
 - Strings that look like numbers, such as `"760309"`, were written to text columns as datetimes.

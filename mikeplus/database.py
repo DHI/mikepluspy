@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
     from .scenarios.scenario import Scenario
 
+import tempfile
 from pathlib import Path
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
@@ -124,9 +125,12 @@ class Database:
         model_path : str or Path
             Path where the new database will be created, as `.sqlite` or `.mupp`
         projection_string : str, optional
-            The projection string for the database
+            The projection string (WKT) for the database. The SRID is derived
+            from it when MIKE+ recognises the projection.
         srid : int, optional
-            The SRID for the database, e.g. 25832 for ETRS89 / UTM zone 32N
+            The EPSG code of a projected coordinate system, e.g. 25832 for
+            ETRS89 / UTM zone 32N. Geographic systems such as 4326 are not
+            supported; use a projected one such as 3857.
         auto_open : bool, optional
             If True, immediately open the database connection
         overwrite : bool, optional (default is False)
@@ -144,7 +148,8 @@ class Database:
             If the database or project file already exists (except if overwrite
             is True)
         ValueError
-            If both `projection_string` and `srid` are given
+            If both `projection_string` and `srid` are given, or `srid` is not
+            a projected coordinate system MIKE+ knows
         DatabaseError
             If MIKE+ fails to create the database
 
@@ -155,6 +160,8 @@ class Database:
 
         if projection_string and srid != -1:
             raise ValueError("Projection string and SRID cannot be specified together.")
+        if srid != -1:
+            projection_string = _projection_for_srid(srid)
 
         if overwrite:
             model_path.unlink(missing_ok=True)
@@ -168,7 +175,11 @@ class Database:
             data_source = BaseDataSource.Create(str(db_sqlite))
             data_source.CreateDatabase()
             data_source.OpenDatabase()
+            if projection_string and srid == -1:
+                srid = data_source.GetSRIDFromProjStr(projection_string)
             data_source.CreateModelTables(srid, projection_string)
+            if srid > 0:
+                _save_srid(data_source, srid)
             _ensure_mupp_file(data_source)
             data_source.CloseDatabase()
         except Exception as e:
@@ -706,6 +717,54 @@ class Database:
         if not result:
             messages = "\n".join(inp_bridge.ErrorMsgs)
             raise DatabaseError(f"Error importing from SWMM file.\n{messages}")
+
+
+def _projection_for_srid(srid: int) -> str:
+    """Look up the WKT MIKE+ has for a projected SRID.
+
+    Uses a throwaway database, so it can run before any target file is touched.
+
+    Returns
+    -------
+    str
+        The projection as OGC WKT.
+
+    Raises
+    ------
+    ValueError
+        If MIKE+ doesn't know the SRID or it is a geographic system.
+    """
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+        data_source = BaseDataSource.Create(str(Path(tmp) / "srid.sqlite"))
+        data_source.CreateDatabase()
+        data_source.OpenDatabase()
+        try:
+            wkt = str(data_source.GetProjectionOGCWKT(srid) or "")
+        finally:
+            data_source.CloseDatabase()
+
+    if not wkt.startswith(("PROJCS[", "GEOGCS[")):
+        raise ValueError(f"SRID {srid} is not a coordinate system MIKE+ knows.")
+    # MIKE+ would silently store Google Maps - Mercator instead.
+    if wkt.startswith("GEOGCS["):
+        raise ValueError(
+            f"SRID {srid} is a geographic coordinate system, which MIKE+ models don't "
+            "support. Use a projected one, e.g. 3857 or a UTM zone."
+        )
+    return wkt
+
+
+def _save_srid(data_source: BaseDataSource, srid: int) -> None:
+    """Store `srid` on a newly created database.
+
+    `CreateModelTables` leaves the SRID at -1 whatever it is given, which also
+    makes later geometry writes use -1.
+    """
+    srid = int(srid)
+    data_source.ExecuteSqlNonQuery(
+        f"UPDATE m_Configuration SET ValueInt = {srid} WHERE MUID = 'SRID'", None
+    )
+    data_source.ExecuteSqlNonQuery(f"UPDATE geometry_columns SET srid = {srid}", None)
 
 
 def _ensure_mupp_file(data_source: BaseDataSource) -> Path:

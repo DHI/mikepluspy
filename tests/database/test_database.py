@@ -81,6 +81,35 @@ class TestDatabaseCreate:
             Database.create(existing, srid=4326, projection_string="x", overwrite=True)
         assert existing.read_bytes() == b"keep me"
 
+    def test_create_with_srid(self, tmp_path: Path):
+        db_path = tmp_path / "model.sqlite"
+        Database.create(db_path, srid=25832).close()
+
+        with Database(db_path) as db:
+            assert db.srid == 25832
+            assert db.projection_string.startswith('PROJCS["ETRS89 / UTM zone 32N"')
+            db.tables.msm_Node.insert({"MUID": "N1", "geometry": "POINT (500000 6200000)"})
+            assert db.tables.msm_Node.get_muids() == ["N1"]
+
+    def test_create_with_projection_string(self, tmp_path: Path):
+        with Database.create(tmp_path / "source.sqlite", srid=25832) as source:
+            projection = source.projection_string
+
+        db_path = tmp_path / "model.sqlite"
+        with Database.create(db_path, projection_string=projection) as db:
+            assert db.srid == 25832
+            assert db.projection_string == projection
+
+    @pytest.mark.parametrize(
+        ("srid", "match"), [(4326, "geographic"), (999999, "not a coordinate system")]
+    )
+    def test_create_unsupported_srid_keeps_file(self, tmp_path: Path, srid: int, match: str):
+        existing = tmp_path / "existing.sqlite"
+        existing.write_bytes(b"keep me")
+        with pytest.raises(ValueError, match=match):
+            Database.create(existing, srid=srid, overwrite=True)
+        assert existing.read_bytes() == b"keep me"
+
     def test_import_epanet(self, tmp_path: Path):
         """Test importing from an EPANET .inp file."""
         db_path = tmp_path / "model.sqlite"
