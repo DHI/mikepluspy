@@ -73,6 +73,7 @@ class TestBaseQuery:
         "muid, expected_conditions",
         [
             ("test_muid_1", ["MUID = 'test_muid_1'"]),
+            ("O'Brien", ["MUID = 'O''Brien'"]),
             (["muid_A", "muid_B"], ["MUID IN ('muid_A', 'muid_B')"]),
             (["muid_X", "muid_Y"], ["MUID IN ('muid_X', 'muid_Y')"]),
             ([], ValueError),

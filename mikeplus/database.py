@@ -7,13 +7,15 @@ MIKE+ model files, including access to tables and scenarios.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Self
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from .scenarios.scenario import Scenario
 
+import tempfile
 from pathlib import Path
-from plistlib import InvalidFileException
 
 from DHI.Amelia.DataModule.Services.DataSource import BaseDataSource
 from DHI.Amelia.DataModule.Services.DataSource.ScenarioMangement import (
@@ -25,6 +27,7 @@ from DHI.Amelia.DataModule.Services.DataTables import (
 )
 from DHI.Amelia.DataModule.Services.ImportExportPfsFile import ImportExportPfsFile
 from DHI.Amelia.EPANETBridge import INPBridge
+from DHI.Amelia.GlobalUtility.DataType import DataBaseType
 from DHI.Amelia.SWMMBridge import SWMMStorageBridge
 from System.Threading import CancellationTokenSource
 
@@ -74,11 +77,10 @@ class Database:
         if db_file.exists():
             self._db_path = db_file
 
-        if not (self._db_path or self._mupp_path):
-            raise InvalidFileException(f"Model file '{model_path}' is invalid.")
-
+        resolved = self._db_path.resolve()
+        # PFS resolves the relative DBFilePath in a .mupp wrongly from a forward-slash path
         self._data_source: BaseDataSource = BaseDataSource.Create(
-            self._db_path.resolve().as_posix()
+            str(resolved) if resolved.suffix.lower() == ".mupp" else resolved.as_posix()
         )
         self._data_table_container: DataTableContainer = DataTableContainer(True)
         self._data_table_container.DataSource = self._data_source
@@ -94,7 +96,13 @@ class Database:
         self._runner = SimulationRunner(self)
 
     def __repr__(self) -> str:
-        """Get nice string representation."""
+        """Get nice string representation.
+
+        Returns
+        -------
+        str
+            The database file name.
+        """
         return f"Database<'{self._db_path.name}'>"
 
     @classmethod
@@ -109,18 +117,25 @@ class Database:
     ) -> Database:
         """Create a new MIKE+ model database.
 
+        Writes the `.sqlite` database and a `.mupp` project file beside it, so
+        the new model opens in MIKE+.
+
         Parameters
         ----------
         model_path : str or Path
-            Path where the new database will be created
+            Path where the new database will be created, as `.sqlite` or `.mupp`
         projection_string : str, optional
-            The projection string for the database
+            The projection string (WKT) for the database. The SRID is derived
+            from it when MIKE+ recognises the projection.
         srid : int, optional
-            The SRID for the database, e.g. 4326 for WGS84
+            The EPSG code of a projected coordinate system, e.g. ETRS89 / UTM
+            zone 32N is 25832. Geographic systems such as 4326 are not supported;
+            use a projected one such as 3857.
         auto_open : bool, optional
             If True, immediately open the database connection
         overwrite : bool, optional (default is False)
-            If True, overwrite the existing database file if it exists
+            If True, delete an existing database and project file first. Settings
+            MIKE+ stores in the project file, such as map layers, are lost.
 
         Returns
         -------
@@ -130,27 +145,42 @@ class Database:
         Raises
         ------
         FileExistsError
-            If the database already exists (except if overwrite is True)
+            If the database or project file already exists (except if overwrite
+            is True)
+        ValueError
+            If both `projection_string` and `srid` are given, or `srid` is not
+            a projected coordinate system MIKE+ knows
+        DatabaseError
+            If MIKE+ fails to create the database
 
         """
         model_path = Path(model_path)
         db_sqlite = model_path.with_suffix(".sqlite")
+        db_mupp = model_path.with_suffix(".mupp")
+
+        if projection_string and srid != -1:
+            raise ValueError("Projection string and SRID cannot be specified together.")
+        if srid != -1:
+            projection_string = _projection_for_srid(srid)
 
         if overwrite:
             model_path.unlink(missing_ok=True)
             db_sqlite.unlink(missing_ok=True)
+            db_mupp.unlink(missing_ok=True)
 
-        if model_path.exists() or db_sqlite.exists():
+        if model_path.exists() or db_sqlite.exists() or db_mupp.exists():
             raise FileExistsError(f"Model file '{model_path}' already exists.")
-
-        if projection_string and srid != -1:
-            raise ValueError("Projection string and SRID cannot be specified together.")
 
         try:
             data_source = BaseDataSource.Create(str(db_sqlite))
             data_source.CreateDatabase()
             data_source.OpenDatabase()
+            if projection_string and srid == -1:
+                srid = data_source.GetSRIDFromProjStr(projection_string)
             data_source.CreateModelTables(srid, projection_string)
+            if srid > 0:
+                _save_srid(data_source, srid)
+            _ensure_mupp_file(data_source)
             data_source.CloseDatabase()
         except Exception as e:
             raise DatabaseError(f"Failed to create model database: {e!s}")
@@ -158,13 +188,18 @@ class Database:
         db = cls(model_path, auto_open=auto_open)
         return db
 
-    def open(self):
+    def open(self) -> Self:
         """Open the model database.
 
         Returns
         -------
-        self
-            For method chaining
+        Database
+            self, for method chaining
+
+        Raises
+        ------
+        DatabaseError
+            If MIKE+ fails to open the database
 
         """
         check_conflicts()
@@ -194,10 +229,16 @@ class Database:
 
         return self
 
-    def close(self):
-        """Close the model database."""
+    def close(self) -> None:
+        """Close the model database. Closing a closed database does nothing.
+
+        Raises
+        ------
+        DatabaseError
+            If MIKE+ fails to close the database
+        """
         if not self._is_open:
-            return True
+            return
 
         try:
             self._data_table_container.UndoRedoManager.ClearUndoRedoBuffer()
@@ -208,7 +249,39 @@ class Database:
                 f"Failed to close model database: {self._db_path}.\n{e!s}"
             )
 
-    def begin_transaction(self):
+    def ensure_mupp(self) -> Path:
+        """Get the model's project file (.mupp), writing one if it has none.
+
+        A missing project file is written beside the database with the same
+        name, as MIKE+ does when it opens a bare `.sqlite`. It records the
+        database's model type and unit system and refers to the database by a
+        path relative to itself. An existing project file is never changed.
+
+        Returns
+        -------
+        Path
+            Path to the project file.
+
+        Raises
+        ------
+        ValueError
+            If the database is not open.
+        DatabaseError
+            If MIKE+ fails to write the project file.
+
+        Examples
+        --------
+        >>> with mp.open("path/to/model.sqlite") as db:
+        ...     db.ensure_mupp()
+        """
+        if not self._is_open:
+            raise ValueError("Database is not open")
+
+        if self._mupp_path is None or not self._mupp_path.exists():
+            self._mupp_path = _ensure_mupp_file(self._data_source)
+        return self._mupp_path
+
+    def begin_transaction(self) -> None:
         """Begin the data transaction.
 
         Using a BEGIN/END transaction significantly improves batch commit performance.
@@ -228,31 +301,52 @@ class Database:
         >>>     commit = False
         >>> finally:
         >>>     db.end_transaction(commit)
+
+        Raises
+        ------
+        ValueError
+            If the database is not open
         """
         if not self._is_open:
             raise ValueError("Database is not open")
 
         self._data_table_container.BeginTransaction()
 
-    def end_transaction(self, commit: bool = True):
+    def end_transaction(self, commit: bool = True) -> None:
         """End the data transaction.
 
         Parameters
         ----------
         commit : bool
             true is to commit the data into database, false is to rollback the commit.
+
+        Raises
+        ------
+        ValueError
+            If the database is not open
         """
         if not self._is_open:
             raise ValueError("Database is not open")
 
         self._data_table_container.EndTransaction(commit)
 
-    def __enter__(self):
-        """Context manager entry."""
+    def __enter__(self) -> Self:
+        """Context manager entry.
+
+        Returns
+        -------
+        Database
+            The opened database.
+        """
         self.open()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Context manager exit."""
         self.close()
 
@@ -428,8 +522,14 @@ class Database:
 
         Notes
         -----
-        This can be set to a new scenario name to activate a different scenario.
+        This can be set to a `Scenario` (for example from `scenarios.by_name()`)
+        to activate a different scenario.
         For more advanced scenario management, use the `scenarios` property.
+
+        Raises
+        ------
+        ValueError
+            If the database is not open or its scenarios are not initialized
 
         """
         if not self._is_open:
@@ -517,11 +617,20 @@ class Database:
         Returns
         -------
         list[Path]
-            Paths to the result files.
+            Paths to the result files the simulation wrote.
+
+        Raises
+        ------
+        ValueError
+            If `sim_option` is invalid, or not given and the active model does not
+            determine one.
+        RuntimeError
+            If the simulation engine fails to start, exits with an error, or
+            doesn't write its result files. The message names the engine's logs.
         """
         return self._runner.run(simulation_muid, sim_option=sim_option)
 
-    def import_from_epanet(self, file_path: str | Path):
+    def import_from_epanet(self, file_path: str | Path) -> None:
         """Import a model from an EPANET .inp file.
 
         Parameters
@@ -533,6 +642,15 @@ class Database:
         --------
         >>> with mp.create("path/to/model.sqlite") as db:
         ...     db.import_from_epanet("path/to/model.inp")
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file doesn't exist
+        ValueError
+            If the file is not an .inp file
+        DatabaseError
+            If the import fails
 
         """
         file_path = Path(file_path)
@@ -556,7 +674,7 @@ class Database:
             messages = "\n".join(inp_bridge.ErrorMsgs)
             raise DatabaseError(f"Error importing from EPANET file.\n{messages}")
 
-    def import_from_swmm(self, file_path: str | Path):
+    def import_from_swmm(self, file_path: str | Path) -> None:
         """Import a model from a SWMM .inp file.
 
         Parameters
@@ -568,6 +686,15 @@ class Database:
         --------
         >>> with mp.create("path/to/model.sqlite") as db:
         ...     db.import_from_swmm("path/to/model.inp")
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file doesn't exist
+        ValueError
+            If the file is not an .inp file
+        DatabaseError
+            If the import fails
 
         """
         file_path = Path(file_path)
@@ -590,6 +717,98 @@ class Database:
         if not result:
             messages = "\n".join(inp_bridge.ErrorMsgs)
             raise DatabaseError(f"Error importing from SWMM file.\n{messages}")
+
+
+def _projection_for_srid(srid: int) -> str:
+    """Look up the WKT MIKE+ has for a projected SRID.
+
+    Uses a throwaway database, so it can run before any target file is touched.
+
+    Returns
+    -------
+    str
+        The projection as OGC WKT.
+
+    Raises
+    ------
+    ValueError
+        If MIKE+ doesn't know the SRID or it is a geographic system.
+    """
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+        data_source = BaseDataSource.Create(str(Path(tmp) / "srid.sqlite"))
+        data_source.CreateDatabase()
+        data_source.OpenDatabase()
+        try:
+            wkt = str(data_source.GetProjectionOGCWKT(srid) or "")
+        finally:
+            data_source.CloseDatabase()
+
+    if not wkt.startswith(("PROJCS[", "GEOGCS[")):
+        raise ValueError(f"SRID {srid} is not a coordinate system MIKE+ knows.")
+    # MIKE+ would silently store Google Maps - Mercator instead.
+    if wkt.startswith("GEOGCS["):
+        raise ValueError(
+            f"SRID {srid} is a geographic coordinate system, which MIKE+ models don't "
+            "support. Use a projected one, e.g. 3857 or a UTM zone."
+        )
+    return wkt
+
+
+def _save_srid(data_source: BaseDataSource, srid: int) -> None:
+    """Store `srid` on a newly created database.
+
+    `CreateModelTables` leaves the SRID at -1 whatever it is given, which also
+    makes later geometry writes use -1.
+    """
+    srid = int(srid)
+    data_source.ExecuteSqlNonQuery(
+        f"UPDATE m_Configuration SET ValueInt = {srid} WHERE MUID = 'SRID'", None
+    )
+    data_source.ExecuteSqlNonQuery(f"UPDATE geometry_columns SET srid = {srid}", None)
+
+
+def _ensure_mupp_file(data_source: BaseDataSource) -> Path:
+    """Write a minimal .mupp beside an open data source's database if it has none.
+
+    Returns
+    -------
+    Path
+        Path to the project file.
+
+    Raises
+    ------
+    DatabaseError
+        If MIKE+ fails to write the project file.
+    """
+    sqlite_path = Path(str(data_source.DbFileName)).resolve()
+    mupp_path = sqlite_path.with_suffix(".mupp")
+    if mupp_path.exists():
+        return mupp_path
+
+    try:
+        import clr
+
+        clr.AddReference("DHI.Amelia.ProjectLoaderPFS.Interface")
+        from DHI.Amelia.ProjectLoaderPFS.Interface.Services import ServicesFactory
+
+        project_file = ServicesFactory.CreateProjectFileOper()
+        module_data = project_file.ProjectRootNodeData.ModuleData
+        module_data.DBType = DataBaseType.SpatiaLite
+        module_data.DBName = mupp_path.stem
+        # PFS garbles forward-slash Windows paths when it makes them relative
+        module_data.DBFilePath = str(sqlite_path)
+        module_data.ModelType = data_source.ActiveModel
+        module_data.Ubg = data_source.UnitSystemOption
+        module_data.CreateNewDB = False
+        written = project_file.Write(str(mupp_path))
+    except Exception as e:
+        raise DatabaseError(
+            f"Failed to create project file: {mupp_path}.\n{e!s}"
+        ) from e
+    # Write() reports success even when it writes nothing
+    if not written or not mupp_path.exists():
+        raise DatabaseError(f"Failed to create project file: {mupp_path}.")
+    return mupp_path
 
 
 __all__ = [

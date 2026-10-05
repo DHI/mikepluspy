@@ -74,6 +74,42 @@ class TestDatabaseCreate:
         with pytest.raises(FileExistsError):
             Database.create(session_sirius_db)
 
+    def test_create_overwrite_with_invalid_args_keeps_file(self, tmp_path: Path):
+        existing = tmp_path / "existing.sqlite"
+        existing.write_bytes(b"keep me")
+        with pytest.raises(ValueError, match="cannot be specified together"):
+            Database.create(existing, srid=4326, projection_string="x", overwrite=True)
+        assert existing.read_bytes() == b"keep me"
+
+    def test_create_with_srid(self, tmp_path: Path):
+        db_path = tmp_path / "model.sqlite"
+        Database.create(db_path, srid=25832).close()
+
+        with Database(db_path) as db:
+            assert db.srid == 25832
+            assert db.projection_string.startswith('PROJCS["ETRS89 / UTM zone 32N"')
+            db.tables.msm_Node.insert({"MUID": "N1", "geometry": "POINT (500000 6200000)"})
+            assert db.tables.msm_Node.get_muids() == ["N1"]
+
+    def test_create_with_projection_string(self, tmp_path: Path):
+        with Database.create(tmp_path / "source.sqlite", srid=25832) as source:
+            projection = source.projection_string
+
+        db_path = tmp_path / "model.sqlite"
+        with Database.create(db_path, projection_string=projection) as db:
+            assert db.srid == 25832
+            assert db.projection_string == projection
+
+    @pytest.mark.parametrize(
+        ("srid", "match"), [(4326, "geographic"), (999999, "not a coordinate system")]
+    )
+    def test_create_unsupported_srid_keeps_file(self, tmp_path: Path, srid: int, match: str):
+        existing = tmp_path / "existing.sqlite"
+        existing.write_bytes(b"keep me")
+        with pytest.raises(ValueError, match=match):
+            Database.create(existing, srid=srid, overwrite=True)
+        assert existing.read_bytes() == b"keep me"
+
     def test_import_epanet(self, tmp_path: Path):
         """Test importing from an EPANET .inp file."""
         db_path = tmp_path / "model.sqlite"
@@ -206,6 +242,96 @@ class TestDatabase:
         db = open(new_db_path)
         assert db.is_open
         db.close()
+
+
+class TestDatabaseEnsureMupp:
+    """Tests for Database.ensure_mupp and the .mupp written by Database.create."""
+
+    def test_ensure_mupp_for_bare_sqlite(self, sirius_db: Path):
+        """A .mupp is written next to the database and reopens it."""
+        sirius_db.with_suffix(".mupp").unlink()
+
+        with Database(sirius_db) as db:
+            assert db.mupp_path is None
+            nodes = db.tables.msm_Node.select().to_dataframe()
+            mupp_path = db.ensure_mupp()
+            assert mupp_path == sirius_db.with_suffix(".mupp")
+            assert mupp_path.exists()
+            assert db.mupp_path == mupp_path
+
+        # Without a same-named .sqlite beside it, opening must read the .mupp
+        renamed = mupp_path.rename(mupp_path.with_name("renamed.mupp"))
+        assert r"DBFilePath = |.\Sirius.sqlite|" in renamed.read_text()
+
+        with Database(renamed) as db:
+            assert db.active_model == "CS_MIKE1D"
+            assert db.unit_system == "MU_CS_SI"
+            reopened = db.tables.msm_Node.select().to_dataframe()
+        assert reopened.equals(nodes)
+
+    def test_ensure_mupp_keeps_existing(self, sirius_db: Path):
+        """An existing .mupp is returned unchanged, however often it is called."""
+        mupp_path = sirius_db.with_suffix(".mupp")
+        original = mupp_path.read_text()
+
+        with Database(sirius_db) as db:
+            assert db.ensure_mupp() == mupp_path
+            assert db.ensure_mupp() == mupp_path
+        assert mupp_path.read_text() == original
+
+    def test_ensure_mupp_keeps_project_file_it_was_opened_with(self, sirius_db: Path):
+        """A database opened through a .mupp elsewhere keeps that project file."""
+        sirius_db.with_suffix(".mupp").rename(sirius_db.with_name("other.mupp"))
+        other = sirius_db.with_name("other.mupp")
+
+        with Database(other) as db:
+            assert db.ensure_mupp() == other
+        assert not sirius_db.with_suffix(".mupp").exists()
+
+    def test_ensure_mupp_closed_database_raises_error(self, sirius_db: Path):
+        """The database must be open to read its model type and unit system."""
+        db = Database(sirius_db, auto_open=False)
+        with pytest.raises(ValueError):
+            db.ensure_mupp()
+
+    @pytest.mark.parametrize("auto_open", [True, False])
+    def test_create_writes_mupp(self, tmp_path: Path, auto_open: bool):
+        """A created database gets a project file that reopens it."""
+        db = Database.create(tmp_path / "new.sqlite", auto_open=auto_open)
+        mupp_path = tmp_path / "new.mupp"
+        assert db.mupp_path == mupp_path
+        assert mupp_path.exists()
+        db.close()
+
+        renamed = mupp_path.rename(tmp_path / "renamed.mupp")
+        assert r"DBFilePath = |.\new.sqlite|" in renamed.read_text()
+        with Database(renamed) as reopened:
+            assert reopened.active_model == "CS_MIKE1D"
+
+    def test_create_from_mupp_path(self, tmp_path: Path):
+        """A model can be created by naming its .mupp."""
+        with Database.create(tmp_path / "new.mupp") as db:
+            assert db.db_path == tmp_path / "new.sqlite"
+            assert db.mupp_path == tmp_path / "new.mupp"
+
+    def test_create_existing_mupp_raises_error(self, tmp_path: Path):
+        """A leftover .mupp is not paired with a new database."""
+        mupp_path = tmp_path / "new.mupp"
+        mupp_path.write_text("stale")
+
+        with pytest.raises(FileExistsError):
+            Database.create(tmp_path / "new.sqlite")
+        assert not (tmp_path / "new.sqlite").exists()
+        assert mupp_path.read_text() == "stale"
+
+    def test_create_overwrite_replaces_mupp(self, tmp_path: Path):
+        """overwrite=True replaces the project file along with the database."""
+        mupp_path = tmp_path / "new.mupp"
+        mupp_path.write_text("stale")
+
+        with Database.create(tmp_path / "new.sqlite", overwrite=True):
+            pass
+        assert "[MIKE_URBAN]" in mupp_path.read_text()
 
 
 class TestDatabaseClose:

@@ -31,7 +31,7 @@ class SimulationRunner:
         Examples
         --------
         >>> from mikeplus import Database
-        >>> from mikeplus.engines import SimulationRunner
+        >>> from mikeplus.simulation_runner import SimulationRunner
         >>> db = Database("path/to/model.sqlite")
         >>> runner = SimulationRunner(db)
         """
@@ -77,13 +77,16 @@ class SimulationRunner:
         Returns
         -------
         list[Path]
-            Paths to the result files.
+            Paths to the result files the simulation wrote.
 
         Raises
         ------
         ValueError
             If `sim_option` is invalid, or not given and the active model does not
             determine one.
+        RuntimeError
+            If the simulation engine fails to start, exits with an error, or
+            doesn't write its result files. The message names the engine's logs.
 
         """
         VALID_OPTIONS = (
@@ -155,7 +158,9 @@ class SimulationRunner:
         self._handle_engine_launch(success, launcher, messages)
         self._wait_for_engine_completion(launcher)
 
-        return self._get_result_files("msm_Project", sim_muid)
+        return self._check_completed(
+            launcher, self._get_result_files("msm_Project", sim_muid)
+        )
 
     def run_lts_joblist(self, sim_muid: str | None = None) -> list[Path]:
         """Run a Long Term Simulation (LTS) job list generation.
@@ -181,7 +186,10 @@ class SimulationRunner:
         self._handle_engine_launch(success, launcher, messages)
         self._wait_for_engine_completion(launcher)
 
-        return self._get_result_files("msm_Project", sim_muid, is_lts_joblist=True)
+        return self._check_completed(
+            launcher,
+            self._get_result_files("msm_Project", sim_muid, is_lts_joblist=True),
+        )
 
     def run_epanet(self, sim_muid: str | None = None) -> list[Path]:
         """Run an EPANET water distribution simulation.
@@ -211,7 +219,9 @@ class SimulationRunner:
         self._handle_engine_launch(success, launcher, messages)
         self._wait_for_engine_completion(launcher)
 
-        return self._get_result_files("mw_Project", sim_muid)
+        return self._check_completed(
+            launcher, self._get_result_files("mw_Project", sim_muid)
+        )
 
     def run_swmm(self, sim_muid: str | None = None) -> list[Path]:
         """Run an SWMM urban drainage simulation.
@@ -240,7 +250,9 @@ class SimulationRunner:
         self._handle_engine_launch(success, launcher, messages)
         self._wait_for_engine_completion(launcher)
 
-        return self._get_result_files("mss_Project", sim_muid)
+        return self._check_completed(
+            launcher, self._get_result_files("mss_Project", sim_muid)
+        )
 
     def _get_sim_muid(self, sim_muid: str | None) -> str:
         """Get simulation MUID, or active simulation MUID if None.
@@ -270,6 +282,7 @@ class SimulationRunner:
             messages_str = ". ".join(messages) if messages else "Unknown error"
             raise RuntimeError(f"Simulation failed to start: {messages_str}")
 
+        self._started_at = time.time()
         launcher.Start()
 
     def _wait_for_engine_completion(self, launcher: DhiEngineSimpleLauncher) -> None:
@@ -284,6 +297,41 @@ class SimulationRunner:
 
         while launcher.IsEngineRunning:
             time.sleep(0.1)
+
+    def _check_completed(
+        self, launcher: DhiEngineSimpleLauncher, result_files: list[Path]
+    ) -> list[Path]:
+        """Return `result_files`, or raise if the engine failed.
+
+        Returns
+        -------
+        list[Path]
+            `result_files`, all of which exist.
+
+        Raises
+        ------
+        RuntimeError
+            If the engine exited with an error or a result file is missing.
+
+        """
+        missing = [path for path in result_files if not path.exists()]
+        if launcher.ExitCode == 0 and not missing:
+            return result_files
+
+        folder = Path(self._database.db_path).parent
+        logs = [
+            path
+            for pattern in ("*.log", "*ErrorLog.html")
+            for path in folder.rglob(pattern)
+            if path.stat().st_mtime >= self._started_at
+        ]
+        problem = (
+            f"exited with code {launcher.ExitCode}"
+            if launcher.ExitCode != 0
+            else f"did not write {', '.join(str(path) for path in missing)}"
+        )
+        where = ", ".join(str(path) for path in logs) or str(folder)
+        raise RuntimeError(f"Simulation {problem}. See {where}.")
 
     def _get_result_files(
         self, project_table_name: str, sim_muid: str, is_lts_joblist: bool = False

@@ -112,7 +112,7 @@ Create a new scenario, optionally specifying a parent. If no parent is given, it
 
 ### Deleting Scenarios
 
-Delete a scenario by its object or ID. You cannot delete the base scenario.
+Delete a scenario by its object or ID. You cannot delete the base scenario. Deleting a scenario also deletes all of its child scenarios.
 
 ```python
 # scenario_to_delete = db.scenarios.by_name("Scenario To Delete")
@@ -136,17 +136,17 @@ Change the name of a scenario:
 
 Alternatives represent specific configurations of model components (e.g., network data, operational controls). They are organized into `AlternativeGroup` objects.
 
-Access the collection of alternative groups via `db.scenarios.alternative_groups`:
+Access the collection of alternative groups via `db.alternative_groups`:
 
 ```python
-alt_groups = db.scenarios.alternative_groups
+alt_groups = db.alternative_groups
 
 # List all alternative group names
-for group_name in alt_groups.keys():
+for group_name in alt_groups.group_names():
     print(f"Alternative Group: {group_name}")
 ```
 
-Access a specific `AlternativeGroup` by its name or ID:
+Access a specific `AlternativeGroup` by its name (case-insensitive) or ID:
 
 ```python
 # By name
@@ -160,7 +160,7 @@ An `AlternativeGroup` object allows you to manage the alternatives within that g
 
 ### Listing Alternatives in a Group
 
-Iterate over an alternative group to get its `Alternative` objects:
+Iterate over an alternative group to get its base alternative followed by the base alternative's direct children. Alternatives nested deeper are not included; find them with `by_name()`:
 
 ```python
 # Assuming 'network_data_group' is an AlternativeGroup object

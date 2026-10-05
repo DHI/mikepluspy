@@ -112,4 +112,11 @@ def test_mike_engine_run_epanet(epanet_demo_db):
         file.unlink(missing_ok=True)
     
     db.close()
-    
+
+
+@pytest.mark.slow
+def test_run_raises_when_simulation_fails(sirius_db):
+    with Database(sirius_db) as db:
+        db.tables.msm_Link.update({"Diameter": 0}).all().execute()
+        with pytest.raises(RuntimeError, match="exited with code"):
+            db.run()

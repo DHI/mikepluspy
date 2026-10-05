@@ -41,7 +41,7 @@ class TopoRepairTool:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """
@@ -81,7 +81,21 @@ class TopoRepairTool:
         snap_distance : float, optional
             The distance used in dissolve the overlapped nodes, in correct link connection, and in split link on T junction, by default 0.1.
 
+        Raises
+        ------
+        ValueError
+            If the active model is neither CS_MIKE1D nor WD_EPANET.
+
         """
+        active_model = self._dataTables.ActiveModel
+        if active_model == MUModelOption.CS_MIKE1D:
+            tool = CSTopologyRepairTool(self._dataTables)
+        elif active_model == MUModelOption.WD_EPANET:
+            tool = WDTopologyRepairTool(self._dataTables)
+        else:
+            raise ValueError(
+                f"Topology repair needs a CS_MIKE1D or WD_EPANET model, not {active_model}."
+            )
         cancel_source = CancellationTokenSource()
         topology_param = TopologyRepairParam()
         topology_param.DeleteUnLinkNodeAndLink = delete_unLink_node_Link
@@ -94,14 +108,8 @@ class TopoRepairTool:
         topology_param.OverlapNodeSearchRadius = snap_distance
         topology_param.JunctionSearchRadius4Connection = snap_distance
         topology_param.TJunctionSplitSearchRadius = snap_distance
-        if self._dataTables.ActiveModel == MUModelOption.CS_MIKE1D:
-            tool = CSTopologyRepairTool(self._dataTables)
-            tool.RuningProgress += self._on_tool_runing_progress
-            tool.Run(topology_param, cancel_source.Token, False)
-        elif self._dataTables.ActiveModel == MUModelOption.WD_EPANET:
-            tool = WDTopologyRepairTool(self._dataTables)
-            tool.RuningProgress += self._on_tool_runing_progress
-            tool.Run(topology_param, cancel_source.Token, False)
+        tool.RuningProgress += self._on_tool_runing_progress
+        tool.Run(topology_param, cancel_source.Token, False)
 
     def _on_tool_runing_progress(self, source: Any, args: Any) -> None:
         print(args.Msg)

@@ -189,7 +189,8 @@ def to_sql(value: Any) -> str:
     Returns
     -------
     str
-        The SQL string representation of the value.
+        The SQL string representation of the value. Booleans become `1` or `0`,
+        and single quotes in strings are doubled.
 
     Examples
     --------
@@ -199,15 +200,20 @@ def to_sql(value: Any) -> str:
     '10.5'
     >>> to_sql("test_muid")
     "'test_muid'"
+    >>> to_sql(True)
+    '1'
     >>> to_sql(None)
     'NULL'
     """
     if value is None:
         return "NULL"
+    elif isinstance(value, bool):
+        return str(int(value))
     elif isinstance(value, (int, float)):
         return str(value)
     else:
-        return f"'{value!s}'"
+        escaped = str(value).replace("'", "''")
+        return f"'{escaped}'"
 
 
 __all__ = ["to_sql"]

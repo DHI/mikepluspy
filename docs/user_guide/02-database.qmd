@@ -10,7 +10,7 @@ import mikeplus as mp
 
 ## Opening an Existing Database
 
-Open an existing MIKE+ model database using `mp.open()`. Provide the path to the `.sqlite` file. MIKE+Py will also recognize `.mupp` files and automatically locate the corresponding `.sqlite` database.
+Open an existing MIKE+ model database using `mp.open()`. Provide the path to the `.sqlite` file. You can also pass a `.mupp` file; MIKE+Py opens the `.sqlite` file with the same name in the same folder.
 
 ```python
 db = mp.open("model.sqlite")
@@ -49,12 +49,13 @@ print(db_new.db_path)
 db_new.close()
 ```
 
-You can specify a spatial reference system using either `projection_string` or `srid` (but not both).
+You can specify a spatial reference system using either `projection_string` or `srid` (but not both). MIKE+ models need a projected coordinate system, so a geographic SRID such as 4326 raises a `ValueError`.
 
 ```python
-# Example using SRID for WGS84
-db_srid = mp.create("projected_model.sqlite", srid=4326)
-print(f"SRID: {db_srid.srid}")
+# Example using the SRID for ETRS89 / UTM zone 32N
+db_srid = mp.create("projected_model.sqlite", srid=25832)
+print(db_srid.srid)  # 25832
+print(db_srid.projection_string)
 db_srid.close()
 ```
 
@@ -75,6 +76,21 @@ with mp.open("model.sqlite") as db:
         print(f"MUPP file: {db.mupp_path}")
 ```
 
+### Creating a Project File
+
+A MIKE+ model is a `.sqlite` database and a `.mupp` project file beside it, and MIKE+ opens models through the `.mupp`. `mp.create()` writes both. For a database that has no `.mupp`, for example a bare `.sqlite` copied from elsewhere, use `ensure_mupp()`:
+
+```python
+with mp.open("model.sqlite") as db:
+    mupp_path = db.ensure_mupp()  # model.mupp, next to model.sqlite
+```
+
+It returns the existing project file if there is one and never changes it. A new one records the database's model type and unit system, and refers to the database by a path relative to itself, so keep the two files together when you move the model.
+
+::: {.callout-warning}
+`mp.create(..., overwrite=True)` deletes the `.mupp` of that name as well as the database. Settings MIKE+ keeps in a `.mupp`, such as map layers, symbology and the map's coordinate system, are lost.
+:::
+
 ### General Database Properties
 
 Retrieve general information about the database:
@@ -88,17 +104,18 @@ with mp.open("model.sqlite") as db:
 
 ### Scenarios
 
-List all available scenarios in the database with the `scenarios` property. Get or set the currently active scenario using `active_scenario`.
+The `scenarios` property is a collection of the scenarios in the database. Get or set the currently active scenario using `active_scenario`, which takes a `Scenario` object rather than a name.
 
 ```python
 with mp.open("model.sqlite") as db:
-    print(f"Available scenarios: {db.scenarios}")
+    print(f"Available scenarios: {[s.name for s in db.scenarios]}")
     current_scenario = db.active_scenario
     print(f"Active scenario: {current_scenario}")
 
     # To change the active scenario:
-    # if "MyOtherScenario" in db.scenarios:
-    # db.active_scenario = "MyOtherScenario"
+    # other = db.scenarios.by_name("MyOtherScenario")
+    # if other is not None:
+    #     db.active_scenario = other
 ```
 
 ### Active Model and Simulation Setup

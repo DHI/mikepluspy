@@ -38,7 +38,7 @@ class AlternativeGroup:
 
     Examples
     --------
-    >>> network_group = db.scenarios.alternative_groups["CS Network data"]
+    >>> network_group = db.alternative_groups["CS Network data"]
     >>> print(f"Tables: {network_group.tables}")
     >>> print(f"Active: {network_group.active.name}")
     >>> print(f"Base: {network_group.base.name}")
@@ -95,9 +95,12 @@ class AlternativeGroup:
         return f"<AlternativeGroup {self.name}>"
 
     def __iter__(self) -> Iterator[Alternative]:
-        """Iterate through all alternatives in this group."""
-        yield self.base
-        yield from self.base.children
+        """Iterate through all alternatives in this group, parents before children."""
+        stack = [self.base]
+        while stack:
+            alt = stack.pop()
+            yield alt
+            stack.extend(reversed(alt.children))
 
     def _find_by_name(
         self, name: str, parent: IAlternative, found: list[IAlternative]

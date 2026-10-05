@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os.path
+import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
@@ -36,7 +37,7 @@ class CathSlopeLengthProcess:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """
@@ -54,7 +55,7 @@ class CathSlopeLengthProcess:
         demUnitKey: int = 1000,
         overwrite_exist: bool = True,
     ) -> None:
-        """Calculate the slope and length for each catchment and print progress information.
+        """Calculate the slope and length for each catchment.
 
         Parameters
         ----------
@@ -78,7 +79,8 @@ class CathSlopeLengthProcess:
         dem_layer = os.path.abspath(dem_layer)
         unit = eumUnit(demUnitKey)
         tool = CatchmentSlope(self._dataTables)
-        warnings = List[str]()
+        tool.RuningProgress += self._on_tool_runing_progress
+        tool_warnings = List[str]()
         catch_list = List[str]()
         for selCatch in catch_ids:
             catch_list.Add(selCatch)
@@ -91,9 +93,10 @@ class CathSlopeLengthProcess:
             dem_layer,
             1,
             unit,
-            warnings,
+            tool_warnings,
         )
-        tool.RuningProgress += self._on_tool_runing_progress
+        for message in tool_warnings:
+            warnings.warn(str(message), stacklevel=2)
 
     def _on_tool_runing_progress(self, source: Any, args: Any) -> None:
         print(args.Msg)

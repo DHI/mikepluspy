@@ -6,6 +6,9 @@ from DHI.Amelia.Tools.ConnectionRepairEngine import ConnectionRepairEngine
 class ConnectionRepairTool:
     """The Connection Repair Tool from MIKE+.
 
+    Rebuilds connection tables, such as station connections (`m_StationCon`) and
+    load point connections (`msm_LoadPointConnection`).
+
     Examples
     --------
     >>> from mikeplus import Database
@@ -21,7 +24,7 @@ class ConnectionRepairTool:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """
@@ -32,8 +35,8 @@ class ConnectionRepairTool:
     def run(self):
         """Run the connection repair tool."""
         tool = ConnectionRepairEngine(self._dataTables)
-        tool.Run()
         tool.RuningProgress += self._on_tool_runing_progress
+        tool.Run()
 
     def _on_tool_runing_progress(self, source, args):
         print(args.Msg)

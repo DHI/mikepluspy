@@ -12,6 +12,16 @@ from typing import Any
 from .scenario import Scenario
 
 
+def iter_net_scenarios(scenario_manager: Any) -> Iterator[Any]:
+    """Yield every .NET scenario, depth first from the base."""
+    # GetScenarios returns names, which aren't unique, so walk the tree instead.
+    stack = [scenario_manager.BaseScenario]
+    while stack:
+        scenario = stack.pop()
+        yield scenario
+        stack.extend(reversed(list(scenario.Children)))
+
+
 class ScenarioCollection:
     """Collection-like access to scenarios in the database.
 
@@ -25,12 +35,12 @@ class ScenarioCollection:
     Methods
     -------
     find_by_name(name) : list[Scenario]
-        Find scenarios by name (may return multiple)
+        Find all scenarios with the given name
     by_name(name) : Scenario or None
         Find first scenario that matches the given name
     find_by_id(id) : Scenario or None
         Find scenario by its exact ID
-    create(name, id=None, parent=None) : Scenario
+    create(name, parent=None) : Scenario
         Create a new child scenario
     delete(scenario) : None
         Delete a scenario from the database
@@ -97,13 +107,12 @@ class ScenarioCollection:
         return Scenario(self._scenario_manager, scenario)
 
     def __iter__(self) -> Iterator[Scenario]:
-        """Iterate through all scenarios."""
-        for scenario_id in self._scenario_manager.GetScenarios():
-            scenario = self._scenario_manager.FindScenarioByName(scenario_id)
+        """Iterate through all scenarios, parents before their children."""
+        for scenario in iter_net_scenarios(self._scenario_manager):
             yield Scenario(self._scenario_manager, scenario)
 
     def find_by_name(self, name: str) -> list[Scenario]:
-        """Find scenarios by name (may return multiple if names aren't unique).
+        """Find all scenarios with the given name; MIKE+ allows duplicates.
 
         Parameters
         ----------
@@ -113,13 +122,9 @@ class ScenarioCollection:
         Returns
         -------
         list[Scenario]
-            List of scenarios that match the given name
+            The scenarios with the given name, or an empty list if none match
         """
-        scenario = self._scenario_manager.FindScenarioByName(name)
-        if scenario is None:
-            return []
-
-        return [Scenario(self._scenario_manager, scenario)]
+        return [scenario for scenario in self if scenario.name == name]
 
     def by_name(self, name: str) -> Scenario | None:
         """Find a scenario by name (returns the first match if multiple exist).
@@ -201,7 +206,8 @@ class ScenarioCollection:
         Parameters
         ----------
         scenario : Scenario or str
-            The scenario to delete (can be a Scenario object or its ID)
+            The scenario to delete (can be a Scenario object or its ID). Its child
+            scenarios are deleted with it.
 
         Raises
         ------

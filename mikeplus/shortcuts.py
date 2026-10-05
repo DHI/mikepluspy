@@ -33,6 +33,8 @@ def open(model_path: str | Path, **kwargs) -> Database:
     ------
     FileNotFoundError
         If the database file doesn't exist
+    DatabaseError
+        If MIKE+ fails to open the database
 
     """
     return Database(model_path, **kwargs)
@@ -57,11 +59,12 @@ def create(
     projection_string : str, optional
         The projection string for the database
     srid : int, optional
-        The SRID for the database, e.g. 4326 for WGS84
+        The SRID for the database, e.g. 25832 for ETRS89 / UTM zone 32N
     auto_open : bool, optional
         If True, immediately open the database connection
     **kwargs : dict
-        Additional keyword arguments to pass to the Database.create method
+        Additional keyword arguments to pass to the Database.create method,
+        i.e. `overwrite` (bool): if True, replace an existing database file
 
     Returns
     -------
@@ -71,7 +74,11 @@ def create(
     Raises
     ------
     FileExistsError
-        If the database already exists
+        If the database already exists (except if overwrite is True)
+    ValueError
+        If both `projection_string` and `srid` are given
+    DatabaseError
+        If MIKE+ fails to create the database
 
     """
     return Database.create(

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
 from DHI.Amelia.DomainServices.Interface.TransferEntity.InterpolationTool import (
     InterpolationToolParameters,
 )
 from DHI.Amelia.Tools.InterpolationEngine import InterpolationEngine
-from System import Convert
+from System import Convert, String
+
+from ..dotnet import as_dotnet_list
 
 if TYPE_CHECKING:
     from ..database import Database
@@ -17,6 +20,16 @@ if TYPE_CHECKING:
 def _missing_value_text(value: float | None) -> str | None:
     # MIKE+ takes the missing value as text. Convert formats it in the current culture.
     return None if value is None else Convert.ToString(float(value))
+
+
+def _restrict_to_muids(param: Any, muids: Iterable[str] | None) -> None:
+    if muids is None:
+        param.bOverallAssignSelected = False
+        return
+    if isinstance(muids, str):
+        raise TypeError("muids must be an iterable of MUIDs, not a single string")
+    param.SelectedMuids = as_dotnet_list([str(m) for m in muids], String)
+    param.bOverallAssignSelected = True
 
 
 class InterpolationTool:
@@ -41,7 +54,7 @@ class InterpolationTool:
 
         Parameters
         ----------
-        database : Database or DataTables
+        database : Database
             A Database object for the MIKE+ model.
 
         """
@@ -59,6 +72,7 @@ class InterpolationTool:
         assign_val_as_missing: bool = False,
         value_as_missing: float | None = None,
         search_radius: float = 300.0,
+        muids: Iterable[str] | None = None,
     ) -> None:
         """Interpolate target attribute from nearest source in search radius.
 
@@ -80,6 +94,11 @@ class InterpolationTool:
             Specify the value as the missing value, by default None
         search_radius : float, optional
             the search radius to find the source, by default 300
+        muids : iterable of str, optional
+            MUIDs of the target table elements to assign values to. By default None, which
+            means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -90,7 +109,7 @@ class InterpolationTool:
         param.sFeatureFile = source_layer_name
         param.SourceAttribute = source_attribute
         param.bOverallMissingValues = only_null_values
-        param.bOverallAssignSelected = False
+        _restrict_to_muids(param, muids)
         param.bOverallAssignInside = False
         param.dSearhRadius = search_radius
         param.bOverallConsideredMissing = assign_val_as_missing
@@ -109,6 +128,7 @@ class InterpolationTool:
         only_null_values: bool = True,
         assign_val_as_missing: bool = False,
         value_as_missing: float | None = None,
+        muids: Iterable[str] | None = None,
     ) -> None:
         """Interpolate target attribute from specified item number in raster layer.
 
@@ -128,6 +148,11 @@ class InterpolationTool:
             If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
+        muids : iterable of str, optional
+            MUIDs of the target table elements to assign values to. By default None, which
+            means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -137,7 +162,7 @@ class InterpolationTool:
         param.sRasterFile = raster_file
         param.iItemnumber = item_number
         param.bOverallMissingValues = only_null_values
-        param.bOverallAssignSelected = False
+        _restrict_to_muids(param, muids)
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
         param.sMissingVaue = _missing_value_text(value_as_missing)
@@ -157,6 +182,7 @@ class InterpolationTool:
         value_as_missing: float | None = None,
         max_IDW_points: int = 12,
         search_radius: float = 300.0,
+        muids: Iterable[str] | None = None,
     ) -> None:
         """Interpolate target attribute from the specified max number of sources in search radius.
 
@@ -180,6 +206,11 @@ class InterpolationTool:
             the max source number used to interpolate, by default 12
         search_radius : float, optional
             the search radius to find the source, by default 300.0
+        muids : iterable of str, optional
+            MUIDs of the target table elements to assign values to. By default None, which
+            means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -190,7 +221,7 @@ class InterpolationTool:
         param.sFeatureFile = source_layer_name
         param.SourceAttribute = source_attribute
         param.bOverallMissingValues = only_null_values
-        param.bOverallAssignSelected = False
+        _restrict_to_muids(param, muids)
         param.bOverallAssignInside = False
         param.iMaxFeatureSkip = max_IDW_points
         param.dSearhRadius = search_radius
@@ -209,6 +240,7 @@ class InterpolationTool:
         only_null_values: bool = True,
         assign_val_as_missing: bool = False,
         value_as_missing: float | None = None,
+        muids: Iterable[str] | None = None,
     ) -> None:
         """Set the target attribute as the fixed value.
 
@@ -226,6 +258,11 @@ class InterpolationTool:
             If true, treat `value_as_missing` as a missing value. By default False
         value_as_missing : float, optional
             Specify the value as the missing value, by default None
+        muids : iterable of str, optional
+            MUIDs of the target table elements to assign values to. By default None, which
+            means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -234,7 +271,7 @@ class InterpolationTool:
         param.TargetAttribute = target_attribute
         param.dFixedValue = fixed_value
         param.bOverallMissingValues = only_null_values
-        param.bOverallAssignSelected = False
+        _restrict_to_muids(param, muids)
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
         param.sMissingVaue = _missing_value_text(value_as_missing)
@@ -259,6 +296,7 @@ class InterpolationTool:
         assign_option: int = 0,
         alongPath: bool = False,
         max_neighbours: int = 3,
+        muids: Iterable[str] | None = None,
     ) -> None:
         """Interpolate target attribute from the source attribute along the network.
 
@@ -296,6 +334,11 @@ class InterpolationTool:
             If true, interpolate from neighbour. Otherwise, interpolate from network. By default False
         max_neighbours : int, optional
             the max neighbours with missing value along the network, by default 3
+        muids : iterable of str, optional
+            MUIDs of the target table elements to assign values to. By default None, which
+            means all elements. `only_null_values` still applies within the given elements.
+            An empty iterable assigns nothing, and MUIDs not in the target table are
+            ignored. A single string raises TypeError; wrap it in a list.
 
         """
         param = InterpolationToolParameters()
@@ -308,7 +351,7 @@ class InterpolationTool:
         param.SourceTable = source_layer_name
         param.SourceAttribute = source_attribute
         param.bOverallMissingValues = only_null_values
-        param.bOverallAssignSelected = False
+        _restrict_to_muids(param, muids)
         param.bOverallAssignInside = False
         param.bOverallConsideredMissing = assign_val_as_missing
         param.sMissingVaue = _missing_value_text(value_as_missing)

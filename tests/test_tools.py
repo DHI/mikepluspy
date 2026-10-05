@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 import pytest
 
 import os
@@ -81,6 +82,96 @@ def test_interpolate_from_neighbour_along_path(interpolate_db):
     assert diameters[False] == pytest.approx(2.0)
     assert diameters[True] is not None
     assert diameters[True] != pytest.approx(diameters[False])
+
+
+def test_interpolate_from_dem_only_given_muids(catch_slope_len_db):
+    db = Database(catch_slope_len_db)
+    before = db.tables.msm_Node.select(["GroundLevel"]).execute()
+    selected = ["OL_001", "OL_003"]
+    InterpolationTool(db).interpolate_from_DEM(
+        "msm_Node",
+        "GroundLevel",
+        str(catch_slope_len_db.parent / "dem.dfs2"),
+        1,
+        only_null_values=False,
+        muids=selected,
+    )
+    after = db.tables.msm_Node.select(["GroundLevel"]).execute()
+    db.close()
+    assert after["OL_001"][0] == pytest.approx(6.58, abs=0.01)
+    assert after["OL_003"][0] == pytest.approx(66.36, abs=0.01)
+    unchanged = {muid: value for muid, value in after.items() if muid not in selected}
+    assert unchanged == {muid: value for muid, value in before.items() if muid not in selected}
+
+
+def test_direct_assign_value_only_given_muids(interpolate_db):
+    db = Database(interpolate_db)
+    before = db.tables.msm_Node.select(["Diameter"]).execute()
+    InterpolationTool(db).direct_assign_value(
+        "msm_Node", "Diameter", 7.0, only_null_values=False, muids=iter(["Node_2"])
+    )
+    after = db.tables.msm_Node.select(["Diameter"]).execute()
+    db.close()
+    assert after["Node_2"][0] == 7.0
+    assert {k: v for k, v in after.items() if k != "Node_2"} == {
+        k: v for k, v in before.items() if k != "Node_2"
+    }
+
+
+def _null_node_diameters(db):
+    for muid in ("Node_1", "Node_2", "Node_3"):
+        db.tables.msm_Node.update({"Diameter": None}).where(f"MUID='{muid}'").execute()
+
+
+@pytest.mark.parametrize(
+    "method", ["interpolate_from_nearest_feature", "interpolation_IDW"]
+)
+def test_interpolate_from_source_layer_only_given_muids(interpolate_db, method):
+    db = Database(interpolate_db)
+    _null_node_diameters(db)
+    getattr(InterpolationTool(db), method)(
+        "msm_Node", "Diameter", "msm_Link", "Diameter", muids=["Node_1"]
+    )
+    after = db.tables.msm_Node.select(["Diameter"]).execute()
+    db.close()
+    assert after["Node_1"][0] is not None
+    assert after["Node_2"][0] is None
+    assert after["Node_3"][0] is None
+
+
+def test_interpolation_empty_muids_assigns_nothing(interpolate_db):
+    db = Database(interpolate_db)
+    before = db.tables.msm_Node.select(["Diameter"]).execute()
+    InterpolationTool(db).direct_assign_value(
+        "msm_Node", "Diameter", 7.0, only_null_values=False, muids=[]
+    )
+    after = db.tables.msm_Node.select(["Diameter"]).execute()
+    db.close()
+    assert after == before
+
+
+def test_interpolation_accepts_numpy_muids(interpolate_db):
+    db = Database(interpolate_db)
+    _null_node_diameters(db)
+    InterpolationTool(db).direct_assign_value(
+        "msm_Node", "Diameter", 7.0, muids=np.array(["Node_1", "Node_3"])
+    )
+    after = db.tables.msm_Node.select(["Diameter"]).execute()
+    db.close()
+    assert after["Node_1"][0] == 7.0
+    assert after["Node_2"][0] is None
+    assert after["Node_3"][0] == 7.0
+
+
+def test_interpolation_muids_rejects_single_string(module_interpolate_db):
+    db = Database(module_interpolate_db)
+    try:
+        with pytest.raises(TypeError, match="muids"):
+            InterpolationTool(db).direct_assign_value(
+                "msm_Node", "Diameter", 7.0, muids="Node_2"
+            )
+    finally:
+        db.close()
 
 
 def test_connect_repair_tool(connection_repair_db):
@@ -166,3 +257,8 @@ def test_import_tool(import_db):
     muids = db.tables.msm_Link.get_muids()
     assert len(muids) == 575
     db.close()
+
+
+def test_topology_repair_rejects_unsupported_model(swmm_db):
+    with Database(swmm_db) as db, pytest.raises(ValueError, match="CS_MIKE1D"):
+        TopoRepairTool(db).run()
