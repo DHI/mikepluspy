@@ -13,13 +13,30 @@ source:
 
 user_guide: docs/user_guide
 
-logo:
-  light: docs/assets/logo.svg
+logo: docs/assets/logo-white.svg
 favicon: docs/assets/favicon.png
 
-accent_color:
-  light: "#004165"
-  dark: "#01C4FF"
+hero:
+  logo:
+    light: docs/assets/logo.svg
+    dark: docs/assets/logo-white.svg
+  name: false
+
+# great-docs follows the system colour scheme and has no option to default to light.
+# It reads a stored choice first, so store light for visitors who have not chosen yet.
+include_in_header:
+  - >-
+    <script>try { if (!localStorage.getItem("great-docs-theme"))
+    localStorage.setItem("great-docs-theme", "light"); } catch (e) {}</script>
+
+navbar_color: "#2146a4"
+
+accent_color: "#0098DB"
+
+site:
+  css:
+    - docs/assets/fonts.css
+    - docs/assets/mikeplus.css
 
 # Methods stay on their class page, as quartodoc rendered them.
 inline_methods: true
@@ -88,6 +105,7 @@ reference:
         - tools.TopoRepairTool
         - tools.ConnectionRepairTool
         - tools.CreateValvesFromPointsTool
+        - tools.DemandConnectionTool
         - tools.CathSlopeLengthProcess
     - title: Utilities
       contents:
