@@ -30,6 +30,7 @@ DbType
 DeleteQuery
 DEM
 dem
+DemandConnectionTool
 DEMs
 demUnitKey
 dfs0
