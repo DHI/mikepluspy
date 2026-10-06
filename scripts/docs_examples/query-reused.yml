@@ -1,0 +1,49 @@
+id: query-reused
+language: python
+severity: error
+message: query '$Q' already ran; a query runs once, so build a new one or call reset()
+utils:
+  # $Q.<method>(...) with $Q a plain name, so `t.select().execute()` never counts
+  uses-query:
+    kind: call
+    has:
+      field: function
+      kind: attribute
+      all:
+        - has: {field: object, kind: identifier, pattern: $Q}
+        - has: {field: attribute, regex: ^(execute|to_pandas|to_dataframe|where|by_muid|order_by)$}
+  # $Q.execute(), or the end of a chain on $Q such as $Q.where(...).to_pandas()
+  runs-query:
+    kind: call
+    has:
+      field: function
+      kind: attribute
+      all:
+        - has: {field: attribute, regex: ^(execute|to_pandas|to_dataframe)$}
+        - has:
+            field: object
+            any:
+              - {kind: identifier, pattern: $Q}
+              - matches: uses-query
+              - {kind: call, has: {stopBy: end, matches: uses-query}}
+  renews-query:
+    any:
+      - pattern: $Q = $_
+      - pattern: $Q.reset()
+# A statement that uses $Q after an earlier statement of the same block ran it. `all`
+# binds $Q in order; a stopBy rule cannot see $Q, so "no renewal in between" is the
+# `not` below, which also skips a run after any renewal (a miss, never a false report).
+rule:
+  all:
+    - kind: expression_statement
+    - has: {stopBy: end, matches: uses-query}
+    - follows:
+        stopBy: end
+        has: {stopBy: end, matches: runs-query}
+    - not:
+        follows:
+          stopBy: end
+          has: {stopBy: end, matches: renews-query}
+          follows:
+            stopBy: end
+            has: {stopBy: end, matches: runs-query}

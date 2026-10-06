@@ -27,7 +27,7 @@ just test -m slow           # slow tests only
 just generate-tables        # regenerate mikeplus/tables/auto_generated/
 just docs                   # great-docs site; needs Quarto and `just setup-docs`, not MIKE+
 just docs-check             # docs lint + British-English proofread; needs harper-cli
-just docs-examples          # docs/docstring code examples vs the API; static, no MIKE+
+just docs-examples          # docs/docstring code examples vs the API (pyrefly, ast-grep); no MIKE+
 just check                  # lint + typecheck + test, before opening a PR
 ```
 

@@ -1,8 +1,8 @@
 """Run the docs' code examples against copies of a test database.
 
 This is the runtime half of ``scripts/lint_docs_examples.py``. The static linter cannot
-see what a call does at runtime: that ``insert()`` has already run, or that a property
-setter rejects a string. Running the examples does.
+see what a call does at runtime, such as a property setter rejecting a value or a MUID
+that is not in the model. Running the examples does.
 
 Each user guide page, and the ``>>>`` examples of each module's docstrings, run top to
 bottom in one namespace, as a reader would run them. ``mp`` and ``db`` are bound before

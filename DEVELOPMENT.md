@@ -140,18 +140,19 @@ To build locally:
 ### Checking code examples
 
 `just docs-examples` checks the Python blocks in the user guide, README and
-notebooks, inline code in the user guide's prose, and `>>>` examples in
-docstrings against the package's real API: imports, attributes, call keywords,
-`Literal` values, property setters, queries run twice, and the `Methods` and
-`Attributes` sections of class docstrings. It reads the source with griffe, so
-it needs no MIKE+, and runs in CI as part of `just lint`. Each page is checked top to bottom as one session; a name
-used before it is bound can be typed with a comment such as
-`# Assuming 'alt' is an Alternative object` (`db` is assumed to be a
-`Database`). Expressions whose type it cannot infer are skipped, not flagged.
+notebooks, and the `>>>` examples in docstrings, against the package's real API.
+It writes each page out as one module (blocks in order, `mp` imported, `db` a
+`Database`) and type-checks it with pyrefly, then applies the ast-grep rules in
+`scripts/docs_examples/` (such as `query-reused`), and checks the `Methods` and
+`Attributes` sections of class docstrings with griffe. Findings point at the
+docs line. It needs no MIKE+ and runs in CI as part of `just lint`. A name used
+before it is bound can be typed with a comment such as
+`# Assuming 'alt' is an Alternative object`. Examples are assumed to find what
+they look up, so an `X | None` result used as an `X` is not reported.
 
 `tests/test_docs_examples.py` (`license_required`, `slow`) runs the same
 examples against copies of the Sirius test database, which catches what static
-analysis cannot, such as calling `.execute()` on what `insert()` returned. Give a
+analysis cannot, such as a MUID or file that does not exist. Give a
 block that should not run the fence class `.no-run`: ```` ```{.python .no-run} ````.
 
 The CI Docs workflow runs `docs-check` and `docs` on pull requests that

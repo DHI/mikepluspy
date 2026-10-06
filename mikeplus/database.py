@@ -293,9 +293,9 @@ class Database:
         >>> db.begin_transaction()
         >>> commit = True
         >>> try:
-        >>>     db._tables.msm_Node.update({"Diameter": 0.35}).by_muid("Node_1").execute()
-        >>>     db._tables.msm_Node.update({"Diameter": 0.40}).by_muid("Node_2").execute()
-        >>>     ... [Update more data]
+        >>>     db.tables.msm_Node.update({"Diameter": 0.35}).by_muid("Node_1").execute()
+        >>>     db.tables.msm_Node.update({"Diameter": 0.40}).by_muid("Node_2").execute()
+        >>>     # ... update more rows
         >>> except RuntimeError as e:
         >>>     print(f"An error occurred: {e}")
         >>>     commit = False
