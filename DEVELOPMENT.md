@@ -19,6 +19,12 @@ just test               # pytest; extra arguments go to pytest, e.g. `just test 
 just check              # lint + typecheck + test: run before opening a PR
 ```
 
+`.claude/settings.json` runs `scripts/agent_hook.py` for Claude Code: after
+each edit of a package file it applies ruff's fixes and reports what ruff and
+pyrefly still find in that file, and before the agent stops it runs `just lint`
+and `just typecheck` if code or docs changed. For the same check on your own
+commits, run `uvx pre-commit install` once.
+
 `lint-changed` adds annotation rules (ANN001, ANN201) and Returns/Raises
 docstring sections (DOC201, DOC501). They are not enforced repo-wide because of
 the existing backlog; make the files you touch pass so it shrinks.
