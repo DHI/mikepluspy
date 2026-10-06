@@ -13,7 +13,7 @@ behind it. You need `just` and [uv](https://docs.astral.sh/uv/) on your PATH.
 just setup              # create .venv and install .[dev]
 just lint               # ruff, formatting, the public API and docs example checks; no MIKE+ needed
 just lint-changed       # stricter rules on files changed since main; `just lint-changed <base>`
-just typecheck          # mypy
+just typecheck          # pyrefly
 just fix                # apply formatting and safe lint fixes
 just test               # pytest; extra arguments go to pytest, e.g. `just test -m slow`
 just check              # lint + typecheck + test: run before opening a PR

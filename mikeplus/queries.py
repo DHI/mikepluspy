@@ -241,7 +241,7 @@ class BaseQuery[QueryResultT](ABC):
         """
 
 
-class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
+class SelectQuery(BaseQuery[dict[str, list[Any]] | None]):
     """Query class for SELECT operations."""
 
     def __init__(self, table: BaseTable, columns: str | list[str] | None = None):
@@ -313,13 +313,13 @@ class SelectQuery(BaseQuery[dict[str, dict[str, Any]] | None]):
         )
         return self
 
-    def _execute_impl(self) -> dict[str, dict[str, Any]] | None:
+    def _execute_impl(self) -> dict[str, list[Any]] | None:
         """Implement the SELECT query execution.
 
         Returns
         -------
         dict or None
-            Dictionary of dictionaries representing rows
+            Each row's values, in the selected columns' order, keyed by MUID
 
         """
         net_table = self._table._net_table

@@ -20,7 +20,7 @@ Use the `just` recipes rather than the tools behind them; `just` lists them all.
 just setup                  # create .venv and install .[dev]
 just lint                   # ruff, formatting, the public API and docs example checks; no MIKE+ needed
 just lint-changed           # stricter annotation/docstring rules on files changed since main
-just typecheck              # mypy
+just typecheck              # pyrefly
 just fix                    # format and apply safe lint fixes
 just test                   # addopts includes -m "not slow"; extra args go to pytest
 just test -m slow           # slow tests only

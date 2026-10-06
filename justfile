@@ -45,7 +45,7 @@ lint-changed base="main":
 
 # Type check
 typecheck:
-    uv run --no-sync mypy mikeplus
+    uv run --no-sync pyrefly check
 
 # Apply formatting and safe lint fixes
 fix:

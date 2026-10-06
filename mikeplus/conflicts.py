@@ -10,6 +10,8 @@ DISABLE_CONFLICT_CHECKS = (
     os.getenv("MIKEPLUSPY_DISABLE_CONFLICT_CHECKS", "false").lower() == "true"
 )
 
+_warned_mikeio = False
+
 
 def check_conflicts():
     """Check for conflicts with mikeio and mikeio1d.
@@ -26,6 +28,7 @@ def check_conflicts():
         If mikeio1d was imported before mikeplus
 
     """
+    global _warned_mikeio
     if DISABLE_CONFLICT_CHECKS:
         return
 
@@ -36,8 +39,8 @@ def check_conflicts():
 
     MIKEIO_IMPORTED = "mikeio" in sys.modules
 
-    if MIKEIO_IMPORTED and not hasattr(check_conflicts, "warned"):
-        check_conflicts.warned = True
+    if MIKEIO_IMPORTED and not _warned_mikeio:
+        _warned_mikeio = True
         warnings.warn(
             "mikeio and mikeplus are both imported in the same process. There could be some conflicts. See docs for more info.",
             category=UserWarning,
