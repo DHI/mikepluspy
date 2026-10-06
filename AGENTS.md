@@ -18,7 +18,7 @@ Use the `just` recipes rather than the tools behind them; `just` lists them all.
 
 ```bash
 just setup                  # create .venv and install .[dev]
-just lint                   # ruff, formatting and the public API check; no MIKE+ needed
+just lint                   # ruff, formatting, the public API and docs example checks; no MIKE+ needed
 just lint-changed           # stricter annotation/docstring rules on files changed since main
 just typecheck              # mypy
 just fix                    # format and apply safe lint fixes

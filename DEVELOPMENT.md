@@ -11,7 +11,7 @@ behind it. You need `just` and [uv](https://docs.astral.sh/uv/) on your PATH.
 
 ```bash
 just setup              # create .venv and install .[dev]
-just lint               # ruff, formatting and the public API check; no MIKE+ needed
+just lint               # ruff, formatting, the public API and docs example checks; no MIKE+ needed
 just lint-changed       # stricter rules on files changed since main; `just lint-changed <base>`
 just typecheck          # mypy
 just fix                # apply formatting and safe lint fixes
@@ -144,7 +144,7 @@ notebooks, inline code in the user guide's prose, and `>>>` examples in
 docstrings against the package's real API: imports, attributes, call keywords,
 `Literal` values, property setters, queries run twice, and the `Methods` and
 `Attributes` sections of class docstrings. It reads the source with griffe, so
-it needs no MIKE+. Each page is checked top to bottom as one session; a name
+it needs no MIKE+, and runs in CI as part of `just lint`. Each page is checked top to bottom as one session; a name
 used before it is bound can be typed with a comment such as
 `# Assuming 'alt' is an Alternative object` (`db` is assumed to be a
 `Database`). Expressions whose type it cannot infer are skipped, not flagged.

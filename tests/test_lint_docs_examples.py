@@ -195,6 +195,41 @@ def test_unknown_types_are_skipped(package):
     assert findings == []
 
 
+def test_query_run_in_alternative_branches_runs_once(package):
+    """Runs in an ``if`` and its ``else``, or a ``try`` and its handler, are not reuse."""
+    findings = lint(
+        package,
+        """
+        query = db.tables.msm_Node.select()
+        if condition:
+            df = query.to_pandas()
+        else:
+            rows = query.execute()
+        other = db.tables.msm_Link.select()
+        try:
+            df = other.to_pandas()
+        except RuntimeError:
+            rows = other.execute()
+        """,
+    )
+    assert findings == []
+
+
+def test_query_run_after_a_branch_that_ran_it_is_reported(package):
+    """A run after an ``if`` that may have run the query is reuse."""
+    findings = lint(
+        package,
+        """
+        query = db.tables.msm_Node.select()
+        if condition:
+            df = query.to_pandas()
+        rows = query.execute()
+        """,
+    )
+    assert len(findings) == 1
+    assert findings[0].startswith("query-reused: query 'query' already ran on line 4")
+
+
 def test_commented_out_query_run_does_not_count_as_a_run(package):
     """A commented-out alternative run leaves the query unrun for the live line."""
     findings = lint(
@@ -350,6 +385,72 @@ def test_attribute_checks_leave_open_types_alone(tmp_path):
         "unknown-attribute: str has no attribute 'nope'",
         "unknown-attribute: Thing has no attribute 'missing'",
     ]
+
+
+def test_open_annotations_are_not_checked(tmp_path):
+    """``Literal | str``, ``type[X]`` and ``object`` allow more than they name."""
+    package = make_package(
+        tmp_path,
+        """
+        from typing import Literal
+
+
+        class Thing:
+            def go(self, mode: Literal["a", "b"] | str) -> None: ...
+
+            def go_or_none(self, mode: Literal["a", "b"] | None = None) -> None: ...
+
+            def kind(self) -> type[Thing]: ...
+
+            def anything(self) -> object: ...
+
+            def many(self) -> list[Thing]: ...
+        """,
+    )
+    findings = lint(
+        package,
+        """
+        import mikeplus
+        thing = mikeplus.Thing()
+        thing.go("c")
+        thing.go_or_none("c")
+        thing.kind().build()
+        thing.anything().whatever
+        thing.many()[:2].append(thing)
+        thing.many()[0].nope
+        """,
+    )
+    assert findings == [
+        "invalid-literal: Thing.go_or_none(): mode='c' is not one of 'a', 'b'",
+        "unknown-attribute: Thing has no attribute 'nope'",
+    ]
+
+
+def test_docstring_opening_on_its_own_line_keeps_source_lines(tmp_path):
+    """A docstring whose text starts on the line after the quotes is not off by one."""
+    package = make_package(
+        tmp_path,
+        '''
+        class Thing:
+            """
+            A thing.
+
+            Attributes
+            ----------
+            weight : float
+                Not set anywhere.
+
+            Examples
+            --------
+            >>> Thing().nope
+            """
+        ''',
+    )
+    source = (tmp_path / PACKAGE / "__init__.py").read_text().splitlines()
+    snippet = docstring_pages(package)[0].snippets[0]
+    assert source[snippet.line - 1].strip() == ">>> Thing().nope"
+    (finding,) = check_docstring_sections(package)
+    assert source[finding.line - 1].strip() == "weight : float"
 
 
 def test_docstring_sections_are_checked_against_the_class(tmp_path):

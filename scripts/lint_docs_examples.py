@@ -298,11 +298,16 @@ def is_query(cls: Any) -> bool:
 def literal_values(annotation: Any) -> list[Any] | None:
     """Return the values a ``Literal[...]`` annotation (possibly ``| None``) allows."""
     if isinstance(annotation, griffe.ExprBinOp) and annotation.operator == "|":
-        left = literal_values(annotation.left)
-        right = literal_values(annotation.right)
-        if left is None and right is None:
-            return None
-        return (left or []) + (right or []) + [None]
+        values: list[Any] = []
+        for side in (annotation.left, annotation.right):
+            if str(side) == "None":
+                values.append(None)
+                continue
+            allowed = literal_values(side)
+            if allowed is None:
+                return None  # e.g. Literal[...] | str allows any str
+            values.extend(allowed)
+        return values
     if (
         isinstance(annotation, griffe.ExprSubscript)
         and getattr(annotation.left, "canonical_path", "") == "typing.Literal"
@@ -408,6 +413,17 @@ def doc_pages() -> list[Page]:
     return pages
 
 
+def docstring_lines(docstring: Any) -> list[str]:
+    """Return a docstring's lines as written, line ``i`` being at ``lineno + i``.
+
+    The cleaned ``value`` drops a blank first line, which would shift every line by one.
+    """
+    try:
+        return docstring.source.splitlines()
+    except ValueError:
+        return docstring.value.splitlines()
+
+
 def docstring_pages(package: Package) -> list[Page]:
     """Return the ``>>>`` examples of each docstring as a page of its own."""
     pages = []
@@ -416,7 +432,7 @@ def docstring_pages(package: Package) -> list[Page]:
         if docstring is None:
             continue
         module = obj if obj.is_module else obj.module
-        lines = docstring.value.splitlines()
+        lines = docstring_lines(docstring)
         code, first = [], None
         for index, line in enumerate(lines):
             stripped = line.strip()
@@ -632,17 +648,20 @@ class Checker:
             self.assign(node.target, self.iterate(self.expr(node.iter)), None)
             self.body(node.body)
             self.body(node.orelse)
-        elif isinstance(node, (ast.If, ast.While)):
+        elif isinstance(node, ast.If):
+            self.expr(node.test)
+            self.branches([node.body, node.orelse])
+        elif isinstance(node, ast.While):
             self.expr(node.test)
             self.body(node.body)
             self.body(node.orelse)
-        elif isinstance(node, ast.Try):
-            self.body(node.body)
+        elif isinstance(node, (ast.Try, ast.TryStar)):
             for handler in node.handlers:
                 if handler.name:
                     self.env[handler.name] = None
-                self.body(handler.body)
-            self.body(node.orelse)
+            self.branches(
+                [node.body + node.orelse, *(handler.body for handler in node.handlers)]
+            )
             self.body(node.finalbody)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             self.env[node.name] = None
@@ -655,6 +674,18 @@ class Checker:
         """Check a block of statements."""
         for statement in statements:
             self.statement(statement)
+
+    def branches(self, blocks: list[list[ast.stmt]]) -> None:
+        """Check alternative blocks, each from the runs before them, then join the runs.
+
+        Bindings are not joined: each block's bindings apply in order.
+        """
+        before, ran = self.ran, {}
+        for block in blocks:
+            self.ran = dict(before)
+            self.body(block)
+            ran |= self.ran
+        self.ran = ran
 
     def assign(self, target: ast.expr, value: Value, source: ast.expr | None) -> None:
         """Bind an assignment target."""
@@ -778,6 +809,8 @@ class Checker:
         if isinstance(node, ast.Subscript):
             value = self.expr(node.value)
             self.expr(node.slice)
+            if isinstance(node.slice, ast.Slice):
+                return value if value and value[0].kind == "python" else None
             return self.subscript(value)
         if isinstance(node, ast.Constant):
             return None if node.value is None else instance(type(node.value))
@@ -1096,7 +1129,9 @@ class Checker:
                 obj = self.package.get(path)
                 return instance(obj) if obj is not None and obj.is_class else None
             real = python_type(path)
-            return instance(real) if isinstance(real, type) else None
+            if not isinstance(real, type) or real in (object, type):
+                return None  # an object or type[X] may have any attribute
+            return instance(real)
         return None
 
     def drop_none(self, left: Value, right: Any, owner: Any) -> Value:
@@ -1159,7 +1194,7 @@ class Checker:
 
 def docstring_line(obj: Any, text: str) -> int:
     """Return the source line of the first docstring line containing ``text``."""
-    for index, line in enumerate(obj.docstring.value.splitlines()):
+    for index, line in enumerate(docstring_lines(obj.docstring)):
         if text in line:
             return obj.docstring.lineno + index
     return obj.docstring.lineno

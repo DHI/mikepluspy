@@ -24,17 +24,18 @@ setup-docs:
 
 # --- Fast tier: no MIKE+ install needed ---------------------------------------------
 
-# Lint, check formatting and check the public API
+# Lint, check formatting, and check the public API and the docs examples
 lint:
     uv run --no-sync ruff check .
     uv run --no-sync ruff format --check .
     uv run --no-sync python scripts/lint_public_api.py
+    uv run --no-sync python scripts/lint_docs_examples.py
 
 # Check the public API (__all__) against the source and the docs
 api:
     uv run --no-sync python scripts/lint_public_api.py
 
-# Check code examples in the docs and docstrings against the API; not in `lint` until the docs pass
+# Check code examples in the docs and docstrings against the API; part of `lint`
 docs-examples *args:
     uv run --no-sync python scripts/lint_docs_examples.py {{ args }}
 
