@@ -160,7 +160,10 @@ def run_page(
 ) -> None:
     """Run a page's snippets in order and fail with every error that is not a placeholder."""
     for placeholder in placeholder_paths(snippets):
-        copy_database(source_db, workdir / placeholder)
+        target = (workdir / placeholder).resolve()
+        # An absolute or ../ path would put the copy outside the temporary directory.
+        if target.is_relative_to(workdir.resolve()):
+            copy_database(source_db, target)
     import mikeplus
 
     namespace.setdefault("mp", mikeplus)

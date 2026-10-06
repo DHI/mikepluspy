@@ -105,6 +105,14 @@ def test_assuming_comment_gives_a_type(package):
     assert "Alternative" in finding
 
 
+def test_assuming_comment_after_code_keeps_the_code(package):
+    """A hint trailing a line of code does not replace that code."""
+    (finding,) = lint(
+        package, "db.tables.msm_Node.selectt()  # 'alt' is an Alternative object"
+    )
+    assert finding.startswith("1 missing-attribute:")
+
+
 def test_imports_are_checked(package):
     """Imports of missing package modules and names are reported."""
     findings = lint(

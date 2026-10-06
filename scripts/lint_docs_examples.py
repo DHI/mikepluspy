@@ -359,7 +359,8 @@ def to_module(package: Package, page: Page) -> Module:
         for offset, line in enumerate(snippet.source.splitlines()):
             if line.lstrip().startswith(("%", "!")):
                 line = ""  # notebook magics and shell escapes
-            match = ASSUMING.search(line)
+            # Only a comment line: replacing a line of code would hide its errors.
+            match = ASSUMING.match(line.lstrip())
             target = match and assumed_type(package, match.group("cls"))
             if match and target:
                 indent = line[: len(line) - len(line.lstrip())]
