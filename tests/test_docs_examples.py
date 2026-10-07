@@ -1,6 +1,6 @@
 """Run the docs' code examples against copies of a test database.
 
-This is the runtime half of ``scripts/lint_docs_examples.py``. The static linter cannot
+This is the runtime half of ``scripts/linters/lint_docs_examples.py``. The static linter cannot
 see what a call does at runtime, such as a property setter rejecting a value or a MUID
 that is not in the model. Running the examples does.
 
@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.lint_docs_examples import (
+from scripts.linters.lint_docs_examples import (
     ASSUMING,
     Package,
     Snippet,

@@ -28,20 +28,20 @@ setup-docs:
 lint:
     uv run --no-sync ruff check .
     uv run --no-sync ruff format --check .
-    uv run --no-sync python scripts/lint_public_api.py
-    uv run --no-sync python scripts/lint_docs_examples.py
+    uv run --no-sync python scripts/linters/lint_public_api.py
+    uv run --no-sync python scripts/linters/lint_docs_examples.py
 
 # Check the public API (__all__) against the source and the docs
 api:
-    uv run --no-sync python scripts/lint_public_api.py
+    uv run --no-sync python scripts/linters/lint_public_api.py
 
 # Check code examples in the docs and docstrings against the API; part of `lint`
 docs-examples:
-    uv run --no-sync python scripts/lint_docs_examples.py
+    uv run --no-sync python scripts/linters/lint_docs_examples.py
 
 # Stricter rules (annotations, Returns/Raises sections) on files changed since `base`
 lint-changed base="main":
-    uv run --no-sync python scripts/lint_changed.py {{ base }}
+    uv run --no-sync python scripts/linters/lint_changed.py {{ base }}
 
 # Type check
 typecheck:

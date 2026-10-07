@@ -149,7 +149,7 @@ To build locally:
 notebooks, and the `>>>` examples in docstrings, against the package's real API.
 It writes each page out as one module (blocks in order, `mp` imported, `db` a
 `Database`) and type-checks it with pyrefly, then applies the ast-grep rules in
-`scripts/docs_examples/` (such as `query-reused`), and checks the `Methods` and
+`scripts/linters/docs_examples/` (such as `query-reused`), and checks the `Methods` and
 `Attributes` sections of class docstrings with griffe. Findings point at the
 docs line. It needs no MIKE+ and runs in CI as part of `just lint`. A name used
 before it is bound can be typed with a comment such as

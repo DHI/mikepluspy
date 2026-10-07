@@ -10,7 +10,7 @@ gives ``alt`` that type. Then:
 pyrefly          type-checks the modules against the package source (unknown attributes,
                  keywords and imports, wrong argument types and ``Literal`` values,
                  read-only properties, ...); a finding is named after pyrefly's error kind
-ast-grep         applies the rules in ``scripts/docs_examples/``, e.g. ``query-reused``
+ast-grep         applies the rules in ``scripts/linters/docs_examples/``, e.g. ``query-reused``
 docstring-*      griffe checks the ``Methods`` and ``Attributes`` sections of class
                  docstrings against the class
 
@@ -18,7 +18,7 @@ Nothing is imported, so no MIKE+ install is needed. ruff's DOC102 covers ``Param
 
 Usage
 -----
-    just docs-examples          # or: python scripts/lint_docs_examples.py
+    just docs-examples          # or: python scripts/linters/lint_docs_examples.py
 
 Exits 1 when there are findings. Output is ``path:line: check message``.
 """
@@ -39,9 +39,9 @@ from typing import Any
 
 import griffe
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 PACKAGE = "mikeplus"
-RULES = ROOT / "scripts" / "docs_examples"
+RULES = Path(__file__).resolve().parent / "docs_examples"
 
 DOC_SUFFIXES = {".qmd", ".md", ".ipynb"}
 

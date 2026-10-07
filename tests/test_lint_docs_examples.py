@@ -1,4 +1,4 @@
-"""Tests for scripts/lint_docs_examples.py, the static docs example linter.
+"""Tests for scripts/linters/lint_docs_examples.py, the static docs example linter.
 
 The linter reads the package with griffe and pyrefly and never imports it, so these
 tests need no MIKE+ install.
@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.lint_docs_examples import (
+from scripts.linters.lint_docs_examples import (
     PACKAGE,
     Package,
     Page,
