@@ -9,13 +9,16 @@ untracked files. The auto-generated tables are skipped.
 
 Usage
 -----
-    just lint-changed [base]          # base defaults to main
+    just lint changed [base]          # base defaults to main
 """
 
 from __future__ import annotations
 
 import subprocess
 import sys
+
+# It needs a base ref, and CI's checkout may have no `main`.
+RUN_BY_DEFAULT = False
 
 # DOC rules are preview-only in ruff 0.16, so they are selected by exact code.
 RULES = "ANN001,ANN201,DOC201,DOC501"

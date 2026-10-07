@@ -18,9 +18,10 @@ Use the `just` recipes rather than the tools behind them; `just` lists them all.
 
 ```bash
 just setup                  # create .venv and install .[dev]
-just lint                   # ruff, formatting and the public API check; no MIKE+ needed
-just lint-changed           # stricter annotation/docstring rules on files changed since main
-just typecheck              # mypy
+just lint                   # every linter in scripts/linters: ruff, formatting, public API, docs examples...; no MIKE+ needed
+just lint <name>            # one linter, e.g. `just lint docs_examples`
+just lint changed           # stricter annotation/docstring rules on files changed since main; not part of `just lint`
+just typecheck              # pyrefly
 just fix                    # format and apply safe lint fixes
 just test                   # addopts includes -m "not slow"; extra args go to pytest
 just test -m slow           # slow tests only
@@ -30,7 +31,7 @@ just docs-check             # docs lint + British-English proofread; needs harpe
 just check                  # lint + typecheck + test, before opening a PR
 ```
 
-CI currently runs only `just lint` and `just typecheck`, so run the relevant tests locally before calling a change done. Files you touch should pass `just lint-changed`.
+CI currently runs only `just lint` and `just typecheck`, so run the relevant tests locally before calling a change done. Files you touch should pass `just lint changed`.
 
 ## Rules
 

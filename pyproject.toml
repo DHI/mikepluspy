@@ -38,9 +38,11 @@ dev = [
     "shapely",
     "geopandas",
     "jinja2>=3.0.0",
-    "mypy==1.15.0",
+    "pyrefly==1.3.2",
+    "ast-grep-cli==0.45.3",  # scripts/linters/lint_docs_examples.py
     "pandas-stubs>=2.2.2.240807",
     "ipykernel>=6.29.5",
+    "griffe~=2.1.0",  # scripts/linters/lint_docs_examples.py; the pin great-docs 0.17 needs
 ]
 test = [
     "pytest",
@@ -48,8 +50,10 @@ test = [
     "shapely",
     "geopandas",
     "jinja2>=3.0.0",
-    "mypy==1.15.0",
+    "pyrefly==1.3.2",
+    "ast-grep-cli==0.45.3",
     "pandas-stubs>=2.2.2.240807",
+    "griffe~=2.1.0",  # imported by the tests of scripts/linters/lint_docs_examples.py
 ]
 
 [dependency-groups]
@@ -64,37 +68,27 @@ docs = [
 "Homepage" = "https://github.com/DHI/mikepluspy"
 "Bug Tracker" = "https://github.com/DHI/mikepluspy/issues"
 
-[tool.mypy]
-python_version = "3.13"
-warn_return_any = false
-allow_redefinition = true
-warn_unreachable = true
-exclude = ["mikeplus/tables/auto_generated/"]
-
-[[tool.mypy.overrides]]
-module = [
-    "DHI.*",
-    "ThinkGeo.*",
-    "System.*",
-    "clr",
-    "pythonnet",
-]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["mikeplus.tables.auto_generated.*"]
-ignore_errors = true
+[tool.pyrefly]
+project-includes = ["mikeplus"]
+project-excludes = ["mikeplus/tables/auto_generated/**"]
+preset = "default"
+python-version = "3.13"
+ignore-missing-imports = ["DHI.*", "ThinkGeo.*", "System", "System.*"]
+replace-imports-with-any = ["clr"]  # pythonnet adds AddReference at runtime
 
 [tool.ruff]
 include = ["pyproject.toml", "mikeplus/**/*.py"]
 extend-exclude = [".claude"]  # agent worktrees carry their own pyproject.toml
 lint.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
 format.exclude = ["notebooks/**/*.ipynb", "mikeplus/tables/auto_generated/*.py"]
-lint.extend-select = ["D", "PD", "NPY", "FA"]
+lint.extend-select = ["D", "PD", "NPY", "FA", "DOC102"]
+lint.preview = true
+lint.explicit-preview-rules = true  # preview rules only when selected by code, e.g. DOC102
 lint.pydocstyle.convention = "numpy"
 lint.ignore = [
     "E501",
     "BLE001",  # wrapping arbitrary .NET exceptions from pythonnet is intentional
+    "RUF100",  # preview turns it on; noqa codes for `just lint changed`'s stricter rules look unused here
 ]
 
 [tool.pytest.ini_options]

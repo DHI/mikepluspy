@@ -11,17 +11,35 @@ behind it. You need `just` and [uv](https://docs.astral.sh/uv/) on your PATH.
 
 ```bash
 just setup              # create .venv and install .[dev]
-just lint               # ruff, formatting and the public API check; no MIKE+ needed
-just lint-changed       # stricter rules on files changed since main; `just lint-changed <base>`
-just typecheck          # mypy
+just lint               # every linter: ruff, formatting, public API, docs examples...; no MIKE+ needed
+just lint <name>        # one linter, e.g. `just lint docs_examples` or `just lint changed <base>`
+just typecheck          # pyrefly
 just fix                # apply formatting and safe lint fixes
 just test               # pytest; extra arguments go to pytest, e.g. `just test -m slow`
 just check              # lint + typecheck + test: run before opening a PR
 ```
 
-`lint-changed` adds annotation rules (ANN001, ANN201) and Returns/Raises
-docstring sections (DOC201, DOC501). They are not enforced repo-wide because of
-the existing backlog; make the files you touch pass so it shrinks.
+`.claude/settings.json` runs `scripts/agent_hook.py` for Claude Code: after
+each edit of a package file it runs `just fix` on it and reports what `just
+lint ruff` and `just typecheck` still find in it, and before the agent stops it runs `just lint`
+and `just typecheck` if code or docs changed. For the same check on your own
+commits, run `uvx pre-commit install` once.
+
+`just lint changed` adds annotation rules (ANN001, ANN201) and Returns/Raises
+docstring sections (DOC201, DOC501) on files changed since `main`, or the base
+you name. They are not enforced repo-wide because of the existing backlog; make
+the files you touch pass so it shrinks. Unlike the other linters, `just lint`
+does not run it.
+
+### Linters
+
+The linters live in `scripts/linters/`, and `just lint` is the only way to run
+them: it runs ruff's checks and every `lint_<name>.py` there, and `just lint
+<name> [args]` runs one. To add a linter, add a `lint_<name>.py` whose exit code
+is non-zero on findings; set `RUN_BY_DEFAULT = False` in it if `just lint`
+should skip it, and put its tests in `tests/linters/`. The justfile does not change. `just lint entrypoints` enforces
+this: the justfile has one recipe that runs the linters, and workflows, hooks,
+scripts and docs call `just` instead of a linter, ruff, pyrefly or ast-grep.
 
 ## Compatibility principle: no breaking changes within a year line
 
@@ -52,7 +70,7 @@ starts with a single underscore is private, along with everything in it.
 Everything public is covered by the compatibility principle above; anything
 else may change in any release.
 
-`just api` checks this against the source and the docs, and runs in CI as
+`just lint public_api` checks this against the source and the docs, and runs in CI as
 part of `just lint`. It reads files only, so it needs no MIKE+ install.
 
 ### What is public
@@ -136,6 +154,24 @@ To build locally:
 2. `just setup-docs`, which installs the `docs` dependency group into `.venv`.
 3. `just docs` builds into `great-docs/_site`; `just docs-check` lints and
    proofreads (British English); `just docs-links` checks links.
+
+### Checking code examples
+
+`just lint docs_examples` checks the Python blocks in the user guide, README and
+notebooks, and the `>>>` examples in docstrings, against the package's real API.
+It writes each page out as one module (blocks in order, `mp` imported, `db` a
+`Database`) and type-checks it with pyrefly, then applies the ast-grep rules in
+`scripts/linters/docs_examples/` (such as `query-reused`), and checks the `Methods` and
+`Attributes` sections of class docstrings with griffe. Findings point at the
+docs line. It needs no MIKE+ and runs in CI as part of `just lint`. A name used
+before it is bound can be typed with a comment such as
+`# Assuming 'alt' is an Alternative object`. Examples are assumed to find what
+they look up, so an `X | None` result used as an `X` is not reported.
+
+`tests/test_docs_examples.py` (`license_required`, `slow`) runs the same
+examples against copies of the Sirius test database, which catches what static
+analysis cannot, such as a MUID or file that does not exist. Give a
+block that should not run the fence class `.no-run`: ```` ```{.python .no-run} ````.
 
 The CI Docs workflow runs `docs-check` and `docs` on pull requests that
 touch the docs, docstrings or docs tooling, deploys to GitHub Pages on push to

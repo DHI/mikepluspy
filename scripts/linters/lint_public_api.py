@@ -33,7 +33,7 @@ line that closes it once the formatter has wrapped it.
 
 Usage
 -----
-    just api          # or: python scripts/lint_public_api.py, from the repository root
+    just lint public_api
 
 Exits 1 when there are findings. Output is ``path:line: check message``.
 """
@@ -48,7 +48,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT
 PACKAGE = "mikeplus"
 

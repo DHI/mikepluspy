@@ -1,0 +1,14 @@
+# The checks CI runs; enable with `uvx pre-commit install`.
+repos:
+  - repo: local
+    hooks:
+      - id: lint
+        name: just lint
+        entry: just lint
+        language: system
+        pass_filenames: false
+      - id: typecheck
+        name: just typecheck
+        entry: just typecheck
+        language: system
+        pass_filenames: false

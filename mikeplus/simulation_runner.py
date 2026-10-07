@@ -355,15 +355,14 @@ class SimulationRunner:
 
     def _get_result_file_lts_job_list(self, sim_muid: str) -> list[Path]:
         project_table = self._database.tables.msm_Project
-        scenario = (
+        rows = (
             project_table.select([project_table.columns.ScenarioName])
             .by_muid(sim_muid)
             .execute()
         )
-        try:
-            scenario = scenario[sim_muid][0]
-        except Exception as e:
-            raise ValueError(f"Scenario not found for simulation MUID: {sim_muid}. {e}")
+        if not rows or sim_muid not in rows:
+            raise ValueError(f"Scenario not found for simulation MUID: {sim_muid}.")
+        scenario = rows[sim_muid][0]
 
         result_file_name = f"{sim_muid}{scenario}.MJL"
         return [Path(self._database.db_path.parent / result_file_name)]

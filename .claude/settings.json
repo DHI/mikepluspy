@@ -17,7 +17,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "grep -qE '\"file_path\": *\"[^\"]*\\.py\"' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && just fix >&2 || exit 2"
+            "command": "uv run --no-sync --project \"$CLAUDE_PROJECT_DIR\" python \"$CLAUDE_PROJECT_DIR/scripts/agent_hook.py\" edit"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --no-sync --project \"$CLAUDE_PROJECT_DIR\" python \"$CLAUDE_PROJECT_DIR/scripts/agent_hook.py\" stop"
           }
         ]
       }
