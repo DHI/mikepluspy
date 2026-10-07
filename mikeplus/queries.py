@@ -151,11 +151,7 @@ class BaseQuery[QueryResultT](ABC):
             If two supplied names differ only in casing.
 
         """
-        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
-
-        canonical_names = {
-            name.casefold(): name for name in [*self._table.columns, *ud_columns]
-        }
+        canonical_names = {name.casefold(): name for name in self._table.columns}
         canonical_names.update(
             {
                 "muid": "MUID",
@@ -437,7 +433,7 @@ class InsertQuery(BaseQuery[str]):
             geometry = DotNetConverter.to_dotnet_geometry(geometry)
 
         # Split values into user-defined and non-user-defined
-        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
+        ud_columns = set(self._table.columns.user_defined)
         non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
@@ -538,7 +534,7 @@ class UpdateQuery(BaseQuery[list[str]]):
         geometry = values.pop("geometry", None)
 
         # Split values into user-defined and non-user-defined
-        ud_columns = getattr(self._table, "_user_defined_columns", set()) or set()
+        ud_columns = set(self._table.columns.user_defined)
         non_ud_values = {k: v for k, v in values.items() if k not in ud_columns}
         ud_values = {k: v for k, v in values.items() if k in ud_columns}
 
