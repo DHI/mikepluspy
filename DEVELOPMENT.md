@@ -37,7 +37,7 @@ The linters live in `scripts/linters/`, and `just lint` is the only way to run
 them: it runs ruff's checks and every `lint_<name>.py` there, and `just lint
 <name> [args]` runs one. To add a linter, add a `lint_<name>.py` whose exit code
 is non-zero on findings; set `RUN_BY_DEFAULT = False` in it if `just lint`
-should skip it. The justfile does not change. `just lint entrypoints` enforces
+should skip it, and put its tests in `tests/linters/`. The justfile does not change. `just lint entrypoints` enforces
 this: the justfile has one recipe that runs the linters, and workflows, hooks,
 scripts and docs call `just` instead of a linter, ruff, pyrefly or ast-grep.
 
