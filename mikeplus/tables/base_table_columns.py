@@ -6,6 +6,8 @@ from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
 from System import DateTime
 from System.Data import DbType
 
+from mikeplus.utils import to_sql
+
 if TYPE_CHECKING:
     from .base_table import BaseTable
 
@@ -15,17 +17,6 @@ _DB_TYPES = {
     "string": DbType.String,
     "datetime": DbType.DateTime,
 }
-
-
-def _to_db_type(data_type: str) -> DbType:
-    try:
-        return _DB_TYPES[data_type.lower()]
-    except KeyError:
-        raise ValueError(
-            f"Invalid data_type: {data_type}. "
-            "Must be one of 'integer', 'double', 'string', 'datetime'."
-        ) from None
-
 
 _DATA_TYPE_FAMILIES = {
     DbType.Int16: "integer",
@@ -44,17 +35,23 @@ _DATA_TYPE_FAMILIES = {
 }
 
 
-def _check_data_type(name: str, data_type: str, existing: DbType) -> None:
+def _to_db_type(data_type: str) -> DbType:
+    try:
+        return _DB_TYPES[data_type.lower()]
+    except KeyError:
+        raise ValueError(
+            f"Invalid data_type: {data_type}. "
+            "Must be one of 'integer', 'double', 'string', 'datetime'."
+        ) from None
+
+
+def _require_matching_type(name: str, data_type: str, existing: DbType) -> None:
     existing_family = _DATA_TYPE_FAMILIES.get(existing, str(existing))
     if data_type.lower() != existing_family:
         raise ValueError(
             f"Column '{name}' already exists as '{existing_family}', "
             f"not '{data_type}'. Leave out data_type to keep the existing type."
         )
-
-
-def _sql_literal(value: str) -> str:
-    return "'" + value.replace("'", "''") + "'"
 
 
 class BaseColumns:
@@ -73,11 +70,15 @@ class BaseColumns:
 
         """
         self._table = table
+        self._net_table = table._net_table
+        # MIKE+ reports the fields of removed user-defined columns in lower
+        # case, so remember their casing for `detached` and restoring.
+        self._removed_names: dict[str, str] = {}
         self._refresh()
 
     def _refresh(self) -> None:
         self._column_names: tuple[str, ...] = tuple(
-            column.Field for column in self._table._net_table.Columns
+            column.Field for column in self._net_table.Columns
         )
         self._columns_by_name = {name.casefold(): name for name in self._column_names}
 
@@ -102,8 +103,8 @@ class BaseColumns:
             creating the column. When the column already exists it may be left
             out; if given, it must match the existing type.
         header : str or None, optional
-            Header shown in the MIKE+ GUI. Defaults to `name`. Ignored if the
-            column is already user-defined.
+            Header shown in the MIKE+ GUI. Defaults to the field name. Ignored
+            if the column is already user-defined.
 
         Returns
         -------
@@ -126,44 +127,45 @@ class BaseColumns:
 
         """
         db_type = _to_db_type(data_type) if data_type is not None else None
-        net_table = self._table._net_table
 
-        existing = self._column_definition(name)
-        if existing is not None:
-            if not existing.IsUserDefined:
-                raise ValueError(
-                    f"'{existing.Field}' is a standard MIKE+ column of "
-                    f"{self._table.name}, not a user-defined one."
-                )
-            if data_type is not None:
-                _check_data_type(name, data_type, existing.DbType)
-            return self._record_muid(existing.Field)
+        column = self._column_definition(name)
+        if column is not None and not column.IsUserDefined:
+            raise ValueError(
+                f"'{column.Field}' is a standard MIKE+ column of "
+                f"{self._table.name}, not a user-defined one."
+            )
 
-        detached_type = self._detached_db_type(name)
-        if detached_type is not None:
-            if data_type is not None:
-                _check_data_type(name, data_type, detached_type)
-            db_type = detached_type
-        elif db_type is None:
+        if column is not None:
+            field, existing_type = column.Field, column.DbType
+        else:
+            field, existing_type = self._detached_field(name)
+
+        if existing_type is not None and data_type is not None:
+            _require_matching_type(name, data_type, existing_type)
+        if column is not None:
+            return self._record_muid(field)
+        if existing_type is None and db_type is None:
             raise ValueError(
                 f"Column '{name}' doesn't exist in {self._table.name}, "
                 "so data_type is required to create it."
             )
 
-        net_table.AddUserDefinedColumn(
+        self._net_table.AddUserDefinedColumn(
             UserDefinedColumnType.NewDbField,
-            name if header is None else header,
-            name,
-            db_type,
-            "",  # Expression columns not supported yet
-            "",  # Result columns not supported yet
-            "",  # Result columns not supported yet
-            0,  # Result columns not supported yet
-            DateTime.MinValue,  # Result columns not supported yet
+            field if header is None else header,
+            field,
+            existing_type if existing_type is not None else db_type,
+            # Expression and result columns aren't supported yet.
+            "",
+            "",
+            "",
+            0,
+            DateTime.MinValue,
             False,  # Reset from database
         )
+        self._removed_names.pop(field.casefold(), None)
         self._refresh()
-        return self._record_muid(name)
+        return self._record_muid(field)
 
     def remove_user_defined(self, name: str) -> str:
         """Remove a user-defined column, as MIKE+'s "Remove column" does.
@@ -208,7 +210,8 @@ class BaseColumns:
         muid = self._record_muid(field)
         # MIKE+ leaves the m_UserDefinedColumn record behind unless the field
         # name's casing matches it exactly.
-        self._table._net_table.RemoveUserDefinedColumn(field, False)
+        self._net_table.RemoveUserDefinedColumn(field, False)
+        self._removed_names[field.casefold()] = field
         self._refresh()
         return muid
 
@@ -223,34 +226,44 @@ class BaseColumns:
         Returns
         -------
         list[str]
-            Column names, cased as MIKE+ reports them.
+            Column names. MIKE+ reports some in lower case, such as columns
+            removed before the database was opened.
 
         """
-        return list(self._table._net_table.GetAttachableUserDefinedColumns())
+        return [
+            self._removed_names.get(field.casefold(), field)
+            for field in self._net_table.GetAttachableUserDefinedColumns()
+        ]
 
-    def _detached_db_type(self, name: str) -> DbType | None:
+    def _detached_field(self, name: str) -> tuple[str, DbType | None]:
         key = name.casefold()
-        if key not in (c.casefold() for c in self.detached):
-            return None
-        db_fields = self._table._net_table.UserDefinedDBfields
-        return next(
-            db_fields[field] for field in db_fields.Keys if field.casefold() == key
-        )
+        field = next((f for f in self.detached if f.casefold() == key), None)
+        if field is None:
+            return name, None
+        db_fields = self._net_table.UserDefinedDBfields
+        db_type = next(db_fields[f] for f in db_fields.Keys if f.casefold() == key)
+        # An all lower-case field may be MIKE+'s rendering, not the real casing.
+        return (name if field == field.lower() else field), db_type
 
     def _column_definition(self, name: str):
         key = name.casefold()
-        for column in self._table._net_table.Columns:
+        for column in self._net_table.Columns:
             if column.Field.casefold() == key:
                 return column
         return None
 
-    def _record_muid(self, name: str) -> str:
-        records = self._table._net_table.DataTables.GetTable("m_UserDefinedColumn")
+    def _record_muid(self, field: str) -> str:
+        records = self._net_table.DataTables.GetTable("m_UserDefinedColumn")
         where = (
-            f"tablename = {_sql_literal(self._table.name)} "
-            f"AND lower(fieldname) = lower({_sql_literal(name)}) AND active = 1"
+            f"tablename = {to_sql(self._table.name)} "
+            f"AND lower(fieldname) = lower({to_sql(field)}) AND active = 1"
         )
-        return next(iter(records.GetMuidsWhere(where)))
+        muid = next(iter(records.GetMuidsWhere(where)), None)
+        if muid is None:
+            raise RuntimeError(
+                f"No m_UserDefinedColumn record for {self._table.name}.{field}."
+            )
+        return muid
 
     @property
     def user_defined(self) -> list[str]:
@@ -263,9 +276,7 @@ class BaseColumns:
 
         """
         return [
-            column.Field
-            for column in self._table._net_table.Columns
-            if column.IsUserDefined
+            column.Field for column in self._net_table.Columns if column.IsUserDefined
         ]
 
     def __getitem__(self, column_name: str) -> str:
@@ -302,8 +313,7 @@ class BaseColumns:
 
         """
         return {
-            column.Field.casefold(): column.DbType
-            for column in self._table._net_table.Columns
+            column.Field.casefold(): column.DbType for column in self._net_table.Columns
         }
 
     def __iter__(self):

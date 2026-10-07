@@ -22,9 +22,23 @@ def db(catch_slope_len_db):
     db.close()
 
 
-def test_user_defined_lists_columns_already_in_database(db):
-    assert db.tables.msm_ADComponent.columns.user_defined == EXISTING_AD_COLUMNS
-    assert db.tables.msm_Link.columns.user_defined == []
+@pytest.fixture(scope="module")
+def read_only_db(module_catch_slope_len_db):
+    db = Database(module_catch_slope_len_db)
+    yield db
+    db.close()
+
+
+def _records(db, table_name, field_name):
+    df = db.tables.m_UserDefinedColumn.select(["TableName", "FieldName"]).to_dataframe()
+    return df[(df.TableName == table_name) & (df.FieldName == field_name)].index.tolist()
+
+
+def test_user_defined_lists_columns_already_in_database(read_only_db):
+    components = read_only_db.tables.msm_ADComponent
+    assert components.columns.user_defined == EXISTING_AD_COLUMNS
+    assert components.columns.detached == []
+    assert read_only_db.tables.msm_Link.columns.user_defined == []
 
 
 def test_add_user_defined_creates_column_visible_immediately(db):
@@ -38,11 +52,7 @@ def test_add_user_defined_creates_column_visible_immediately(db):
     assert "MY_COL" in pipes.columns
     assert pipes.columns["MY_COL"] == "my_col"
     assert "my_col" in list(pipes.columns)
-
-
-def _records(db, table_name, field_name):
-    df = db.tables.m_UserDefinedColumn.select(["TableName", "FieldName"]).to_dataframe()
-    return df[(df.TableName == table_name) & (df.FieldName == field_name)].index.tolist()
+    assert pipes.columns.detached == []
 
 
 def test_add_user_defined_twice_keeps_one_record(db):
@@ -65,9 +75,9 @@ def test_add_user_defined_with_different_type_raises(db):
         pipes.columns.add_user_defined("my_col", "integer")
 
 
-def test_add_user_defined_on_standard_column_raises(db):
+def test_add_user_defined_on_standard_column_raises(read_only_db):
     with pytest.raises(ValueError, match="standard"):
-        db.tables.msm_Link.columns.add_user_defined("Diameter")
+        read_only_db.tables.msm_Link.columns.add_user_defined("Diameter")
 
 
 def test_add_user_defined_new_column_without_type_raises(db):
@@ -90,16 +100,18 @@ def test_remove_user_defined_detaches_column(db):
     assert components.columns.user_defined == [
         c for c in EXISTING_AD_COLUMNS if c != "FineSediPctPipe"
     ]
-    assert [c.casefold() for c in components.columns.detached] == ["finesedipctpipe"]
+    assert components.columns.detached == ["FineSediPctPipe"]
     assert _records(db, "msm_ADComponent", "FineSediPctPipe") == []
 
 
-def test_remove_user_defined_unknown_column_raises(db):
-    with pytest.raises(KeyError):
-        db.tables.msm_Link.columns.remove_user_defined("my_col")
+def test_remove_user_defined_unknown_column_raises(read_only_db):
+    pipes = read_only_db.tables.msm_Link
 
     with pytest.raises(KeyError):
-        db.tables.msm_Link.columns.remove_user_defined("Diameter")
+        pipes.columns.remove_user_defined("my_col")
+
+    with pytest.raises(KeyError):
+        pipes.columns.remove_user_defined("Diameter")
 
 
 def test_add_user_defined_restores_detached_column_with_data(db):
@@ -128,6 +140,16 @@ def test_restore_with_matching_type_succeeds(db):
     assert "FineSediPctPipe" in components.columns.user_defined
 
 
+def test_restore_keeps_canonical_casing(db):
+    components = db.tables.msm_ADComponent
+    components.columns.remove_user_defined("FineSediPctPipe")
+
+    muid = components.columns.add_user_defined("FINESEDIPCTPIPE")
+
+    assert "FineSediPctPipe" in components.columns.user_defined
+    assert _records(db, "msm_ADComponent", "FineSediPctPipe") == [muid]
+
+
 def test_restore_with_different_type_raises_and_changes_nothing(db):
     components = db.tables.msm_ADComponent
     components.columns.remove_user_defined("FineSediPctPipe")
@@ -136,7 +158,7 @@ def test_restore_with_different_type_raises_and_changes_nothing(db):
         components.columns.add_user_defined("FineSediPctPipe", "string")
 
     assert "FineSediPctPipe" not in components.columns
-    assert [c.casefold() for c in components.columns.detached] == ["finesedipctpipe"]
+    assert components.columns.detached == ["FineSediPctPipe"]
 
 
 def test_insert_and_update_set_new_column(db):
@@ -170,7 +192,6 @@ def test_insert_sets_column_already_in_database(db):
 
     df = components.select(["CoarseSediPctPipe"]).by_muid(muid).to_dataframe()
     assert df["CoarseSediPctPipe"].iloc[0] == 3.5
-
 
 
 def test_add_user_defined_column_is_safe_to_repeat(db):
