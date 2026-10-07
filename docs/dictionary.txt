@@ -7,6 +7,7 @@ AlternativeGroup
 AlternativeGroupCollection
 AltId
 AssignOption
+BaseColumns
 BaseNodeTable
 BaseQuery
 BaseRun
@@ -157,11 +158,13 @@ tolorance
 TopoRepairTool
 TRY004
 U1
+udf
 UpdateGeomByCommand
 UpdateQuery
 UpstreamElement
 UpstreamMaxValue
 UpstreamMinValue
+UserDefinedColumn
 UTM
 uv
 ValuesView

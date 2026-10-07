@@ -71,9 +71,6 @@ class BaseColumns:
         """
         self._table = table
         self._net_table = table._net_table
-        # MIKE+ reports the fields of removed user-defined columns in lower
-        # case, so remember their casing for `detached` and restoring.
-        self._removed_names: dict[str, str] = {}
         self._refresh()
 
     def _refresh(self) -> None:
@@ -85,26 +82,27 @@ class BaseColumns:
     def add_user_defined(
         self,
         name: str,
-        data_type: str | None = None,
+        data_type: str,
         header: str | None = None,
     ) -> str:
-        """Add a user-defined column, as MIKE+'s "Add user defined column" does.
+        """Add a user-defined column, like "Add user defined column" in MIKE+.
 
         Safe to call repeatedly: the column is created if it doesn't exist,
-        restored if it is in the database but not shown in MIKE+ (see
-        `detached`), and left unchanged if it is already user-defined.
+        restored if it is in `detached`, and left unchanged if it is already
+        user-defined.
 
         Parameters
         ----------
         name : str
-            Field name of the column in the database. Matched ignoring case.
-        data_type : str or None, optional
-            One of 'integer', 'double', 'string', 'datetime'. Required when
-            creating the column. When the column already exists it may be left
-            out; if given, it must match the existing type.
+            Field name of the column. Case-insensitive: an existing or detached
+            column matches regardless of casing. A new or restored column is
+            stored with the casing given here.
+        data_type : str
+            One of 'integer', 'double', 'string', 'datetime', in any casing. If
+            the column already exists, it must match the existing type.
         header : str or None, optional
-            Header shown in the MIKE+ GUI. Defaults to the field name. Ignored
-            if the column is already user-defined.
+            Header shown in the MIKE+ GUI. Defaults to `name`. Ignored if the
+            column is already user-defined.
 
         Returns
         -------
@@ -115,9 +113,8 @@ class BaseColumns:
         Raises
         ------
         ValueError
-            If `name` is a standard MIKE+ column, if `data_type` is invalid or
-            doesn't match the existing column, or if `data_type` is missing
-            for a column that doesn't exist yet.
+            If `name` is a standard MIKE+ column, or if `data_type` is invalid
+            or doesn't match the existing column.
 
         Examples
         --------
@@ -126,58 +123,69 @@ class BaseColumns:
         'udf_1'
 
         """
-        db_type = _to_db_type(data_type) if data_type is not None else None
+        db_type = _to_db_type(data_type)
 
         column = self._column_definition(name)
-        if column is not None and not column.IsUserDefined:
-            raise ValueError(
-                f"'{column.Field}' is a standard MIKE+ column of "
-                f"{self._table.name}, not a user-defined one."
-            )
-
         if column is not None:
-            field, existing_type = column.Field, column.DbType
-        else:
-            field, existing_type = self._detached_field(name)
+            if not column.IsUserDefined:
+                raise ValueError(
+                    f"'{column.Field}' is a standard MIKE+ column of "
+                    f"{self._table.name}, not a user-defined one."
+                )
+            _require_matching_type(name, data_type, column.DbType)
+            return self._record_muid(column.Field)
 
-        if existing_type is not None and data_type is not None:
-            _require_matching_type(name, data_type, existing_type)
-        if column is not None:
-            return self._record_muid(field)
-        if existing_type is None and db_type is None:
-            raise ValueError(
-                f"Column '{name}' doesn't exist in {self._table.name}, "
-                "so data_type is required to create it."
-            )
+        detached_type = self._detached_type(name)
+        if detached_type is not None:
+            _require_matching_type(name, data_type, detached_type)
+        return self._attach(name, db_type, header)
 
-        self._net_table.AddUserDefinedColumn(
-            UserDefinedColumnType.NewDbField,
-            field if header is None else header,
-            field,
-            existing_type if existing_type is not None else db_type,
-            # Expression and result columns aren't supported yet.
-            "",
-            "",
-            "",
-            0,
-            DateTime.MinValue,
-            False,  # Reset from database
-        )
-        self._removed_names.pop(field.casefold(), None)
-        self._refresh()
-        return self._record_muid(field)
-
-    def remove_user_defined(self, name: str) -> str:
-        """Remove a user-defined column, as MIKE+'s "Remove column" does.
-
-        The column is no longer shown in MIKE+, but it stays in the database
-        with its data and appears in `detached`. Restore it with
-        `add_user_defined`.
+    def restore_user_defined(self, name: str) -> str:
+        """Restore a detached column with its existing data type and data.
 
         Parameters
         ----------
         name : str
-            Field name of the column. Matched ignoring case.
+            Field name of a column in `detached`. Case-insensitive; the restored
+            column is stored with the casing given here.
+
+        Returns
+        -------
+        str
+            MUID of the column's new record in `m_UserDefinedColumn`.
+
+        Raises
+        ------
+        KeyError
+            If `name` isn't in `detached`.
+
+        Examples
+        --------
+        >>> pipes = db.tables.msm_Link
+        >>> pipes.columns.add_user_defined("install_year", "integer")
+        'udf_1'
+        >>> pipes.columns.remove_user_defined("install_year")
+        'udf_1'
+        >>> pipes.columns.restore_user_defined("install_year")
+        'udf_2'
+
+        """
+        db_type = self._detached_type(name)
+        if db_type is None:
+            raise KeyError(f"'{name}' is not a detached column of {self._table.name}.")
+        return self._attach(name, db_type, header=None)
+
+    def remove_user_defined(self, name: str) -> str:
+        """Remove a user-defined column, like "Remove column" in MIKE+.
+
+        The column is no longer shown in MIKE+, but it stays in the database
+        with its data and appears in `detached`. Restore it with
+        `restore_user_defined`.
+
+        Parameters
+        ----------
+        name : str
+            Field name of the column. Case-insensitive.
 
         Returns
         -------
@@ -211,13 +219,12 @@ class BaseColumns:
         # MIKE+ leaves the m_UserDefinedColumn record behind unless the field
         # name's casing matches it exactly.
         self._net_table.RemoveUserDefinedColumn(field, False)
-        self._removed_names[field.casefold()] = field
         self._refresh()
         return muid
 
     @property
     def detached(self) -> list[str]:
-        """Columns in the database that `add_user_defined` would restore.
+        """Columns in the database that `restore_user_defined` can restore.
 
         These are database columns of the table that are neither standard MIKE+
         columns nor currently user-defined, for example after
@@ -226,24 +233,35 @@ class BaseColumns:
         Returns
         -------
         list[str]
-            Column names. MIKE+ reports some in lower case, such as columns
-            removed before the database was opened.
+            Column names in lower case, as MIKE+ reports them. Methods taking a
+            column name match them regardless of casing.
 
         """
-        return [
-            self._removed_names.get(field.casefold(), field)
-            for field in self._net_table.GetAttachableUserDefinedColumns()
-        ]
+        return list(self._net_table.GetAttachableUserDefinedColumns())
 
-    def _detached_field(self, name: str) -> tuple[str, DbType | None]:
+    def _detached_type(self, name: str) -> DbType | None:
         key = name.casefold()
-        field = next((f for f in self.detached if f.casefold() == key), None)
-        if field is None:
-            return name, None
+        if not any(field.casefold() == key for field in self.detached):
+            return None
         db_fields = self._net_table.UserDefinedDBfields
-        db_type = next(db_fields[f] for f in db_fields.Keys if f.casefold() == key)
-        # An all lower-case field may be MIKE+'s rendering, not the real casing.
-        return (name if field == field.lower() else field), db_type
+        return next(db_fields[f] for f in db_fields.Keys if f.casefold() == key)
+
+    def _attach(self, name: str, db_type: DbType, header: str | None) -> str:
+        self._net_table.AddUserDefinedColumn(
+            UserDefinedColumnType.NewDbField,
+            name if header is None else header,
+            name,
+            db_type,
+            # Expression and result columns aren't supported yet.
+            "",
+            "",
+            "",
+            0,
+            DateTime.MinValue,
+            False,  # Reset from database
+        )
+        self._refresh()
+        return self._record_muid(name)
 
     def _column_definition(self, name: str):
         key = name.casefold()

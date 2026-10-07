@@ -181,15 +181,16 @@ class BaseTable:
     ) -> str:
         """Add a user defined column to table.
 
-        Equivalent to ``table.columns.add_user_defined`` with a required data
-        type, so it is safe to call repeatedly.
+        Equivalent to ``table.columns.add_user_defined``, so it is safe to call
+        repeatedly.
 
         Parameters
         ----------
         column_name : str
-            Name of the column in the database.
+            Name of the column in the database. Case-insensitive.
         column_data_type : str
-            Data type of the column. Must be one of 'integer', 'double', 'string', 'datetime'.
+            Data type of the column. One of 'integer', 'double', 'string',
+            'datetime', in any casing.
         column_header : str | None
             Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
 

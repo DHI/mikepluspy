@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.tools.CreateValvesFromPointsTool`, the MIKE+ tool that creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe (#120).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 - An optional `muids` argument on the `InterpolationTool` methods, such as `interpolate_from_DEM`, which restricts them to the given elements (#115).
-- User-defined columns are managed from `table.columns` (#124): `add_user_defined` creates, restores or leaves a column unchanged and returns its `m_UserDefinedColumn` MUID; `remove_user_defined` hides a column as MIKE+ does, keeping its data; `user_defined` and `detached` list the shown and restorable columns.
+- User-defined columns are managed from `table.columns` (#124): `add_user_defined` creates, restores or leaves a column unchanged and returns its `m_UserDefinedColumn` MUID; `remove_user_defined` hides a column as MIKE+ does, keeping its data, and `restore_user_defined` brings it back; `user_defined` and `detached` list the shown and restorable columns.
 
 ### Changed
 

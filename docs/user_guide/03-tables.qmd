@@ -85,8 +85,9 @@ open the file `inspect.getsourcefile(type(nodes_table.columns))` returns.
 
 ## User-Defined Columns
 
-Add your own columns to a table through `columns`, as MIKE+'s "Add user defined column"
-does. The data type is one of `"integer"`, `"double"`, `"string"` or `"datetime"`:
+Add your own columns to a table through `columns`, like "Add user defined column" in
+MIKE+. The data type is one of `"integer"`, `"double"`, `"string"` or `"datetime"`.
+Column names and data types are case-insensitive:
 
 ```python
 pipes = db.tables.msm_Link
@@ -101,13 +102,14 @@ leaves it unchanged, and always returns the MUID of the column's `m_UserDefinedC
 record. Passing a type that differs from the existing column raises `ValueError`.
 
 Removing a column hides it from MIKE+ but keeps it and its data in the database. Such
-columns are listed in `detached`, and `add_user_defined` without a type restores them:
+columns are listed in `detached`, in lower case as MIKE+ reports them, and
+`restore_user_defined` brings them back with their existing type:
 
 ```python
 pipes.columns.remove_user_defined("install_year")
 print(pipes.columns.detached)  # ['install_year']
 
-pipes.columns.add_user_defined("install_year")  # restored, data intact
+pipes.columns.restore_user_defined("install_year")  # restored, data intact
 ```
 
 To set up the same columns across several tables, loop over them:

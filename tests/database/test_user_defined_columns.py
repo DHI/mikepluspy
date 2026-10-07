@@ -59,10 +59,9 @@ def test_add_user_defined_twice_keeps_one_record(db):
     pipes = db.tables.msm_Link
 
     first = pipes.columns.add_user_defined("my_col", "string")
-    second = pipes.columns.add_user_defined("MY_COL", "string")
-    third = pipes.columns.add_user_defined("my_col")
+    second = pipes.columns.add_user_defined("MY_COL", "STRING")
 
-    assert first == second == third
+    assert first == second
     assert _records(db, "msm_Link", "my_col") == [first]
     assert pipes.columns.user_defined == ["my_col"]
 
@@ -77,16 +76,7 @@ def test_add_user_defined_with_different_type_raises(db):
 
 def test_add_user_defined_on_standard_column_raises(read_only_db):
     with pytest.raises(ValueError, match="standard"):
-        read_only_db.tables.msm_Link.columns.add_user_defined("Diameter")
-
-
-def test_add_user_defined_new_column_without_type_raises(db):
-    pipes = db.tables.msm_Link
-
-    with pytest.raises(ValueError, match="data_type"):
-        pipes.columns.add_user_defined("my_col")
-
-    assert "my_col" not in pipes.columns
+        read_only_db.tables.msm_Link.columns.add_user_defined("Diameter", "double")
 
 
 def test_remove_user_defined_detaches_column(db):
@@ -100,7 +90,7 @@ def test_remove_user_defined_detaches_column(db):
     assert components.columns.user_defined == [
         c for c in EXISTING_AD_COLUMNS if c != "FineSediPctPipe"
     ]
-    assert components.columns.detached == ["FineSediPctPipe"]
+    assert components.columns.detached == ["finesedipctpipe"]
     assert _records(db, "msm_ADComponent", "FineSediPctPipe") == []
 
 
@@ -114,14 +104,14 @@ def test_remove_user_defined_unknown_column_raises(read_only_db):
         pipes.columns.remove_user_defined("Diameter")
 
 
-def test_add_user_defined_restores_detached_column_with_data(db):
+def test_restore_user_defined_restores_column_with_data(db):
     pipes = db.tables.msm_Link
     muid = pipes.get_muids()[0]
     pipes.columns.add_user_defined("my_col", "integer")
     pipes.update({"my_col": 42}).by_muid(muid).execute()
     pipes.columns.remove_user_defined("my_col")
 
-    record = pipes.columns.add_user_defined("my_col")
+    record = pipes.columns.restore_user_defined("my_col")
 
     assert pipes.columns.user_defined == ["my_col"]
     assert pipes.columns.detached == []
@@ -131,7 +121,7 @@ def test_add_user_defined_restores_detached_column_with_data(db):
     assert df["my_col"].iloc[0] == 42
 
 
-def test_restore_with_matching_type_succeeds(db):
+def test_add_user_defined_restores_detached_column_with_matching_type(db):
     components = db.tables.msm_ADComponent
     components.columns.remove_user_defined("FineSediPctPipe")
 
@@ -140,14 +130,20 @@ def test_restore_with_matching_type_succeeds(db):
     assert "FineSediPctPipe" in components.columns.user_defined
 
 
-def test_restore_keeps_canonical_casing(db):
+def test_restore_matches_any_casing_and_stores_given_one(db):
     components = db.tables.msm_ADComponent
     components.columns.remove_user_defined("FineSediPctPipe")
 
-    muid = components.columns.add_user_defined("FINESEDIPCTPIPE")
+    muid = components.columns.restore_user_defined("FINESEDIPCTPIPE")
 
-    assert "FineSediPctPipe" in components.columns.user_defined
-    assert _records(db, "msm_ADComponent", "FineSediPctPipe") == [muid]
+    assert "FINESEDIPCTPIPE" in components.columns.user_defined
+    assert _records(db, "msm_ADComponent", "FINESEDIPCTPIPE") == [muid]
+    assert components.columns.detached == []
+
+
+def test_restore_user_defined_unknown_column_raises(read_only_db):
+    with pytest.raises(KeyError):
+        read_only_db.tables.msm_Link.columns.restore_user_defined("my_col")
 
 
 def test_restore_with_different_type_raises_and_changes_nothing(db):
@@ -158,7 +154,7 @@ def test_restore_with_different_type_raises_and_changes_nothing(db):
         components.columns.add_user_defined("FineSediPctPipe", "string")
 
     assert "FineSediPctPipe" not in components.columns
-    assert components.columns.detached == ["FineSediPctPipe"]
+    assert components.columns.detached == ["finesedipctpipe"]
 
 
 def test_insert_and_update_set_new_column(db):
@@ -176,7 +172,7 @@ def test_insert_and_update_set_new_column(db):
 def test_insert_and_update_set_restored_column(db):
     components = db.tables.msm_ADComponent
     components.columns.remove_user_defined("FineSediPctPipe")
-    components.columns.add_user_defined("FineSediPctPipe")
+    components.columns.restore_user_defined("FineSediPctPipe")
 
     muid = components.insert({"FineSediPctPipe": 1.5})
     components.update({"FineSediPctPipe": 2.5}).by_muid(muid).execute()
