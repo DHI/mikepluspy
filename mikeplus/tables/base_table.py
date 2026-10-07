@@ -3,22 +3,21 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any
-
-from DHI.Amelia.GlobalUtility.DataType import UserDefinedColumnType
-from System import DateTime
-from System.Data import DbType
+from typing import TYPE_CHECKING, Any
 
 from mikeplus.dotnet import get_implementation as impl
 from mikeplus.queries import DeleteQuery, InsertQuery, SelectQuery, UpdateQuery
 
 from .base_table_columns import BaseColumns
 
+if TYPE_CHECKING:
+    import pandas as pd
+
 
 class BaseTable:
     """Base class representing a database table."""
 
-    def __init__(self, net_table):
+    def __init__(self, net_table: Any) -> None:
         """Initialize a new table wrapper.
 
         Parameters
@@ -34,15 +33,28 @@ class BaseTable:
             return
         self._net_table = impl(net_table, raw=True)
         self._columns = None
-        self._user_defined_columns = set()
 
     def __repr__(self) -> str:
-        """Get string representation."""
+        """Get string representation.
+
+        Returns
+        -------
+        str
+            Class name and table display name.
+
+        """
         return f"{self.__class__.__name__}<{self.display_name}>"
 
     @property
     def columns(self) -> BaseColumns:
-        """Get the columns for the table."""
+        """Get the columns for the table.
+
+        Returns
+        -------
+        BaseColumns
+            The table's columns.
+
+        """
         if self._columns is None:
             self._columns = BaseColumns(self)
         return self._columns
@@ -82,7 +94,7 @@ class BaseTable:
         """
         return list(self._net_table.GetMuids(order_by, descending))
 
-    def select(self, columns: str | list[str] | None = None):
+    def select(self, columns: str | list[str] | None = None) -> SelectQuery:
         """Create a SELECT query for this table.
 
         Parameters
@@ -98,7 +110,7 @@ class BaseTable:
         """
         return SelectQuery(self, columns)
 
-    def insert(self, values: dict[str, Any], execute=True):
+    def insert(self, values: dict[str, Any], execute: bool = True) -> str | InsertQuery:
         """Insert a row with given values.
 
         Parameters
@@ -122,7 +134,7 @@ class BaseTable:
         query = InsertQuery(self, values=values)
         return query.execute() if execute else query
 
-    def update(self, values: dict[str, Any]):
+    def update(self, values: dict[str, Any]) -> UpdateQuery:
         """Create an UPDATE query for this table.
 
         Parameters
@@ -139,7 +151,7 @@ class BaseTable:
         query = UpdateQuery(self, values)
         return query
 
-    def delete(self):
+    def delete(self) -> DeleteQuery:
         """Create a DELETE query for this table.
 
         Returns
@@ -150,7 +162,7 @@ class BaseTable:
         """
         return DeleteQuery(self)
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> pd.DataFrame:
         """Convert the table data to a pandas DataFrame.
 
         Returns
@@ -166,8 +178,11 @@ class BaseTable:
         column_name: str,
         column_data_type: str,
         column_header: str | None = None,
-    ):
+    ) -> str:
         """Add a user defined column to table.
+
+        Equivalent to ``table.columns.add_user_defined`` with a required data
+        type, so it is safe to call repeatedly.
 
         Parameters
         ----------
@@ -178,41 +193,18 @@ class BaseTable:
         column_header : str | None
             Name of the column as displayed in the MIKE+ GUI. None uses the column_name.
 
+        Returns
+        -------
+        str
+            MUID of the column's record in `m_UserDefinedColumn`.
+
+        Raises
+        ------
+        ValueError
+            If the column already exists with a different data type, or is a
+            standard MIKE+ column.
+
         """
-        table = self._net_table
-
-        column_data_type = column_data_type.lower()
-        if column_data_type == "integer":
-            column_data_type = DbType.Int32
-        elif column_data_type == "double":
-            column_data_type = DbType.Double
-        elif column_data_type == "string":
-            column_data_type = DbType.String
-        elif column_data_type == "datetime":
-            column_data_type = DbType.DateTime
-        else:
-            raise ValueError(
-                f"Invalid column_data_type: {column_data_type}. Must be one of 'integer', 'double', 'string', 'datetime'."
-            )
-
-        if column_header is None:
-            column_header = column_name
-
-        ret = table.AddUserDefinedColumn(
-            UserDefinedColumnType.NewDbField,  # Only NewDbField supported for now
-            column_header,
-            column_name,
-            column_data_type,
-            "",  # Expression columns not supported yet
-            "",  # Result columns not supported yet
-            "",  # Result columns not supported yet
-            0,  # Result columns not supported yet
-            DateTime.MinValue,  # Result columns not supported yet
-            False,  # Reset from database
+        return self.columns.add_user_defined(
+            column_name, column_data_type, header=column_header
         )
-
-        # Keep track so we can set values not-by-command for these columns
-
-        self._user_defined_columns.add(column_name)
-
-        return ret

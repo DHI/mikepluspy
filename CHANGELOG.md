@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.tools.CreateValvesFromPointsTool`, the MIKE+ tool that creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe (#120).
 - Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 - An optional `muids` argument on the `InterpolationTool` methods, such as `interpolate_from_DEM`, which restricts them to the given elements (#115).
+- User-defined columns are managed from `table.columns` (#124): `add_user_defined` creates, restores or leaves a column unchanged and returns its `m_UserDefinedColumn` MUID; `remove_user_defined` hides a column as MIKE+ does, keeping its data; `user_defined` and `detached` list the shown and restorable columns.
 
 ### Changed
 
@@ -42,6 +43,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `create()` stores the SRID, so `Database.srid` and new geometry use it instead of -1. It is also derived from `projection_string` when MIKE+ recognises it. A geographic or unknown `srid` (such as 4326, which MIKE+ silently turned into Google Maps - Mercator) raises `ValueError` before any file is touched (#141).
 - Opening a `.mupp` file that has no `.sqlite` of the same name beside it failed to find the database it refers to.
 - `select()` accepts a single column name instead of splitting it into characters (#44).
+- `BaseTable.add_user_defined_column()` no longer writes a duplicate `m_UserDefinedColumn` record when called again for the same column. It now returns the record's MUID, and raises `ValueError` if the column already exists with a different data type (#124).
+- `table.columns` and `insert`/`update` see user-defined columns added or removed after the table was first read, and `insert`/`update` set values in user-defined columns that were already in the database when it was opened (#124).
 - `SelectQuery.execute()` is annotated as returning each row's values as a list keyed by MUID, which is what it returns, instead of a dict of dicts.
 - Strings that look like numbers, such as `"760309"`, were written to text columns as datetimes.
 - Geometry updates through `update()` were not saved. They now go through MIKE+'s geometry command and raise `RuntimeError` if it doesn't commit.

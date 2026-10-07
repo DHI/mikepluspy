@@ -83,6 +83,40 @@ description as MIKE+ shows it, such as `GroundLevel` with `Ground level [m]`. Py
 these descriptions at runtime, so `help()` does not show them; read the source as above, or
 open the file `inspect.getsourcefile(type(nodes_table.columns))` returns.
 
+## User-Defined Columns
+
+Add your own columns to a table through `columns`, as MIKE+'s "Add user defined column"
+does. The data type is one of `"integer"`, `"double"`, `"string"` or `"datetime"`:
+
+```python
+pipes = db.tables.msm_Link
+pipes.columns.add_user_defined("install_year", "integer", header="Install year")
+pipes.update({"install_year": 1998}).all().execute()
+
+print(pipes.columns.user_defined)  # ['install_year']
+```
+
+`add_user_defined` is safe to call repeatedly: it creates the column, restores it, or
+leaves it unchanged, and always returns the MUID of the column's `m_UserDefinedColumn`
+record. Passing a type that differs from the existing column raises `ValueError`.
+
+Removing a column hides it from MIKE+ but keeps it and its data in the database. Such
+columns are listed in `detached`, and `add_user_defined` without a type restores them:
+
+```python
+pipes.columns.remove_user_defined("install_year")
+print(pipes.columns.detached)  # ['install_year']
+
+pipes.columns.add_user_defined("install_year")  # restored, data intact
+```
+
+To set up the same columns across several tables, loop over them:
+
+```python
+for table_name in ["msm_Link", "msm_Node"]:
+    db.tables[table_name].columns.add_user_defined("asset_id", "string")
+```
+
 ## Querying and Modifying Data
 
 While the table object itself provides access to metadata, the actual reading, adding, updating, or deleting of data rows within the table is handled through queries.
