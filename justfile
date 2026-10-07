@@ -24,33 +24,18 @@ setup-docs:
 
 # --- Fast tier: no MIKE+ install needed ---------------------------------------------
 
-# Lint, check formatting, and check the public API and the docs examples
-lint:
-    uv run --no-sync ruff check .
-    uv run --no-sync ruff format --check .
-    uv run --no-sync python scripts/linters/lint_public_api.py
-    uv run --no-sync python scripts/linters/lint_docs_examples.py
+# Run every linter in scripts/linters, or one: `just lint docs_examples`, `just lint changed origin/main`
+lint *args:
+    uv run --no-sync python -m scripts.linters {{ args }}
 
-# Check the public API (__all__) against the source and the docs
-api:
-    uv run --no-sync python scripts/linters/lint_public_api.py
+# Type check the package, or the given files
+typecheck *paths:
+    uv run --no-sync pyrefly check {{ paths }}
 
-# Check code examples in the docs and docstrings against the API; part of `lint`
-docs-examples:
-    uv run --no-sync python scripts/linters/lint_docs_examples.py
-
-# Stricter rules (annotations, Returns/Raises sections) on files changed since `base`
-lint-changed base="main":
-    uv run --no-sync python scripts/linters/lint_changed.py {{ base }}
-
-# Type check
-typecheck:
-    uv run --no-sync pyrefly check
-
-# Apply formatting and safe lint fixes
-fix:
-    uv run --no-sync ruff format .
-    uv run --no-sync ruff check --fix .
+# Apply formatting and safe lint fixes to the repository, or the given files
+fix *paths=".":
+    uv run --no-sync ruff format {{ paths }}
+    uv run --no-sync ruff check --fix {{ paths }}
 
 # --- Slow tier: needs MIKE+ installed -----------------------------------------------
 

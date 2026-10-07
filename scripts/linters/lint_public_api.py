@@ -33,7 +33,7 @@ line that closes it once the formatter has wrapped it.
 
 Usage
 -----
-    just api          # or: python scripts/linters/lint_public_api.py, from the repository root
+    just lint public_api
 
 Exits 1 when there are findings. Output is ``path:line: check message``.
 """

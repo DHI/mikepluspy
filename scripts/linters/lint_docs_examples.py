@@ -18,7 +18,7 @@ Nothing is imported, so no MIKE+ install is needed. ruff's DOC102 covers ``Param
 
 Usage
 -----
-    just docs-examples          # or: python scripts/linters/lint_docs_examples.py
+    just lint docs_examples
 
 Exits 1 when there are findings. Output is ``path:line: check message``.
 """

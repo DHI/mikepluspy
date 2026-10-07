@@ -88,7 +88,7 @@ lint.pydocstyle.convention = "numpy"
 lint.ignore = [
     "E501",
     "BLE001",  # wrapping arbitrary .NET exceptions from pythonnet is intentional
-    "RUF100",  # preview turns it on; noqa codes for lint-changed's stricter rules look unused here
+    "RUF100",  # preview turns it on; noqa codes for `just lint changed`'s stricter rules look unused here
 ]
 
 [tool.pytest.ini_options]

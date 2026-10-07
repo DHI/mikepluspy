@@ -1,7 +1,8 @@
 """Claude Code hooks that put lint and type errors in front of the agent as it works.
 
-edit   PostToolUse on Edit|Write. Formats and fixes the edited file with ruff, then reports
-       what ruff and pyrefly still find in it. Only package files, which is what CI checks.
+edit   PostToolUse on Edit|Write. Runs ``just fix`` on the edited file, then reports what
+       ``just lint ruff`` and ``just typecheck`` still find in it. Only package files,
+       which is what CI checks.
 stop   Stop. If code or docs changed, runs ``just lint`` and ``just typecheck`` and
        reports a failure once; ``stop_hook_active`` lets the agent stop the second time.
 
@@ -11,7 +12,6 @@ Exit code 2 sends stderr to the agent. Nothing is printed on success.
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -21,15 +21,6 @@ PACKAGE = ROOT / "mikeplus"
 GENERATED = PACKAGE / "tables" / "auto_generated"
 CHECKED_SUFFIXES = {".py", ".qmd", ".md", ".ipynb", ".toml", ".yml"}
 MAX_LINES = 60
-
-
-def tool(name: str) -> str:
-    """Return the path of a tool installed next to this Python, or its bare name."""
-    scripts = Path(sys.executable).parent
-    for candidate in (scripts / name, scripts / f"{name}.exe"):
-        if candidate.is_file():
-            return str(candidate)
-    return shutil.which(name) or name
 
 
 def run(*command: str) -> tuple[int, str]:
@@ -61,15 +52,10 @@ def edit(event: dict) -> int:
         or not path.is_file()
     ):
         return 0
-    ruff = tool("ruff")
-    run(ruff, "format", "--quiet", str(path))
-    run(ruff, "check", "--fix", "--quiet", str(path))
+    run("just", "fix", str(path))
     problems = []
-    for command in (
-        (ruff, "check", "--quiet", "--output-format", "concise", str(path)),
-        (tool("pyrefly"), "check", "--output-format", "min-text", "--summary=none", str(path)),
-    ):
-        code, output = run(*command)
+    for command in (("lint", "ruff", str(path)), ("typecheck", str(path))):
+        code, output = run("just", *command)
         if code != 0:
             problems.append(output)
     return report("\n".join(problems)) if problems else 0
