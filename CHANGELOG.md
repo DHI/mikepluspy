@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2026.1.0] - 2026-10-07
+
 ### Added
 
 - Support for MIKE+ 2026 Update 1, including its new tables (such as `mss_InletConduitCon` and `mw_WDOAmi`) and columns.
@@ -218,7 +220,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Fix setting the value of a database does not auto cast values. Int value can accept as double value now.
 - Fix inserting fails silently when no value is provided for 'Seq'.
 
-[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2026.0.0...HEAD
+[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2026.1.0...HEAD
+[2026.1.0]: https://github.com/DHI/mikepluspy/compare/v2026.0.0...v2026.1.0
 [2026.0.0]: https://github.com/DHI/mikepluspy/compare/v2025.6.0...v2026.0.0
 [2025.6.0]: https://github.com/DHI/mikepluspy/compare/v2025.5.0...v2025.6.0
 [2025.5.0]: https://github.com/DHI/mikepluspy/compare/v2025.4.0...v2025.5.0
