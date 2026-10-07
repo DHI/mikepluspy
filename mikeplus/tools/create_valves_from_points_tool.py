@@ -35,7 +35,7 @@ class CreateValvesFromPointsTool:
 
     Examples
     --------
-    ```python
+    ```{.python .no-run}
     >>> import mikeplus as mp
     >>> from mikeplus.tools import CreateValvesFromPointsTool
     >>> db = mp.open("path/to/model.sqlite")

@@ -47,14 +47,14 @@ class ScenarioCollection:
 
     Examples
     --------
+    >>> # Create a new scenario
+    >>> new_scenario = db.scenarios.create("Future Development")
+    >>>
     >>> # Access by ID
-    >>> scenario = db.scenarios["scenario_id"]
+    >>> scenario = db.scenarios[new_scenario.id]
     >>>
     >>> # Get the active scenario
     >>> active = db.scenarios.active
-    >>>
-    >>> # Create a new scenario
-    >>> new_scenario = db.scenarios.create("Future Development")
     """
 
     def __init__(self, scenario_manager: Any) -> None:

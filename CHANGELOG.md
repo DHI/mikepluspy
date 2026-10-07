@@ -52,6 +52,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Geometry updates through `update()` were not saved. They now go through MIKE+'s geometry command and raise `RuntimeError` if it doesn't commit.
 - `from mikeplus.tables import *` raised `AttributeError`, and the table classes couldn't be imported from `mikeplus.tables`.
 - Inserting a row with no field values on MIKE+ 2026 Update 1.
+- `Database.run()` with a simulation MUID the model doesn't have ran the engine and then raised a .NET `NullReferenceException`. It now raises `ValueError` before starting the engine.
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
 - `Database.create(overwrite=True)` deleted the existing database before rejecting `srid` together with `projection_string` (#140).

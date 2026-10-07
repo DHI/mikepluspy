@@ -34,7 +34,7 @@ class DemandAggregationTool:
 
     Examples
     --------
-    ```python
+    ```{.python .no-run}
     >>> from mikeplus import Database
     >>> from mikeplus.tools import DemandAggregationTool
     >>> db = Database("path/to/model.sqlite")

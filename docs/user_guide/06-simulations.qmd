@@ -19,20 +19,20 @@ You can control which simulation to execute and which model engine to use:
 
 *   **Simulation Setup**: The `simulation_muid` parameter is the MUID of the simulation setup to run (e.g., "BaseRun", "Scenario_A_Sim"). If omitted, the active simulation in the model is used.
 
-    ```python
+    ```{.python .no-run}
     # Runs a specific simulation setup
     results = db.run(simulation_muid="FloodEvent_2023_Sim")
     ```
 
 *   **Simulation Option**: The keyword-only `sim_option` parameter selects the engine: `"CS_MIKE_1D"` (rivers, collection systems and overland flow), `"CS_SWMM"`, `"WD_EPANET"` (water distribution), or `"CS_MIKE_1D_JobList"` (generates an LTS job list). If omitted, it is derived from `db.active_model`; that only works for the CS_MIKE1D, CS_SWMM and WD_EPANET models, and raises `ValueError` otherwise.
 
-    ```python
+    ```{.python .no-run}
     # Runs using the EPANET engine for water distribution
     results = db.run(sim_option="WD_EPANET")
     ```
 
 You can combine these parameters:
-```python
+```{.python .no-run}
 results = db.run(
     simulation_muid="PeakDemand_Scenario",
     sim_option="WD_EPANET"
@@ -51,7 +51,7 @@ for path in result_paths:
 
 ## {{< icon triangle-alert >}} Error Handling
 
-`db.run()` raises `RuntimeError` if the engine fails to start, exits with an error, or doesn't write its result files; the message names the engine's logs. It raises `ValueError` if `sim_option` is invalid or cannot be derived from the active model.
+`db.run()` raises `RuntimeError` if the engine fails to start, exits with an error, or doesn't write its result files; the message names the engine's logs. It raises `ValueError` if `sim_option` is invalid or cannot be derived from the active model, or if the model has no simulation with the given MUID.
 
 ```python
 try:

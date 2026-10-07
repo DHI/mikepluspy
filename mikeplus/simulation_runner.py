@@ -83,7 +83,7 @@ class SimulationRunner:
         ------
         ValueError
             If `sim_option` is invalid, or not given and the active model does not
-            determine one.
+            determine one, or the model has no simulation with MUID `muid`.
         RuntimeError
             If the simulation engine fails to start, exits with an error, or
             doesn't write its result files. The message names the engine's logs.
@@ -146,7 +146,7 @@ class SimulationRunner:
         list[Path]
             Paths to the result files.
         """
-        sim_muid = self._get_sim_muid(sim_muid)
+        sim_muid = self._get_sim_muid(sim_muid, "msm_Project")
 
         # CS is a special case that returns launcher directly
         launcher = DhiEngineSimpleLauncher()
@@ -175,7 +175,7 @@ class SimulationRunner:
         list[Path]
             Paths to the result files.
         """
-        sim_muid = self._get_sim_muid(sim_muid)
+        sim_muid = self._get_sim_muid(sim_muid, "msm_Project")
 
         launcher = DhiEngineSimpleLauncher()
         messages = List[String]()
@@ -204,7 +204,7 @@ class SimulationRunner:
         list[Path]
             Paths to the result files.
         """
-        sim_muid = self._get_sim_muid(sim_muid)
+        sim_muid = self._get_sim_muid(sim_muid, "mw_Project")
 
         launcher = DhiEngineSimpleLauncher()
         messages = List[String]()
@@ -236,7 +236,7 @@ class SimulationRunner:
         list[Path]
             Paths to the result files.
         """
-        sim_muid = self._get_sim_muid(sim_muid)
+        sim_muid = self._get_sim_muid(sim_muid, "mss_Project")
 
         launcher = DhiEngineSimpleLauncher()
         messages = List[String]()
@@ -254,7 +254,7 @@ class SimulationRunner:
             launcher, self._get_result_files("mss_Project", sim_muid)
         )
 
-    def _get_sim_muid(self, sim_muid: str | None) -> str:
+    def _get_sim_muid(self, sim_muid: str | None, project_table_name: str) -> str:
         """Get simulation MUID, or active simulation MUID if None.
 
         Returns
@@ -262,9 +262,21 @@ class SimulationRunner:
         str
             The simulation MUID.
 
+        Raises
+        ------
+        ValueError
+            If the project table has no simulation with the given MUID.
+
         """
         if sim_muid is None:
             return self._database.active_simulation
+        # MIKE+ launches the engine for an unknown MUID and only fails afterwards,
+        # with a NullReferenceException when asked for the result files.
+        project_table = getattr(self._database.tables, project_table_name)
+        if sim_muid not in project_table.get_muids():
+            raise ValueError(
+                f"No simulation with MUID '{sim_muid}' in {project_table_name}."
+            )
         return sim_muid
 
     def _handle_engine_launch(

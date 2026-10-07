@@ -118,5 +118,15 @@ def test_mike_engine_run_epanet(epanet_demo_db):
 def test_run_raises_when_simulation_fails(sirius_db):
     with Database(sirius_db) as db:
         db.tables.msm_Link.update({"Diameter": 0}).all().execute()
-        with pytest.raises(RuntimeError, match="exited with code"):
+        # MIKE+ 2026 U1 exits with code 0 here but writes no results.
+        with pytest.raises(RuntimeError, match="exited with code|did not write"):
             db.run()
+
+
+@pytest.mark.parametrize(
+    "sim_option", ["CS_MIKE_1D", "CS_SWMM", "WD_EPANET", "CS_MIKE_1D_JobList"]
+)
+def test_run_rejects_unknown_simulation(module_sirius_db, sim_option):
+    with Database(module_sirius_db) as db:
+        with pytest.raises(ValueError, match="No simulation with MUID 'Nope'"):
+            db.run("Nope", sim_option=sim_option)

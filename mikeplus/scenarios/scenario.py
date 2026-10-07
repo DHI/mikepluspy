@@ -6,7 +6,7 @@ Represents a scenario in the MIKE+ model.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .alternative import Alternative
@@ -49,6 +49,7 @@ class Scenario:
     Examples
     --------
     >>> # Activate a scenario
+    >>> db.scenarios.create("Future Development")
     >>> scenario = db.scenarios.by_name("Future Development")
     >>> scenario.activate()
     >>>
@@ -57,7 +58,7 @@ class Scenario:
     ...     print(f"{alt.group.name}: {alt.name}")
     """
 
-    def __init__(self, scenario_manager, net_scenario):
+    def __init__(self, scenario_manager: Any, net_scenario: Any) -> None:
         """Scenario constructor.
 
         Parameters
@@ -70,12 +71,24 @@ class Scenario:
         self._scenario_manager = scenario_manager
         self._net_scenario = net_scenario
 
-    def __repr__(self):
-        """Get string representation of the Scenario object."""
+    def __repr__(self) -> str:
+        """Get string representation of the Scenario object.
+
+        Returns
+        -------
+        str
+            The scenario's name in the form ``Scenario <name>``.
+        """
         return f"Scenario <{self.name}>"
 
     def __eq__(self, other: object) -> bool:
-        """Check if two scenarios are equal."""
+        """Check if two scenarios are equal.
+
+        Returns
+        -------
+        bool
+            Whether `other` is a scenario with the same ID.
+        """
         if not isinstance(other, Scenario):
             return False
         return self.id == other.id

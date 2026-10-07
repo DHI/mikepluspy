@@ -11,7 +11,8 @@ passed to ``mp.open`` or ``Database`` is created as another copy, so placeholder
 such as ``"path/to/model.sqlite"`` work. The working directory is a temporary one.
 
 A block is not run when its fence has the class ``.no-run`` (```` ```{.python .no-run} ````)
-or it contains a bare ``...`` statement. An error is counted as a skip, not a failure,
+or it contains a bare ``...`` statement. A docstring's ``>>>`` examples run as one block,
+so a ``.no-run`` fence anywhere in the docstring skips all of them. An error is counted as a skip, not a failure,
 when it names a path written in the example that does not exist, or a name that a
 ``# Assuming 'x' is ...`` comment leaves to the reader. Anything else fails the test.
 """
