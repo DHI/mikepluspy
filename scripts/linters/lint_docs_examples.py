@@ -312,7 +312,10 @@ def docstring_pages(package: Package) -> list[Page]:
                 code.append("")  # output and prose stay as blanks to keep line numbers
         if code:
             path = Path(module.filepath)
-            snippet = Snippet(path, docstring.lineno + first, "\n".join(code), module)
+            attrs = " ".join(m.group("attrs") for m in FENCE.finditer("\n".join(lines)))
+            snippet = Snippet(
+                path, docstring.lineno + first, "\n".join(code), module, attrs=attrs
+            )
             pages.append(Page(path, [snippet]))
     return pages
 

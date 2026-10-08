@@ -132,7 +132,7 @@ class BaseQuery[QueryResultT](ABC):
         self,
         values: dict[str, Any],
     ) -> dict[str, Any]:
-        """Resolve field names to canonical MIKE+ casing.
+        """Give each field name its canonical MIKE+ casing.
 
         Parameters
         ----------
@@ -623,7 +623,7 @@ class DeleteQuery(BaseQuery[list[str]]):
         Raises
         ------
         ValueError
-            If no WHERE conditions specified and all() not called
+            If no `where()` conditions are given and `all()` is not called
 
         """
         # Safety check: if no conditions and all() not called, prevent accidental deletes

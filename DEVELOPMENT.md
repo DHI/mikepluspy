@@ -145,7 +145,9 @@ not need `mikeplus` to be importable, so it builds without MIKE+, on Linux too.
   and are dropped from the URLs.
 - `README.md` is the home page. Its centred block (logo, tagline, badges)
   becomes the hero.
-- `docs/dictionary.txt` lists words the proofreader accepts.
+- `docs/dictionary.txt` lists words the proofreader accepts. Put code (names,
+  types, SQL) in backticks instead: `just docs-check` proofreads docstrings and
+  pages as Markdown, which skips inline code. Comments are not proofread.
 
 To build locally:
 

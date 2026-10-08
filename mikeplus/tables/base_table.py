@@ -95,7 +95,7 @@ class BaseTable:
         return list(self._net_table.GetMuids(order_by, descending))
 
     def select(self, columns: str | list[str] | None = None) -> SelectQuery:
-        """Create a SELECT query for this table.
+        """Create a `SELECT` query for this table.
 
         Parameters
         ----------
@@ -135,7 +135,7 @@ class BaseTable:
         return query.execute() if execute else query
 
     def update(self, values: dict[str, Any]) -> UpdateQuery:
-        """Create an UPDATE query for this table.
+        """Create an `UPDATE` query for this table.
 
         Parameters
         ----------
@@ -152,7 +152,7 @@ class BaseTable:
         return query
 
     def delete(self) -> DeleteQuery:
-        """Create a DELETE query for this table.
+        """Create a `DELETE` query for this table.
 
         Returns
         -------

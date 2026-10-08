@@ -94,7 +94,7 @@ repair_tool.run(
 
 The `CreateValvesFromPointsTool` adds a valve to a water distribution model for each point in a shapefile. A point near a junction gets a valve at that junction; otherwise the nearest pipe is split at the point. The `*_field` arguments name the shapefile columns to read valve attributes from. The points must be in the model's coordinate system.
 
-```python
+```{.python .no-run}
 from mikeplus.tools import CreateValvesFromPointsTool
 
 tool = CreateValvesFromPointsTool(db)
@@ -124,7 +124,7 @@ tool.run("nearest_junction", max_distance=50.0)
 
 The other methods are `"junction_by_nearest_pipe"`, `"junction_by_pipe_id"` and `"nearest_pipe"`. You can limit the run to some demand allocations with `demand_ids`, and the candidate targets with `junction_ids`, `pipe_ids`, `max_diameter` or a SQL `where` condition:
 
-```python
+```{.python .no-run}
 tool.run(
     "nearest_pipe",
     demand_ids=["Demand_1", "Demand_2"],
@@ -141,7 +141,7 @@ After a run, a demand allocation connected to a junction has no `PipeID`, and on
 
 The `DemandAggregationTool` turns the demand allocations in `mw_DemAlloc` into junction demands in `mw_MDemand`, or into pipe demand coefficients in `mw_Pipe`. Each method aggregates all demand allocations, or only those whose MUIDs you pass.
 
-```python
+```{.python .no-run}
 from mikeplus.tools import DemandAggregationTool
 
 tool = DemandAggregationTool(db)

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2026.1.0] - 2026-10-07
+
 ### Added
 
 - Support for MIKE+ 2026 Update 1, including its new tables (such as `mss_InletConduitCon` and `mw_WDOAmi`) and columns.
@@ -50,6 +52,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Geometry updates through `update()` were not saved. They now go through MIKE+'s geometry command and raise `RuntimeError` if it doesn't commit.
 - `from mikeplus.tables import *` raised `AttributeError`, and the table classes couldn't be imported from `mikeplus.tables`.
 - Inserting a row with no field values on MIKE+ 2026 Update 1.
+- `Database.run()` with a simulation MUID the model doesn't have ran the engine and then raised a .NET `NullReferenceException`. It now raises `ValueError` before starting the engine.
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
 - `Database.create(overwrite=True)` deleted the existing database before rejecting `srid` together with `projection_string` (#140).
@@ -218,7 +221,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Fix setting the value of a database does not auto cast values. Int value can accept as double value now.
 - Fix inserting fails silently when no value is provided for 'Seq'.
 
-[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2026.0.0...HEAD
+[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2026.1.0...HEAD
+[2026.1.0]: https://github.com/DHI/mikepluspy/compare/v2026.0.0...v2026.1.0
 [2026.0.0]: https://github.com/DHI/mikepluspy/compare/v2025.6.0...v2026.0.0
 [2025.6.0]: https://github.com/DHI/mikepluspy/compare/v2025.5.0...v2025.6.0
 [2025.5.0]: https://github.com/DHI/mikepluspy/compare/v2025.4.0...v2025.5.0

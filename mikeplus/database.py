@@ -604,6 +604,7 @@ class Database:
 
         Examples
         --------
+        ```{.python .no-run}
         >>> with mp.open("path/to/model.sqlite") as db:
         ...     results = db.run()
 
@@ -613,6 +614,7 @@ class Database:
         >>> db = mp.open("path/to/model.sqlite")
         >>> results = db.run("My Simulation")
         >>> db.close()
+        ```
 
         Returns
         -------
@@ -623,7 +625,8 @@ class Database:
         ------
         ValueError
             If `sim_option` is invalid, or not given and the active model does not
-            determine one.
+            determine one, or the model has no simulation with MUID
+            `simulation_muid`.
         RuntimeError
             If the simulation engine fails to start, exits with an error, or
             doesn't write its result files. The message names the engine's logs.
