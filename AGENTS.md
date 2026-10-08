@@ -1,6 +1,6 @@
 # AGENTS.md
 
-MIKE+Py: a Python veneer (pythonnet) over the .NET assemblies of a local MIKE+ install. Windows and Linux, x64 only; most functionality needs a MIKE+ license.
+MIKE+Py: a Python veneer (pythonnet) over the .NET assemblies of a local MIKE+ install. Windows x64; most functionality needs a MIKE+ license. Linux x64 imports, but parts of MIKE+ (such as database operations) don't work there yet, so it is not a supported platform.
 
 ## MIKE+ is a black box
 

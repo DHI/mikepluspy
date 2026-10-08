@@ -10,7 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Support for MIKE+ 2026 Update 1, including its new tables (such as `mss_InletConduitCon` and `mw_WDOAmi`) and columns.
 - `mikeplus.utilities.get_nearest_river_at` and `get_nearest_river_chainage_at`, which find the river (and chainage) nearest to a point, for example to couple river junction nodes to rivers (#112).
 - `Database.begin_transaction()` and `Database.end_transaction(commit)`, which group many updates into one transaction and make batch edits much faster (#112).
 - `mikeplus.DatabaseError`, raised when creating, opening, closing or importing into a database fails. It subclasses `Exception`, so existing `except Exception` handlers still catch it.
@@ -18,7 +17,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `mikeplus.tools.DemandConnectionTool`, the MIKE+ connection tool for demand allocations: connects `mw_DemAlloc` points to the nearest junction, a junction of the nearest pipe or the nearest pipe (part of #120). Failures raise `mikeplus.DatabaseError`.
 - `mikeplus.tools.DemandAggregationTool`, the water distribution Aggregation tool: aggregates demand allocations to junction demands or pipe demand coefficients, rejecting unknown allocation MUIDs (#120).
 - `mikeplus.tools.CreateValvesFromPointsTool`, the MIKE+ tool that creates water distribution valves from a point shapefile, snapping each point to a nearby junction or pipe (#120).
-- Linux x64 support. There is no default install path on Linux, so set `MIKEPLUSPY_INSTALL_ROOT`.
 - An optional `muids` argument on the `InterpolationTool` methods, such as `interpolate_from_DEM`, which restricts them to the given elements (#115).
 - User-defined columns are managed from `table.columns` (#124): `add_user_defined` creates, restores or leaves a column unchanged and returns its `m_UserDefinedColumn` MUID; `remove_user_defined` hides a column as MIKE+ does, keeping its data, and `restore_user_defined` brings it back; `user_defined` and `detached` list the shown and restorable columns.
 
@@ -38,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 
-- Support for Python 3.10, 3.11 and 3.12. MIKE+Py now requires Python 3.13 or later.
+- Support for Python 3.10 and 3.11. MIKE+Py now requires Python 3.12 or later.
 
 ### Fixed
 
@@ -51,7 +49,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Strings that look like numbers, such as `"760309"`, were written to text columns as datetimes.
 - Geometry updates through `update()` were not saved. They now go through MIKE+'s geometry command and raise `RuntimeError` if it doesn't commit.
 - `from mikeplus.tables import *` raised `AttributeError`, and the table classes couldn't be imported from `mikeplus.tables`.
-- Inserting a row with no field values on MIKE+ 2026 Update 1.
 - `Database.run()` with a simulation MUID the model doesn't have ran the engine and then raised a .NET `NullReferenceException`. It now raises `ValueError` before starting the engine.
 - `InterpolationTool.interpolate_from_neighobour` always raised `AttributeError`; it now honours `alongPath`.
 - The `InterpolationTool` methods raised `TypeError` when `value_as_missing` was a number.
