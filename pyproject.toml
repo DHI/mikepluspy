@@ -19,13 +19,14 @@ authors = [
 ]
 description = "A python script package to manipulate MIKE+ database, run simulation by using MIKE+ data, run tools based on MIKE+ data"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
@@ -72,7 +73,7 @@ docs = [
 project-includes = ["mikeplus"]
 project-excludes = ["mikeplus/tables/auto_generated/**"]
 preset = "default"
-python-version = "3.13"
+python-version = "3.12"
 ignore-missing-imports = ["DHI.*", "ThinkGeo.*", "System", "System.*"]
 replace-imports-with-any = ["clr"]  # pythonnet adds AddReference at runtime
 

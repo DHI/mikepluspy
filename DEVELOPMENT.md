@@ -54,12 +54,14 @@ Save genuine breaks for the next year bump.
 - For changed .NET signatures, support both forms (try new, fall back to old)
   rather than swapping. See `SimulationRunner.__init__`. Tag fallbacks with
   `TODO(<next year>)` for cleanup at the year bump.
-- Minimum Python and dependency versions follow
-  [SPEC 0](https://scientific-python.org/specs/spec-0000/), not the year line.
-  In the first release of each quarter, raise any floor that the
+- Minimum versions follow
+  [SPEC 0](https://scientific-python.org/specs/spec-0000/). The minimum Python
+  rises only in a year line's first release (`YYYY.0.0`), which drops every
+  Python that the
   [drop schedule](https://scientific-python.org/specs/spec-0000/#drop-schedule)
-  has passed, along with the oldest Python in the CI matrices. See
-  `adr/0002-dependency-floors-follow-spec-0.md`.
+  has passed, along with the oldest Python in the CI matrices. numpy and pandas
+  floors rise in the first release of each quarter. See
+  `adr/0005-python-support-follows-spec-0-by-year-line.md`.
 
 ## Public API
 
@@ -129,6 +131,7 @@ When a new version of MIKE+ is released, the following needs to be done before r
     - Update assembly version to match latest version (23 = 2025, 24 = 2026)
 9. Bump package version to match year of MIKE+ (e.g. 2026.0.0 for the first 2026 release)
 10. Update CI runner to use the new MIKE+ version
+    - Drop the Python versions that SPEC 0 has dropped: `requires-python`, classifiers, `[tool.pyrefly] python-version` and the oldest Python in the CI matrices (see `adr/0005-python-support-follows-spec-0-by-year-line.md`)
 11. In `CHANGELOG.md`, rename `[Unreleased]` to `[<version>] - <date>`, add an empty `[Unreleased]` above it, and update the link references at the bottom (see `adr/0003-keep-a-changelog.md`).
 12. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
 Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.

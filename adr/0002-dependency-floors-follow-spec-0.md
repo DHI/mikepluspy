@@ -1,6 +1,6 @@
 # ADR 0002: Python and dependency floors follow SPEC 0
 
-- Status: Accepted
+- Status: Superseded by ADR 0005
 - Date: 2026-10-01
 
 ## Context
