@@ -122,6 +122,7 @@ NewDbField
 NodeTable
 noqa
 NullReference
+NullReferenceException
 OGC
 parameterless
 pathlib
