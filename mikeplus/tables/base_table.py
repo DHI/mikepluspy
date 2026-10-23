@@ -28,7 +28,7 @@ class BaseTable:
         """
         if net_table is None:
             warnings.warn(
-                f"Could not intialize table: {self.__class__}. This is likely due to a mismatch between the model database and mikepluspy version."
+                f"Could not initialize table: {self.__class__}. This is likely due to a mismatch between the model database and mikepluspy version."
             )
             return
         self._net_table = impl(net_table, raw=True)
