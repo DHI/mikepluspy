@@ -46,7 +46,8 @@ _install_root, _dll_dir_handle = _setup_bin_path(
     bin_path=Path("bin/x64"),
 )
 
-#  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
+# TODO(2028): remove once mikeio1d stops calling mikeplus.MikeImport.ActiveProduct().InstallRoot
+# (mikeio1d 1.5.1 still does).
 try:
     from DHI.Mike.Install import (
         MikeImport,
