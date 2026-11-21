@@ -36,17 +36,7 @@ class SimulationRunner:
         >>> runner = SimulationRunner(db)
         """
         self._database = database
-        # MIKE+ 2026 U1 changed the EngineTool constructor signature. To avoid a
-        # breaking change within the 2026 line, support both: try the U1+ form
-        # (container passed to the constructor), then fall back to the 2026 GA
-        # form (parameterless constructor + DataTables property). pythonnet raises
-        # TypeError when no constructor overload matches the given arguments.
-        # TODO(2027): drop the GA fallback once 2026 GA installs have aged out.
-        try:
-            self._engine_tool = EngineTool(self._database._data_table_container)
-        except TypeError:
-            self._engine_tool = EngineTool()
-            self._engine_tool.DataTables = self._database._data_table_container
+        self._engine_tool = EngineTool(self._database._data_table_container)
 
     def run(
         self,

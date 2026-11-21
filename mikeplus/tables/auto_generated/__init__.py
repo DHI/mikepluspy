@@ -269,6 +269,8 @@ from .m2d_GridDefinition import m2d_GridDefinitionTable
 from .m2d_GridInactiveArea import m2d_GridInactiveAreaTable
 from .m2d_GridInactiveAreaLayer import m2d_GridInactiveAreaLayerTable
 from .m2d_Boundary import m2d_BoundaryTable
+from .m2d_ZoneDetails import m2d_ZoneDetailsTable
+from .m2d_ZoneExtents import m2d_ZoneExtentsTable
 from .m2d_BndQHRelation import m2d_BndQHRelationTable
 from .m2d_BndDistributedSource import m2d_BndDistributedSourceTable
 from .m2d_ADInitalCondition import m2d_ADInitalConditionTable
@@ -607,6 +609,8 @@ __all__ = [
     "m2d_GridInactiveAreaTable",
     "m2d_GridInactiveAreaLayerTable",
     "m2d_BoundaryTable",
+    "m2d_ZoneDetailsTable",
+    "m2d_ZoneExtentsTable",
     "m2d_BndQHRelationTable",
     "m2d_BndDistributedSourceTable",
     "m2d_ADInitalConditionTable",
