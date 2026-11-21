@@ -25,6 +25,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Support for Python 3.12. MIKE+Py now requires Python 3.13 or later. On Python 3.12, upgrade Python or stay on 2026.1.x, which supports MIKE+ 2026 only.
 
+### Fixed
+
+- `from mikeplus.utilities import ...` no longer fails in Jupyter and other interactive interpreters.
+
 ## [2026.1.0] - 2026-10-08
 
 ### Added

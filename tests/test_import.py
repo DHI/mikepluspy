@@ -101,3 +101,22 @@ def test_without_install_root_resolves_to_2027():
 
     assert report["warnings"] == []
     assert_loaded_from_2027(report)
+
+
+@requires_install(MIKEPLUS_2027)
+def test_utilities_import_in_interactive_interpreter():
+    # pythonnet preloads every type of an assembly when sys.ps1 is set, as in Jupyter
+    env = dict(os.environ)
+    env["MIKEPLUSPY_INSTALL_ROOT"] = str(MIKEPLUS_2027)
+    code = (
+        "import sys; sys.ps1 = '>>> '\n"
+        "from mikeplus.utilities import get_nearest_river_chainage_at\n"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+    assert result.returncode == 0, result.stderr
