@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2026.1.0"
+__version__ = "2027.0.0"
 
 
 import sys as _sys
