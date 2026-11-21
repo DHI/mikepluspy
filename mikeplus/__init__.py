@@ -34,8 +34,8 @@ load(
 )
 import clr
 
+from .utils import _warn_if_unexpected_mikeplus
 from .utils import setup_bin_path as _setup_bin_path
-from .utils import warn_if_unexpected_mikeplus as _warn_if_unexpected_mikeplus
 
 _major_assembly_version = 25
 

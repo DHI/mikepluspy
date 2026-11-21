@@ -178,7 +178,7 @@ def _try_setup_default_bin_path(
     )
 
 
-def warn_if_unexpected_mikeplus(
+def _warn_if_unexpected_mikeplus(
     assembly: Any, major_assembly_version: int, install_root: Path | None
 ) -> None:
     """Warn if a loaded MIKE+ assembly is from another MIKE+ year than expected."""
