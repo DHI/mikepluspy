@@ -93,3 +93,11 @@ def test_2026_install_root_warns_naming_expected_year_and_path():
 
     [warning] = wrong_year_warnings(report)
     assert str(MIKEPLUS_2026) in warning
+
+
+@requires_install(MIKEPLUS_2027)
+def test_without_install_root_resolves_to_2027():
+    report = import_mikeplus(None)
+
+    assert report["warnings"] == []
+    assert_loaded_from_2027(report)
