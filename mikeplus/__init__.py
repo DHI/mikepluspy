@@ -18,7 +18,7 @@ if _sysconfig.get_platform() not in ("win-amd64", "linux-x86_64"):
     )
 if _sys.platform == "win32":
     _runtime_config = "runtimeconfig.json"
-    _fallback_install_root: Path | None = Path("C:/Program Files (x86)/DHI/MIKE+/2026")
+    _fallback_install_root: Path | None = Path("C:/Program Files (x86)/DHI/MIKE+/2027")
 else:
     # Microsoft.WindowsDesktop.App does not exist on Linux
     _runtime_config = "runtimeconfig.linux.json"
@@ -35,9 +35,12 @@ load(
 import clr
 
 from .utils import setup_bin_path as _setup_bin_path
+from .utils import warn_if_unexpected_mikeplus as _warn_if_unexpected_mikeplus
+
+_major_assembly_version = 25
 
 _install_root, _dll_dir_handle = _setup_bin_path(
-    major_assembly_version=24,
+    major_assembly_version=_major_assembly_version,
     fallback_mikeplus_install_root=_fallback_install_root,
     env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT",  # set this environment variable to use custom install path
     bin_path=Path("bin/x64"),
@@ -69,7 +72,9 @@ clr.AddReference("System.Runtime")
 clr.AddReference("System.Runtime.InteropServices")
 clr.AddReference("System.Data")
 clr.AddReference("NetTopologySuite")
-clr.AddReference("DHI.Amelia.DataModule")
+_warn_if_unexpected_mikeplus(
+    clr.AddReference("DHI.Amelia.DataModule"), _major_assembly_version, _install_root
+)
 clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")

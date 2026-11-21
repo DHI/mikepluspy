@@ -85,3 +85,11 @@ def test_2027_install_root_loads_2027_on_dotnet_10():
     assert wrong_year_warnings(report) == []
     assert_loaded_from_2027(report)
     assert report["runtime_major"] == 10
+
+
+@requires_install(MIKEPLUS_2026)
+def test_2026_install_root_warns_naming_expected_year_and_path():
+    report = import_mikeplus(MIKEPLUS_2026)
+
+    [warning] = wrong_year_warnings(report)
+    assert str(MIKEPLUS_2026) in warning

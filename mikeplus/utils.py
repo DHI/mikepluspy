@@ -178,6 +178,28 @@ def _try_setup_default_bin_path(
     )
 
 
+def warn_if_unexpected_mikeplus(
+    assembly: Any, major_assembly_version: int, install_root: Path | None
+) -> None:
+    """Warn if a loaded MIKE+ assembly is from another MIKE+ year than expected."""
+    found = int(assembly.GetName().Version.Major)
+    if found == major_assembly_version:
+        return
+    warnings.warn(
+        f"MIKE+Py expects MIKE+ {_mikeplus_year(major_assembly_version)} "
+        f"(assembly version {major_assembly_version}), but loaded MIKE+ "
+        f"{_mikeplus_year(found)} (assembly version {found}) from '{install_root}'. "
+        "Results may be wrong. Point MIKEPLUSPY_INSTALL_ROOT at the expected "
+        "MIKE+ install, or unset it.",
+        category=UserWarning,
+        stacklevel=2,
+    )
+
+
+def _mikeplus_year(major_assembly_version: int) -> int:
+    return major_assembly_version + 2002
+
+
 def to_sql(value: Any) -> str:
     """Convert a Python value to its SQL string representation.
 
