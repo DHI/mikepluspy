@@ -1,5 +1,5 @@
-from mikeplus.tables.base_table import BaseTable
-from mikeplus.tables.base_table import BaseColumns
+from mikeplus.tables.base_geometry_table import BaseGeometryTable
+from mikeplus.tables.base_geometry_table import BaseColumns
 
 class msm_RSTableColumns(BaseColumns):
     """Column names for msm_RS (Result files)."""
@@ -13,8 +13,22 @@ class msm_RSTableColumns(BaseColumns):
     """Format"""
     DefaultNo = "DefaultNo"
     """DefaultNo"""
+    SubmeshResultNo = "SubmeshResultNo"
+    """Submesh"""
+    SubmeshLowerLeftX = "SubmeshLowerLeftX"
+    """Lower left coordinate (X) [m]"""
+    SubmeshLowerLeftY = "SubmeshLowerLeftY"
+    """Lower left coordinate (Y) [m]"""
+    SubmeshCellSizeX = "SubmeshCellSizeX"
+    """Cell size (X) [m]"""
+    SubmeshCellSizeY = "SubmeshCellSizeY"
+    """Cell size (Y) [m]"""
+    SubmeshNoCellsX = "SubmeshNoCellsX"
+    """Number of cells (X)"""
+    SubmeshNoCellsY = "SubmeshNoCellsY"
+    """Number of cells (Y)"""
 
-class msm_RSTable(BaseTable):
+class msm_RSTable(BaseGeometryTable):
     """Table for msm_RS (Result files)."""
     
     @property
