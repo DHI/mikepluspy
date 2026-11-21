@@ -10,7 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Support for MIKE+ 2027.
 - Table classes for the new MIKE+ 2027 tables `m2d_ZoneDetails` and `m2d_ZoneExtents`, and the new MIKE+ 2027 columns in `msm_HParRDII`, `msm_RS` and `mw_FireFlow`.
 - Support for Python 3.15.
 
