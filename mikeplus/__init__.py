@@ -18,11 +18,9 @@ if _sysconfig.get_platform() not in ("win-amd64", "linux-x86_64"):
     )
 if _sys.platform == "win32":
     _runtime_config = "runtimeconfig.json"
-    _fallback_install_root: Path | None = Path("C:/Program Files (x86)/DHI/MIKE+/2027")
 else:
     # Microsoft.WindowsDesktop.App does not exist on Linux
     _runtime_config = "runtimeconfig.linux.json"
-    _fallback_install_root = None
 
 from pythonnet import load
 
@@ -34,10 +32,17 @@ load(
 )
 import clr
 
-from .utils import _warn_if_unexpected_mikeplus
+from .utils import _mikeplus_year, _warn_if_unexpected_mikeplus
 from .utils import setup_bin_path as _setup_bin_path
 
 _major_assembly_version = 25
+
+if _sys.platform == "win32":
+    _fallback_install_root: Path | None = Path(
+        f"C:/Program Files (x86)/DHI/MIKE+/{_mikeplus_year(_major_assembly_version)}"
+    )
+else:
+    _fallback_install_root = None
 
 _install_root, _dll_dir_handle = _setup_bin_path(
     major_assembly_version=_major_assembly_version,
