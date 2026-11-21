@@ -10,7 +10,7 @@ name = "mikeplus"
 version = "2026.1.0"
 dependencies = [
     "numpy>=2.3",
-    "pythonnet>=3.0.5",
+    "pythonnet>=3.2",
     "pandas>=2.3",
 ]
 authors = [
