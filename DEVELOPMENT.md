@@ -118,22 +118,24 @@ underscore-prefixed modules so the name says it.
 When a new version of MIKE+ is released, the following needs to be done before releasing a corresponing Python vesrion:
 
 1. Setup a local test environment with the new version of MIKE+.
-2. Set environment variable MIKEPLUSPY_INSTALL_ROOT to the root install directory of the new version (the parent folder of bin).
-3. Confirm assemblies are loaded via procmon or similar when running test suite.
-4. Update auto-generated tables (since database schema can change version to version)
+2. Set environment variable MIKEPLUSPY_INSTALL_ROOT to the root install directory of the new version (the parent folder of bin), or unset it. A value left over from the previous year loads that year's assemblies whatever `major_assembly_version` says; `import mikeplus` warns when this happens.
+3. Update the package init to link to the new version
+    - Copy `bin/x64/DHI.Mike.Install.dll` from the new MIKE+ install into `mikeplus/bin/` (when officially released)
+    - Update assembly version to match latest version (23 = 2025, 24 = 2026, 25 = 2027) and the fallback install root
+4. Check which .NET version the new MIKE+ targets: the `*.runtimeconfig.json` files beside its executables in `bin/x64` name it. Update both `mikeplus/bin/runtimeconfig.json` and `mikeplus/bin/runtimeconfig.linux.json` to match. Don't stay on the old runtime because imports still work: MIKE+ 2027 on .NET 8 imported cleanly but topology repair silently gave wrong results.
+5. Confirm assemblies are loaded via procmon or similar when running test suite.
+6. Update auto-generated tables (since database schema can change version to version)
     - Run `just generate-tables`
     - Check the git diff to see if the changes to auto generated tables make sense (it should be adding or removing columns)
-5. Run test suite, `just test` and `just test -m slow` (make sure all green)
-6. Run all notebooks (make sure all cells run with readable output)
-7. Be aware that runtimeconfig.json *may* need to change if MIKE+ runtime changes, though that should not happen often.
-8. Update the package init to link to the new version
-    - Update DHI.Mike.Install.dll in bin folder (when officially released)
-    - Update assembly version to match latest version (23 = 2025, 24 = 2026)
-9. Bump package version to match year of MIKE+ (e.g. 2026.0.0 for the first 2026 release)
-10. Update CI runner to use the new MIKE+ version
+    - Remove fallbacks tagged `TODO(<new year>)`
+7. Upgrade the test databases in `tests/testdata` to the new schema, so tests don't run a multi-year upgrade on every open. Open and save those with a `.mupp` in the MIKE+ GUI; open the others through MIKE+Py. Before and after, read every table and compare row counts and the values of shared columns; stop for a maintainer decision on any lost or changed data.
+8. Run test suite, `just test` and `just test -m slow` (make sure all green)
+9. Rerun all notebooks against the new MIKE+ and commit their outputs in their own commit (make sure all cells run with readable output)
+10. Bump package version to match year of MIKE+ (e.g. 2027.0.0 for the first 2027 release)
+11. Update CI runner to use the new MIKE+ version
     - Drop the Python versions that SPEC 0 has dropped: `requires-python`, classifiers, `[tool.pyrefly] python-version` and the oldest Python in the CI matrices (see `adr/0005-python-support-follows-spec-0-by-year-line.md`)
-11. In `CHANGELOG.md`, rename `[Unreleased]` to `[<version>] - <date>`, add an empty `[Unreleased]` above it, and update the link references at the bottom (see `adr/0003-keep-a-changelog.md`).
-12. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
+12. In `CHANGELOG.md`, rename `[Unreleased]` to `[<version>] - <date>`, add an empty `[Unreleased]` above it, and update the link references at the bottom (see `adr/0003-keep-a-changelog.md`).
+13. Do other changes associated with a standard MIKE+Py release that does not involve bumping MIKE+ versions.
 Note that the above list is a guideline and may not be exaustive. Automation of these steps is welcome - consider the current process best efforts.
 
 ## Documentation

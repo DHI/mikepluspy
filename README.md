@@ -25,10 +25,10 @@ uv pip install mikeplus
 > **Note**  
 > Use of MIKE+Py requires a valid MIKE+ license.
 
-To install a version compatible with a specific MIKE+ release year (e.g., MIKE+ 2025):
+Each MIKE+Py release line targets one MIKE+ year, and the latest needs MIKE+ 2027. For an older MIKE+, pin the matching release line (e.g., MIKE+ 2026):
 
 ```bash
-uv pip install mikeplus==2025.*
+uv pip install "mikeplus<2027"
 ```
 
 ## Quick Start

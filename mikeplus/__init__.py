@@ -1,6 +1,6 @@
 """MIKE+Py package."""
 
-__version__ = "2026.1.0"
+__version__ = "2027.0.0"
 
 
 import sys as _sys
@@ -18,11 +18,9 @@ if _sysconfig.get_platform() not in ("win-amd64", "linux-x86_64"):
     )
 if _sys.platform == "win32":
     _runtime_config = "runtimeconfig.json"
-    _fallback_install_root: Path | None = Path("C:/Program Files (x86)/DHI/MIKE+/2026")
 else:
     # Microsoft.WindowsDesktop.App does not exist on Linux
     _runtime_config = "runtimeconfig.linux.json"
-    _fallback_install_root = None
 
 from pythonnet import load
 
@@ -34,16 +32,27 @@ load(
 )
 import clr
 
+from .utils import _mikeplus_year, _warn_if_unexpected_mikeplus
 from .utils import setup_bin_path as _setup_bin_path
 
+_major_assembly_version = 25
+
+if _sys.platform == "win32":
+    _fallback_install_root: Path | None = Path(
+        f"C:/Program Files (x86)/DHI/MIKE+/{_mikeplus_year(_major_assembly_version)}"
+    )
+else:
+    _fallback_install_root = None
+
 _install_root, _dll_dir_handle = _setup_bin_path(
-    major_assembly_version=24,
+    major_assembly_version=_major_assembly_version,
     fallback_mikeplus_install_root=_fallback_install_root,
     env_var_name_install_root="MIKEPLUSPY_INSTALL_ROOT",  # set this environment variable to use custom install path
     bin_path=Path("bin/x64"),
 )
 
-#  keep here for backward compatibility (mikeio1d uses) ... remove in 2026.0.0
+# TODO(2028): remove once mikeio1d stops calling mikeplus.MikeImport.ActiveProduct().InstallRoot
+# (mikeio1d 1.5.1 still does).
 try:
     from DHI.Mike.Install import (
         MikeImport,
@@ -69,7 +78,9 @@ clr.AddReference("System.Runtime")
 clr.AddReference("System.Runtime.InteropServices")
 clr.AddReference("System.Data")
 clr.AddReference("NetTopologySuite")
-clr.AddReference("DHI.Amelia.DataModule")
+_warn_if_unexpected_mikeplus(
+    clr.AddReference("DHI.Amelia.DataModule"), _major_assembly_version, _install_root
+)
 clr.AddReference("DHI.Amelia.DataModule.Interface")
 clr.AddReference("DHI.Amelia.Infrastructure.Interface")
 clr.AddReference("DHI.Amelia.GlobalUtility")

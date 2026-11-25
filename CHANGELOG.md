@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2027.0.0] - 2026-11-25
+
+### Added
+
+- Table classes for the new MIKE+ 2027 tables `m2d_ZoneDetails` and `m2d_ZoneExtents`, and the new MIKE+ 2027 columns in `msm_HParRDII`, `msm_RS` and `mw_FireFlow`.
+- Support for Python 3.15.
+
+### Changed
+
+- MIKE+Py requires MIKE+ 2027 and runs on the .NET 10 runtime installed with it. If you stay on MIKE+ 2026, pin `mikeplus<2027`.
+- `import mikeplus` warns when the MIKE+ it loads is a different year from the one this release expects, for example because `MIKEPLUSPY_INSTALL_ROOT` still points at an older install. The warning names the expected MIKE+ year, the version found and the install root.
+- `msm_RS` is a geometry table, because MIKE+ 2027 gave it a geometry.
+- The minimum pythonnet is 3.2, the first version that starts on Python 3.15 and runs .NET 10.
+
+### Removed
+
+- Support for Python 3.12. MIKE+Py now requires Python 3.13 or later. On Python 3.12, upgrade Python or stay on 2026.1.x, which supports MIKE+ 2026 only.
+
+### Fixed
+
+- `from mikeplus.utilities import ...` no longer fails in Jupyter and other interactive interpreters.
+
 ## [2026.1.0] - 2026-10-08
 
 ### Added
@@ -218,7 +240,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Fix setting the value of a database does not auto cast values. Int value can accept as double value now.
 - Fix inserting fails silently when no value is provided for 'Seq'.
 
-[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2026.1.0...HEAD
+[Unreleased]: https://github.com/DHI/mikepluspy/compare/v2027.0.0...HEAD
+[2027.0.0]: https://github.com/DHI/mikepluspy/compare/v2026.1.0...v2027.0.0
 [2026.1.0]: https://github.com/DHI/mikepluspy/compare/v2026.0.0...v2026.1.0
 [2026.0.0]: https://github.com/DHI/mikepluspy/compare/v2025.6.0...v2026.0.0
 [2025.6.0]: https://github.com/DHI/mikepluspy/compare/v2025.5.0...v2025.6.0

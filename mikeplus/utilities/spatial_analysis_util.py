@@ -4,12 +4,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import clr
 from DHI.Amelia.Infrastructure.Interface.UtilityHelper import GeoAPIHelper
-from ThinkGeo.Core import (
-    BaseShape,
-    GeographyUnit,
-    PointShape,
-)
+
+# In interactive interpreters pythonnet preloads every type of an imported
+# assembly, and one ThinkGeo.Core type needs Microsoft.Data.Sqlite, which MIKE+
+# doesn't ship.
+_preload = clr.getPreload()
+clr.setPreload(False)
+try:
+    from ThinkGeo.Core import (
+        BaseShape,
+        GeographyUnit,
+        PointShape,
+    )
+finally:
+    clr.setPreload(_preload)
 
 if TYPE_CHECKING:
     from ..database import Database

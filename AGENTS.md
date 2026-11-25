@@ -9,7 +9,7 @@ This repo and everything around it (commits, PRs, issues, docs, releases) is pub
 ## Environment
 
 - Importing `mikeplus` loads coreclr and MIKE+ assemblies from `C:/Program Files (x86)/DHI/MIKE+/<year>`. Override with `MIKEPLUSPY_INSTALL_ROOT` (parent of `bin`), which is required on Linux.
-- `major_assembly_version` in `mikeplus/__init__.py` must match the installed MIKE+ (23 = 2025, 24 = 2026). Package version tracks the MIKE+ year (`2026.x.x`).
+- `major_assembly_version` in `mikeplus/__init__.py` must match the installed MIKE+ (23 = 2025, 24 = 2026, 25 = 2027). Package version tracks the MIKE+ year (`2027.x.x`).
 - Import order is enforced by `mikeplus/conflicts.py`: `mikeio1d` before `mikeplus` raises; `mikeio` in the same process warns. `MIKEPLUSPY_DISABLE_CONFLICT_CHECKS=true` disables.
 
 ## Commands
